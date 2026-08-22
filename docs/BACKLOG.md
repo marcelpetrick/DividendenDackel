@@ -75,6 +75,14 @@ Each task names the `Vision.md` sections it satisfies.
 - [ ] **F8** `MarketDataProvider` interface, provider registry, per-data-type
       priority + fallback chain honouring rate limits, and normalization into
       domain models. Unit tests for fallback. — §32, §33
+- [ ] **F8a** SEC EDGAR adapter — **keyless**, enabled by default. Ticker/ISIN
+      to CIK resolution, `companyfacts` dividend-per-share history, filings and
+      company facts for US listings. Polite `User-Agent` and the 10 req/s limit
+      enforced by the coordinator. Real dividend history, no user setup.
+      — §32, §46, §77
+- [ ] **F8b** FX rate adapter (Frankfurter / ECB) — **keyless**, enabled by
+      default. Daily reference rates powering multi-currency totals (D7).
+      — §32, §46, §77
 - [ ] **F12** Data Status screen: provider health, active operations, cache hit
       rate, rate-limit reset times, last error. Widget test. — §41, §42, §43
 
@@ -189,9 +197,11 @@ Not part of MVP 1. Listed so the plan is complete.
       `docs/data-providers.md`, `docs/research-score.md`, `docs/privacy.md`,
       `docs/releases.md`. (`README.md`, `LICENSE`, `CONTRIBUTING.md` and
       `CHANGELOG.md` are done — see R4a.) — §47, §75, §81, §82
-- [ ] **R5** Real provider adapters (Financial Modeling Prep, Finnhub, Alpha
-      Vantage, SEC EDGAR) behind the provider interface, each with fixture
-      contract tests and a licensing entry in `docs/data-providers.md`. No
-      adapter merges without that documentation. — §46, §47, §77
+- [ ] **R5** *Optional* keyed provider adapters (Financial Modeling Prep,
+      Finnhub, Alpha Vantage) behind the provider interface, activated only
+      when the user supplies a key, each with fixture contract tests and a
+      licensing entry in `docs/data-providers.md`. No adapter merges without
+      that documentation. The keyless SEC EDGAR and FX adapters are F8a/F8b and
+      ship enabled. — §46, §47, §77
 - [ ] **R6** Release readiness: smoke-test Android 10 and Linux builds, verify
       migration path, tag `v0.1.0`. — §59, §88

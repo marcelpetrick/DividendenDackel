@@ -102,15 +102,42 @@ flutter test
 
 ## Data providers
 
-The architecture is provider-agnostic. Because the app talks to providers
-directly from the client, **no privileged API secret is embedded in the
-released application** — keys are supplied by the user and stored locally.
+**The app works with real data out of the box. You do not need an API key, and
+you are not asked for one.**
 
-The app is designed to be fully usable without any API key at all, from bundled
-sample data and the local cache.
+It ships with two genuinely keyless public data sources, used by default:
+
+| Source | Provides | Key required |
+| --- | --- | --- |
+| [SEC EDGAR](https://www.sec.gov/edgar) | Dividend history, filings and company facts for US-listed companies | none |
+| [Frankfurter / ECB](https://frankfurter.dev) | Daily foreign-exchange reference rates | none |
+
+SEC EDGAR publishes the actual declared dividend-per-share history a company
+filed, which is what the dividend CAGR and the forecast are computed from — so
+those numbers are real, not sample values. Both sources only require polite
+use: a identifying `User-Agent` and respect for their rate limits, which the
+Request Coordinator enforces.
+
+Where those two do not reach — live quotes, non-US dividend calendars, news —
+the app falls back to a **bundled sample dataset** so every screen is still
+populated and explorable. Sample-derived values are labelled as such and are
+never presented as market data.
+
+Optionally, you can add your own key for a richer provider (Financial Modeling
+Prep, Finnhub, Alpha Vantage) in Settings. That is an upgrade, not a
+requirement.
+
+### Why the app cannot provision keyed providers for you
+
+Providers like FMP or Finnhub require a secret credential. Shipping one inside
+the app would not make it secret — a compiled application can be inspected —
+and it would breach those providers' terms. Vision.md §34 rules it out.
+So the app uses sources that need no secret at all, and treats user-supplied
+keys as opt-in.
 
 Provider licensing terms are documented per provider in
-`docs/data-providers.md` before any adapter is merged.
+[`docs/data-providers.md`](docs/data-providers.md) before any adapter is
+merged.
 
 ## Not goals
 
