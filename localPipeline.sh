@@ -16,6 +16,7 @@ trap 'rm -rf "${PIPELINE_LOG_DIR}"' EXIT
 readonly PINNED_FLUTTER_VERSION="3.44.7"
 readonly REQUIRED_MIN_SDK="29"
 readonly GRADLE_FILE="android/app/build.gradle.kts"
+readonly APP_COMMIT="${APP_COMMIT:-development build}"
 
 declare -a SUMMARY_LINES=()
 
@@ -208,7 +209,8 @@ assert_android_compatibility() {
 
 build_linux() {
     local log_path="${PIPELINE_LOG_DIR}/build-linux.log"
-    if ! run_with_log "${log_path}" flutter build linux --release; then
+    if ! run_with_log "${log_path}" flutter build linux --release \
+        --dart-define="APP_COMMIT=${APP_COMMIT}"; then
         BUILD_LINUX_DETAILS="build failed"
         return 1
     fi
@@ -223,7 +225,8 @@ build_linux() {
 
 build_android() {
     local log_path="${PIPELINE_LOG_DIR}/build-android.log"
-    if ! run_with_log "${log_path}" flutter build apk --release; then
+    if ! run_with_log "${log_path}" flutter build apk --release \
+        --dart-define="APP_COMMIT=${APP_COMMIT}"; then
         BUILD_ANDROID_DETAILS="build failed"
         return 1
     fi

@@ -68,7 +68,7 @@ Each task names the `Vision.md` sections it satisfies.
       Also verify both themes against WCAG AA contrast for body text, labels
       and the positive/negative/estimate tones, and check them at the largest
       supported text scale. — §26, §27
-- [ ] **F11** Settings + local API key storage (user-supplied keys, never
+- [x] **F11** Settings + local API key storage (user-supplied keys, never
       embedded secrets), provider enable/disable, About screen with version,
       build number, commit SHA. — §34, §62, §80
 - [ ] **F6** Cache metadata + configurable TTL policy per data type with the

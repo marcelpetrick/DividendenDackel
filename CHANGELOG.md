@@ -31,6 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
   between a bottom bar and a navigation rail, and light and dark themes.
 - Persisted System, Light and Dark theme selection in Settings, with verified
   WCAG AA semantic-colour contrast and large-text layout coverage.
+- Data-source settings with keyless-provider toggles and secure, user-supplied
+  API-key storage on Android and Linux; release artifacts now receive their
+  source commit for the About screen.
 
 ### Changed
 

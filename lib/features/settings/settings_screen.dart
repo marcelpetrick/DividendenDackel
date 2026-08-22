@@ -34,7 +34,8 @@ class SettingsScreen extends ConsumerWidget {
               'The app works without an API key. Optional keys are stored '
               'only on this device.',
             ),
-            onTap: null,
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/settings/data-sources'),
           ),
           const Divider(height: 1),
           Padding(

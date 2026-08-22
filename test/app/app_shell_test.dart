@@ -7,6 +7,7 @@ import 'package:dividendendackel/app/theme/theme_preference.dart';
 import 'package:dividendendackel/app/widgets/value_labels.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/features/settings/about_screen.dart';
+import 'package:dividendendackel/features/settings/data_source_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -31,6 +32,9 @@ void main() {
         overrides: [
           themePreferenceStoreProvider.overrideWithValue(
             _MemoryThemePreferenceStore(),
+          ),
+          dataSourceSettingsStoreProvider.overrideWithValue(
+            _MemoryDataSourceSettingsStore(),
           ),
           clockProvider.overrideWithValue(FakeClock(DateTime.utc(2026, 8, 22))),
           sampleDataProvider.overrideWith((Ref ref) async {}),
@@ -182,6 +186,42 @@ void main() {
       );
     });
 
+    testWidgets('stores provider keys without displaying their value', (
+      WidgetTester tester,
+    ) async {
+      await pumpApp(tester);
+      await tester.tap(find.byTooltip('Settings'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Data sources'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('SEC EDGAR'), findsOneWidget);
+      expect(find.text('Frankfurter / ECB'), findsOneWidget);
+      await tester.scrollUntilVisible(
+        find.text('Financial Modeling Prep'),
+        200,
+      );
+      final Finder providerCard = find.ancestor(
+        of: find.text('Financial Modeling Prep'),
+        matching: find.byType(Card),
+      );
+      await tester.tap(
+        find.descendant(of: providerCard, matching: find.text('Add key')),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextFormField), 'top-secret-value');
+      await tester.tap(find.text('Save securely'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('top-secret-value'), findsNothing);
+      expect(find.text('API key stored securely'), findsOneWidget);
+      expect(
+        find.descendant(of: providerCard, matching: find.text('Replace key')),
+        findsOneWidget,
+      );
+    });
+
     testWidgets('settings remain usable at large text scale', (
       WidgetTester tester,
     ) async {
@@ -271,4 +311,38 @@ final class _MemoryThemePreferenceStore implements ThemePreferenceStore {
 
   @override
   Future<void> save(ThemeMode mode) async => this.mode = mode;
+}
+
+final class _MemoryDataSourceSettingsStore implements DataSourceSettingsStore {
+  final Map<MarketDataSource, DataSourceConfiguration> configurations =
+      <MarketDataSource, DataSourceConfiguration>{
+        for (final MarketDataSource source in MarketDataSource.values)
+          source: DataSourceConfiguration(
+            source: source,
+            enabled: source.enabledByDefault,
+            hasApiKey: false,
+          ),
+      };
+
+  @override
+  Future<DataSourceConfiguration> load(MarketDataSource source) async =>
+      configurations[source]!;
+
+  @override
+  Future<void> removeApiKey(MarketDataSource source) async {
+    configurations[source] = configurations[source]!.copyWith(
+      enabled: false,
+      hasApiKey: false,
+    );
+  }
+
+  @override
+  Future<void> setApiKey(MarketDataSource source, String apiKey) async {
+    configurations[source] = configurations[source]!.copyWith(hasApiKey: true);
+  }
+
+  @override
+  Future<void> setEnabled(MarketDataSource source, bool enabled) async {
+    configurations[source] = configurations[source]!.copyWith(enabled: enabled);
+  }
 }
