@@ -1,7 +1,7 @@
-# Vision.md — Dividend Tracker
+# Vision.md — DividendenDackel
 
 > **Document type:** Product & Engineering Requirements  
-> **Product name:** Dividend Tracker  
+> **Product name:** DividendenDackel  
 > **Platforms:** Android 10+ and Linux x86_64  
 > **Technology:** Flutter + Dart  
 > **Architecture:** Client-first, local-first, provider-agnostic  
@@ -12,7 +12,7 @@
 
 ## 1. Product vision
 
-**Dividend Tracker** is a portfolio companion focused on dividends, upcoming portfolio events, financial research, and clear daily insights.
+**DividendenDackel** is a portfolio companion focused on dividends, upcoming portfolio events, financial research, and clear daily insights.
 
 It is not intended to be another chart-heavy trading app.
 
@@ -1867,7 +1867,7 @@ Display:
 Example:
 
 ```text
-Dividend Tracker
+DividendenDackel
 0.3.0 (42)
 Commit: a83f91c
 ```
@@ -2509,7 +2509,7 @@ Parqet currently demonstrates several useful dividend UX patterns:
 - dividend metrics,
 - monthly dividend income forecasting.
 
-Dividend Tracker should use these ideas as product inspiration but implement its own design and interaction model.
+DividendenDackel should use these ideas as product inspiration but implement its own design and interaction model.
 
 Reference:
 
@@ -2538,7 +2538,7 @@ Reference:
 
 # 90. Final product statement
 
-> **Dividend Tracker turns a local portfolio into a clear timeline of dividends, events, research changes, and upcoming income.**
+> **DividendenDackel turns a local portfolio into a clear timeline of dividends, events, research changes, and upcoming income.**
 
 The app should make financial information understandable without hiding the underlying data.
 

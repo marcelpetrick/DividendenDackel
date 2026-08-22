@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:dividend_tracker/core/errors/failure.dart';
+import 'package:dividendendackel/core/errors/failure.dart';
 
 /// The outcome of an operation that can fail in a typed way (Vision.md §55).
 ///

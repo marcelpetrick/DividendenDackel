@@ -1,8 +1,16 @@
-# DividendenDackel — Dividend Tracker
+# DividendenDackel 🐕
+
+> *The dachshund that fetches your dividends.*
 
 [![CI](https://github.com/marcelpetrick/DividendenDackel/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/marcelpetrick/DividendenDackel/actions/workflows/ci.yml)
 
-**Dividend Tracker turns a local portfolio into a clear timeline of dividends, events, research changes, and upcoming income.**
+**DividendenDackel turns a local portfolio into a clear timeline of dividends, events, research changes, and upcoming income.**
+
+A *Dackel* (dachshund) was bred to go down the hole and fetch what is hiding
+there. This one fetches dividend dates, earnings and filings out of a pile of
+financial data sources — and drops them at your feet, sorted by what actually
+matters today. Short legs, long memory, local-first: it keeps everything it has
+fetched, so it still has answers when the network does not.
 
 It is a portfolio companion focused on dividends, upcoming portfolio events and
 clear daily insights — deliberately *not* another chart-heavy trading app. The
@@ -106,6 +114,6 @@ Provider licensing terms are documented per provider in
 
 ## Not goals
 
-Dividend Tracker is not a broker, not an order execution platform, not a tax
+DividendenDackel is not a broker, not an order execution platform, not a tax
 filing application, not a social trading network, not an AI trading bot and not
 an investment-advice service.

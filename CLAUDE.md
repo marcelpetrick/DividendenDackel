@@ -1,4 +1,4 @@
-# Working agreement — Dividend Tracker
+# Working agreement — DividendenDackel
 
 `Vision.md` is the specification. `docs/BACKLOG.md` is the work queue.
 
@@ -22,6 +22,19 @@ Never accumulate unrelated changes into one commit. Never commit red checks.
 Requirement implemented · Android considered · Linux considered · loading,
 empty, error and offline states · tests added or updated · format, analyze and
 tests pass · diff self-reviewed · docs updated if needed · atomic commit.
+
+## Voice and naming
+
+The product is **DividendenDackel** — a dachshund that fetches dividends out of
+a pile of financial data. The name is the identity; use it everywhere the user
+can see it (window title, About, store listing, docs).
+
+- User-facing copy may carry the identity lightly — empty states, onboarding
+  and the fetch/retrieval metaphor are fair game.
+- Code identifiers stay plain and descriptive: `RequestCoordinator`,
+  `DividendForecast`, not themed names. Maintainability beats the joke.
+- The tone stays calm and trustworthy (Vision.md §24). Funny name, serious
+  numbers — never cute about money, losses or estimates.
 
 ## Hard constraints
 

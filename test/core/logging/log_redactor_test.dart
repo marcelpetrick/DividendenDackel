@@ -1,4 +1,4 @@
-import 'package:dividend_tracker/core/logging/logging.dart';
+import 'package:dividendendackel/core/logging/logging.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
