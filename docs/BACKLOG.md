@@ -15,6 +15,12 @@ Each task names the `Vision.md` sections it satisfies.
 - [x] **B1** Scaffold Flutter app for Android + Linux — §5, §51
 - [x] **B2** Pin `minSdk 29` / `targetSdk 36`, version `0.1.0+1` — §4.1, §58, §60, §61
 - [x] **B3** Strict static analysis — §67
+- [x] **R1** Local pipeline script + GitHub Actions PR CI (format, analyze,
+      test, both platform builds, `minSdk` 29 assertion). *Pulled forward from
+      Phase 5 on request: every later commit is then verified on a clean
+      machine, not only on the development box.* — §58, §68, §70, §73
+- [x] **R4a** README + GPLv3 `LICENSE`. *Pulled forward from Phase 5 on
+      request.* — §81
 
 ---
 
@@ -82,6 +88,10 @@ Each task names the `Vision.md` sections it satisfies.
       already-paid breakdown. — §10
 - [ ] **D6** Dividend Quality Score with per-factor positive/risk explanations.
       Unit tests. — §14
+- [ ] **D7** Multi-currency handling: per-instrument currency, a display
+      currency, explicit FX rates with their own provenance and staleness, and
+      currency exposure. Totals must never silently mix currencies. Unit tests.
+      — §20, §45
 
 ---
 
@@ -116,24 +126,49 @@ Each task names the `Vision.md` sections it satisfies.
       — §23
 - [ ] **Q7** Local notifications with disabled/important-only/all modes and
       non-manipulative wording. — §22, §85
-- [ ] **Q8** Performance pass: fast cached Today, no jank in calendar scrolling,
+- [ ] **Q8** App icon and branding for both platforms, replacing the default
+      Flutter launcher icon. — §24
+- [ ] **Q9** Performance pass: fast cached Today, no jank in calendar scrolling,
       lazy deep research, no full-history loads at startup. — §78
+
+---
+
+## Continuous — self-review
+
+- [ ] **S1** Recurring engineering self-review recorded in `worst_findings.md`,
+      ordered by impact, each finding either fixed or explicitly justified.
+      Re-run after every phase. Adopted from the author's CuteLingoExpress
+      convention. — §66
+
+---
+
+## Phase 6 — Post-1.0 candidates (Vision.md §52)
+
+Not part of MVP 1. Listed so the plan is complete.
+
+- [ ] **P1** Calendar export (iCal) and CSV import
+- [ ] **P2** Broker import
+- [ ] **P3** Multiple portfolios
+- [ ] **P4** Encrypted Android/Linux sync
+- [ ] **P5** Home-screen widgets and Linux tray mode
+- [ ] **P6** Advanced research history
+- [ ] **P7** German/English localization — not required by the vision, but the
+      product's audience makes it worth deciding on before 1.0
 
 ---
 
 ## Phase 5 — Delivery
 
-- [ ] **R1** GitHub Actions PR CI: format, analyze, test, build Android, build
-      Linux, assert `minSdk` is still 29. — §58, §68
+- [x] **R1** *Done early — see Phase 0.*
 - [ ] **R2** Dependency + toolchain freshness workflows and `dependabot.yml`.
       — §71, §72
 - [ ] **R3** Release workflow on `v*` tags: version/tag match, checks, APK,
       Linux tarball, checksums, GitHub Release. Pinned action SHAs, minimal
       permissions. — §69, §70, §73
-- [ ] **R4** Documentation set: `README.md`, `CONTRIBUTING.md`, `CHANGELOG.md`,
-      `LICENSE`, `docs/architecture.md`, `docs/data-providers.md`,
-      `docs/research-score.md`, `docs/privacy.md`, `docs/releases.md`. — §47,
-      §75, §81, §82
+- [ ] **R4b** Remaining documentation set: `CONTRIBUTING.md`, `CHANGELOG.md`,
+      `docs/architecture.md`, `docs/data-providers.md`, `docs/research-score.md`,
+      `docs/privacy.md`, `docs/releases.md`. (`README.md` and `LICENSE` are
+      done — see R4a.) — §47, §75, §81, §82
 - [ ] **R5** Real provider adapters (Financial Modeling Prep, Finnhub, Alpha
       Vantage, SEC EDGAR) behind the provider interface, each with fixture
       contract tests and a licensing entry in `docs/data-providers.md`. No
