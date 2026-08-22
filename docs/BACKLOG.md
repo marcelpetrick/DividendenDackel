@@ -138,7 +138,7 @@ Each task names the `Vision.md` sections it satisfies.
       - cumulative income curve across the year;
       - every estimated figure separated from confirmed, never summed silently
         into one number (§9.4).
-- [ ] **D6** Dividend Quality Score with per-factor positive/risk explanations.
+- [x] **D6** Dividend Quality Score with per-factor positive/risk explanations.
       Unit tests. — §14
 - [ ] **D8** Dividend tax model: gross and net for every dividend figure, with
       foreign withholding tax, the treaty cap, the creditable and reclaimable

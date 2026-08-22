@@ -6,7 +6,7 @@ including a future session — can pick up without re-reading the whole history.
 - **Last updated:** 2026-08-23
 - **Version:** 0.1.0+1 (pre-release, `0.x.y`)
 - **Branch:** `master` (local work ahead of `origin`)
-- **Quality gate:** green — 389 tests, analyzer clean, both platforms build
+- **Quality gate:** green — 393 tests, analyzer clean, both platforms build
 
 ---
 
@@ -58,6 +58,7 @@ Today ranking lands with T1.
 | Instrument add flows + portfolio overview | D3 | done |
 | Month/year/agenda dividend calendar | D4 | done |
 | 24-month dividend income forecast | D5 | done |
+| Explainable Dividend Quality Score | D6 | done |
 
 ### What is left
 
@@ -182,6 +183,11 @@ dart format .
   estimated components; TTM comparisons use reported payments only. The UI
   states that this is not broker reconciliation and shows every instrument’s
   rule-based explanation or limitation.
+- **Dividend quality is normalized over known evidence only.** D6 emits no
+  score without completed reported history and never turns an unavailable
+  fundamental into a zero. The factor weights, thresholds and limitations are
+  documented in [`dividend-quality-score.md`](dividend-quality-score.md), and
+  every score carries its positive, risk and neutral explanations.
 - **A malformed stored amount fails loudly** as a `ParsingFailure` rather than
   parsing to something plausible.
 - **Value objects live in `lib/domain/value_objects/`**, a refinement of the
