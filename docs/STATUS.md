@@ -6,7 +6,7 @@ including a future session — can pick up without re-reading the whole history.
 - **Last updated:** 2026-08-22
 - **Version:** 0.1.0+1 (pre-release, `0.x.y`)
 - **Branch:** `master` (pushed to `origin`)
-- **Quality gate:** green — `./localPipeline.sh --noRun` passes, 221 tests, both platforms build
+- **Quality gate:** green — 230 tests, analyzer clean, both platforms build
 
 ---
 
@@ -19,9 +19,14 @@ task queue in [`BACKLOG.md`](BACKLOG.md); working rules in
 
 ## 2. Where we are
 
-**Foundation complete; product UI is next.** Everything below the UI is built
-and tested. `flutter run -d linux` still shows the Flutter counter demo — that
-is replaced by **F10**, the next task.
+**The app is real.** `flutter run -d linux` now opens DividendenDackel: four
+sections (Today, Calendar, Portfolio, Research), a responsive frame that
+switches between a bottom bar and a navigation rail, light and dark themes,
+Settings, About with the version, and a Data Status screen. Sample data is
+seeded on first launch, so the screens are populated with no API key.
+
+The screens are functional but thin — real calendar views, forecasts and the
+Today ranking land with D3–D5 and T1.
 
 ### Done
 
@@ -39,6 +44,7 @@ is replaced by **F10**, the next task.
 | Repositories over the database | F5 | done |
 | Bundled sample dataset | F9 | done |
 | App icon, both platforms | Q8 | done |
+| Application shell, themes, navigation | F10 | done |
 
 ### What is left
 
@@ -46,11 +52,11 @@ Ordered by what unblocks a usable app soonest.
 
 | Next | Task | Why it matters |
 | --- | --- | --- |
-| 1 | **F10** app shell | Riverpod, routing, responsive nav, light/dark. The app stops looking like a demo. |
-| 2 | **D3** portfolio | Search, add holding, portfolio overview. |
-| 3 | **D4** dividend calendar | Month/year/agenda, ex-date vs payment toggle. |
-| 4 | **D5** monthly forecast | Income per month, confirmed vs estimated. |
-| 5 | **T1** Today screen | The actual product experience. |
+| 1 | **D3** portfolio | Search, add holding, portfolio overview. |
+| 2 | **D4** dividend calendar | Month/year/agenda, ex-date vs payment toggle. |
+| 3 | **D5** monthly forecast | Income per month, confirmed vs estimated. |
+| 4 | **T1** Today screen | The actual product experience. |
+| 5 | **Q10** theme selection | System/Light/Dark chooser, persisted. |
 | 6 | **E1/E2** end-to-end + artifact verification | Proof it works, not just that it compiles. |
 
 Then: D1 CAGR · D2 forecast engine · D6 quality score · D7 currency ·
@@ -128,7 +134,12 @@ dart format .
 
 ## 6. Known issues and follow-ups
 
-- `lib/main.dart` is still the generated counter demo (fixed by F10).
+- Screens are functional but minimal; the calendar is an agenda list and the
+  Today ranking is not implemented yet.
+- Theme mode is fixed to "follow system"; the chooser is Q10.
+- Widget tests run without a database on purpose: drift's stream machinery
+  outlives the widget tree and the test binding reports it as a pending timer.
+  The data layer is covered by its own tests.
 - No provider adapters yet, so nothing fetches live data (F8a, F8b, R5).
 - The withholding tax table in `dividend-taxation.md` is a design sketch; the
   rates must be verified against the BZSt publication before release.

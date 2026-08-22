@@ -58,9 +58,16 @@ Each task names the `Vision.md` sections it satisfies.
       Flutter launcher icon: a Dackel fetching a coin, tying the name to the
       product's own fetch-and-retrieve metaphor. *Moved up from Phase 4 on
       request.* — §24
-- [ ] **F10** App shell: Riverpod, routing, responsive scaffold (bottom nav on
+- [x] **F10** App shell: Riverpod, routing, responsive scaffold (bottom nav on
       Android, navigation rail on Linux), light/dark/system themes with
       accessible contrast, design tokens. Widget tests. — §6, §24, §25, §26, §54
+- [ ] **Q10** Theme selection: a System / Light / Dark control in Settings,
+      persisted across launches, applied instantly. The two themes and the
+      semantic palette exist (F10); what is missing is the user's choice and
+      its persistence, which Vision.md §26 requires alongside System.
+      Also verify both themes against WCAG AA contrast for body text, labels
+      and the positive/negative/estimate tones, and check them at the largest
+      supported text scale. — §26, §27
 - [ ] **F11** Settings + local API key storage (user-supplied keys, never
       embedded secrets), provider enable/disable, About screen with version,
       build number, commit SHA. — §34, §62, §80
