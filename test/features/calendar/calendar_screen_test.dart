@@ -112,7 +112,8 @@ void main() {
     await tester.pump();
 
     expect(find.text('25 August 2026 · 3 events'), findsOneWidget);
-    expect(find.textContaining('Your gross payment: €20.00'), findsOneWidget);
+    expect(find.textContaining('Gross €20.00'), findsOneWidget);
+    expect(find.textContaining('Net (estimated)'), findsOneWidget);
     expect(find.text('Confirmed'), findsWidgets);
   });
 

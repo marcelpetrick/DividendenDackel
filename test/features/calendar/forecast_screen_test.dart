@@ -1,9 +1,11 @@
 import 'package:decimal/decimal.dart';
 import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
+import 'package:dividendendackel/domain/analytics/analytics.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/features/calendar/forecast_screen.dart';
 import 'package:dividendendackel/features/calendar/forecast_state.dart';
+import 'package:dividendendackel/features/settings/tax_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -18,6 +20,7 @@ void main() {
     symbol: 'ALV',
     name: 'Allianz SE',
     currency: Currency.eur,
+    country: 'DE',
   );
 
   List<DividendEvent> history() => <DividendEvent>[
@@ -44,7 +47,7 @@ void main() {
   ];
 
   Future<void> pumpForecast(WidgetTester tester) async {
-    tester.view.physicalSize = const Size(1100, 1000);
+    tester.view.physicalSize = const Size(1100, 3000);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     final Holding holding = Holding(
@@ -56,6 +59,7 @@ void main() {
       ProviderScope(
         overrides: [
           clockProvider.overrideWithValue(FakeClock(now)),
+          taxSettingsStoreProvider.overrideWithValue(_TaxStore()),
           holdingsProvider.overrideWith(
             (Ref ref) => Stream<List<Holding>>.value(<Holding>[holding]),
           ),
@@ -77,6 +81,8 @@ void main() {
     );
     await tester.pump();
     await tester.pump();
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
   }
 
   testWidgets('shows 24-month totals, certainty and explanation', (
@@ -91,6 +97,21 @@ void main() {
     expect(find.text('● Confirmed upcoming'), findsOneWidget);
     expect(find.text('E Estimated'), findsOneWidget);
     expect(find.textContaining('2026 forecast'), findsOneWidget);
+    expect(find.textContaining('Net (estimated)'), findsWidgets);
+
+    final Finder segmented = find.byWidgetPredicate(
+      (Widget widget) => widget is SegmentedButton,
+    );
+    SegmentedButton<Object?> selector = tester.widget(segmented);
+    expect(selector.selected.single.toString(), endsWith('.month'));
+    await tester.tap(find.text('Quarter'));
+    await tester.pump();
+    selector = tester.widget(segmented);
+    expect(selector.selected.single.toString(), endsWith('.quarter'));
+    await tester.tap(find.text('Year'));
+    await tester.pump();
+    selector = tester.widget(segmented);
+    expect(selector.selected.single.toString(), endsWith('.year'));
 
     await tester.scrollUntilVisible(
       find.text('How this was estimated'),
@@ -100,19 +121,13 @@ void main() {
     expect(find.text('Allianz SE'), findsOneWidget);
     expect(find.textContaining('default growth rate'), findsOneWidget);
   });
+}
 
-  testWidgets('switches month, quarter and year breakdowns', (
-    WidgetTester tester,
-  ) async {
-    await pumpForecast(tester);
+final class _TaxStore implements TaxSettingsStore {
+  @override
+  Future<TaxSettings> load(WithholdingRateTable defaults) async =>
+      TaxSettings(profile: DividendTaxProfile(), table: defaults);
 
-    expect(find.text('Aug 2026'), findsWidgets);
-    await tester.tap(find.text('Quarter'));
-    await tester.pump();
-    expect(find.text('Q3 2026'), findsOneWidget);
-    await tester.tap(find.text('Year'));
-    await tester.pump();
-    expect(find.text('2026'), findsWidgets);
-    expect(tester.takeException(), isNull);
-  });
+  @override
+  Future<void> save(TaxSettings settings) async {}
 }

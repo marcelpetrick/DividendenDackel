@@ -1,10 +1,12 @@
 import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
 import 'package:dividendendackel/app/widgets/async_value_view.dart';
+import 'package:dividendendackel/app/widgets/gross_net_amount.dart';
 import 'package:dividendendackel/app/widgets/value_labels.dart';
 import 'package:dividendendackel/domain/analytics/analytics.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/features/portfolio/add_instrument_dialog.dart';
+import 'package:dividendendackel/features/tax/tax_estimates.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -29,6 +31,12 @@ class PortfolioScreen extends ConsumerWidget {
     final List<DividendEvent> dividends =
         dividendData.value ?? const <DividendEvent>[];
     final DateTime now = ref.watch(clockProvider).now();
+    final AsyncValue<PortfolioTaxEstimates> currentTax = ref.watch(
+      portfolioTaxEstimatesProvider(now.year),
+    );
+    final AsyncValue<PortfolioTaxEstimates> nextTax = ref.watch(
+      portfolioTaxEstimatesProvider(now.year + 1),
+    );
 
     return Scaffold(
       body: AsyncValueView<List<Holding>>(
@@ -42,11 +50,17 @@ class PortfolioScreen extends ConsumerWidget {
                 dividends: dividends,
                 asOf: now,
               );
+          final _TaxWindow taxWindow = _taxWindow(
+            dividends,
+            <AsyncValue<PortfolioTaxEstimates>>[currentTax, nextTax],
+            <String>{for (final Holding holding in data) holding.instrumentId},
+          );
           return _PortfolioBody(
             overview: overview,
             watchlist: watchlist,
             instruments: instruments,
             dividendDataAvailable: dividendData.hasValue,
+            taxWindow: taxWindow,
           );
         },
       ),
@@ -78,12 +92,14 @@ class _PortfolioBody extends StatelessWidget {
     required this.watchlist,
     required this.instruments,
     required this.dividendDataAvailable,
+    required this.taxWindow,
   });
 
   final PortfolioOverview overview;
   final List<WatchlistEntry> watchlist;
   final Map<String, Instrument> instruments;
   final bool dividendDataAvailable;
+  final _TaxWindow taxWindow;
 
   @override
   Widget build(BuildContext context) => ListView(
@@ -108,6 +124,7 @@ class _PortfolioBody extends StatelessWidget {
               _CurrencySummaryCard(
                 summary: summary,
                 dividendDataAvailable: dividendDataAvailable,
+                taxWindow: taxWindow,
               ),
           ],
         ),
@@ -181,10 +198,12 @@ class _CurrencySummaryCard extends StatelessWidget {
   const _CurrencySummaryCard({
     required this.summary,
     required this.dividendDataAvailable,
+    required this.taxWindow,
   });
 
   final PortfolioCurrencySummary summary;
   final bool dividendDataAvailable;
+  final _TaxWindow taxWindow;
 
   @override
   Widget build(BuildContext context) {
@@ -243,12 +262,27 @@ class _CurrencySummaryCard extends StatelessWidget {
                     : const Text('Loading…'),
               ),
               _SummaryRow(
+                label: 'Net (estimated)',
+                value: !dividendDataAvailable || taxWindow.loading
+                    ? const Text('Calculating…')
+                    : summary.currency != Currency.eur
+                    ? const Text('Needs dated EUR FX')
+                    : Text(
+                        '${taxWindow.netEur.format(withSymbol: true)}'
+                        '${taxWindow.unsupportedCount == 0 ? '' : ' + ${taxWindow.unsupportedCount} unavailable'}',
+                      ),
+              ),
+              _SummaryRow(
                 label: 'Forward gross yield',
                 value: Text(
                   dividendDataAvailable
                       ? summary.forwardYield?.format() ?? 'Not available'
                       : 'Loading…',
                 ),
+              ),
+              Text(
+                'Estimate—not tax advice.',
+                style: theme.textTheme.labelSmall,
               ),
             ],
           ),
@@ -381,10 +415,18 @@ class _PositionCard extends StatelessWidget {
                   const Icon(Icons.event_outlined, size: 18),
                   const SizedBox(width: AppTheme.space / 2),
                   Expanded(
-                    child: Text(
-                      'Next dividend ${_date(context, next.event)} · '
-                      '${next.grossAmount.format(withSymbol: true)} gross',
-                      style: theme.textTheme.bodySmall,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          'Next dividend ${_date(context, next.event)}',
+                          style: theme.textTheme.bodySmall,
+                        ),
+                        GrossNetAmount(
+                          event: next.event,
+                          gross: next.grossAmount,
+                        ),
+                      ],
                     ),
                   ),
                   DividendStatusChip(next.event.status),
@@ -400,6 +442,47 @@ class _PositionCard extends StatelessWidget {
     final DateTime date = event.paymentDate ?? event.exDate!;
     return MaterialLocalizations.of(context).formatMediumDate(date);
   }
+}
+
+final class _TaxWindow {
+  const _TaxWindow({
+    required this.loading,
+    required this.netEur,
+    required this.unsupportedCount,
+  });
+  final bool loading;
+  final Money netEur;
+  final int unsupportedCount;
+}
+
+_TaxWindow _taxWindow(
+  Iterable<DividendEvent> events,
+  Iterable<AsyncValue<PortfolioTaxEstimates>> annualValues,
+  Set<String> heldInstrumentIds,
+) {
+  final bool loading = annualValues.any((value) => !value.hasValue);
+  final Map<String, TaxEventEstimate> estimates = <String, TaxEventEstimate>{
+    for (final AsyncValue<PortfolioTaxEstimates> annual in annualValues)
+      if (annual.value case final value?) ...value.byEventKey,
+  };
+  Money net = Money.zero(Currency.eur);
+  int unsupported = 0;
+  for (final DividendEvent event in events) {
+    if (!heldInstrumentIds.contains(event.instrumentId)) continue;
+    switch (estimates[dividendTaxEventKey(event)]?.result) {
+      case DividendTaxBreakdown(net: final Money payment):
+        net += payment;
+      case UnsupportedTaxCalculation():
+        unsupported++;
+      case null:
+        if (!loading) unsupported++;
+    }
+  }
+  return _TaxWindow(
+    loading: loading,
+    netEur: net,
+    unsupportedCount: unsupported,
+  );
 }
 
 class _TextMetric extends StatelessWidget {

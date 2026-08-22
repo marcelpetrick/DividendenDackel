@@ -148,7 +148,7 @@ Each task names the `Vision.md` sections it satisfies.
       Versioned, dated, user-editable withholding table. Design and limits in
       [`dividend-taxation.md`](dividend-taxation.md). Unit tests per country
       case. — §2.3, §2.5, §48, §50
-- [ ] **D9** Net/gross throughout the UI: both figures side by side on the
+- [x] **D9** Net/gross throughout the UI: both figures side by side on the
       calendar, forecast, portfolio income and Today, never summed into one;
       a tax profile in Settings with visible, editable defaults; a plain
       "estimate, not tax advice" label. — §2.2, §2.5, §10

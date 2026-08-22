@@ -105,7 +105,8 @@ void main() {
     expect(find.text('100.0%'), findsWidgets);
     expect(find.text('10.0%'), findsWidgets);
     expect(find.textContaining('Next dividend'), findsOneWidget);
-    expect(find.textContaining('€100.00 gross'), findsOneWidget);
+    expect(find.textContaining('Gross €100.00'), findsOneWidget);
+    expect(find.textContaining('Net (estimated)'), findsWidgets);
     expect(find.text('Announced'), findsOneWidget);
   });
 

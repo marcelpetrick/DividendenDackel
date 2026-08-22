@@ -7,6 +7,7 @@ import 'package:dividendendackel/features/research/research_screen.dart';
 import 'package:dividendendackel/features/settings/about_screen.dart';
 import 'package:dividendendackel/features/settings/data_sources_screen.dart';
 import 'package:dividendendackel/features/settings/settings_screen.dart';
+import 'package:dividendendackel/features/settings/tax_settings_screen.dart';
 import 'package:dividendendackel/features/status/data_status_screen.dart';
 import 'package:dividendendackel/features/today/today_screen.dart';
 import 'package:flutter/material.dart';
@@ -81,6 +82,11 @@ GoRouter buildRouter({String initialLocation = '/today'}) => GoRouter(
       path: '/settings/data-sources',
       builder: (BuildContext context, GoRouterState state) =>
           const DataSourcesScreen(),
+    ),
+    GoRoute(
+      path: '/settings/tax',
+      builder: (BuildContext context, GoRouterState state) =>
+          const TaxSettingsScreen(),
     ),
     GoRoute(
       path: '/about',

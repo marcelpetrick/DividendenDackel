@@ -1,8 +1,11 @@
 import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
 import 'package:dividendendackel/app/widgets/async_value_view.dart';
+import 'package:dividendendackel/app/widgets/gross_net_amount.dart';
 import 'package:dividendendackel/app/widgets/value_labels.dart';
+import 'package:dividendendackel/domain/analytics/analytics.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
+import 'package:dividendendackel/features/tax/tax_estimates.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -27,6 +30,10 @@ class TodayScreen extends ConsumerWidget {
         ref.watch(instrumentsByIdProvider).value ??
         const <String, Instrument>{};
     final AsyncValue<List<Holding>> holdings = ref.watch(holdingsProvider);
+    final Map<String, Holding> holdingsByInstrument = <String, Holding>{
+      for (final Holding holding in holdings.value ?? const <Holding>[])
+        holding.instrumentId: holding,
+    };
 
     return ListView(
       padding: const EdgeInsets.all(AppTheme.space * 2),
@@ -63,6 +70,7 @@ class TodayScreen extends ConsumerWidget {
                       DividendEventTile(
                         event: data[index],
                         instrument: instruments[data[index].instrumentId],
+                        holding: holdingsByInstrument[data[index].instrumentId],
                       ),
                 ),
           ),
@@ -110,7 +118,7 @@ class _SummaryCard extends StatelessWidget {
   }
 }
 
-class _ExpectedDividendsCard extends StatelessWidget {
+class _ExpectedDividendsCard extends ConsumerWidget {
   const _ExpectedDividendsCard({
     required this.next7,
     required this.next30,
@@ -145,7 +153,7 @@ class _ExpectedDividendsCard extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final ThemeData theme = Theme.of(context);
 
     return Card(
@@ -156,12 +164,13 @@ class _ExpectedDividendsCard extends StatelessWidget {
           children: <Widget>[
             Text('Expected dividends', style: theme.textTheme.titleMedium),
             const SizedBox(height: AppTheme.space),
-            _row(context, 'Next 7 days', next7),
+            _row(context, ref, 'Next 7 days', next7),
             const SizedBox(height: AppTheme.space / 2),
-            _row(context, 'Next 30 days', next30),
+            _row(context, ref, 'Next 30 days', next30),
             const SizedBox(height: AppTheme.space),
             Text(
-              'Gross, before tax. Estimated events are included and marked.',
+              'Gross and estimated net are never combined. Forecast events '
+              'are included and marked. Estimate—not tax advice.',
               style: theme.textTheme.labelSmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -174,6 +183,7 @@ class _ExpectedDividendsCard extends StatelessWidget {
 
   Widget _row(
     BuildContext context,
+    WidgetRef ref,
     String label,
     AsyncValue<List<DividendEvent>> events,
   ) {
@@ -181,6 +191,9 @@ class _ExpectedDividendsCard extends StatelessWidget {
     final Map<Currency, Money>? totals = events.value == null
         ? null
         : _expected(events.requireValue);
+    final _ExpectedNet? estimatedNet = events.value == null
+        ? null
+        : _net(ref, events.requireValue);
 
     final Widget value = totals == null
         ? Text('…', style: theme.textTheme.bodyMedium)
@@ -195,7 +208,24 @@ class _ExpectedDividendsCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: <Widget>[
               for (final Money total in totals.values)
-                MoneyText(total, style: theme.textTheme.titleSmall),
+                Text(
+                  'Gross ${total.format(withSymbol: true)}',
+                  style: theme.textTheme.titleSmall,
+                ),
+              if (estimatedNet?.loading ?? false)
+                const Text('Net (estimated) calculating…')
+              else if (estimatedNet != null)
+                Text(
+                  'Net (estimated) '
+                  '${estimatedNet.netEur.format(withSymbol: true)}',
+                  style: theme.textTheme.titleSmall,
+                ),
+              if ((estimatedNet?.unsupportedCount ?? 0) > 0)
+                Text(
+                  '${estimatedNet!.unsupportedCount} need a payment date, '
+                  'EUR FX, or country data',
+                  style: theme.textTheme.labelSmall,
+                ),
             ],
           );
     final bool useVerticalLayout =
@@ -220,6 +250,56 @@ class _ExpectedDividendsCard extends StatelessWidget {
       ],
     );
   }
+
+  _ExpectedNet _net(WidgetRef ref, List<DividendEvent> events) {
+    final Set<int> years = <int>{
+      for (final DividendEvent event in events)
+        if (event.paymentDate != null) event.paymentDate!.year,
+    };
+    final List<AsyncValue<PortfolioTaxEstimates>> annual =
+        <AsyncValue<PortfolioTaxEstimates>>[
+          for (final int year in years)
+            ref.watch(portfolioTaxEstimatesProvider(year)),
+        ];
+    final bool loading = annual.any((value) => !value.hasValue);
+    final Map<String, TaxEventEstimate> estimates = <String, TaxEventEstimate>{
+      for (final AsyncValue<PortfolioTaxEstimates> value in annual)
+        if (value.value case final estimate?) ...estimate.byEventKey,
+    };
+    Money net = Money.zero(Currency.eur);
+    int unsupported = 0;
+    for (final DividendEvent event in events) {
+      if (!holdings.any(
+        (holding) => holding.instrumentId == event.instrumentId,
+      )) {
+        continue;
+      }
+      switch (estimates[dividendTaxEventKey(event)]?.result) {
+        case DividendTaxBreakdown(net: final Money payment):
+          net += payment;
+        case UnsupportedTaxCalculation():
+          unsupported++;
+        case null:
+          if (!loading) unsupported++;
+      }
+    }
+    return _ExpectedNet(
+      loading: loading,
+      netEur: net,
+      unsupportedCount: unsupported,
+    );
+  }
+}
+
+final class _ExpectedNet {
+  const _ExpectedNet({
+    required this.loading,
+    required this.netEur,
+    required this.unsupportedCount,
+  });
+  final bool loading;
+  final Money netEur;
+  final int unsupportedCount;
 }
 
 /// One dividend event in a list.
@@ -253,16 +333,22 @@ class DividendEventTile extends StatelessWidget {
       title: Text(instrument?.name ?? event.instrumentId),
       // Wrap rather than Row: on a narrow phone the amount and the status
       // label together exceed the tile's subtitle width and would clip.
-      subtitle: Wrap(
-        spacing: AppTheme.space,
-        runSpacing: AppTheme.space / 4,
-        crossAxisAlignment: WrapCrossAlignment.center,
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
-            '${event.amountPerShare.format(withSymbol: true)} / share',
-            style: theme.textTheme.bodySmall,
+          Wrap(
+            spacing: AppTheme.space,
+            runSpacing: AppTheme.space / 4,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: <Widget>[
+              Text(
+                '${event.amountPerShare.format(withSymbol: true)} / share',
+                style: theme.textTheme.bodySmall,
+              ),
+              DividendStatusChip(event.status),
+            ],
           ),
-          DividendStatusChip(event.status),
+          if (payment != null) GrossNetAmount(event: event, gross: payment),
         ],
       ),
       trailing: Column(
@@ -271,8 +357,6 @@ class DividendEventTile extends StatelessWidget {
         children: <Widget>[
           if (event.exDate != null)
             Text(_formatDate(event.exDate!), style: theme.textTheme.bodyMedium),
-          if (payment != null)
-            MoneyText(payment, style: theme.textTheme.bodySmall),
         ],
       ),
     );

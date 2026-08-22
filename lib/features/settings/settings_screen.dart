@@ -37,6 +37,15 @@ class SettingsScreen extends ConsumerWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push('/settings/data-sources'),
           ),
+          ListTile(
+            leading: const Icon(Icons.receipt_long_outlined),
+            title: const Text('Dividend tax estimate'),
+            subtitle: const Text(
+              'Gross/net assumptions, savings allowance and withholding rates',
+            ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/settings/tax'),
+          ),
           const Divider(height: 1),
           Padding(
             padding: const EdgeInsets.all(AppTheme.space * 2),
