@@ -1,0 +1,153 @@
+# Release pipeline (Vision.md §69).
+#
+# Triggered by pushing a semantic version tag, e.g. `v0.1.0`. Builds both
+# platform artifacts, verifies them, and publishes a public GitHub Release.
+# Never publishes a pre-release or a draft.
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing tag to release, e.g. v0.1.0'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  FLUTTER_VERSION: 3.44.7
+  FLUTTER_CHANNEL: stable
+
+jobs:
+  release:
+    name: Build and publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    # Only this job may write to the repository, and only to create the release.
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+          fetch-depth: 0
+
+      - name: Resolve version and verify it matches the tag
+        id: version
+        run: |
+          tag="${{ inputs.tag || github.ref_name }}"
+          pubspec_version="$(grep -E '^version:' pubspec.yaml | awk '{print $2}')"
+          semver="${pubspec_version%%+*}"
+          build_number="${pubspec_version##*+}"
+
+          # Vision.md §69 step 3: a tag that disagrees with pubspec.yaml would
+          # ship artifacts labelled with the wrong version.
+          if [[ "v${semver}" != "${tag}" ]]; then
+            echo "::error::Tag ${tag} does not match pubspec version ${semver} (expected tag v${semver})."
+            exit 1
+          fi
+
+          previous="$(git describe --tags --abbrev=0 "${tag}^" 2>/dev/null || true)"
+
+          {
+            echo "tag=${tag}"
+            echo "semver=${semver}"
+            echo "build_number=${build_number}"
+            echo "previous_tag=${previous}"
+          } >> "$GITHUB_OUTPUT"
+          echo "Releasing ${semver}+${build_number} as ${tag} (previous: ${previous:-none})"
+
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: ${{ env.FLUTTER_CHANNEL }}
+          cache: true
+
+      - name: Install Linux desktop build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+
+      # The same gate developers run locally: format, analyze, test, the
+      # Android 10 assertion, and both release builds.
+      - name: Run the full local pipeline
+        run: ./localPipeline.sh --noRun
+
+      - name: Collect artifacts
+        id: artifacts
+        run: |
+          version="${{ steps.version.outputs.semver }}"
+          mkdir -p dist
+
+          # The APK is published as-is, not archived: Android installs it
+          # directly and an archive would only add a step for the user.
+          cp build/app/outputs/flutter-apk/app-release.apk \
+             "dist/dividendendackel-${version}-android.apk"
+
+          # The Linux build is a directory, so it has to be an archive.
+          tar -czf "dist/dividendendackel-${version}-linux-x86_64.tar.gz" \
+              -C build/linux/x64/release/bundle .
+
+          cd dist
+          sha256sum ./* > SHA256SUMS
+          ls -lh
+          cat SHA256SUMS
+
+      - name: Generate release notes
+        run: |
+          ./tool/release-notes.sh \
+            "${{ steps.version.outputs.semver }}" \
+            "${{ steps.version.outputs.previous_tag }}" > RELEASE_NOTES.md
+
+          version="${{ steps.version.outputs.semver }}"
+          {
+            echo
+            echo '### Build metadata'
+            echo
+            echo "| | |"
+            echo "| --- | --- |"
+            echo "| Version | \`${version}+${{ steps.version.outputs.build_number }}\` |"
+            echo "| Commit | \`${GITHUB_SHA}\` |"
+            echo "| Built | \`$(date -u +'%Y-%m-%dT%H:%M:%SZ')\` |"
+            echo "| Flutter | \`${FLUTTER_VERSION}\` (${FLUTTER_CHANNEL}) |"
+            echo "| Android | \`minSdk 29\` / \`targetSdk 36\` |"
+            echo
+            echo '### Checksums'
+            echo
+            echo '```'
+            sed 's|\./||' dist/SHA256SUMS
+            echo '```'
+          } >> RELEASE_NOTES.md
+
+          cat RELEASE_NOTES.md
+
+      - name: Publish the release
+        uses: softprops/action-gh-release@fe965f7af51af5f2602596916f38a38df2e33de0 # v3.0.2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: DividendenDackel ${{ steps.version.outputs.semver }}
+          body_path: RELEASE_NOTES.md
+          files: |
+            dist/dividendendackel-${{ steps.version.outputs.semver }}-android.apk
+            dist/dividendendackel-${{ steps.version.outputs.semver }}-linux-x86_64.tar.gz
+            dist/SHA256SUMS
+          draft: false
+          prerelease: false
+          make_latest: true
+          fail_on_unmatched_files: true
