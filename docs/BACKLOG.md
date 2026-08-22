@@ -54,7 +54,7 @@ Each task names the `Vision.md` sections it satisfies.
 - [x] **F9** Bundled sample data provider (realistic offline dataset) so the app
       is fully usable with zero API keys, plus fixture-based contract tests.
       — §44, §77
-- [ ] **Q8** App icon and branding for both platforms, replacing the default
+- [x] **Q8** App icon and branding for both platforms, replacing the default
       Flutter launcher icon: a Dackel fetching a coin, tying the name to the
       product's own fetch-and-retrieve metaphor. *Moved up from Phase 4 on
       request.* — §24
