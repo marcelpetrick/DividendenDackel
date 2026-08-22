@@ -35,6 +35,7 @@
       "symbol": "AAPL", "name": "Apple Inc.", "currency": "USD",
       "exchange": "NASDAQ", "mic": "XNAS", "isin": "US0378331005",
       "country": "US", "sector": "Information Technology",
+      "providerMappings": [{"providerId": "sec", "symbol": "AAPL", "providerInstrumentId": "0000320193"}],
       "price": "228.40", "previousClose": "226.90"
     },
     {
@@ -42,6 +43,7 @@
       "symbol": "MSFT", "name": "Microsoft Corporation", "currency": "USD",
       "exchange": "NASDAQ", "mic": "XNAS", "isin": "US5949181045",
       "country": "US", "sector": "Information Technology",
+      "providerMappings": [{"providerId": "sec", "symbol": "MSFT", "providerInstrumentId": "0000789019"}],
       "price": "441.20", "previousClose": "438.75"
     },
     {
@@ -49,6 +51,7 @@
       "symbol": "JNJ", "name": "Johnson & Johnson", "currency": "USD",
       "exchange": "NYSE", "mic": "XNYS", "isin": "US4781601046",
       "country": "US", "sector": "Health Care",
+      "providerMappings": [{"providerId": "sec", "symbol": "JNJ", "providerInstrumentId": "0000200406"}],
       "price": "158.30", "previousClose": "158.95"
     },
     {
@@ -56,6 +59,7 @@
       "symbol": "KO", "name": "The Coca-Cola Company", "currency": "USD",
       "exchange": "NYSE", "mic": "XNYS", "isin": "US1912161007",
       "country": "US", "sector": "Consumer Staples",
+      "providerMappings": [{"providerId": "sec", "symbol": "KO", "providerInstrumentId": "0000021344"}],
       "price": "70.15", "previousClose": "69.80"
     },
     {
@@ -63,6 +67,7 @@
       "symbol": "O", "name": "Realty Income Corporation", "currency": "USD",
       "exchange": "NYSE", "mic": "XNYS", "isin": "US7561091049",
       "country": "US", "sector": "Real Estate",
+      "providerMappings": [{"providerId": "sec", "symbol": "O", "providerInstrumentId": "0000726728"}],
       "price": "58.92", "previousClose": "58.44"
     },
     {

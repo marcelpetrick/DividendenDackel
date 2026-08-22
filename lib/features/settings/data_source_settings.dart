@@ -31,6 +31,15 @@ enum MarketDataSource {
     alphaVantage => 'Alpha Vantage',
   };
 
+  /// Stable id shared with provider mappings and request coordination.
+  String get providerId => switch (this) {
+    secEdgar => 'sec',
+    frankfurter => 'frankfurter',
+    financialModelingPrep => 'fmp',
+    finnhub => 'finnhub',
+    alphaVantage => 'alpha_vantage',
+  };
+
   /// What the source contributes to the app.
   String get description => switch (this) {
     secEdgar => 'US dividend history, company facts and filings',

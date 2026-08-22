@@ -66,6 +66,21 @@ void main() {
       );
     });
 
+    test('ships explicit SEC CIK mappings for US sample identities', () {
+      final List<SampleInstrument> usInstruments = dataset.instruments
+          .where((SampleInstrument item) => item.instrument.country == 'US')
+          .toList(growable: false);
+
+      expect(usInstruments, isNotEmpty);
+      for (final SampleInstrument item in usInstruments) {
+        final ProviderMapping mapping = item.instrument.providerMappings
+            .singleWhere(
+              (ProviderMapping candidate) => candidate.providerId == 'sec',
+            );
+        expect(mapping.providerInstrumentId, matches(RegExp(r'^\d{10}$')));
+      }
+    });
+
     test('splits the annual amount across the payment anchors', () {
       final SampleDividendPattern quarterly = dataset.dividendPatterns
           .firstWhere(

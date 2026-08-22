@@ -42,8 +42,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 - Capability-specific market-data provider contracts, a validated registry and
   per-data-type fallback into normalized domain records through the shared
   request coordinator.
+- Keyless SEC EDGAR ticker search, CIK resolution, declared dividend-per-share
+  facts and filing links, with a declared bot identity, conservative Fair
+  Access pacing, fixture contract tests and explicit source provenance.
+- Additive database schema 2 fields that preserve SEC reporting periods
+  without mislabelling them as ex-, declaration or payment dates.
 
 ### Changed
+
+- Android release builds now explicitly request internet access, and the local
+  and CI pipeline asserts the permission alongside Android 10 compatibility.
 
 - Product renamed to **DividendenDackel** across the Dart package, Android
   application ID, Linux binary, window titles and documentation.

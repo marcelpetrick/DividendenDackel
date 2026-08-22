@@ -29,8 +29,8 @@ void main() {
       );
 
   group('AppDatabase', () {
-    test('opens at schema version 1 with every table created', () async {
-      expect(db.schemaVersion, 1);
+    test('opens at schema version 2 with every table created', () async {
+      expect(db.schemaVersion, 2);
 
       final List<String> tables =
           await db
@@ -258,6 +258,41 @@ void main() {
       expect(row.exDate, isNotNull);
     });
 
+    test('migrates schema 1 dividend rows without losing them', () async {
+      await db.close();
+      final AppDatabase migrated = AppDatabase.withExecutor(
+        NativeDatabase.memory(
+          setup: (database) {
+            database
+              ..execute(
+                'CREATE TABLE dividend_events ('
+                'id TEXT NOT NULL PRIMARY KEY, marker TEXT)',
+              )
+              ..execute(
+                "INSERT INTO dividend_events (id, marker) VALUES ('kept', 'yes')",
+              )
+              ..execute('PRAGMA user_version = 1');
+          },
+        ),
+      );
+      db = migrated;
+
+      final List<String> columns = await migrated
+          .customSelect('PRAGMA table_info(dividend_events)')
+          .map((QueryRow row) => row.read<String>('name'))
+          .get();
+      final String marker = await migrated
+          .customSelect("SELECT marker FROM dividend_events WHERE id = 'kept'")
+          .map((QueryRow row) => row.read<String>('marker'))
+          .getSingle();
+
+      expect(
+        columns,
+        containsAll(<String>['reported_period_start', 'reported_period_end']),
+      );
+      expect(marker, 'yes');
+    });
+
     test(
       'pushes database changes to watchers, which is how the UI updates',
       () async {
@@ -276,7 +311,7 @@ void main() {
       final MigrationStrategy strategy = db.migration;
 
       await expectLater(
-        strategy.onUpgrade(Migrator(db), 0, 1),
+        strategy.onUpgrade(Migrator(db), 0, 2),
         throwsA(isA<StateError>()),
       );
     });

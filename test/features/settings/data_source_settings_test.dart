@@ -23,6 +23,14 @@ void main() {
       );
     });
 
+    test('uses stable ids shared with provider mappings', () {
+      expect(MarketDataSource.secEdgar.providerId, 'sec');
+      expect(MarketDataSource.frankfurter.providerId, 'frankfurter');
+      expect(MarketDataSource.financialModelingPrep.providerId, 'fmp');
+      expect(MarketDataSource.finnhub.providerId, 'finnhub');
+      expect(MarketDataSource.alphaVantage.providerId, 'alpha_vantage');
+    });
+
     test('persists an explicit keyless-provider toggle', () async {
       await store.setEnabled(MarketDataSource.secEdgar, false);
 

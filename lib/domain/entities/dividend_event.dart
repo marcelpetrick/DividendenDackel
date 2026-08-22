@@ -91,6 +91,8 @@ final class DividendEvent implements HasProvenance {
     this.paymentDate,
     this.declarationDate,
     this.recordDate,
+    this.reportedPeriodStart,
+    this.reportedPeriodEnd,
     this.frequency = DividendFrequency.unknown,
   });
 
@@ -114,6 +116,15 @@ final class DividendEvent implements HasProvenance {
 
   /// The shareholder-of-record date.
   final DateTime? recordDate;
+
+  /// Start of the provider's reporting period for this dividend fact.
+  ///
+  /// This is deliberately separate from the event dates. SEC company facts,
+  /// for example, report a period but do not report the ex- or payment date.
+  final DateTime? reportedPeriodStart;
+
+  /// End of the provider's reporting period for this dividend fact.
+  final DateTime? reportedPeriodEnd;
 
   /// The payment schedule this event belongs to.
   final DividendFrequency frequency;
@@ -151,6 +162,8 @@ final class DividendEvent implements HasProvenance {
     DateTime? paymentDate,
     DateTime? declarationDate,
     DateTime? recordDate,
+    DateTime? reportedPeriodStart,
+    DateTime? reportedPeriodEnd,
     DividendFrequency? frequency,
     Provenance? provenance,
   }) => DividendEvent(
@@ -161,6 +174,8 @@ final class DividendEvent implements HasProvenance {
     paymentDate: paymentDate ?? this.paymentDate,
     declarationDate: declarationDate ?? this.declarationDate,
     recordDate: recordDate ?? this.recordDate,
+    reportedPeriodStart: reportedPeriodStart ?? this.reportedPeriodStart,
+    reportedPeriodEnd: reportedPeriodEnd ?? this.reportedPeriodEnd,
     frequency: frequency ?? this.frequency,
     provenance: provenance ?? this.provenance,
   );
@@ -179,6 +194,8 @@ final class DividendEvent implements HasProvenance {
       other.paymentDate == paymentDate &&
       other.declarationDate == declarationDate &&
       other.recordDate == recordDate &&
+      other.reportedPeriodStart == reportedPeriodStart &&
+      other.reportedPeriodEnd == reportedPeriodEnd &&
       other.frequency == frequency;
 
   @override
@@ -190,6 +207,8 @@ final class DividendEvent implements HasProvenance {
     paymentDate,
     declarationDate,
     recordDate,
+    reportedPeriodStart,
+    reportedPeriodEnd,
     frequency,
   );
 }

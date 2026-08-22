@@ -47,7 +47,7 @@ class AppDatabase extends _$AppDatabase {
 
   /// Bumped whenever the schema changes. Never reused for a different schema.
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -57,9 +57,14 @@ class AppDatabase extends _$AppDatabase {
     onUpgrade: (Migrator m, int from, int to) async {
       // Vision.md §76: migrations must never silently delete the user's
       // portfolio. Each step is written explicitly, and a destructive reset is
-      // not an acceptable default once releases exist. There is nothing to
-      // migrate from yet — schema version 1 is the first released schema — so
-      // an unknown upgrade path fails loudly instead of dropping data.
+      // not an acceptable default once releases exist. Schema version 1 is the
+      // first app schema; every supported transition is additive and explicit,
+      // while an unknown path fails loudly instead of dropping data.
+      if (from == 1 && to == 2) {
+        await m.addColumn(dividendEvents, dividendEvents.reportedPeriodStart);
+        await m.addColumn(dividendEvents, dividendEvents.reportedPeriodEnd);
+        return;
+      }
       throw StateError(
         'No migration is defined from schema version $from to $to. '
         'Refusing to modify the database rather than risk user data.',

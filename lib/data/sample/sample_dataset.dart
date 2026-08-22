@@ -140,6 +140,18 @@ final class SampleInstrument {
         isin: json['isin'] as String?,
         country: json['country'] as String?,
         sector: json['sector'] as String?,
+        providerMappings:
+            (json['providerMappings'] as List<dynamic>? ?? const <dynamic>[])
+                .cast<Map<String, dynamic>>()
+                .map(
+                  (Map<String, dynamic> mapping) => ProviderMapping(
+                    providerId: mapping['providerId'] as String,
+                    symbol: mapping['symbol'] as String,
+                    providerInstrumentId:
+                        mapping['providerInstrumentId'] as String?,
+                  ),
+                )
+                .toList(growable: false),
       ),
       price: Money(Decimal.parse(json['price'] as String), currency),
       previousClose: Money(

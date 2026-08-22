@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 0.17.0+37
+version: 0.18.0+38
 
 environment:
   sdk: ^3.12.2
@@ -48,6 +48,9 @@ dependencies:
   # 11.x requires compileSdk 37, beyond the pinned Flutter/AGP toolchain.
   flutter_secure_storage: 10.3.1
   go_router: 17.5.0
+  # Provider HTTP transport. Pinned exactly for reproducible Android/Linux
+  # artifacts and injected as a Client so adapters remain fixture-testable.
+  http: 1.6.0
   # Reads the real version and build number from the installed package, so
   # the About screen can never disagree with the artifact (Vision.md §62).
   package_info_plus: 10.2.1

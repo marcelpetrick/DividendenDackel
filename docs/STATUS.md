@@ -6,7 +6,7 @@ including a future session — can pick up without re-reading the whole history.
 - **Last updated:** 2026-08-22
 - **Version:** 0.1.0+1 (pre-release, `0.x.y`)
 - **Branch:** `master` (local work ahead of `origin`)
-- **Quality gate:** green — 299 tests, analyzer clean, both platforms build
+- **Quality gate:** green — 311 tests, analyzer clean, both platforms build
 
 ---
 
@@ -50,6 +50,7 @@ Today ranking land with D3–D5 and T1.
 | Cache TTL policy + metadata repository | F6 | done |
 | Bounded, deduplicating Request Coordinator | F7 | done |
 | Provider contracts, registry + fallback chain | F8 | done |
+| Keyless SEC EDGAR adapter | F8a | done |
 
 ### What is left
 
@@ -57,11 +58,11 @@ Ordered by what unblocks a usable app soonest.
 
 | Next | Task | Why it matters |
 | --- | --- | --- |
-| 1 | **F8a** SEC EDGAR | Keyless US dividend history, filings and facts. |
-| 2 | **F8b** Frankfurter / ECB | Keyless daily reference FX rates. |
-| 3 | **F12** Data Status | Provider health, operations and cache visibility. |
-| 4 | **D1/D2** dividend analytics | CAGR and an explainable forecast engine. |
-| 5 | **D3–D5/T1** core UI | Portfolio, calendar, forecast and Today. |
+| 1 | **F8b** Frankfurter / ECB | Keyless daily reference FX rates. |
+| 2 | **F12** Data Status | Provider health, operations and cache visibility. |
+| 3 | **D1/D2** dividend analytics | CAGR and an explainable forecast engine. |
+| 4 | **D3–D5/T1** core UI | Portfolio, calendar, forecast and Today. |
+| 5 | **E1/E2** delivery proof | End-to-end flows and artifact launch verification. |
 
 Then: D6 quality score · D7 currency · **D8/D9 gross-and-net tax** ·
 T2–T6 events, news, research ·
@@ -130,6 +131,12 @@ dart format .
   rejects adapters that advertise an interface they do not implement, applies
   per-data-type priority and enablement, and uses the coordinator for typed,
   ordered fallback into normalized domain records.
+- **SEC reporting periods are not dividend event dates.** EDGAR's declared
+  dividend-per-share fact is normalized with explicit reporting-period fields;
+  ex-date, declaration date and payment date stay null. Annual facts supersede
+  overlapping quarters so totals are not double-counted.
+- **Database schema 2 is additive.** It adds nullable dividend reporting-period
+  columns and has a tested 1→2 migration that preserves existing rows.
 - **A malformed stored amount fails loudly** as a `ParsingFailure` rather than
   parsing to something plausible.
 - **Value objects live in `lib/domain/value_objects/`**, a refinement of the
@@ -159,7 +166,9 @@ dart format .
 - Widget tests run without a database on purpose: drift's stream machinery
   outlives the widget tree and the test binding reports it as a pending timer.
   The data layer is covered by its own tests.
-- No provider adapters yet, so nothing fetches live data (F8a, F8b, R5).
+- SEC EDGAR is registered and ready for live ticker search, dividend facts and
+  filings. The UI/background stale-while-revalidate workflow that persists and
+  surfaces live refreshes is still due in D3 and Q1.
 - The withholding tax table in `dividend-taxation.md` is a design sketch; the
   rates must be verified against the BZSt publication before release.
 - The release workflow has never run. It is written and validated but unproven

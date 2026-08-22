@@ -16,6 +16,7 @@ trap 'rm -rf "${PIPELINE_LOG_DIR}"' EXIT
 readonly PINNED_FLUTTER_VERSION="3.44.7"
 readonly REQUIRED_MIN_SDK="29"
 readonly GRADLE_FILE="android/app/build.gradle.kts"
+readonly ANDROID_MANIFEST="android/app/src/main/AndroidManifest.xml"
 readonly APP_COMMIT="${APP_COMMIT:-development build}"
 
 declare -a SUMMARY_LINES=()
@@ -200,6 +201,14 @@ assert_android_compatibility() {
         return 1
     fi
     if grep -qE "^[[:space:]]*minSdk[[:space:]]*=[[:space:]]*${REQUIRED_MIN_SDK}[[:space:]]*(//.*)?$" "${GRADLE_FILE}"; then
+        if [[ ! -f "${ANDROID_MANIFEST}" ]]; then
+            error "${ANDROID_MANIFEST} is missing"
+            return 1
+        fi
+        if ! grep -q 'android.permission.INTERNET' "${ANDROID_MANIFEST}"; then
+            error "Release manifest must grant INTERNET for live data providers"
+            return 1
+        fi
         return 0
     fi
     error "minSdk must stay ${REQUIRED_MIN_SDK} (Android 10) — see Vision.md §4.1 and §58"
