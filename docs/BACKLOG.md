@@ -20,7 +20,7 @@ Each task names the `Vision.md` sections it satisfies.
 
 ## Phase 1 — Foundation
 
-- [ ] **F1** Typed error/failure model (`Failure` hierarchy: network, timeout,
+- [x] **F1** Typed error/failure model (`Failure` hierarchy: network, timeout,
       rateLimited, auth, providerUnavailable, parsing, invalidInstrument,
       noData, stale) plus a `Result<T>` type. Unit tests. — §55
 - [ ] **F2** Structured logging (component, provider, operation, duration,
