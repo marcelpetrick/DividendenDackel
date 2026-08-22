@@ -111,7 +111,7 @@ Each task names the `Vision.md` sections it satisfies.
 - [x] **D3** Instrument search + add holding / add to watchlist flows, portfolio
       overview (value, day change, allocation, yield, next dividend). Widget
       and integration tests. — §8, §51
-- [ ] **D4** Dividend calendar: month, year and agenda views, ex-date vs
+- [x] **D4** Dividend calendar: month, year and agenda views, ex-date vs
       payment-date toggle with beginner explanations, per-event confirmation
       status and expected payment for the held quantity. — §9
       Concrete capabilities (informed by reviewing Parqet's calendar as

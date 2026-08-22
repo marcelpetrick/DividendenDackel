@@ -65,6 +65,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
   flows. The portfolio overview shows currency-separated value, day change,
   allocation, forward gross yield and each holding's next dividend without
   treating missing quotes as zero.
+- The dividend calendar now provides month, year and agenda views; ex-date and
+  payment-date explanations; portfolio, watchlist and all-instrument scopes;
+  optional weekend columns; capped busy days with tap/hover detail; explicit
+  estimate markers; held gross payments; and an honest display-currency
+  selector that does not relabel native amounts before dated FX conversion.
 
 ### Changed
 
