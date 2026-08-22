@@ -87,6 +87,8 @@ flutter:
   assets:
     # Illustrative offline dataset, so the app is usable with no API key.
     - assets/sample/dataset.json
+    # Versioned, user-overridable starter assumptions for dividend taxation.
+    - assets/tax/withholding_rates.json
     # Window icon, loaded at runtime by the Linux runner.
     - assets/branding/icon.png
 

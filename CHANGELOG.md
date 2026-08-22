@@ -79,6 +79,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
   evidence and explains every positive, risk and neutral factor. It covers
   dividend growth, cuts, history, yield, payout, cash-flow coverage, earnings,
   debt and cash-flow trends without penalizing missing fundamentals.
+- An explainable German private-share dividend-tax engine now tracks the annual
+  savings allowance in payment order and separates source withholding,
+  potential and applied foreign-tax credit, reclaimable withholding,
+  Kapitalertragsteuer, solidarity surcharge, optional church tax, gross and
+  estimated net. A dated, versioned starter table covers DE/US/CH/GB/NL and
+  supports country or instrument overrides; unsupported cases are refused.
 
 ### Changed
 

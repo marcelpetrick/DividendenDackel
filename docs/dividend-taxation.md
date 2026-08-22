@@ -74,10 +74,11 @@ total = 26.375 % of base
 ```
 
 With church tax at rate `k` (0.08 in Bavaria and Baden-Württemberg, 0.09
-elsewhere), church tax is deductible, so the KESt is reduced accordingly:
+elsewhere), church tax is deductible. For taxable income `e` after allowance
+and creditable foreign tax `q`, §32d EStG gives:
 
 ```text
-KESt  = base / (4 + k)
+KESt  = (e − 4q) / (4 + k)
 Soli  = 0.055 × KESt
 KiSt  = k × KESt
 total = 27.82 % (k = 0.08) or 27.99 % (k = 0.09)
@@ -178,7 +179,9 @@ gross and net side by side and never mix the two into one figure.
 
 ## 5. Sources
 
-- [Bundeszentralamt für Steuern — anrechenbare ausländische Quellensteuer](https://www.bzst.de/SharedDocs/Downloads/DE/EU_OECD/anrechenbare_ausl_quellensteuer_2025.pdf)
+- [Bundeszentralamt für Steuern — anrechenbare ausländische Quellensteuer, Stand 01.01.2024](https://www.bzst.de/SharedDocs/Downloads/DE/EU_OECD/anrechenbare_ausl_quellensteuer_2024.pdf)
+- [§ 32d EStG — 25% tariff, foreign-tax credit and church-tax formula](https://www.gesetze-im-internet.de/estg/__32d.html)
+- [BMF Datensammlung zur Steuerpolitik 2026 — €1,000/€2,000 Sparer-Pauschbetrag](https://www.bundesfinanzministerium.de/Content/DE/Downloads/Broschueren_Bestellservice/datensammlung-zur-steuerpolitik-2026.pdf)
 - [Finanztip — Quellensteuer auf Dividenden](https://www.finanztip.de/indexfonds-etf/quellensteuer/)
 - [Finanztip — Abgeltungsteuer](https://www.finanztip.de/abgeltungsteuer/)
 - [Raisin — Quellensteuer: Höhe, Anrechnung und Rückerstattung](https://www.raisin.com/de-de/steuer/quellensteuer/)

@@ -6,7 +6,7 @@ including a future session — can pick up without re-reading the whole history.
 - **Last updated:** 2026-08-23
 - **Version:** 0.1.0+1 (pre-release, `0.x.y`)
 - **Branch:** `master` (local work ahead of `origin`)
-- **Quality gate:** green — 393 tests, analyzer clean, both platforms build
+- **Quality gate:** green — 405 tests, analyzer clean, both platforms build
 
 ---
 
@@ -59,6 +59,7 @@ Today ranking lands with T1.
 | Month/year/agenda dividend calendar | D4 | done |
 | 24-month dividend income forecast | D5 | done |
 | Explainable Dividend Quality Score | D6 | done |
+| Explainable German dividend-tax model | D8 | done |
 
 ### What is left
 
@@ -188,6 +189,15 @@ dart format .
   fundamental into a zero. The factor weights, thresholds and limitations are
   documented in [`dividend-quality-score.md`](dividend-quality-score.md), and
   every score carries its positive, risk and neutral explanations.
+- **Tax estimates are ordered, explicit and deliberately limited.** D8 models
+  German private-share taxation only, consumes one editable EUR allowance in
+  payment order, uses the §32d church-tax/foreign-credit formula, and keeps
+  withheld, creditable, actually applied and reclaimable amounts distinct.
+  Foreign gross must first be converted to EUR with explicit FX evidence; an
+  unsupported residence or unknown source country produces no invented net.
+  The bundled table is dated 2024 and therefore visibly reviewable rather than
+  silently presented as current. Full limits are in
+  [`dividend-taxation.md`](dividend-taxation.md).
 - **A malformed stored amount fails loudly** as a `ParsingFailure` rather than
   parsing to something plausible.
 - **Value objects live in `lib/domain/value_objects/`**, a refinement of the
