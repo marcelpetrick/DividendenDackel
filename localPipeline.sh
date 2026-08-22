@@ -56,6 +56,8 @@ Local project pipeline:
 Options:
   --noRun          Skip the application launch stage. Always use this in CI and
                    on headless machines.
+  --selfTest       Verify that the pipeline reports failing commands as failures,
+                   then exit.
   --stage <name>   Run a subset of stages. One of:
                      all       every stage (default)
                      quality   toolchain, deps, format, analyze, tests
@@ -93,11 +95,17 @@ run_with_log() {
     shift
 
     mkdir -p "${PIPELINE_LOG_DIR}"
-    if "$@" >"${log_path}" 2>&1; then
+
+    # Capture the status immediately. Reading $? after an `if` block yields the
+    # status of the compound statement (0 when no branch ran), not the command's
+    # — a mistake that silently turned failing stages into passes.
+    local status=0
+    "$@" >"${log_path}" 2>&1 || status=$?
+
+    if [[ "${status}" -eq 0 ]]; then
         return 0
     fi
 
-    local status=$?
     error "Command failed (exit ${status}): $*"
     printf -- '--- begin output of: %s ---\n' "$*" >&2
     cat "${log_path}" >&2
@@ -250,6 +258,34 @@ smoke_test_linux_app() {
     return 1
 }
 
+# Verifies that the pipeline's own plumbing reports failure as failure.
+#
+# A quality gate that turns a failing command into PASS is worse than no gate,
+# so the property is asserted rather than assumed.
+run_self_test() {
+    local failures=0
+
+    if run_with_log "${PIPELINE_LOG_DIR}/selftest-pass.log" true >/dev/null 2>&1; then
+        log "self-test: a succeeding command reports success"
+    else
+        error "self-test: a succeeding command was reported as failing"
+        failures=$((failures + 1))
+    fi
+
+    if run_with_log "${PIPELINE_LOG_DIR}/selftest-fail.log" false >/dev/null 2>&1; then
+        error "self-test: a failing command was reported as succeeding"
+        failures=$((failures + 1))
+    else
+        log "self-test: a failing command reports failure"
+    fi
+
+    if [[ "${failures}" -eq 0 ]]; then
+        log "self-test passed"
+        return 0
+    fi
+    return 1
+}
+
 print_summary() {
     printf '\n===== localPipeline.sh summary =====\n'
     local line
@@ -274,6 +310,11 @@ parse_arguments() {
                 fi
                 STAGE="$2"
                 shift 2
+                ;;
+            --selfTest)
+                mkdir -p "${PIPELINE_LOG_DIR}"
+                run_self_test
+                exit $?
                 ;;
             --help | -h)
                 print_usage
@@ -302,6 +343,12 @@ main() {
     cd "${ROOT_DIR}" || exit 1
 
     log "Running local pipeline (stage: ${STAGE}, run app: ${RUN_APP})"
+
+    mkdir -p "${PIPELINE_LOG_DIR}"
+    if ! run_self_test; then
+        error "localPipeline.sh cannot be trusted; aborting"
+        exit 1
+    fi
 
     if verify_toolchain; then
         TOOLCHAIN_OK=1
