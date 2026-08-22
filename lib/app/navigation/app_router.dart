@@ -1,6 +1,7 @@
 import 'package:dividendendackel/app/navigation/app_shell.dart';
 import 'package:dividendendackel/app/navigation/destinations.dart';
 import 'package:dividendendackel/features/calendar/calendar_screen.dart';
+import 'package:dividendendackel/features/calendar/forecast_screen.dart';
 import 'package:dividendendackel/features/portfolio/portfolio_screen.dart';
 import 'package:dividendendackel/features/research/research_screen.dart';
 import 'package:dividendendackel/features/settings/about_screen.dart';
@@ -48,6 +49,11 @@ GoRouter buildRouter({String initialLocation = '/today'}) => GoRouter(
           path: '/calendar',
           builder: (BuildContext context, GoRouterState state) =>
               const CalendarScreen(),
+        ),
+        GoRoute(
+          path: '/calendar/forecast',
+          builder: (BuildContext context, GoRouterState state) =>
+              const ForecastScreen(),
         ),
         GoRoute(
           path: '/portfolio',

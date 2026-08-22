@@ -70,6 +70,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
   optional weekend columns; capped busy days with tap/hover detail; explicit
   estimate markers; held gross payments; and an honest display-currency
   selector that does not relabel native amounts before dated FX conversion.
+- A dedicated portfolio-income forecast now turns the explainable forecast
+  engine into a 24-month monthly, quarterly and annual view. Relative stacked
+  bars and a payout table keep paid, confirmed and estimated gross income
+  separate; annual share, current-month status, trailing-twelve-month income,
+  year-over-year change and per-year cumulative curves remain currency-safe.
 
 ### Changed
 
