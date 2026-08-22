@@ -6,7 +6,7 @@ including a future session — can pick up without re-reading the whole history.
 - **Last updated:** 2026-08-23
 - **Version:** 0.1.0+1 (pre-release, `0.x.y`)
 - **Branch:** `master` (local work ahead of `origin`)
-- **Quality gate:** green — 373 tests, analyzer clean, both platforms build
+- **Quality gate:** green — 380 tests, analyzer clean, both platforms build
 
 ---
 
@@ -25,8 +25,8 @@ switches between a bottom bar and a navigation rail, light and dark themes,
 Settings, About with the version, and a Data Status screen. Sample data is
 seeded on first launch, so the screens are populated with no API key.
 
-The screens are functional but thin — real calendar views, forecasts and the
-Today ranking land with D3–D5 and T1.
+The core portfolio and calendar are functional. Forecast visualization and the
+Today ranking land with D5 and T1.
 
 ### Done
 
@@ -56,6 +56,7 @@ Today ranking land with D3–D5 and T1.
 | Dividend CAGR + cut history analytics | D1 | done |
 | Deterministic dividend forecast engine | D2 | done |
 | Instrument add flows + portfolio overview | D3 | done |
+| Month/year/agenda dividend calendar | D4 | done |
 
 ### What is left
 
@@ -63,7 +64,7 @@ Ordered by what unblocks a usable app soonest.
 
 | Next | Task | Why it matters |
 | --- | --- | --- |
-| 1 | **D4/D5/T1** core UI | Calendar, forecast and Today. |
+| 1 | **D5/T1** core UI | Forecast and Today. |
 | 2 | **E1/E2** delivery proof | End-to-end flows and artifact launch verification. |
 | 3 | **D6–D9** deeper portfolio data | Quality, currency and gross/net tax. |
 
@@ -166,6 +167,13 @@ dart format .
   contributing a fabricated zero. Search combines local-first results with
   enabled providers and persists a selected live instrument before the user's
   holding or watchlist row.
+- **The calendar queries only the visible range and selected collection.** Its
+  month, year and rolling agenda modes organize events by either ex-date or
+  payment date, and unknown dates remain unplaced. Busy days disclose details
+  progressively; confirmed and estimated events use words plus shape/letter
+  markers. Year totals are held gross payments separated by currency—not sums
+  of unrelated per-share amounts. Selecting a future display currency never
+  relabels native money before D7 can supply an attributable daily FX rate.
 - **A malformed stored amount fails loudly** as a `ParsingFailure` rather than
   parsing to something plausible.
 - **Value objects live in `lib/domain/value_objects/`**, a refinement of the
