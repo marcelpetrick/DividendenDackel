@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 0.12.0+32
+version: 0.13.0+33
 
 environment:
   sdk: ^3.12.2
@@ -47,6 +47,9 @@ dependencies:
   # Reads the real version and build number from the installed package, so
   # the About screen can never disagree with the artifact (Vision.md §62).
   package_info_plus: 10.2.1
+  # Small, non-sensitive app preferences shared by Android and Linux. Secrets
+  # use platform-secure storage in F11 instead.
+  shared_preferences: 2.5.5
 
 dev_dependencies:
   # 2.16.0 conflicts with the constraints of the pinned Flutter SDK.

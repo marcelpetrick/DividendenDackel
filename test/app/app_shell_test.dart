@@ -3,6 +3,7 @@ import 'package:dividendendackel/app/navigation/app_shell.dart';
 import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/app/theme/app_colors.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
+import 'package:dividendendackel/app/theme/theme_preference.dart';
 import 'package:dividendendackel/app/widgets/value_labels.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/features/settings/about_screen.dart';
@@ -28,6 +29,9 @@ void main() {
         // drift's stream machinery outliving the widget tree, which the test
         // binding reports as a pending timer. The data layer has its own tests.
         overrides: [
+          themePreferenceStoreProvider.overrideWithValue(
+            _MemoryThemePreferenceStore(),
+          ),
           clockProvider.overrideWithValue(FakeClock(DateTime.utc(2026, 8, 22))),
           sampleDataProvider.overrideWith((Ref ref) async {}),
           holdingsProvider.overrideWith(
@@ -139,6 +143,9 @@ void main() {
       await tester.tap(find.byTooltip('Settings'));
       await tester.pumpAndSettle();
       expect(find.text('Settings'), findsWidgets);
+      expect(find.text('System'), findsOneWidget);
+      expect(find.text('Light'), findsOneWidget);
+      expect(find.text('Dark'), findsOneWidget);
 
       // The version is visible in Settings itself, so checking it does not
       // require knowing to open another screen.
@@ -153,6 +160,40 @@ void main() {
       );
       expect(find.text('0.1.0 (1)'), findsOneWidget);
       expect(find.text('Commit: abc1234'), findsOneWidget);
+    });
+
+    testWidgets('applies a selected theme immediately', (
+      WidgetTester tester,
+    ) async {
+      await pumpApp(tester);
+      await tester.tap(find.byTooltip('Settings'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Dark'));
+      await tester.pumpAndSettle();
+
+      final MaterialApp app = tester.widget<MaterialApp>(
+        find.byType(MaterialApp),
+      );
+      expect(app.themeMode, ThemeMode.dark);
+      expect(
+        Theme.of(tester.element(find.text('Settings'))).brightness,
+        Brightness.dark,
+      );
+    });
+
+    testWidgets('settings remain usable at large text scale', (
+      WidgetTester tester,
+    ) async {
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await pumpApp(tester);
+      await tester.tap(find.byTooltip('Settings'));
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      await tester.scrollUntilVisible(find.text('About'), 200);
+      expect(find.text('About'), findsOneWidget);
     });
   });
 
@@ -182,5 +223,52 @@ void main() {
         expect(DividendStatusChip.labelFor(status), isNotEmpty);
       }
     });
+
+    test('body and semantic colours meet WCAG AA contrast', () {
+      for (final ThemeData theme in <ThemeData>[
+        AppTheme.light(),
+        AppTheme.dark(),
+      ]) {
+        final Color surface = theme.colorScheme.surface;
+        final AppSemanticColors semantic = theme
+            .extension<AppSemanticColors>()!;
+        for (final Color foreground in <Color>[
+          theme.colorScheme.onSurface,
+          theme.colorScheme.onSurfaceVariant,
+          semantic.positive,
+          semantic.negative,
+          semantic.estimate,
+          semantic.accent,
+        ]) {
+          expect(
+            _contrastRatio(foreground, surface),
+            greaterThanOrEqualTo(4.5),
+            reason: '$foreground on $surface in ${theme.brightness}',
+          );
+        }
+      }
+    });
   });
+}
+
+double _contrastRatio(Color foreground, Color background) {
+  final double lighter =
+      foreground.computeLuminance() > background.computeLuminance()
+      ? foreground.computeLuminance()
+      : background.computeLuminance();
+  final double darker =
+      foreground.computeLuminance() > background.computeLuminance()
+      ? background.computeLuminance()
+      : foreground.computeLuminance();
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+final class _MemoryThemePreferenceStore implements ThemePreferenceStore {
+  ThemeMode mode = ThemeMode.system;
+
+  @override
+  Future<ThemeMode> load() async => mode;
+
+  @override
+  Future<void> save(ThemeMode mode) async => this.mode = mode;
 }
