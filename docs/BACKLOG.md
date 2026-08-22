@@ -48,12 +48,16 @@ Each task names the `Vision.md` sections it satisfies.
 - [x] **F4** Drift/SQLite persistence: tables for every core entity,
       schema version 1, explicit migration scaffolding, open on Android and
       Linux. Migration test. — §35, §76
-- [ ] **F5** DAOs + repository interfaces in `domain/repositories`, Drift-backed
+- [x] **F5** DAOs + repository interfaces in `domain/repositories`, Drift-backed
       implementations in `data/repositories`, exposing streams the UI observes.
       Repository tests. — §35, §53
 - [ ] **F9** Bundled sample data provider (realistic offline dataset) so the app
       is fully usable with zero API keys, plus fixture-based contract tests.
       — §44, §77
+- [ ] **Q8** App icon and branding for both platforms, replacing the default
+      Flutter launcher icon: a Dackel fetching a coin, tying the name to the
+      product's own fetch-and-retrieve metaphor. *Moved up from Phase 4 on
+      request.* — §24
 - [ ] **F10** App shell: Riverpod, routing, responsive scaffold (bottom nav on
       Android, navigation rail on Linux), light/dark/system themes with
       accessible contrast, design tokens. Widget tests. — §6, §24, §25, §26, §54
@@ -132,8 +136,6 @@ Each task names the `Vision.md` sections it satisfies.
       — §23
 - [ ] **Q7** Local notifications with disabled/important-only/all modes and
       non-manipulative wording. — §22, §85
-- [ ] **Q8** App icon and branding for both platforms, replacing the default
-      Flutter launcher icon. — §24
 - [ ] **Q9** Performance pass: fast cached Today, no jank in calendar scrolling,
       lazy deep research, no full-history loads at startup. — §78
 
