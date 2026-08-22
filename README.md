@@ -1,17 +1,111 @@
-# dividend_tracker
+# DividendenDackel — Dividend Tracker
 
-Dividend Tracker - a local-first dividend and portfolio-event companion for Android and Linux.
+[![CI](https://github.com/marcelpetrick/DividendenDackel/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/marcelpetrick/DividendenDackel/actions/workflows/ci.yml)
 
-## Getting Started
+**Dividend Tracker turns a local portfolio into a clear timeline of dividends, events, research changes, and upcoming income.**
 
-This project is a starting point for a Flutter application.
+It is a portfolio companion focused on dividends, upcoming portfolio events and
+clear daily insights — deliberately *not* another chart-heavy trading app. The
+question it answers is:
 
-A few resources to get you started if this is your first Flutter project:
+> What matters for my portfolio today, what happens next, and what should I understand about it?
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+**Author: Marcel Petrick <mail@marcelpetrick.it>**
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+**Note: project is generated with AI.**
+
+**License: GPLv3 or later. See [`LICENSE`](LICENSE).**
+
+---
+
+## Status
+
+**Early development — foundation phase.** The full specification lives in
+[`Vision.md`](Vision.md); the ordered task queue lives in
+[`docs/BACKLOG.md`](docs/BACKLOG.md).
+
+What exists today is the engineering foundation, not yet the product UI:
+
+- Flutter application targeting Android 10+ and Linux x86_64
+- typed error model and `Result` type
+- structured logging with credential and portfolio-content redaction
+- strict static analysis, local pipeline script and CI
+
+The Today screen, dividend calendar and portfolio are still ahead — see the
+backlog for exactly what is done and what is not.
+
+## Principles
+
+- **Relevance before data volume.** "3 things matter for your portfolio today",
+  not "84 new market articles".
+- **Explain instead of command.** No BUY/SELL signals; every score explains why
+  it exists.
+- **Local-first.** The portfolio and cached market data stay usable offline. No
+  login, no cloud account, no central portfolio database.
+- **Transparent data.** Source, freshness, cache state and confirmation status
+  are visible. Estimates are never presented as guarantees.
+- **Beginner-first, expert-expandable.** Simple by default, detail on demand.
+
+## Platforms
+
+| Target | Requirement |
+| --- | --- |
+| Android | 10 (API 29) or newer, built against API 36 |
+| Linux | x86_64 desktop, no Android runtime required |
+
+## Build
+
+Requires Flutter **3.44.7** (pinned — see [`localPipeline.sh`](localPipeline.sh)).
+
+```sh
+flutter pub get
+flutter run -d linux          # Linux desktop
+flutter run -d <android-id>   # Android device or emulator
+```
+
+Release artifacts:
+
+```sh
+flutter build linux --release   # build/linux/x64/release/bundle
+flutter build apk --release     # build/app/outputs/flutter-apk/app-release.apk
+```
+
+## Quality gate
+
+The same script runs locally and in CI, so the two cannot drift apart:
+
+```sh
+./localPipeline.sh --noRun              # everything, no app launch
+./localPipeline.sh --noRun --stage quality   # format, analyze, test
+./localPipeline.sh --stage linux        # Linux bundle only
+```
+
+It checks the toolchain, formatting, static analysis, tests, that `minSdk` is
+still 29 (Android 10 support is a product requirement), and both release
+builds, then prints a stage-by-stage summary.
+
+Individual commands:
+
+```sh
+dart format --output=none --set-exit-if-changed .
+flutter analyze
+flutter test
+```
+
+## Data providers
+
+The architecture is provider-agnostic. Because the app talks to providers
+directly from the client, **no privileged API secret is embedded in the
+released application** — keys are supplied by the user and stored locally.
+
+The app is designed to be fully usable without any API key at all, from bundled
+sample data and the local cache.
+
+Provider licensing terms are documented per provider in
+`docs/data-providers.md` before any adapter is merged.
+
+## Not goals
+
+Dividend Tracker is not a broker, not an order execution platform, not a tax
+filing application, not a social trading network, not an AI trading bot and not
+an investment-advice service.
