@@ -50,6 +50,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 - Keyless daily FX reference rates through Frankfurter v2, explicitly filtered
   to ECB data, with exact-decimal conversion, local history, a 12-hour cache
   policy, fixture contracts and additive database schema 3 migrations.
+- Data Status now shows every source's persistent runtime health, active
+  requests, honest cache hit/miss statistics, rate-limit reset times and the
+  latest privacy-safe error, while retaining health across offline restarts.
 
 ### Changed
 

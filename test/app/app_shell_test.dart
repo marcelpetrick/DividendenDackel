@@ -5,6 +5,8 @@ import 'package:dividendendackel/app/theme/app_colors.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
 import 'package:dividendendackel/app/theme/theme_preference.dart';
 import 'package:dividendendackel/app/widgets/value_labels.dart';
+import 'package:dividendendackel/core/errors/failure.dart';
+import 'package:dividendendackel/core/networking/request_coordinator.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/features/settings/about_screen.dart';
 import 'package:dividendendackel/features/settings/data_source_settings.dart';
@@ -60,6 +62,40 @@ void main() {
           upcomingDividendsProvider.overrideWith(
             (Ref ref, int days) =>
                 Stream<List<DividendEvent>>.value(const <DividendEvent>[]),
+          ),
+          providerStatusesProvider.overrideWith(
+            (Ref ref) => Stream<List<ProviderStatus>>.value(<ProviderStatus>[
+              ProviderStatus(
+                providerId: 'sec',
+                health: ProviderHealth.healthy,
+                lastRequestAt: DateTime.utc(2026, 8, 22, 11, 58),
+                cacheHits: 3,
+                cacheMisses: 1,
+              ),
+              ProviderStatus(
+                providerId: 'frankfurter',
+                health: ProviderHealth.rateLimited,
+                lastRequestAt: DateTime.utc(2026, 8, 22, 11, 59),
+                rateLimitResetAt: DateTime.utc(2026, 8, 22, 13),
+                lastErrorCategory: FailureCategory.rateLimited,
+                lastErrorMessage: 'Data source limit reached.',
+              ),
+            ]),
+          ),
+          activeOperationsProvider.overrideWith(
+            (Ref ref) => Stream<List<RequestStatus>>.value(<RequestStatus>[
+              RequestStatus(
+                requestKey: 'sec:filings',
+                provider: 'sec',
+                operation: 'fetchFilings',
+                priority: RequestPriority.high,
+                lifecycle: RequestLifecycle.running,
+                queuedAt: DateTime.utc(2026, 8, 22, 11, 59),
+                startedAt: DateTime.utc(2026, 8, 22, 11, 59),
+                attempt: 1,
+                subscriberCount: 1,
+              ),
+            ]),
           ),
           // Reading the real package version needs a platform channel, which
           // a widget test has no business standing up. What matters here is
@@ -138,7 +174,18 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Data status'), findsWidgets);
-      expect(find.text('Recent activity'), findsOneWidget);
+      expect(find.text('SEC EDGAR'), findsOneWidget);
+      expect(find.text('Connected'), findsOneWidget);
+      expect(find.textContaining('75%'), findsOneWidget);
+      expect(find.text('Rate limited'), findsOneWidget);
+      expect(
+        find.text('Last error: Data source limit reached.'),
+        findsOneWidget,
+      );
+      await tester.scrollUntilVisible(find.text('Current activity'), 300);
+      await tester.drag(find.byType(ListView), const Offset(0, -300));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.text('fetchFilings'), findsOneWidget);
     });
 
     testWidgets('reaches settings and about', (WidgetTester tester) async {

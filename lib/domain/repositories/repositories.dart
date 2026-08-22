@@ -1,4 +1,5 @@
 import 'package:decimal/decimal.dart';
+import 'package:dividendendackel/core/errors/failure.dart';
 import 'package:dividendendackel/core/errors/result.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 
@@ -177,4 +178,29 @@ abstract interface class CacheMetadataRepository {
 
   /// Removes metadata after a cached payload is deleted.
   Future<Result<void>> remove(String cacheKey);
+}
+
+/// Persists provider telemetry used by the Data Status screen.
+abstract interface class ProviderStatusRepository {
+  /// Emits the latest status for every provider that has been observed.
+  Stream<List<ProviderStatus>> watchAll();
+
+  /// Records the start of a request without discarding earlier health data.
+  Future<Result<void>> recordRequestStarted(String providerId, DateTime at);
+
+  /// Records a successful request and clears a previous error.
+  Future<Result<void>> recordSuccess(String providerId, DateTime at);
+
+  /// Records a failed request using privacy-safe, user-facing detail.
+  Future<Result<void>> recordFailure(
+    String providerId,
+    DateTime at,
+    Failure failure,
+  );
+
+  /// Atomically increments the provider's cache hit or miss counter.
+  Future<Result<void>> recordCacheAccess(
+    String providerId, {
+    required bool hit,
+  });
 }

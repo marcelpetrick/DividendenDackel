@@ -202,6 +202,8 @@ final class RequestStatus {
     this.startedAt,
     this.finishedAt,
     this.failureCategory,
+    this.failureMessage,
+    this.rateLimitResetAt,
   });
 
   /// Logical request identity.
@@ -237,6 +239,12 @@ final class RequestStatus {
   /// Failure classification for failed operations.
   final FailureCategory? failureCategory;
 
+  /// Privacy-safe text describing the failure.
+  final String? failureMessage;
+
+  /// Provider-reported time at which a rate limit clears.
+  final DateTime? rateLimitResetAt;
+
   /// Elapsed time once execution has started.
   Duration? durationAt(DateTime now) {
     final DateTime? start = startedAt;
@@ -254,6 +262,8 @@ final class RequestStatus {
     int? attempt,
     int? subscriberCount,
     FailureCategory? failureCategory,
+    String? failureMessage,
+    DateTime? rateLimitResetAt,
     bool clearFailure = false,
   }) => RequestStatus(
     requestKey: requestKey,
@@ -269,6 +279,10 @@ final class RequestStatus {
     failureCategory: clearFailure
         ? null
         : failureCategory ?? this.failureCategory,
+    failureMessage: clearFailure ? null : failureMessage ?? this.failureMessage,
+    rateLimitResetAt: clearFailure
+        ? null
+        : rateLimitResetAt ?? this.rateLimitResetAt,
   );
 }
 
@@ -719,6 +733,10 @@ final class _RequestJob<T> extends _RequestJobBase {
           lifecycle: RequestLifecycle.retrying,
           attempt: _attempts,
           failureCategory: failure.category,
+          failureMessage: failure.message,
+          rateLimitResetAt: failure is RateLimitFailure
+              ? failure.retryAt
+              : null,
           subscriberCount: subscriberCount,
         ),
       );
@@ -746,6 +764,8 @@ final class _RequestJob<T> extends _RequestJobBase {
             : RequestLifecycle.failed,
         finishedAt: owner.clock.now(),
         failureCategory: failure?.category,
+        failureMessage: failure?.message,
+        rateLimitResetAt: failure is RateLimitFailure ? failure.retryAt : null,
         subscriberCount: 0,
         clearFailure: failure == null,
       ),
