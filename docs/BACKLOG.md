@@ -51,7 +51,7 @@ Each task names the `Vision.md` sections it satisfies.
 - [x] **F5** DAOs + repository interfaces in `domain/repositories`, Drift-backed
       implementations in `data/repositories`, exposing streams the UI observes.
       Repository tests. — §35, §53
-- [ ] **F9** Bundled sample data provider (realistic offline dataset) so the app
+- [x] **F9** Bundled sample data provider (realistic offline dataset) so the app
       is fully usable with zero API keys, plus fixture-based contract tests.
       — §44, §77
 - [ ] **Q8** App icon and branding for both platforms, replacing the default
