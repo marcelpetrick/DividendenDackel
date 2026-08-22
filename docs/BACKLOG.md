@@ -95,15 +95,42 @@ Each task names the `Vision.md` sections it satisfies.
 - [ ] **D2** Deterministic, explainable dividend forecast engine (frequency,
       last dividend, growth, seasonality, announced values) emitting an explicit
       status and confidence. Unit tests. — §11, §48
+      - growth from the instrument's own dividend CAGR where history allows;
+      - an explicit, documented **fallback growth rate** when history is too
+        short, rather than assuming zero growth or refusing to forecast;
+      - the chosen basis is stated in the UI ("estimated from 8 years of
+        payments" vs "estimated from a default growth rate"), because §11
+        forbids pretending a rule-based calculation is more than it is.
 - [ ] **D3** Instrument search + add holding / add to watchlist flows, portfolio
       overview (value, day change, allocation, yield, next dividend). Widget
       and integration tests. — §8, §51
 - [ ] **D4** Dividend calendar: month, year and agenda views, ex-date vs
       payment-date toggle with beginner explanations, per-event confirmation
       status and expected payment for the held quantity. — §9
+      Concrete capabilities (informed by reviewing Parqet's calendar as
+      Vision.md §89 suggests; implementation and design are our own):
+      - scope filter: portfolio / watchlist / all known instruments;
+      - weekend toggle, since most payouts fall on weekdays and weekend
+        columns waste space on a phone;
+      - per-day event cap with a "show N more" affordance, so a heavy month
+        stays readable;
+      - tap or hover a day to expand its events with the key figures, rather
+        than cramming them into the cell (§2.3 progressive disclosure);
+      - estimated events carry a **shape/letter marker, not just a colour**,
+        which §27 requires anyway;
+      - display-currency selector, feeding D7.
 - [ ] **D5** Monthly + annual dividend forecast with bar visualization,
       confirmed vs estimated split, share of annual income, current-month
       already-paid breakdown. — §10
+      Concrete capabilities:
+      - breakdown by month, **quarter** and year, plus a payout table;
+      - forecast horizon of **24 months**, matching what the category treats as
+        useful;
+      - trailing-twelve-months income as the baseline figure;
+      - year-over-year comparison of dividend income;
+      - cumulative income curve across the year;
+      - every estimated figure separated from confirmed, never summed silently
+        into one number (§9.4).
 - [ ] **D6** Dividend Quality Score with per-factor positive/risk explanations.
       Unit tests. — §14
 - [ ] **D7** Multi-currency handling: per-instrument currency, a display
@@ -174,7 +201,8 @@ Each task names the `Vision.md` sections it satisfies.
 
 Not part of MVP 1. Listed so the plan is complete.
 
-- [ ] **P1** Calendar export (iCal) and CSV import
+- [ ] **P1** Calendar export (iCal, importable into Google Calendar and
+      Outlook) and CSV import
 - [ ] **P2** Broker import
 - [ ] **P3** Multiple portfolios
 - [ ] **P4** Encrypted Android/Linux sync
