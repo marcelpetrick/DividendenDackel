@@ -20,6 +20,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
   Android 10 assertion, both release builds, optional app smoke test).
 - GitHub Actions pull-request CI running the same pipeline script.
 - README, contribution guide and GPLv3 license.
+- Repositories over the local database, exposing streams the UI observes.
+- Bundled sample dataset: ten instruments across three currencies with annual,
+  quarterly and monthly payers, materialised around the current date so the
+  calendar is never empty.
+- App icon for Android and Linux: a dachshund fetching a euro coin.
+- Tagged release pipeline publishing a raw APK, a Linux tarball, checksums and
+  release notes generated from the commit history.
+- Application shell: Riverpod, routing, a responsive frame that switches
+  between a bottom bar and a navigation rail, and light and dark themes.
 
 ### Changed
 
