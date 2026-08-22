@@ -20,6 +20,7 @@ import 'package:dividendendackel/data/sample/sample_data_seeder.dart';
 import 'package:dividendendackel/data/sample/sample_dataset.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/domain/repositories/repositories.dart';
+import 'package:dividendendackel/features/portfolio/portfolio_editor.dart';
 import 'package:dividendendackel/features/settings/data_source_settings.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -218,6 +219,17 @@ final Provider<ProviderMarketDataService> providerMarketDataServiceProvider =
     Provider<ProviderMarketDataService>(
       (Ref ref) =>
           ProviderMarketDataService(ref.watch(providerFallbackChainProvider)),
+    );
+
+/// Search and mutation workflow for holdings and the watchlist.
+final Provider<PortfolioEditor> portfolioEditorProvider =
+    Provider<PortfolioEditor>(
+      (Ref ref) => DefaultPortfolioEditor(
+        instruments: ref.watch(instrumentRepositoryProvider),
+        portfolio: ref.watch(portfolioRepositoryProvider),
+        liveSearch: ref.watch(providerMarketDataServiceProvider).search,
+        clock: ref.watch(clockProvider),
+      ),
     );
 
 /// Seeds the bundled sample dataset on first run.

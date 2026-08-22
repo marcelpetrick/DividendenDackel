@@ -108,7 +108,7 @@ Each task names the `Vision.md` sections it satisfies.
       - the chosen basis is stated in the UI ("estimated from 8 years of
         payments" vs "estimated from a default growth rate"), because §11
         forbids pretending a rule-based calculation is more than it is.
-- [ ] **D3** Instrument search + add holding / add to watchlist flows, portfolio
+- [x] **D3** Instrument search + add holding / add to watchlist flows, portfolio
       overview (value, day change, allocation, yield, next dividend). Widget
       and integration tests. — §8, §51
 - [ ] **D4** Dividend calendar: month, year and agenda views, ex-date vs

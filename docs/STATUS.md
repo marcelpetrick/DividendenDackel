@@ -6,7 +6,7 @@ including a future session — can pick up without re-reading the whole history.
 - **Last updated:** 2026-08-23
 - **Version:** 0.1.0+1 (pre-release, `0.x.y`)
 - **Branch:** `master` (local work ahead of `origin`)
-- **Quality gate:** green — 357 tests, analyzer clean, both platforms build
+- **Quality gate:** green — 373 tests, analyzer clean, both platforms build
 
 ---
 
@@ -32,7 +32,7 @@ Today ranking land with D3–D5 and T1.
 
 | Area | Task | State |
 | --- | --- | --- |
-| Flutter app, Android + Linux | — | both build in release (APK 58 MB, bundle 28 MB) |
+| Flutter app, Android + Linux | — | both build in release (APK 59 MB, bundle 29 MB) |
 | `minSdk 29` pinned and asserted in CI | — | done |
 | Strict static analysis | B3 | done |
 | Local pipeline + PR CI + release pipeline | R1, R3 | done |
@@ -55,6 +55,7 @@ Today ranking land with D3–D5 and T1.
 | Persistent provider health + live Data Status | F12 | done |
 | Dividend CAGR + cut history analytics | D1 | done |
 | Deterministic dividend forecast engine | D2 | done |
+| Instrument add flows + portfolio overview | D3 | done |
 
 ### What is left
 
@@ -62,7 +63,7 @@ Ordered by what unblocks a usable app soonest.
 
 | Next | Task | Why it matters |
 | --- | --- | --- |
-| 1 | **D3–D5/T1** core UI | Portfolio, calendar, forecast and Today. |
+| 1 | **D4/D5/T1** core UI | Calendar, forecast and Today. |
 | 2 | **E1/E2** delivery proof | End-to-end flows and artifact launch verification. |
 | 3 | **D6–D9** deeper portfolio data | Quality, currency and gross/net tax. |
 
@@ -159,6 +160,12 @@ dart format .
   CAGR or the disclosed 3% fallback; irregular and undated histories produce a
   limitation instead of invented dates. Full rules are in
   [`dividend-forecast.md`](dividend-forecast.md).
+- **Portfolio totals remain separated by currency until D7.** Value, day
+  change, forward dividend income and allocation are calculated per currency;
+  missing quotes make the affected aggregate explicitly incomplete instead of
+  contributing a fabricated zero. Search combines local-first results with
+  enabled providers and persists a selected live instrument before the user's
+  holding or watchlist row.
 - **A malformed stored amount fails loudly** as a `ParsingFailure` rather than
   parsing to something plausible.
 - **Value objects live in `lib/domain/value_objects/`**, a refinement of the
