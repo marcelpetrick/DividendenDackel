@@ -5,8 +5,8 @@ including a future session — can pick up without re-reading the whole history.
 
 - **Last updated:** 2026-08-22
 - **Version:** 0.1.0+1 (pre-release, `0.x.y`)
-- **Branch:** `master` (pushed to `origin`)
-- **Quality gate:** green — 288 tests, analyzer clean, both platforms build
+- **Branch:** `master` (local work ahead of `origin`)
+- **Quality gate:** green — 299 tests, analyzer clean, both platforms build
 
 ---
 
@@ -32,7 +32,7 @@ Today ranking land with D3–D5 and T1.
 
 | Area | Task | State |
 | --- | --- | --- |
-| Flutter app, Android + Linux | — | both build in release (APK 49 MB, bundle 25 MB) |
+| Flutter app, Android + Linux | — | both build in release (APK 58 MB, bundle 28 MB) |
 | `minSdk 29` pinned and asserted in CI | — | done |
 | Strict static analysis | B3 | done |
 | Local pipeline + PR CI + release pipeline | R1, R3 | done |
@@ -49,6 +49,7 @@ Today ranking land with D3–D5 and T1.
 | Secure provider settings + build identity | F11 | done |
 | Cache TTL policy + metadata repository | F6 | done |
 | Bounded, deduplicating Request Coordinator | F7 | done |
+| Provider contracts, registry + fallback chain | F8 | done |
 
 ### What is left
 
@@ -56,16 +57,14 @@ Ordered by what unblocks a usable app soonest.
 
 | Next | Task | Why it matters |
 | --- | --- | --- |
-| 1 | **D3** portfolio | Search, add holding, portfolio overview. |
-| 2 | **D4** dividend calendar | Month/year/agenda, ex-date vs payment toggle. |
-| 3 | **D5** monthly forecast | Income per month, confirmed vs estimated. |
-| 4 | **T1** Today screen | The actual product experience. |
-| 5 | **E1/E2** end-to-end + artifact verification | Proof it works, not just that it compiles. |
+| 1 | **F8a** SEC EDGAR | Keyless US dividend history, filings and facts. |
+| 2 | **F8b** Frankfurter / ECB | Keyless daily reference FX rates. |
+| 3 | **F12** Data Status | Provider health, operations and cache visibility. |
+| 4 | **D1/D2** dividend analytics | CAGR and an explainable forecast engine. |
+| 5 | **D3–D5/T1** core UI | Portfolio, calendar, forecast and Today. |
 
-Then: D1 CAGR · D2 forecast engine · D6 quality score · D7 currency ·
-**D8/D9 gross-and-net tax** · F8 provider abstraction ·
-**F8a SEC EDGAR (keyless)** · **F8b FX (keyless)** ·
-F12 Data Status · T2–T6 events, news, research ·
+Then: D6 quality score · D7 currency · **D8/D9 gross-and-net tax** ·
+T2–T6 events, news, research ·
 Q1–Q7 offline, states, accessibility, health, simulator, onboarding,
 notifications · R2 dependency workflows · R4b remaining docs ·
 R5 optional keyed providers · R6 release readiness · S1 self-review ·
@@ -127,6 +126,10 @@ dart format .
   exponential retry, high/medium/low priority, in-flight deduplication and
   per-subscriber cancellation. Retry backoff releases capacity and retry
   attempts re-enter the same scheduler, so they cannot bypass limits.
+- **Provider capabilities are contracts, not flags alone.** Registry creation
+  rejects adapters that advertise an interface they do not implement, applies
+  per-data-type priority and enablement, and uses the coordinator for typed,
+  ordered fallback into normalized domain records.
 - **A malformed stored amount fails loudly** as a `ParsingFailure` rather than
   parsing to something plausible.
 - **Value objects live in `lib/domain/value_objects/`**, a refinement of the

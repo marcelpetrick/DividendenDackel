@@ -39,6 +39,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 - Central request coordination with global/provider concurrency limits,
   provider pacing, priorities, typed timeouts, exponential retries,
   in-flight deduplication, cancellation and live operation status.
+- Capability-specific market-data provider contracts, a validated registry and
+  per-data-type fallback into normalized domain records through the shared
+  request coordinator.
 
 ### Changed
 
