@@ -1,6 +1,7 @@
 import 'package:dividendendackel/core/logging/logging.dart';
 import 'package:dividendendackel/core/utils/clock.dart';
 import 'package:dividendendackel/data/database/app_database.dart';
+import 'package:dividendendackel/data/repositories/drift_cache_metadata_repository.dart';
 import 'package:dividendendackel/data/repositories/drift_dividend_repository.dart';
 import 'package:dividendendackel/data/repositories/drift_instrument_repository.dart';
 import 'package:dividendendackel/data/repositories/drift_market_data_repository.dart';
@@ -68,6 +69,12 @@ final Provider<DividendRepository> dividendRepositoryProvider =
 final Provider<MarketDataRepository> marketDataRepositoryProvider =
     Provider<MarketDataRepository>(
       (Ref ref) => DriftMarketDataRepository(ref.watch(databaseProvider)),
+    );
+
+/// Cache-expiry metadata used by the request coordinator.
+final Provider<CacheMetadataRepository> cacheMetadataRepositoryProvider =
+    Provider<CacheMetadataRepository>(
+      (Ref ref) => DriftCacheMetadataRepository(ref.watch(databaseProvider)),
     );
 
 /// Seeds the bundled sample dataset on first run.

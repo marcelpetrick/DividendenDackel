@@ -147,3 +147,15 @@ abstract interface class MarketDataRepository {
   /// Inserts or updates a quote.
   Future<Result<void>> saveQuote(Quote quote);
 }
+
+/// Reads and writes cache-expiry bookkeeping used by the coordinator.
+abstract interface class CacheMetadataRepository {
+  /// Reads metadata for [cacheKey], or `null` on a cache miss.
+  Future<Result<CacheMetadataEntry?>> find(String cacheKey);
+
+  /// Inserts or replaces [entry].
+  Future<Result<void>> save(CacheMetadataEntry entry);
+
+  /// Removes metadata after a cached payload is deleted.
+  Future<Result<void>> remove(String cacheKey);
+}

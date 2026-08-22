@@ -34,6 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 - Data-source settings with keyless-provider toggles and secure, user-supplied
   API-key storage on Android and Linux; release artifacts now receive their
   source commit for the About screen.
+- Configurable per-data-type cache lifetimes, explicit fresh/stale/missing
+  resolution, and persisted cache metadata for request coordination.
 
 ### Changed
 
