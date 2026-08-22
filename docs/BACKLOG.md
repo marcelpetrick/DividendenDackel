@@ -26,6 +26,12 @@ Each task names the `Vision.md` sections it satisfies.
 
 ## Phase 1 — Foundation
 
+> **Reordered for delivery.** F9 (sample data) and F10 (app shell) now come
+> before F6–F8 (cache, Request Coordinator, provider abstraction). The goal is
+> a working, installable app driven by bundled sample data as early as
+> possible; live provider plumbing is not needed for that and would otherwise
+> delay it.
+
 - [x] **F1** Typed error/failure model (`Failure` hierarchy: network, timeout,
       rateLimited, auth, providerUnavailable, parsing, invalidInstrument,
       noData, stale) plus a `Result<T>` type. Unit tests. — §55
@@ -39,12 +45,21 @@ Each task names the `Vision.md` sections it satisfies.
       `NewsItem` (+`NewsCategory`), `Filing`, `ResearchSnapshot`, and a shared
       `Provenance` (source, fetchedAt, updatedAt, cacheState, confidence,
       currency, originalSymbol, exchange). Unit tests. — §35, §36, §45, §48
-- [ ] **F4** Drift/SQLite persistence: tables for every core entity,
+- [x] **F4** Drift/SQLite persistence: tables for every core entity,
       schema version 1, explicit migration scaffolding, open on Android and
       Linux. Migration test. — §35, §76
 - [ ] **F5** DAOs + repository interfaces in `domain/repositories`, Drift-backed
       implementations in `data/repositories`, exposing streams the UI observes.
       Repository tests. — §35, §53
+- [ ] **F9** Bundled sample data provider (realistic offline dataset) so the app
+      is fully usable with zero API keys, plus fixture-based contract tests.
+      — §44, §77
+- [ ] **F10** App shell: Riverpod, routing, responsive scaffold (bottom nav on
+      Android, navigation rail on Linux), light/dark/system themes with
+      accessible contrast, design tokens. Widget tests. — §6, §24, §25, §26, §54
+- [ ] **F11** Settings + local API key storage (user-supplied keys, never
+      embedded secrets), provider enable/disable, About screen with version,
+      build number, commit SHA. — §34, §62, §80
 - [ ] **F6** Cache metadata + configurable TTL policy per data type with the
       defaults from the vision, and a `CacheState` (fresh/stale/missing)
       resolver. Unit tests for expiry. — §37
@@ -56,15 +71,6 @@ Each task names the `Vision.md` sections it satisfies.
 - [ ] **F8** `MarketDataProvider` interface, provider registry, per-data-type
       priority + fallback chain honouring rate limits, and normalization into
       domain models. Unit tests for fallback. — §32, §33
-- [ ] **F9** Bundled sample data provider (realistic offline dataset) so the app
-      is fully usable with zero API keys, plus fixture-based contract tests.
-      — §44, §77
-- [ ] **F10** App shell: Riverpod, routing, responsive scaffold (bottom nav on
-      Android, navigation rail on Linux), light/dark/system themes with
-      accessible contrast, design tokens. Widget tests. — §6, §24, §25, §26, §54
-- [ ] **F11** Settings + local API key storage (user-supplied keys, never
-      embedded secrets), provider enable/disable, About screen with version,
-      build number, commit SHA. — §34, §62, §80
 - [ ] **F12** Data Status screen: provider health, active operations, cache hit
       rate, rate-limit reset times, last error. Widget test. — §41, §42, §43
 
@@ -130,6 +136,18 @@ Each task names the `Vision.md` sections it satisfies.
       Flutter launcher icon. — §24
 - [ ] **Q9** Performance pass: fast cached Today, no jank in calendar scrolling,
       lazy deep research, no full-history loads at startup. — §78
+
+---
+
+## Delivery verification
+
+- [ ] **E1** `integration_test` end-to-end coverage of the real flows: add a
+      holding, see it in the portfolio, open the calendar, see a dividend
+      event and the monthly forecast, go offline and still see data. Runs on
+      Linux locally and is wired into the pipeline. — §57
+- [ ] **E2** Release artifact verification: build the release APK and the Linux
+      bundle, launch the Linux bundle and assert it starts and renders, and
+      record the artifact sizes. Wired into `localPipeline.sh`. — §59, §88
 
 ---
 
