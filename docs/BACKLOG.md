@@ -152,9 +152,10 @@ Each task names the `Vision.md` sections it satisfies.
       calendar, forecast, portfolio income and Today, never summed into one;
       a tax profile in Settings with visible, editable defaults; a plain
       "estimate, not tax advice" label. — §2.2, §2.5, §10
-- [ ] **D7** Multi-currency handling: per-instrument currency, a display
+- [x] **D7** Multi-currency handling: per-instrument currency, a display
       currency, explicit FX rates with their own provenance and staleness, and
       currency exposure. Totals must never silently mix currencies. Unit tests.
+      Design and limits in [`currency-conversion.md`](currency-conversion.md).
       — §20, §45
 
 ---

@@ -18,6 +18,12 @@ void main() {
         treatyRateWithForms: Percentage.zero,
         creditableCap: Percentage.zero,
       ),
+      'US': WithholdingRule(
+        country: 'US',
+        statutoryRate: Percentage.parsePercent('30'),
+        treatyRateWithForms: Percentage.parsePercent('15'),
+        creditableCap: Percentage.parsePercent('15'),
+      ),
     },
   );
   final Provenance provenance = Provenance(
@@ -98,5 +104,56 @@ void main() {
         result.byEventKey[dividendTaxEventKey(foreign)]!;
     expect(estimate.gross, Money.parse('10', Currency.usd));
     expect(estimate.result, isA<UnsupportedTaxCalculation>());
+  });
+
+  test('uses a dated rate for foreign gross and retains its provenance', () {
+    final Holding foreignHolding = Holding(
+      instrumentId: 'us',
+      quantity: Decimal.fromInt(10),
+      provenance: provenance,
+    );
+    final DividendEvent foreign = DividendEvent(
+      instrumentId: 'us',
+      amountPerShare: Money.parse('12', Currency.usd),
+      status: DividendStatus.confirmed,
+      paymentDate: DateTime.utc(2026, 2, 20),
+      provenance: provenance,
+    );
+    final PortfolioTaxEstimates result = PortfolioTaxEstimator.calculate(
+      year: 2026,
+      events: <DividendEvent>[foreign],
+      holdings: <Holding>[foreignHolding],
+      instruments: const <String, Instrument>{
+        'us': Instrument(
+          internalId: 'us',
+          symbol: 'US',
+          name: 'US share',
+          currency: Currency.usd,
+          country: 'US',
+        ),
+      },
+      settings: TaxSettings(profile: DividendTaxProfile(), table: table),
+      fxRates: <FxRate>[
+        FxRate(
+          base: Currency.eur,
+          quote: Currency.usd,
+          rate: Decimal.parse('1.2'),
+          observedAt: DateTime.utc(2026, 2, 19),
+          provenance: provenance,
+        ),
+      ],
+    );
+
+    final TaxEventEstimate estimate =
+        result.byEventKey[dividendTaxEventKey(foreign)]!;
+    final DividendTaxBreakdown breakdown =
+        estimate.result as DividendTaxBreakdown;
+    expect(estimate.gross, Money.parse('120', Currency.usd));
+    expect(breakdown.gross, Money.parse('100', Currency.eur));
+    expect(breakdown.net, Money.parse('85', Currency.eur));
+    expect(
+      estimate.fxConversion?.rates.single.observedAt,
+      DateTime.utc(2026, 2, 19),
+    );
   });
 }

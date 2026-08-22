@@ -3,15 +3,21 @@ import 'package:dividendendackel/domain/analytics/analytics.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/domain/repositories/repositories.dart';
 import 'package:dividendendackel/features/calendar/calendar_state.dart';
+import 'package:dividendendackel/features/currency/fx_state.dart';
 import 'package:dividendendackel/features/settings/tax_settings.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Gross and estimated-net result attached to one held dividend event.
 final class TaxEventEstimate {
   /// Creates an estimate.
-  const TaxEventEstimate({required this.gross, required this.result});
+  const TaxEventEstimate({
+    required this.gross,
+    required this.result,
+    this.fxConversion,
+  });
   final Money gross;
   final DividendTaxResult result;
+  final FxConversion? fxConversion;
 }
 
 /// Annual estimates keyed by a stable event identity.
@@ -34,19 +40,28 @@ abstract final class PortfolioTaxEstimator {
     required Iterable<Holding> holdings,
     required Map<String, Instrument> instruments,
     required TaxSettings settings,
+    Iterable<FxRate> fxRates = const <FxRate>[],
   }) {
     final Map<String, Holding> held = <String, Holding>{
       for (final Holding holding in holdings) holding.instrumentId: holding,
     };
     final Map<String, TaxEventEstimate> output = <String, TaxEventEstimate>{};
-    final List<(DividendEvent, TaxableDividend)> taxable =
-        <(DividendEvent, TaxableDividend)>[];
+    final List<(DividendEvent, TaxableDividend, Money, FxConversion?)> taxable =
+        <(DividendEvent, TaxableDividend, Money, FxConversion?)>[];
     for (final DividendEvent event in events) {
       final Holding? holding = held[event.instrumentId];
       if (holding == null || event.paymentDate?.year != year) continue;
       final Money gross = event.grossPaymentFor(holding.quantity);
       final Instrument? instrument = instruments[event.instrumentId];
+      FxConversion? fxConversion;
+      Money grossEur = gross;
       if (gross.currency != Currency.eur) {
+        fxConversion = FxRateBook(
+          fxRates,
+        ).convert(gross, Currency.eur, asOf: event.paymentDate!);
+        if (fxConversion != null) grossEur = fxConversion.converted;
+      }
+      if (gross.currency != Currency.eur && fxConversion == null) {
         output[dividendTaxEventKey(event)] = TaxEventEstimate(
           gross: gross,
           result: const UnsupportedTaxCalculation(
@@ -70,8 +85,10 @@ abstract final class PortfolioTaxEstimator {
           instrumentId: event.instrumentId,
           sourceCountry: instrument!.country!,
           paymentDate: event.paymentDate!,
-          grossEur: gross,
+          grossEur: grossEur,
         ),
+        gross,
+        fxConversion,
       ));
     }
     taxable.sort((left, right) {
@@ -94,8 +111,9 @@ abstract final class PortfolioTaxEstimator {
     for (int index = 0; index < taxable.length; index++) {
       final DividendEvent event = taxable[index].$1;
       output[dividendTaxEventKey(event)] = TaxEventEstimate(
-        gross: taxable[index].$2.grossEur,
+        gross: taxable[index].$3,
         result: calculated.results[index],
+        fxConversion: taxable[index].$4,
       );
     }
     return PortfolioTaxEstimates(
@@ -138,11 +156,18 @@ final portfolioTaxEstimatesProvider =
           ),
         ).future,
       );
+      final bool needsFx = events.any(
+        (DividendEvent event) => event.amountPerShare.currency != Currency.eur,
+      );
+      final List<FxRate> fxRates = needsFx
+          ? await ref.watch(cachedFxRatesProvider.future)
+          : const <FxRate>[];
       return PortfolioTaxEstimator.calculate(
         year: year,
         events: events,
         holdings: holdings,
         instruments: instruments,
         settings: settings,
+        fxRates: fxRates,
       );
     });

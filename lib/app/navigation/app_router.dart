@@ -5,6 +5,7 @@ import 'package:dividendendackel/features/calendar/forecast_screen.dart';
 import 'package:dividendendackel/features/portfolio/portfolio_screen.dart';
 import 'package:dividendendackel/features/research/research_screen.dart';
 import 'package:dividendendackel/features/settings/about_screen.dart';
+import 'package:dividendendackel/features/settings/currency_settings_screen.dart';
 import 'package:dividendendackel/features/settings/data_sources_screen.dart';
 import 'package:dividendendackel/features/settings/settings_screen.dart';
 import 'package:dividendendackel/features/settings/tax_settings_screen.dart';
@@ -82,6 +83,11 @@ GoRouter buildRouter({String initialLocation = '/today'}) => GoRouter(
       path: '/settings/data-sources',
       builder: (BuildContext context, GoRouterState state) =>
           const DataSourcesScreen(),
+    ),
+    GoRoute(
+      path: '/settings/currency',
+      builder: (BuildContext context, GoRouterState state) =>
+          const CurrencySettingsScreen(),
     ),
     GoRoute(
       path: '/settings/tax',

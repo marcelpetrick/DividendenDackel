@@ -5,7 +5,9 @@ import 'package:dividendendackel/app/widgets/gross_net_amount.dart';
 import 'package:dividendendackel/app/widgets/value_labels.dart';
 import 'package:dividendendackel/domain/analytics/analytics.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
+import 'package:dividendendackel/features/currency/fx_state.dart';
 import 'package:dividendendackel/features/portfolio/add_instrument_dialog.dart';
+import 'package:dividendendackel/features/settings/currency_settings.dart';
 import 'package:dividendendackel/features/tax/tax_estimates.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,6 +33,10 @@ class PortfolioScreen extends ConsumerWidget {
     final List<DividendEvent> dividends =
         dividendData.value ?? const <DividendEvent>[];
     final DateTime now = ref.watch(clockProvider).now();
+    final Currency displayCurrency = ref
+        .watch(displayCurrencyProvider)
+        .currency;
+    final FxRefreshState fxRefresh = ref.watch(fxRefreshProvider);
     final AsyncValue<PortfolioTaxEstimates> currentTax = ref.watch(
       portfolioTaxEstimatesProvider(now.year),
     );
@@ -50,17 +56,54 @@ class PortfolioScreen extends ConsumerWidget {
                 dividends: dividends,
                 asOf: now,
               );
+          final bool needsFx = overview.byCurrency.keys.any(
+            (Currency currency) => currency != displayCurrency,
+          );
+          final List<FxRate> fxRates = needsFx
+              ? ref.watch(cachedFxRatesProvider).value ?? const <FxRate>[]
+              : const <FxRate>[];
           final _TaxWindow taxWindow = _taxWindow(
             dividends,
             <AsyncValue<PortfolioTaxEstimates>>[currentTax, nextTax],
             <String>{for (final Holding holding in data) holding.instrumentId},
           );
+          final FxRateBook rateBook = FxRateBook(fxRates);
+          final PortfolioCurrencyExposure valueExposure =
+              CurrencyExposureCalculator.calculate(
+                nativeValues: <Currency, Money>{
+                  for (final PortfolioCurrencySummary summary
+                      in overview.byCurrency.values)
+                    summary.currency: summary.totalValue,
+                },
+                displayCurrency: displayCurrency,
+                rates: rateBook,
+                asOf: now,
+              );
+          final PortfolioCurrencyExposure incomeExposure =
+              CurrencyExposureCalculator.calculate(
+                nativeValues: <Currency, Money>{
+                  for (final PortfolioCurrencySummary summary
+                      in overview.byCurrency.values)
+                    summary.currency: summary.forecastAnnualDividend,
+                },
+                displayCurrency: displayCurrency,
+                rates: rateBook,
+                asOf: now,
+              );
           return _PortfolioBody(
             overview: overview,
             watchlist: watchlist,
             instruments: instruments,
             dividendDataAvailable: dividendData.hasValue,
             taxWindow: taxWindow,
+            valueExposure: valueExposure,
+            incomeExposure: incomeExposure,
+            fxRefreshing: fxRefresh.isRefreshing,
+            fxError: fxRefresh.errorMessage,
+            refreshFx: () => ref.read(fxRefreshProvider.notifier).refresh(),
+            pricesComplete: overview.byCurrency.values.every(
+              (PortfolioCurrencySummary summary) => summary.isComplete,
+            ),
           );
         },
       ),
@@ -93,6 +136,12 @@ class _PortfolioBody extends StatelessWidget {
     required this.instruments,
     required this.dividendDataAvailable,
     required this.taxWindow,
+    required this.valueExposure,
+    required this.incomeExposure,
+    required this.fxRefreshing,
+    required this.fxError,
+    required this.refreshFx,
+    required this.pricesComplete,
   });
 
   final PortfolioOverview overview;
@@ -100,6 +149,12 @@ class _PortfolioBody extends StatelessWidget {
   final Map<String, Instrument> instruments;
   final bool dividendDataAvailable;
   final _TaxWindow taxWindow;
+  final PortfolioCurrencyExposure valueExposure;
+  final PortfolioCurrencyExposure incomeExposure;
+  final bool fxRefreshing;
+  final String? fxError;
+  final VoidCallback refreshFx;
+  final bool pricesComplete;
 
   @override
   Widget build(BuildContext context) => ListView(
@@ -128,6 +183,18 @@ class _PortfolioBody extends StatelessWidget {
               ),
           ],
         ),
+      if (overview.byCurrency.isNotEmpty) ...<Widget>[
+        const SizedBox(height: AppTheme.space),
+        _DisplayCurrencyCard(
+          values: valueExposure,
+          income: incomeExposure,
+          refreshing: fxRefreshing,
+          errorMessage: fxError,
+          onRefresh: refreshFx,
+          pricesComplete: pricesComplete,
+          dividendDataAvailable: dividendDataAvailable,
+        ),
+      ],
       const SizedBox(height: AppTheme.space * 2),
       Text('Holdings', style: Theme.of(context).textTheme.titleLarge),
       const SizedBox(height: AppTheme.space),
@@ -170,6 +237,130 @@ class _PortfolioBody extends StatelessWidget {
         ),
     ],
   );
+}
+
+class _DisplayCurrencyCard extends StatelessWidget {
+  const _DisplayCurrencyCard({
+    required this.values,
+    required this.income,
+    required this.refreshing,
+    required this.errorMessage,
+    required this.onRefresh,
+    required this.pricesComplete,
+    required this.dividendDataAvailable,
+  });
+  final PortfolioCurrencyExposure values;
+  final PortfolioCurrencyExposure income;
+  final bool refreshing;
+  final String? errorMessage;
+  final VoidCallback onRefresh;
+  final bool pricesComplete;
+  final bool dividendDataAvailable;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final Set<Currency> missing = <Currency>{
+      ...values.missingCurrencies,
+      ...income.missingCurrencies,
+    };
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppTheme.space * 2),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: Text(
+                    '${values.displayCurrency.code} display view',
+                    style: theme.textTheme.titleMedium,
+                  ),
+                ),
+                IconButton(
+                  tooltip: 'Refresh ECB exchange rates',
+                  onPressed: refreshing ? null : onRefresh,
+                  icon: refreshing
+                      ? const SizedBox.square(
+                          dimension: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.refresh),
+                ),
+              ],
+            ),
+            _SummaryRow(
+              label: 'Converted portfolio value',
+              value: MoneyText(values.total, style: theme.textTheme.titleLarge),
+            ),
+            _SummaryRow(
+              label: 'Next 365 days gross',
+              value: dividendDataAvailable
+                  ? MoneyText(income.total, style: theme.textTheme.titleMedium)
+                  : const Text('Loading…'),
+            ),
+            if (!pricesComplete)
+              Text(
+                'Converted value is partial because at least one holding has '
+                'no cached quote.',
+                style: TextStyle(color: theme.colorScheme.error),
+              ),
+            if (missing.isNotEmpty)
+              Text(
+                'Incomplete: no dated EUR reference rate for '
+                '${missing.map((Currency item) => item.code).join(', ')}.',
+                style: TextStyle(color: theme.colorScheme.error),
+              ),
+            if (errorMessage != null)
+              Text(
+                'Refresh failed: $errorMessage Cached values remain visible.',
+                style: TextStyle(color: theme.colorScheme.error),
+              ),
+            const Divider(height: AppTheme.space * 2),
+            Text('Currency exposure', style: theme.textTheme.titleSmall),
+            const SizedBox(height: AppTheme.space / 2),
+            for (final CurrencyExposureSlice slice in values.slices)
+              Padding(
+                padding: const EdgeInsets.only(bottom: AppTheme.space / 2),
+                child: Row(
+                  children: <Widget>[
+                    SizedBox(width: 46, child: Text(slice.nativeCurrency.code)),
+                    Expanded(
+                      child: LinearProgressIndicator(
+                        value: double.parse(slice.share.rate.toString()),
+                        semanticsLabel:
+                            '${slice.nativeCurrency.code} ${slice.share.format()}',
+                      ),
+                    ),
+                    const SizedBox(width: AppTheme.space),
+                    Text(slice.share.format()),
+                  ],
+                ),
+              ),
+            for (final CurrencyExposureSlice slice in values.slices.where(
+              (item) => item.conversion.rates.isNotEmpty,
+            ))
+              Text(
+                '${slice.nativeCurrency.code}: '
+                '${slice.conversion.rates.map((FxRate rate) => '${rate.base.code}/${rate.quote.code} ${rate.rate} · ${rate.provenance.source} · ${_date(rate.observedAt)}').join(' via ')}'
+                '${slice.conversion.isStale ? ' · stale' : ''}',
+                style: theme.textTheme.labelSmall,
+              ),
+            Text(
+              'Native totals remain above. Converted figures use exact cached '
+              'daily rates and are rounded only for display.',
+              style: theme.textTheme.labelSmall,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  static String _date(DateTime value) =>
+      '${value.year}-${value.month.toString().padLeft(2, '0')}-'
+      '${value.day.toString().padLeft(2, '0')}';
 }
 
 class _EmptyPortfolioCard extends StatelessWidget {
