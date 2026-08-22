@@ -84,13 +84,25 @@ mark_result() {
     SUMMARY_LINES+=("$(printf '%-20s : %-4s %s' "${label}" "${status}" "${details}")")
 }
 
+# Runs a command quietly, but dumps its full output when it fails.
+#
+# A pipeline that hides why a stage failed is useless in CI, where the log is
+# the only evidence available.
 run_with_log() {
     local log_path="$1"
     shift
 
     mkdir -p "${PIPELINE_LOG_DIR}"
-    "$@" 2>&1 | tee "${log_path}"
-    return "${PIPESTATUS[0]}"
+    if "$@" >"${log_path}" 2>&1; then
+        return 0
+    fi
+
+    local status=$?
+    error "Command failed (exit ${status}): $*"
+    printf -- '--- begin output of: %s ---\n' "$*" >&2
+    cat "${log_path}" >&2
+    printf -- '--- end output ---\n' >&2
+    return "${status}"
 }
 
 stage_enabled() {
@@ -136,17 +148,17 @@ verify_toolchain() {
 }
 
 fetch_dependencies() {
-    run_with_log "${PIPELINE_LOG_DIR}/pub-get.log" flutter pub get >/dev/null
+    run_with_log "${PIPELINE_LOG_DIR}/pub-get.log" flutter pub get
 }
 
 check_formatting() {
     run_with_log "${PIPELINE_LOG_DIR}/format.log" \
-        dart format --output=none --set-exit-if-changed . >/dev/null
+        dart format --output=none --set-exit-if-changed .
 }
 
 run_analyzer() {
     local log_path="${PIPELINE_LOG_DIR}/analyze.log"
-    if run_with_log "${log_path}" flutter analyze >/dev/null; then
+    if run_with_log "${log_path}" flutter analyze; then
         ANALYZE_DETAILS="No issues found"
         return 0
     fi
@@ -157,14 +169,16 @@ run_analyzer() {
 run_tests() {
     local log_path="${PIPELINE_LOG_DIR}/test.log"
     local status=0
-    run_with_log "${log_path}" flutter test >/dev/null || status=1
+    run_with_log "${log_path}" flutter test || status=1
 
     local summary
-    summary="$(grep -oE '\+[0-9]+(\s+-[0-9]+)?: (All tests passed|Some tests failed)' "${log_path}" | tail -n 1 || true)"
+    summary="$(grep -oE '(All tests passed|Some tests failed)' "${log_path}" | tail -n 1 || true)"
+    local counts
+    counts="$(grep -oE '\+[0-9]+( -[0-9]+)?' "${log_path}" | tail -n 1 || true)"
     if [[ -n "${summary}" ]]; then
-        TESTS_DETAILS="${summary}"
+        TESTS_DETAILS="${counts:+${counts} }${summary}"
     else
-        TESTS_DETAILS="see flutter test output"
+        TESTS_DETAILS="see flutter test output above"
     fi
     return "${status}"
 }
@@ -186,7 +200,7 @@ assert_android_compatibility() {
 
 build_linux() {
     local log_path="${PIPELINE_LOG_DIR}/build-linux.log"
-    if ! run_with_log "${log_path}" flutter build linux --release >/dev/null; then
+    if ! run_with_log "${log_path}" flutter build linux --release; then
         BUILD_LINUX_DETAILS="build failed"
         return 1
     fi
@@ -201,7 +215,7 @@ build_linux() {
 
 build_android() {
     local log_path="${PIPELINE_LOG_DIR}/build-android.log"
-    if ! run_with_log "${log_path}" flutter build apk --release >/dev/null; then
+    if ! run_with_log "${log_path}" flutter build apk --release; then
         BUILD_ANDROID_DETAILS="build failed"
         return 1
     fi

@@ -1,4 +1,3 @@
-import 'package:decimal/decimal.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:flutter_test/flutter_test.dart';
 
