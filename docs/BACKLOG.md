@@ -19,8 +19,8 @@ Each task names the `Vision.md` sections it satisfies.
       test, both platform builds, `minSdk` 29 assertion). *Pulled forward from
       Phase 5 on request: every later commit is then verified on a clean
       machine, not only on the development box.* — §58, §68, §70, §73
-- [x] **R4a** README + GPLv3 `LICENSE`. *Pulled forward from Phase 5 on
-      request.* — §81
+- [x] **R4a** README, GPLv3 `LICENSE`, `CONTRIBUTING.md`, `CHANGELOG.md`.
+      *Pulled forward from Phase 5 on request.* — §75, §81, §82
 
 ---
 
@@ -165,10 +165,10 @@ Not part of MVP 1. Listed so the plan is complete.
 - [ ] **R3** Release workflow on `v*` tags: version/tag match, checks, APK,
       Linux tarball, checksums, GitHub Release. Pinned action SHAs, minimal
       permissions. — §69, §70, §73
-- [ ] **R4b** Remaining documentation set: `CONTRIBUTING.md`, `CHANGELOG.md`,
-      `docs/architecture.md`, `docs/data-providers.md`, `docs/research-score.md`,
-      `docs/privacy.md`, `docs/releases.md`. (`README.md` and `LICENSE` are
-      done — see R4a.) — §47, §75, §81, §82
+- [ ] **R4b** Remaining documentation set: `docs/architecture.md`, `docs/data-providers.md`, `docs/research-score.md`,
+      `docs/data-providers.md`, `docs/research-score.md`, `docs/privacy.md`,
+      `docs/releases.md`. (`README.md`, `LICENSE`, `CONTRIBUTING.md` and
+      `CHANGELOG.md` are done — see R4a.) — §47, §75, §81, §82
 - [ ] **R5** Real provider adapters (Financial Modeling Prep, Finnhub, Alpha
       Vantage, SEC EDGAR) behind the provider interface, each with fixture
       contract tests and a licensing entry in `docs/data-providers.md`. No
