@@ -6,7 +6,7 @@ including a future session — can pick up without re-reading the whole history.
 - **Last updated:** 2026-08-22
 - **Version:** 0.1.0+1 (pre-release, `0.x.y`)
 - **Branch:** `master` (pushed to `origin`)
-- **Quality gate:** green — 252 tests, analyzer clean, both platforms build
+- **Quality gate:** green — 266 tests, analyzer clean, both platforms build
 
 ---
 
@@ -47,6 +47,7 @@ Today ranking land with D3–D5 and T1.
 | Application shell, themes, navigation | F10 | done |
 | Persisted System/Light/Dark selection | Q10 | done |
 | Secure provider settings + build identity | F11 | done |
+| Cache TTL policy + metadata repository | F6 | done |
 
 ### What is left
 
@@ -61,7 +62,7 @@ Ordered by what unblocks a usable app soonest.
 | 5 | **E1/E2** end-to-end + artifact verification | Proof it works, not just that it compiles. |
 
 Then: D1 CAGR · D2 forecast engine · D6 quality score · D7 currency ·
-**D8/D9 gross-and-net tax** · F6 cache TTL · F7 Request Coordinator ·
+**D8/D9 gross-and-net tax** · F7 Request Coordinator ·
 F8 provider abstraction · **F8a SEC EDGAR (keyless)** · **F8b FX (keyless)** ·
 F12 Data Status · T2–T6 events, news, research ·
 Q1–Q7 offline, states, accessibility, health, simulator, onboarding,
@@ -116,6 +117,10 @@ dart format .
   entities.
 - **Repositories expose streams**, because the UI observes the database, not
   provider responses. Writes return `Result`, reads return streams.
+- **Cache expiry is explicit and testable.** Every data category has a default
+  TTL inside the Vision.md range, policies accept per-category overrides, and
+  the resolver treats the exact expiry instant as stale while preserving the
+  cached payload for stale-while-revalidate.
 - **A malformed stored amount fails loudly** as a `ParsingFailure` rather than
   parsing to something plausible.
 - **Value objects live in `lib/domain/value_objects/`**, a refinement of the

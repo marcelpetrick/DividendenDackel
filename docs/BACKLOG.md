@@ -71,7 +71,7 @@ Each task names the `Vision.md` sections it satisfies.
 - [x] **F11** Settings + local API key storage (user-supplied keys, never
       embedded secrets), provider enable/disable, About screen with version,
       build number, commit SHA. — §34, §62, §80
-- [ ] **F6** Cache metadata + configurable TTL policy per data type with the
+- [x] **F6** Cache metadata + configurable TTL policy per data type with the
       defaults from the vision, and a `CacheState` (fresh/stale/missing)
       resolver. Unit tests for expiry. — §37
 - [ ] **F7** Request Coordinator: global + per-provider concurrency limits,
