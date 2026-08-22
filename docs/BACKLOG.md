@@ -133,6 +133,18 @@ Each task names the `Vision.md` sections it satisfies.
         into one number (§9.4).
 - [ ] **D6** Dividend Quality Score with per-factor positive/risk explanations.
       Unit tests. — §14
+- [ ] **D8** Dividend tax model: gross and net for every dividend figure, with
+      foreign withholding tax, the treaty cap, the creditable and reclaimable
+      split, Kapitalertragsteuer, Solidaritätszuschlag, optional Kirchensteuer
+      and the Sparerpauschbetrag tracked across the year. Returns an
+      explainable breakdown, never a bare number, and states its assumptions.
+      Versioned, dated, user-editable withholding table. Design and limits in
+      [`dividend-taxation.md`](dividend-taxation.md). Unit tests per country
+      case. — §2.3, §2.5, §48, §50
+- [ ] **D9** Net/gross throughout the UI: both figures side by side on the
+      calendar, forecast, portfolio income and Today, never summed into one;
+      a tax profile in Settings with visible, editable defaults; a plain
+      "estimate, not tax advice" label. — §2.2, §2.5, §10
 - [ ] **D7** Multi-currency handling: per-instrument currency, a display
       currency, explicit FX rates with their own provenance and staleness, and
       currency exposure. Totals must never silently mix currencies. Unit tests.
