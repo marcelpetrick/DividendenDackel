@@ -6,7 +6,7 @@ including a future session — can pick up without re-reading the whole history.
 - **Last updated:** 2026-08-23
 - **Version:** 0.1.0+1 (pre-release, `0.x.y`)
 - **Branch:** `master` (local work ahead of `origin`)
-- **Quality gate:** green — 334 tests, analyzer clean, both platforms build
+- **Quality gate:** green — 344 tests, analyzer clean, both platforms build
 
 ---
 
@@ -53,6 +53,7 @@ Today ranking land with D3–D5 and T1.
 | Keyless SEC EDGAR adapter | F8a | done |
 | Keyless Frankfurter/ECB FX adapter | F8b | done |
 | Persistent provider health + live Data Status | F12 | done |
+| Dividend CAGR + cut history analytics | D1 | done |
 
 ### What is left
 
@@ -60,7 +61,7 @@ Ordered by what unblocks a usable app soonest.
 
 | Next | Task | Why it matters |
 | --- | --- | --- |
-| 1 | **D1/D2** dividend analytics | CAGR and an explainable forecast engine. |
+| 1 | **D2** dividend forecasting | Deterministic, explainable future events. |
 | 2 | **D3–D5/T1** core UI | Portfolio, calendar, forecast and Today. |
 | 3 | **E1/E2** delivery proof | End-to-end flows and artifact launch verification. |
 | 4 | **D6–D9** deeper portfolio data | Quality, currency and gross/net tax. |
@@ -147,6 +148,11 @@ dart format .
   outcomes update provider health, last request, rate-limit reset and a safe
   user-facing error in SQLite. Active jobs remain live-only; cache hit rates
   stay explicitly unavailable until a real lookup records a hit or miss.
+- **Dividend growth uses completed reported years.** Confirmed and announced
+  facts are aggregated per share by calendar year; estimates and the partial
+  current year are excluded. CAGR is emitted only when every year in its
+  3/5/10-year window exists and both endpoints are positive, and every result
+  carries its period and comparison years.
 - **A malformed stored amount fails loudly** as a `ParsingFailure` rather than
   parsing to something plausible.
 - **Value objects live in `lib/domain/value_objects/`**, a refinement of the

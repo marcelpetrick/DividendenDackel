@@ -97,7 +97,7 @@ Each task names the `Vision.md` sections it satisfies.
 
 ## Phase 2 — Dividend core
 
-- [ ] **D1** Dividend CAGR (3/5/10-year), years without a cut, latest increase
+- [x] **D1** Dividend CAGR (3/5/10-year), years without a cut, latest increase
       and decrease. Always rendered with its period. Unit tests. — §12
 - [ ] **D2** Deterministic, explainable dividend forecast engine (frequency,
       last dividend, growth, seasonality, announced values) emitting an explicit

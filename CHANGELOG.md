@@ -53,6 +53,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 - Data Status now shows every source's persistent runtime health, active
   requests, honest cache hit/miss statistics, rate-limit reset times and the
   latest privacy-safe error, while retaining health across offline restarts.
+- Explainable dividend-growth analytics aggregate reported payments by
+  completed calendar year and calculate period-labelled 3/5/10-year CAGR,
+  consecutive no-cut years, and the latest annual increase and decrease.
 
 ### Changed
 
