@@ -22,12 +22,16 @@ enum ChurchTaxRate {
       (Decimal.fromInt(percent) / Decimal.fromInt(100)).toDecimal();
 }
 
+/// Assessment choice controlling the statutory default allowance.
+enum TaxAssessment { single, joint }
+
 /// Visible, editable assumptions used by the German tax estimate.
 final class DividendTaxProfile {
   /// Creates a tax profile.
   DividendTaxProfile({
     this.taxResidenceCountry = 'DE',
     this.churchTaxRate = ChurchTaxRate.none,
+    this.assessment = TaxAssessment.single,
     Money? annualAllowance,
     Money? allowanceAlreadyUsed,
     Map<String, bool> treatyFormsFiled = const <String, bool>{},
@@ -35,7 +39,12 @@ final class DividendTaxProfile {
         const <String, WithholdingRule>{},
     Map<String, WithholdingRule> instrumentRuleOverrides =
         const <String, WithholdingRule>{},
-  }) : annualAllowance = annualAllowance ?? Money.fromInt(1000, Currency.eur),
+  }) : annualAllowance =
+           annualAllowance ??
+           Money.fromInt(
+             assessment == TaxAssessment.joint ? 2000 : 1000,
+             Currency.eur,
+           ),
        allowanceAlreadyUsed = allowanceAlreadyUsed ?? Money.zero(Currency.eur),
        treatyFormsFiled = Map<String, bool>.unmodifiable(treatyFormsFiled),
        countryRuleOverrides = Map<String, WithholdingRule>.unmodifiable(
@@ -59,6 +68,9 @@ final class DividendTaxProfile {
 
   /// Optional church tax.
   final ChurchTaxRate churchTaxRate;
+
+  /// Single or joint assessment; users may still edit [annualAllowance].
+  final TaxAssessment assessment;
 
   /// User-editable annual Sparer-Pauschbetrag.
   final Money annualAllowance;
@@ -86,6 +98,28 @@ final class DividendTaxProfile {
       instrumentRuleOverrides[dividend.instrumentId] ??
       countryRuleOverrides[dividend.sourceCountry.toUpperCase()] ??
       table[dividend.sourceCountry];
+
+  /// Returns a profile with selected assumptions replaced.
+  DividendTaxProfile copyWith({
+    String? taxResidenceCountry,
+    ChurchTaxRate? churchTaxRate,
+    TaxAssessment? assessment,
+    Money? annualAllowance,
+    Money? allowanceAlreadyUsed,
+    Map<String, bool>? treatyFormsFiled,
+    Map<String, WithholdingRule>? countryRuleOverrides,
+    Map<String, WithholdingRule>? instrumentRuleOverrides,
+  }) => DividendTaxProfile(
+    taxResidenceCountry: taxResidenceCountry ?? this.taxResidenceCountry,
+    churchTaxRate: churchTaxRate ?? this.churchTaxRate,
+    assessment: assessment ?? this.assessment,
+    annualAllowance: annualAllowance ?? this.annualAllowance,
+    allowanceAlreadyUsed: allowanceAlreadyUsed ?? this.allowanceAlreadyUsed,
+    treatyFormsFiled: treatyFormsFiled ?? this.treatyFormsFiled,
+    countryRuleOverrides: countryRuleOverrides ?? this.countryRuleOverrides,
+    instrumentRuleOverrides:
+        instrumentRuleOverrides ?? this.instrumentRuleOverrides,
+  );
 }
 
 /// One source-country withholding rule, expressed as percentages.
@@ -258,7 +292,10 @@ final class DividendTaxCalculator {
     required DividendTaxProfile profile,
   }) {
     final List<TaxableDividend> sorted = List<TaxableDividend>.of(dividends)
-      ..sort((a, b) => a.paymentDate.compareTo(b.paymentDate));
+      ..sort((a, b) {
+        final int byDate = a.paymentDate.compareTo(b.paymentDate);
+        return byDate != 0 ? byDate : a.instrumentId.compareTo(b.instrumentId);
+      });
     if (sorted.map((dividend) => dividend.paymentDate.year).toSet().length >
         1) {
       throw ArgumentError('Allowance tracking requires one calendar year.');

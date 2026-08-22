@@ -1,6 +1,7 @@
 import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
 import 'package:dividendendackel/app/widgets/async_value_view.dart';
+import 'package:dividendendackel/app/widgets/gross_net_amount.dart';
 import 'package:dividendendackel/app/widgets/value_labels.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/features/calendar/calendar_state.dart';
@@ -807,8 +808,9 @@ class _EventCard extends StatelessWidget {
                     '${event.amountPerShare.format(withSymbol: true)} / share',
                   ),
                   if (heldPayment != null)
-                    Text(
-                      'Your gross payment: ${heldPayment.format(withSymbol: true)}',
+                    GrossNetAmount(
+                      event: event,
+                      gross: heldPayment,
                       key: const ValueKey<String>('held-payment'),
                     ),
                   Text(
