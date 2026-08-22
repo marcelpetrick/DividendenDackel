@@ -60,6 +60,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
   seasonality, prefers the longest available instrument CAGR, preserves
   announced values, marks every generated event as estimated, and explains its
   documented 3% fallback when history is short.
+- Instrument search now combines the local database with enabled live
+  providers, then supports exact-decimal add-holding and add-to-watchlist
+  flows. The portfolio overview shows currency-separated value, day change,
+  allocation, forward gross yield and each holding's next dividend without
+  treating missing quotes as zero.
 
 ### Changed
 
