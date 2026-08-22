@@ -140,7 +140,7 @@ Each task names the `Vision.md` sections it satisfies.
         into one number (§9.4).
 - [x] **D6** Dividend Quality Score with per-factor positive/risk explanations.
       Unit tests. — §14
-- [ ] **D8** Dividend tax model: gross and net for every dividend figure, with
+- [x] **D8** Dividend tax model: gross and net for every dividend figure, with
       foreign withholding tax, the treaty cap, the creditable and reclaimable
       split, Kapitalertragsteuer, Solidaritätszuschlag, optional Kirchensteuer
       and the Sparerpauschbetrag tracked across the year. Returns an

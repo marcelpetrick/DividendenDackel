@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "asOf": "2024-01-01",
+  "source": "Bundeszentralamt für Steuern — Anrechenbare ausländische Quellensteuer 2024",
+  "sourceUrl": "https://www.bzst.de/SharedDocs/Downloads/DE/EU_OECD/anrechenbare_ausl_quellensteuer_2024.pdf",
+  "rates": {
+    "DE": {"statutory": "0", "treatyWithForms": "0", "creditableCap": "0"},
+    "US": {"statutory": "30", "treatyWithForms": "15", "creditableCap": "15"},
+    "CH": {"statutory": "35", "treatyWithForms": "35", "creditableCap": "15"},
+    "GB": {"statutory": "0", "treatyWithForms": "0", "creditableCap": "0"},
+    "NL": {"statutory": "15", "treatyWithForms": "15", "creditableCap": "15"}
+  }
+}
