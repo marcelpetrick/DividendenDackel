@@ -4,6 +4,7 @@ import 'package:dividendendackel/core/logging/logging.dart';
 import 'package:dividendendackel/core/networking/request_coordinator.dart';
 import 'package:dividendendackel/core/utils/clock.dart';
 import 'package:dividendendackel/data/database/app_database.dart';
+import 'package:dividendendackel/data/providers/provider_registry.dart';
 import 'package:dividendendackel/data/repositories/drift_cache_metadata_repository.dart';
 import 'package:dividendendackel/data/repositories/drift_dividend_repository.dart';
 import 'package:dividendendackel/data/repositories/drift_instrument_repository.dart';
@@ -96,6 +97,31 @@ final Provider<RequestCoordinator> requestCoordinatorProvider =
       ref.onDispose(() => unawaited(coordinator.dispose()));
       return coordinator;
     });
+
+/// Validated market-data adapters and their per-capability fallback order.
+///
+/// Concrete providers are registered by their implementation tasks. Keeping
+/// the empty registry valid lets the local-first app run without network data.
+final Provider<ProviderRegistry> providerRegistryProvider =
+    Provider<ProviderRegistry>(
+      (Ref ref) => ProviderRegistry(providers: const []),
+    );
+
+/// Executes provider fallback through the shared bounded coordinator.
+final Provider<ProviderFallbackChain> providerFallbackChainProvider =
+    Provider<ProviderFallbackChain>(
+      (Ref ref) => ProviderFallbackChain(
+        registry: ref.watch(providerRegistryProvider),
+        coordinator: ref.watch(requestCoordinatorProvider),
+      ),
+    );
+
+/// Domain-facing live market-data API used by refresh workflows.
+final Provider<ProviderMarketDataService> providerMarketDataServiceProvider =
+    Provider<ProviderMarketDataService>(
+      (Ref ref) =>
+          ProviderMarketDataService(ref.watch(providerFallbackChainProvider)),
+    );
 
 /// Seeds the bundled sample dataset on first run.
 ///

@@ -79,7 +79,7 @@ Each task names the `Vision.md` sections it satisfies.
       in-flight deduplication, priorities (high/medium/low), cancellation,
       and a broadcast status stream of active operations. Unit tests for
       dedup, limits, backoff, cancellation. — §29, §30, §31, §40, §78
-- [ ] **F8** `MarketDataProvider` interface, provider registry, per-data-type
+- [x] **F8** `MarketDataProvider` interface, provider registry, per-data-type
       priority + fallback chain honouring rate limits, and normalization into
       domain models. Unit tests for fallback. — §32, §33
 - [ ] **F8a** SEC EDGAR adapter — **keyless**, enabled by default. Ticker/ISIN
