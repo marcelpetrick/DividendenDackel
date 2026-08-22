@@ -90,7 +90,7 @@ Each task names the `Vision.md` sections it satisfies.
 - [x] **F8b** FX rate adapter (Frankfurter / ECB) — **keyless**, enabled by
       default. Daily reference rates powering multi-currency totals (D7).
       — §32, §46, §77
-- [ ] **F12** Data Status screen: provider health, active operations, cache hit
+- [x] **F12** Data Status screen: provider health, active operations, cache hit
       rate, rate-limit reset times, last error. Widget test. — §41, §42, §43
 
 ---

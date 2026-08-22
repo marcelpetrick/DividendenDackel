@@ -362,6 +362,11 @@ void main() {
       );
       addTearDown(coordinator.dispose);
       final List<DateTime> attempts = <DateTime>[];
+      final List<RequestStatus> statuses = <RequestStatus>[];
+      final StreamSubscription<RequestStatus> subscription = coordinator
+          .statuses
+          .listen(statuses.add);
+      addTearDown(subscription.cancel);
 
       final Result<int> result = await coordinator
           .submit<int>(
@@ -390,6 +395,11 @@ void main() {
         attempts[1].difference(attempts[0]),
         greaterThanOrEqualTo(const Duration(milliseconds: 30)),
       );
+      final RequestStatus retrying = statuses.firstWhere(
+        (RequestStatus status) => status.lifecycle == RequestLifecycle.retrying,
+      );
+      expect(retrying.failureMessage, contains('limit reached'));
+      expect(retrying.rateLimitResetAt, isNotNull);
     });
 
     test('cancellation interrupts retry backoff', () async {

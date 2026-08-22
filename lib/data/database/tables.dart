@@ -450,7 +450,8 @@ class ProviderStates extends Table {
   /// Category of the most recent failure.
   TextColumn get lastErrorCategory => text().nullable()();
 
-  /// Diagnostic detail of the most recent failure. Never user-facing.
+  /// Privacy-safe, user-facing message for the most recent failure.
+  /// Technical details and causes remain in the bounded developer log only.
   TextColumn get lastErrorDetail => text().nullable()();
 
   /// Requests served from cache, for the hit-rate display.

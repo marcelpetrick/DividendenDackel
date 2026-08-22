@@ -3,10 +3,10 @@
 **Living document.** Updated at the end of every work iteration so anyone —
 including a future session — can pick up without re-reading the whole history.
 
-- **Last updated:** 2026-08-22
+- **Last updated:** 2026-08-23
 - **Version:** 0.1.0+1 (pre-release, `0.x.y`)
 - **Branch:** `master` (local work ahead of `origin`)
-- **Quality gate:** green — 326 tests, analyzer clean, both platforms build
+- **Quality gate:** green — 334 tests, analyzer clean, both platforms build
 
 ---
 
@@ -52,6 +52,7 @@ Today ranking land with D3–D5 and T1.
 | Provider contracts, registry + fallback chain | F8 | done |
 | Keyless SEC EDGAR adapter | F8a | done |
 | Keyless Frankfurter/ECB FX adapter | F8b | done |
+| Persistent provider health + live Data Status | F12 | done |
 
 ### What is left
 
@@ -59,11 +60,10 @@ Ordered by what unblocks a usable app soonest.
 
 | Next | Task | Why it matters |
 | --- | --- | --- |
-| 1 | **F12** Data Status | Provider health, operations and cache visibility. |
-| 2 | **D1/D2** dividend analytics | CAGR and an explainable forecast engine. |
-| 3 | **D3–D5/T1** core UI | Portfolio, calendar, forecast and Today. |
-| 4 | **E1/E2** delivery proof | End-to-end flows and artifact launch verification. |
-| 5 | **D6–D9** deeper portfolio data | Quality, currency and gross/net tax. |
+| 1 | **D1/D2** dividend analytics | CAGR and an explainable forecast engine. |
+| 2 | **D3–D5/T1** core UI | Portfolio, calendar, forecast and Today. |
+| 3 | **E1/E2** delivery proof | End-to-end flows and artifact launch verification. |
+| 4 | **D6–D9** deeper portfolio data | Quality, currency and gross/net tax. |
 
 Then: D6 quality score · D7 currency · **D8/D9 gross-and-net tax** ·
 T2–T6 events, news, research ·
@@ -143,6 +143,10 @@ dart format .
   filtered to `providers=ECB`; rows store decimal text, UTC reference dates and
   provenance. Range translation preserves the domain's half-open convention,
   and conversion rounds only at the final display boundary.
+- **Provider diagnostics persist without sensitive data.** Coordinator
+  outcomes update provider health, last request, rate-limit reset and a safe
+  user-facing error in SQLite. Active jobs remain live-only; cache hit rates
+  stay explicitly unavailable until a real lookup records a hit or miss.
 - **A malformed stored amount fails loudly** as a `ParsingFailure` rather than
   parsing to something plausible.
 - **Value objects live in `lib/domain/value_objects/`**, a refinement of the

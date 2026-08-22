@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dividendendackel/core/logging/logging.dart';
+import 'package:dividendendackel/core/networking/provider_status_monitor.dart';
 import 'package:dividendendackel/core/networking/request_coordinator.dart';
 import 'package:dividendendackel/core/utils/clock.dart';
 import 'package:dividendendackel/data/database/app_database.dart';
@@ -14,6 +15,7 @@ import 'package:dividendendackel/data/repositories/drift_fx_rate_repository.dart
 import 'package:dividendendackel/data/repositories/drift_instrument_repository.dart';
 import 'package:dividendendackel/data/repositories/drift_market_data_repository.dart';
 import 'package:dividendendackel/data/repositories/drift_portfolio_repository.dart';
+import 'package:dividendendackel/data/repositories/drift_provider_status_repository.dart';
 import 'package:dividendendackel/data/sample/sample_data_seeder.dart';
 import 'package:dividendendackel/data/sample/sample_dataset.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
@@ -93,6 +95,12 @@ final Provider<CacheMetadataRepository> cacheMetadataRepositoryProvider =
       (Ref ref) => DriftCacheMetadataRepository(ref.watch(databaseProvider)),
     );
 
+/// Persisted provider health and cache telemetry.
+final Provider<ProviderStatusRepository> providerStatusRepositoryProvider =
+    Provider<ProviderStatusRepository>(
+      (Ref ref) => DriftProviderStatusRepository(ref.watch(databaseProvider)),
+    );
+
 /// Bounded scheduler shared by every provider adapter.
 final Provider<RequestCoordinator> requestCoordinatorProvider =
     Provider<RequestCoordinator>((Ref ref) {
@@ -111,6 +119,36 @@ final Provider<RequestCoordinator> requestCoordinatorProvider =
       );
       ref.onDispose(() => unawaited(coordinator.dispose()));
       return coordinator;
+    });
+
+/// Persists every provider request outcome for the Data Status screen.
+final Provider<ProviderStatusMonitor> providerStatusMonitorProvider =
+    Provider<ProviderStatusMonitor>((Ref ref) {
+      final ProviderStatusMonitor monitor = ProviderStatusMonitor(
+        coordinator: ref.watch(requestCoordinatorProvider),
+        repository: ref.watch(providerStatusRepositoryProvider),
+      );
+      ref.onDispose(() => unawaited(monitor.dispose()));
+      return monitor;
+    });
+
+/// Persisted provider status snapshots, including previous app sessions.
+final StreamProvider<List<ProviderStatus>> providerStatusesProvider =
+    StreamProvider<List<ProviderStatus>>((Ref ref) {
+      ref.watch(providerStatusMonitorProvider);
+      return ref.watch(providerStatusRepositoryProvider).watchAll();
+    });
+
+/// Live queued, running and retrying provider operations.
+final StreamProvider<List<RequestStatus>> activeOperationsProvider =
+    StreamProvider<List<RequestStatus>>((Ref ref) async* {
+      final RequestCoordinator coordinator = ref.watch(
+        requestCoordinatorProvider,
+      );
+      yield coordinator.activeOperations;
+      await for (final RequestStatus _ in coordinator.statuses) {
+        yield coordinator.activeOperations;
+      }
     });
 
 /// Shared HTTP transport for live provider adapters.
@@ -166,12 +204,14 @@ final Provider<ProviderRegistry> providerRegistryProvider =
 
 /// Executes provider fallback through the shared bounded coordinator.
 final Provider<ProviderFallbackChain> providerFallbackChainProvider =
-    Provider<ProviderFallbackChain>(
-      (Ref ref) => ProviderFallbackChain(
+    Provider<ProviderFallbackChain>((Ref ref) {
+      // Activate telemetry before any request can enter the coordinator.
+      ref.watch(providerStatusMonitorProvider);
+      return ProviderFallbackChain(
         registry: ref.watch(providerRegistryProvider),
         coordinator: ref.watch(requestCoordinatorProvider),
-      ),
-    );
+      );
+    });
 
 /// Domain-facing live market-data API used by refresh workflows.
 final Provider<ProviderMarketDataService> providerMarketDataServiceProvider =
