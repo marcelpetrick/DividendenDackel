@@ -190,9 +190,11 @@ Not part of MVP 1. Listed so the plan is complete.
 - [x] **R1** *Done early — see Phase 0.*
 - [ ] **R2** Dependency + toolchain freshness workflows and `dependabot.yml`.
       — §71, §72
-- [ ] **R3** Release workflow on `v*` tags: version/tag match, checks, APK,
-      Linux tarball, checksums, GitHub Release. Pinned action SHAs, minimal
-      permissions. — §69, §70, §73
+- [x] **R3** Release workflow on `v*` tags: version/tag match, full pipeline,
+      raw APK, Linux tarball, checksums, generated release notes with build
+      metadata, public GitHub Release with no drafts or pre-releases. Pinned
+      action SHAs, minimal permissions. *Pulled forward from Phase 5 on
+      request.* — §69, §70, §73
 - [ ] **R4b** Remaining documentation set: `docs/architecture.md`, `docs/data-providers.md`, `docs/research-score.md`,
       `docs/data-providers.md`, `docs/research-score.md`, `docs/privacy.md`,
       `docs/releases.md`. (`README.md`, `LICENSE`, `CONTRIBUTING.md` and
