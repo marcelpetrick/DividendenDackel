@@ -19,6 +19,32 @@ static void first_frame_cb(MyApplication* self, FlView* view) {
   gtk_widget_show(gtk_widget_get_toplevel(GTK_WIDGET(view)));
 }
 
+// Sets the window icon from the bundled asset.
+//
+// Linux has no equivalent of an Android launcher icon: the icon a window and
+// its taskbar entry show has to be set by the application itself. The asset
+// ships inside the release bundle, so the path is resolved relative to the
+// executable rather than assuming an installed icon theme.
+static void set_window_icon(GtkWindow* window) {
+  g_autofree gchar* executable_path =
+      g_file_read_link("/proc/self/exe", nullptr);
+  if (executable_path == nullptr) {
+    return;
+  }
+  g_autofree gchar* directory = g_path_get_dirname(executable_path);
+  g_autofree gchar* icon_path =
+      g_build_filename(directory, "data", "flutter_assets", "assets",
+                       "branding", "icon.png", nullptr);
+
+  g_autoptr(GError) error = nullptr;
+  if (!gtk_window_set_icon_from_file(window, icon_path, &error)) {
+    // Running from a development tree rather than a release bundle is normal
+    // and not worth failing over; the app keeps the default icon.
+    g_debug("Could not set window icon from %s: %s", icon_path,
+            error != nullptr ? error->message : "unknown error");
+  }
+}
+
 // Implements GApplication::activate.
 static void my_application_activate(GApplication* application) {
   MyApplication* self = MY_APPLICATION(application);
@@ -53,6 +79,7 @@ static void my_application_activate(GApplication* application) {
   }
 
   gtk_window_set_default_size(window, 1280, 720);
+  set_window_icon(window);
 
   g_autoptr(FlDartProject) project = fl_dart_project_new();
   fl_dart_project_set_dart_entrypoint_arguments(

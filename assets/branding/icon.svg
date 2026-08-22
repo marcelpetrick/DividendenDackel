@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- DividendenDackel app icon: a dachshund fetching a coin.
+       A Dackel was bred to go down the hole and retrieve what is hiding there,
+       which is what this app does with dividend data.
+
+       The artwork lives in #dackel so the same drawing can be re-scaled for
+       the Android adaptive foreground, where only the central ~66% is safe. -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1F7A63"/>
+      <stop offset="1" stop-color="#12503F"/>
+    </linearGradient>
+    <linearGradient id="fur" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#D2803F"/>
+      <stop offset="1" stop-color="#B4652C"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFD95A"/>
+      <stop offset="1" stop-color="#E3A81B"/>
+    </linearGradient>
+
+    <g id="dackel">
+      <!-- tail, up and alert -->
+      <path d="M198 556 C 150 500, 138 432, 168 372" fill="none"
+            stroke="#7C3F14" stroke-width="42" stroke-linecap="round"/>
+
+      <g stroke="#7C3F14" stroke-width="14" stroke-linejoin="round">
+        <!-- short legs, which is the whole joke about the breed -->
+        <rect x="246" y="618" width="66" height="150" rx="33" fill="url(#fur)"/>
+        <rect x="352" y="618" width="66" height="150" rx="33" fill="url(#fur)"/>
+        <rect x="516" y="618" width="66" height="150" rx="33" fill="url(#fur)"/>
+        <rect x="608" y="618" width="66" height="150" rx="33" fill="url(#fur)"/>
+
+        <!-- long body -->
+        <rect x="196" y="486" width="510" height="188" rx="94" fill="url(#fur)"/>
+
+        <!-- head and muzzle -->
+        <circle cx="678" cy="478" r="118" fill="url(#fur)"/>
+        <rect x="742" y="452" width="156" height="96" rx="48" fill="url(#fur)"/>
+      </g>
+
+      <!-- floppy ear, darker so it still reads against the head when small -->
+      <ellipse cx="638" cy="504" rx="50" ry="110" fill="#8A4A1B"
+               stroke="#6B360F" stroke-width="14"/>
+
+      <!-- the coin, tucked under the muzzle so it hangs from the mouth -->
+      <g>
+        <circle cx="862" cy="648" r="98" fill="url(#gold)"
+                stroke="#A87708" stroke-width="16"/>
+        <circle cx="862" cy="648" r="73" fill="none" stroke="#C6900F"
+                stroke-width="9"/>
+        <text x="862" y="648" font-family="DejaVu Sans, Verdana, sans-serif"
+              font-size="112" font-weight="bold" fill="#8A6100"
+              text-anchor="middle" dominant-baseline="central">€</text>
+      </g>
+
+      <!-- nose and eye last, sitting clearly on the muzzle -->
+      <circle cx="872" cy="492" r="25" fill="#5B2E0C"/>
+      <circle cx="714" cy="440" r="19" fill="#3D1F08"/>
+      <circle cx="720" cy="433" r="7" fill="#FFFFFF" opacity="0.9"/>
+    </g>
+  </defs>
+
+  <rect width="1024" height="1024" rx="228" fill="url(#bg)"/>
+
+  <!-- Content bounds are roughly x 138..968, y 355..768 (centre 553,561).
+       Recentre on the canvas, then scale to leave a margin. -->
+  <g transform="translate(512 512) scale(0.94) translate(-553 -561)">
+    <use href="#dackel"/>
+  </g>
+</svg>
