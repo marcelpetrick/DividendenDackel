@@ -75,6 +75,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
   bars and a payout table keep paid, confirmed and estimated gross income
   separate; annual share, current-month status, trailing-twelve-month income,
   year-over-year change and per-year cumulative curves remain currency-safe.
+- A deterministic Dividend Quality Score now normalizes only across available
+  evidence and explains every positive, risk and neutral factor. It covers
+  dividend growth, cuts, history, yield, payout, cash-flow coverage, earnings,
+  debt and cash-flow trends without penalizing missing fundamentals.
 
 ### Changed
 
