@@ -6,7 +6,7 @@ including a future session — can pick up without re-reading the whole history.
 - **Last updated:** 2026-08-22
 - **Version:** 0.1.0+1 (pre-release, `0.x.y`)
 - **Branch:** `master` (pushed to `origin`)
-- **Quality gate:** green — `./localPipeline.sh --noRun` passes, 172 tests
+- **Quality gate:** green — `./localPipeline.sh --noRun` passes, 199 tests
 
 ---
 
@@ -36,7 +36,8 @@ Done so far:
 | Structured logging with redaction (F2) | done |
 | Domain entities and value objects (F3) | done |
 | SQLite schema + migration safety (F4) | done |
-| Repositories (F5) | **next** |
+| Repositories over the database (F5) | done |
+| Bundled sample data (F9) | **next** |
 | Everything else | see BACKLOG |
 
 ## 3. Immediate goal
@@ -52,8 +53,8 @@ would otherwise delay one.
 Path to the goal:
 
 ```text
-F5  repositories        →  domain reads/writes the database
 F9  sample data         →  a realistic portfolio with no API key
+Q8  app icon            →  a Dackel fetching a coin, on both platforms
 F10 app shell           →  navigation, themes; app stops looking like a demo
 D3  portfolio           →  holdings, search, add
 D4  dividend calendar   →  month/year/agenda, ex-date vs payment toggle
@@ -98,6 +99,10 @@ dart format .
   rejects an empty factor list at construction.
 - **Db-prefixed row classes** keep persistence rows from shadowing domain
   entities.
+- **Repositories expose streams**, because the UI observes the database, not
+  provider responses. Writes return `Result`, reads return streams.
+- **A malformed stored amount fails loudly** as a `ParsingFailure` rather than
+  parsing to something plausible.
 - **Value objects live in `lib/domain/value_objects/`**, a refinement of the
   layout Vision.md §53 recommends.
 - **No API keys in the repo or the built app.** Keys are user-supplied and
