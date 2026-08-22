@@ -211,6 +211,12 @@ class DividendEvents extends Table with ProvenanceColumns {
   /// Shareholder-of-record date.
   DateTimeColumn get recordDate => dateTime().nullable()();
 
+  /// Provider reporting-period start; not an event date.
+  DateTimeColumn get reportedPeriodStart => dateTime().nullable()();
+
+  /// Provider reporting-period end; not an event date.
+  DateTimeColumn get reportedPeriodEnd => dateTime().nullable()();
+
   @override
   Set<Column<Object>> get primaryKey => <Column<Object>>{id};
 }

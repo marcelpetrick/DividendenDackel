@@ -4,7 +4,9 @@ import 'package:dividendendackel/core/logging/logging.dart';
 import 'package:dividendendackel/core/networking/request_coordinator.dart';
 import 'package:dividendendackel/core/utils/clock.dart';
 import 'package:dividendendackel/data/database/app_database.dart';
+import 'package:dividendendackel/data/providers/market_data_provider.dart';
 import 'package:dividendendackel/data/providers/provider_registry.dart';
+import 'package:dividendendackel/data/providers/sec_edgar_provider.dart';
 import 'package:dividendendackel/data/repositories/drift_cache_metadata_repository.dart';
 import 'package:dividendendackel/data/repositories/drift_dividend_repository.dart';
 import 'package:dividendendackel/data/repositories/drift_instrument_repository.dart';
@@ -14,7 +16,9 @@ import 'package:dividendendackel/data/sample/sample_data_seeder.dart';
 import 'package:dividendendackel/data/sample/sample_dataset.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/domain/repositories/repositories.dart';
+import 'package:dividendendackel/features/settings/data_source_settings.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
 
 /// Application-wide dependencies (Vision.md §54).
 ///
@@ -89,8 +93,11 @@ final Provider<RequestCoordinator> requestCoordinatorProvider =
         providerPolicies: <String, ProviderRequestPolicy>{
           // SEC asks automated clients to remain below 10 requests/second.
           'sec': ProviderRequestPolicy(
-            maxConcurrent: 2,
-            minimumSpacing: Duration(milliseconds: 110),
+            // One logical operation may first resolve the public ticker index
+            // and then fetch company data. At one operation per 220 ms, even
+            // that two-request path remains below the SEC's 10 req/s ceiling.
+            maxConcurrent: 1,
+            minimumSpacing: Duration(milliseconds: 220),
           ),
         },
       );
@@ -98,14 +105,43 @@ final Provider<RequestCoordinator> requestCoordinatorProvider =
       return coordinator;
     });
 
+/// Shared HTTP transport for live provider adapters.
+final Provider<http.Client> providerHttpClientProvider = Provider<http.Client>((
+  Ref ref,
+) {
+  final http.Client client = http.Client();
+  ref.onDispose(client.close);
+  return client;
+});
+
+/// Keyless SEC EDGAR adapter.
+final Provider<SecEdgarProvider> secEdgarProvider = Provider<SecEdgarProvider>(
+  (Ref ref) => SecEdgarProvider(
+    ref.watch(providerHttpClientProvider),
+    ref.watch(clockProvider),
+  ),
+);
+
 /// Validated market-data adapters and their per-capability fallback order.
-///
-/// Concrete providers are registered by their implementation tasks. Keeping
-/// the empty registry valid lets the local-first app run without network data.
 final Provider<ProviderRegistry> providerRegistryProvider =
-    Provider<ProviderRegistry>(
-      (Ref ref) => ProviderRegistry(providers: const []),
-    );
+    Provider<ProviderRegistry>((Ref ref) {
+      final DataSourceSettingsState settings = ref.watch(
+        dataSourceSettingsProvider,
+      );
+      return ProviderRegistry(
+        providers: <MarketDataProvider>[ref.watch(secEdgarProvider)],
+        priorities: const <ProviderDataType, List<String>>{
+          ProviderDataType.instrumentSearch: <String>['sec'],
+          ProviderDataType.dividends: <String>['sec'],
+          ProviderDataType.filings: <String>['sec'],
+        },
+        isEnabled: (String providerId) => settings.configurations.any(
+          (DataSourceConfiguration configuration) =>
+              configuration.source.providerId == providerId &&
+              configuration.enabled,
+        ),
+      );
+    });
 
 /// Executes provider fallback through the shared bounded coordinator.
 final Provider<ProviderFallbackChain> providerFallbackChainProvider =

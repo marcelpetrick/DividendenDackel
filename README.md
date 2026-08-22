@@ -115,7 +115,7 @@ It ships with two genuinely keyless public data sources, used by default:
 SEC EDGAR publishes the actual declared dividend-per-share history a company
 filed, which is what the dividend CAGR and the forecast are computed from — so
 those numbers are real, not sample values. Both sources only require polite
-use: a identifying `User-Agent` and respect for their rate limits, which the
+use: an identifying `User-Agent` and respect for their rate limits, which the
 Request Coordinator enforces.
 
 Where those two do not reach — live quotes, non-US dividend calendars, news —

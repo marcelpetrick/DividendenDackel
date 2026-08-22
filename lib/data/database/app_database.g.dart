@@ -3662,6 +3662,29 @@ class $DividendEventsTable extends DividendEvents
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _reportedPeriodStartMeta =
+      const VerificationMeta('reportedPeriodStart');
+  @override
+  late final GeneratedColumn<DateTime> reportedPeriodStart =
+      GeneratedColumn<DateTime>(
+        'reported_period_start',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _reportedPeriodEndMeta = const VerificationMeta(
+    'reportedPeriodEnd',
+  );
+  @override
+  late final GeneratedColumn<DateTime> reportedPeriodEnd =
+      GeneratedColumn<DateTime>(
+        'reported_period_end',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     source,
@@ -3682,6 +3705,8 @@ class $DividendEventsTable extends DividendEvents
     paymentDate,
     declarationDate,
     recordDate,
+    reportedPeriodStart,
+    reportedPeriodEnd,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -3812,6 +3837,24 @@ class $DividendEventsTable extends DividendEvents
         recordDate.isAcceptableOrUnknown(data['record_date']!, _recordDateMeta),
       );
     }
+    if (data.containsKey('reported_period_start')) {
+      context.handle(
+        _reportedPeriodStartMeta,
+        reportedPeriodStart.isAcceptableOrUnknown(
+          data['reported_period_start']!,
+          _reportedPeriodStartMeta,
+        ),
+      );
+    }
+    if (data.containsKey('reported_period_end')) {
+      context.handle(
+        _reportedPeriodEndMeta,
+        reportedPeriodEnd.isAcceptableOrUnknown(
+          data['reported_period_end']!,
+          _reportedPeriodEndMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -3901,6 +3944,14 @@ class $DividendEventsTable extends DividendEvents
         DriftSqlType.dateTime,
         data['${effectivePrefix}record_date'],
       ),
+      reportedPeriodStart: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}reported_period_start'],
+      ),
+      reportedPeriodEnd: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}reported_period_end'],
+      ),
     );
   }
 
@@ -3976,6 +4027,12 @@ class DbDividendEvent extends DataClass implements Insertable<DbDividendEvent> {
 
   /// Shareholder-of-record date.
   final DateTime? recordDate;
+
+  /// Provider reporting-period start; not an event date.
+  final DateTime? reportedPeriodStart;
+
+  /// Provider reporting-period end; not an event date.
+  final DateTime? reportedPeriodEnd;
   const DbDividendEvent({
     required this.source,
     required this.fetchedAt,
@@ -3995,6 +4052,8 @@ class DbDividendEvent extends DataClass implements Insertable<DbDividendEvent> {
     this.paymentDate,
     this.declarationDate,
     this.recordDate,
+    this.reportedPeriodStart,
+    this.reportedPeriodEnd,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -4049,6 +4108,12 @@ class DbDividendEvent extends DataClass implements Insertable<DbDividendEvent> {
     if (!nullToAbsent || recordDate != null) {
       map['record_date'] = Variable<DateTime>(recordDate);
     }
+    if (!nullToAbsent || reportedPeriodStart != null) {
+      map['reported_period_start'] = Variable<DateTime>(reportedPeriodStart);
+    }
+    if (!nullToAbsent || reportedPeriodEnd != null) {
+      map['reported_period_end'] = Variable<DateTime>(reportedPeriodEnd);
+    }
     return map;
   }
 
@@ -4088,6 +4153,12 @@ class DbDividendEvent extends DataClass implements Insertable<DbDividendEvent> {
       recordDate: recordDate == null && nullToAbsent
           ? const Value.absent()
           : Value(recordDate),
+      reportedPeriodStart: reportedPeriodStart == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reportedPeriodStart),
+      reportedPeriodEnd: reportedPeriodEnd == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reportedPeriodEnd),
     );
   }
 
@@ -4123,6 +4194,12 @@ class DbDividendEvent extends DataClass implements Insertable<DbDividendEvent> {
       paymentDate: serializer.fromJson<DateTime?>(json['paymentDate']),
       declarationDate: serializer.fromJson<DateTime?>(json['declarationDate']),
       recordDate: serializer.fromJson<DateTime?>(json['recordDate']),
+      reportedPeriodStart: serializer.fromJson<DateTime?>(
+        json['reportedPeriodStart'],
+      ),
+      reportedPeriodEnd: serializer.fromJson<DateTime?>(
+        json['reportedPeriodEnd'],
+      ),
     );
   }
   @override
@@ -4155,6 +4232,8 @@ class DbDividendEvent extends DataClass implements Insertable<DbDividendEvent> {
       'paymentDate': serializer.toJson<DateTime?>(paymentDate),
       'declarationDate': serializer.toJson<DateTime?>(declarationDate),
       'recordDate': serializer.toJson<DateTime?>(recordDate),
+      'reportedPeriodStart': serializer.toJson<DateTime?>(reportedPeriodStart),
+      'reportedPeriodEnd': serializer.toJson<DateTime?>(reportedPeriodEnd),
     };
   }
 
@@ -4177,6 +4256,8 @@ class DbDividendEvent extends DataClass implements Insertable<DbDividendEvent> {
     Value<DateTime?> paymentDate = const Value.absent(),
     Value<DateTime?> declarationDate = const Value.absent(),
     Value<DateTime?> recordDate = const Value.absent(),
+    Value<DateTime?> reportedPeriodStart = const Value.absent(),
+    Value<DateTime?> reportedPeriodEnd = const Value.absent(),
   }) => DbDividendEvent(
     source: source ?? this.source,
     fetchedAt: fetchedAt ?? this.fetchedAt,
@@ -4204,6 +4285,12 @@ class DbDividendEvent extends DataClass implements Insertable<DbDividendEvent> {
         ? declarationDate.value
         : this.declarationDate,
     recordDate: recordDate.present ? recordDate.value : this.recordDate,
+    reportedPeriodStart: reportedPeriodStart.present
+        ? reportedPeriodStart.value
+        : this.reportedPeriodStart,
+    reportedPeriodEnd: reportedPeriodEnd.present
+        ? reportedPeriodEnd.value
+        : this.reportedPeriodEnd,
   );
   DbDividendEvent copyWithCompanion(DividendEventsCompanion data) {
     return DbDividendEvent(
@@ -4247,6 +4334,12 @@ class DbDividendEvent extends DataClass implements Insertable<DbDividendEvent> {
       recordDate: data.recordDate.present
           ? data.recordDate.value
           : this.recordDate,
+      reportedPeriodStart: data.reportedPeriodStart.present
+          ? data.reportedPeriodStart.value
+          : this.reportedPeriodStart,
+      reportedPeriodEnd: data.reportedPeriodEnd.present
+          ? data.reportedPeriodEnd.value
+          : this.reportedPeriodEnd,
     );
   }
 
@@ -4270,7 +4363,9 @@ class DbDividendEvent extends DataClass implements Insertable<DbDividendEvent> {
           ..write('exDate: $exDate, ')
           ..write('paymentDate: $paymentDate, ')
           ..write('declarationDate: $declarationDate, ')
-          ..write('recordDate: $recordDate')
+          ..write('recordDate: $recordDate, ')
+          ..write('reportedPeriodStart: $reportedPeriodStart, ')
+          ..write('reportedPeriodEnd: $reportedPeriodEnd')
           ..write(')'))
         .toString();
   }
@@ -4295,6 +4390,8 @@ class DbDividendEvent extends DataClass implements Insertable<DbDividendEvent> {
     paymentDate,
     declarationDate,
     recordDate,
+    reportedPeriodStart,
+    reportedPeriodEnd,
   );
   @override
   bool operator ==(Object other) =>
@@ -4317,7 +4414,9 @@ class DbDividendEvent extends DataClass implements Insertable<DbDividendEvent> {
           other.exDate == this.exDate &&
           other.paymentDate == this.paymentDate &&
           other.declarationDate == this.declarationDate &&
-          other.recordDate == this.recordDate);
+          other.recordDate == this.recordDate &&
+          other.reportedPeriodStart == this.reportedPeriodStart &&
+          other.reportedPeriodEnd == this.reportedPeriodEnd);
 }
 
 class DividendEventsCompanion extends UpdateCompanion<DbDividendEvent> {
@@ -4339,6 +4438,8 @@ class DividendEventsCompanion extends UpdateCompanion<DbDividendEvent> {
   final Value<DateTime?> paymentDate;
   final Value<DateTime?> declarationDate;
   final Value<DateTime?> recordDate;
+  final Value<DateTime?> reportedPeriodStart;
+  final Value<DateTime?> reportedPeriodEnd;
   final Value<int> rowid;
   const DividendEventsCompanion({
     this.source = const Value.absent(),
@@ -4359,6 +4460,8 @@ class DividendEventsCompanion extends UpdateCompanion<DbDividendEvent> {
     this.paymentDate = const Value.absent(),
     this.declarationDate = const Value.absent(),
     this.recordDate = const Value.absent(),
+    this.reportedPeriodStart = const Value.absent(),
+    this.reportedPeriodEnd = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   DividendEventsCompanion.insert({
@@ -4380,6 +4483,8 @@ class DividendEventsCompanion extends UpdateCompanion<DbDividendEvent> {
     this.paymentDate = const Value.absent(),
     this.declarationDate = const Value.absent(),
     this.recordDate = const Value.absent(),
+    this.reportedPeriodStart = const Value.absent(),
+    this.reportedPeriodEnd = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : source = Value(source),
        fetchedAt = Value(fetchedAt),
@@ -4407,6 +4512,8 @@ class DividendEventsCompanion extends UpdateCompanion<DbDividendEvent> {
     Expression<DateTime>? paymentDate,
     Expression<DateTime>? declarationDate,
     Expression<DateTime>? recordDate,
+    Expression<DateTime>? reportedPeriodStart,
+    Expression<DateTime>? reportedPeriodEnd,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -4428,6 +4535,9 @@ class DividendEventsCompanion extends UpdateCompanion<DbDividendEvent> {
       if (paymentDate != null) 'payment_date': paymentDate,
       if (declarationDate != null) 'declaration_date': declarationDate,
       if (recordDate != null) 'record_date': recordDate,
+      if (reportedPeriodStart != null)
+        'reported_period_start': reportedPeriodStart,
+      if (reportedPeriodEnd != null) 'reported_period_end': reportedPeriodEnd,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -4451,6 +4561,8 @@ class DividendEventsCompanion extends UpdateCompanion<DbDividendEvent> {
     Value<DateTime?>? paymentDate,
     Value<DateTime?>? declarationDate,
     Value<DateTime?>? recordDate,
+    Value<DateTime?>? reportedPeriodStart,
+    Value<DateTime?>? reportedPeriodEnd,
     Value<int>? rowid,
   }) {
     return DividendEventsCompanion(
@@ -4472,6 +4584,8 @@ class DividendEventsCompanion extends UpdateCompanion<DbDividendEvent> {
       paymentDate: paymentDate ?? this.paymentDate,
       declarationDate: declarationDate ?? this.declarationDate,
       recordDate: recordDate ?? this.recordDate,
+      reportedPeriodStart: reportedPeriodStart ?? this.reportedPeriodStart,
+      reportedPeriodEnd: reportedPeriodEnd ?? this.reportedPeriodEnd,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -4541,6 +4655,14 @@ class DividendEventsCompanion extends UpdateCompanion<DbDividendEvent> {
     if (recordDate.present) {
       map['record_date'] = Variable<DateTime>(recordDate.value);
     }
+    if (reportedPeriodStart.present) {
+      map['reported_period_start'] = Variable<DateTime>(
+        reportedPeriodStart.value,
+      );
+    }
+    if (reportedPeriodEnd.present) {
+      map['reported_period_end'] = Variable<DateTime>(reportedPeriodEnd.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -4568,6 +4690,8 @@ class DividendEventsCompanion extends UpdateCompanion<DbDividendEvent> {
           ..write('paymentDate: $paymentDate, ')
           ..write('declarationDate: $declarationDate, ')
           ..write('recordDate: $recordDate, ')
+          ..write('reportedPeriodStart: $reportedPeriodStart, ')
+          ..write('reportedPeriodEnd: $reportedPeriodEnd, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -14640,6 +14764,8 @@ typedef $$DividendEventsTableCreateCompanionBuilder =
       Value<DateTime?> paymentDate,
       Value<DateTime?> declarationDate,
       Value<DateTime?> recordDate,
+      Value<DateTime?> reportedPeriodStart,
+      Value<DateTime?> reportedPeriodEnd,
       Value<int> rowid,
     });
 typedef $$DividendEventsTableUpdateCompanionBuilder =
@@ -14662,6 +14788,8 @@ typedef $$DividendEventsTableUpdateCompanionBuilder =
       Value<DateTime?> paymentDate,
       Value<DateTime?> declarationDate,
       Value<DateTime?> recordDate,
+      Value<DateTime?> reportedPeriodStart,
+      Value<DateTime?> reportedPeriodEnd,
       Value<int> rowid,
     });
 
@@ -14791,6 +14919,16 @@ class $$DividendEventsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<DateTime> get reportedPeriodStart => $composableBuilder(
+    column: $table.reportedPeriodStart,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get reportedPeriodEnd => $composableBuilder(
+    column: $table.reportedPeriodEnd,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$InstrumentsTableFilterComposer get instrumentId {
     final $$InstrumentsTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -14909,6 +15047,16 @@ class $$DividendEventsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<DateTime> get reportedPeriodStart => $composableBuilder(
+    column: $table.reportedPeriodStart,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get reportedPeriodEnd => $composableBuilder(
+    column: $table.reportedPeriodEnd,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$InstrumentsTableOrderingComposer get instrumentId {
     final $$InstrumentsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -15015,6 +15163,16 @@ class $$DividendEventsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<DateTime> get reportedPeriodStart => $composableBuilder(
+    column: $table.reportedPeriodStart,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get reportedPeriodEnd => $composableBuilder(
+    column: $table.reportedPeriodEnd,
+    builder: (column) => column,
+  );
+
   $$InstrumentsTableAnnotationComposer get instrumentId {
     final $$InstrumentsTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -15087,6 +15245,8 @@ class $$DividendEventsTableTableManager
                 Value<DateTime?> paymentDate = const Value.absent(),
                 Value<DateTime?> declarationDate = const Value.absent(),
                 Value<DateTime?> recordDate = const Value.absent(),
+                Value<DateTime?> reportedPeriodStart = const Value.absent(),
+                Value<DateTime?> reportedPeriodEnd = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => DividendEventsCompanion(
                 source: source,
@@ -15107,6 +15267,8 @@ class $$DividendEventsTableTableManager
                 paymentDate: paymentDate,
                 declarationDate: declarationDate,
                 recordDate: recordDate,
+                reportedPeriodStart: reportedPeriodStart,
+                reportedPeriodEnd: reportedPeriodEnd,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -15129,6 +15291,8 @@ class $$DividendEventsTableTableManager
                 Value<DateTime?> paymentDate = const Value.absent(),
                 Value<DateTime?> declarationDate = const Value.absent(),
                 Value<DateTime?> recordDate = const Value.absent(),
+                Value<DateTime?> reportedPeriodStart = const Value.absent(),
+                Value<DateTime?> reportedPeriodEnd = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => DividendEventsCompanion.insert(
                 source: source,
@@ -15149,6 +15313,8 @@ class $$DividendEventsTableTableManager
                 paymentDate: paymentDate,
                 declarationDate: declarationDate,
                 recordDate: recordDate,
+                reportedPeriodStart: reportedPeriodStart,
+                reportedPeriodEnd: reportedPeriodEnd,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

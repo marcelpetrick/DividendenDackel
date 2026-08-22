@@ -188,6 +188,8 @@ extension DividendRowMapper on DbDividendEvent {
     paymentDate: EntityMappers.utcOrNull(paymentDate),
     declarationDate: EntityMappers.utcOrNull(declarationDate),
     recordDate: EntityMappers.utcOrNull(recordDate),
+    reportedPeriodStart: EntityMappers.utcOrNull(reportedPeriodStart),
+    reportedPeriodEnd: EntityMappers.utcOrNull(reportedPeriodEnd),
     provenance: ProvenanceRowMapper.fromColumns(
       source: source,
       fetchedAt: fetchedAt,
@@ -425,6 +427,8 @@ abstract final class CompanionMappers {
       paymentDate: Value<DateTime?>(event.paymentDate?.toUtc()),
       declarationDate: Value<DateTime?>(event.declarationDate?.toUtc()),
       recordDate: Value<DateTime?>(event.recordDate?.toUtc()),
+      reportedPeriodStart: Value<DateTime?>(event.reportedPeriodStart?.toUtc()),
+      reportedPeriodEnd: Value<DateTime?>(event.reportedPeriodEnd?.toUtc()),
       source: p.source,
       fetchedAt: p.fetchedAt,
       updatedAt: p.updatedAt,

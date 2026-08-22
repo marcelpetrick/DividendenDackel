@@ -72,6 +72,8 @@ void main() {
     required String amount,
     DateTime? exDate,
     DateTime? paymentDate,
+    DateTime? reportedPeriodStart,
+    DateTime? reportedPeriodEnd,
     DividendStatus status = DividendStatus.confirmed,
     String instrumentId = 'isin:DE0008404005',
   }) => DividendEvent(
@@ -80,6 +82,8 @@ void main() {
     status: status,
     exDate: exDate,
     paymentDate: paymentDate,
+    reportedPeriodStart: reportedPeriodStart,
+    reportedPeriodEnd: reportedPeriodEnd,
     provenance: fmp,
   );
 
@@ -298,6 +302,29 @@ void main() {
         Money.parse('276', Currency.eur),
       );
     });
+
+    test(
+      'preserves a provider reporting period without inventing dates',
+      () async {
+        await dividends.saveAll(<DividendEvent>[
+          dividendOf(
+            amount: '0.25',
+            reportedPeriodStart: DateTime.utc(2026, 1, 1),
+            reportedPeriodEnd: DateTime.utc(2026, 3, 31),
+          ),
+        ], idOf: (_) => 'sec-period');
+
+        final DividendEvent stored =
+            (await dividends.watchForInstrument(allianz.internalId).first)
+                .single;
+
+        expect(stored.reportedPeriodStart, DateTime.utc(2026, 1, 1));
+        expect(stored.reportedPeriodEnd, DateTime.utc(2026, 3, 31));
+        expect(stored.exDate, isNull);
+        expect(stored.declarationDate, isNull);
+        expect(stored.paymentDate, isNull);
+      },
+    );
 
     test('a deterministic id updates rather than duplicating', () async {
       for (final String amount in <String>['13.80', '14.20']) {
