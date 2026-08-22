@@ -6,7 +6,7 @@ including a future session — can pick up without re-reading the whole history.
 - **Last updated:** 2026-08-23
 - **Version:** 0.1.0+1 (pre-release, `0.x.y`)
 - **Branch:** `master` (local work ahead of `origin`)
-- **Quality gate:** green — 344 tests, analyzer clean, both platforms build
+- **Quality gate:** green — 357 tests, analyzer clean, both platforms build
 
 ---
 
@@ -54,6 +54,7 @@ Today ranking land with D3–D5 and T1.
 | Keyless Frankfurter/ECB FX adapter | F8b | done |
 | Persistent provider health + live Data Status | F12 | done |
 | Dividend CAGR + cut history analytics | D1 | done |
+| Deterministic dividend forecast engine | D2 | done |
 
 ### What is left
 
@@ -61,10 +62,9 @@ Ordered by what unblocks a usable app soonest.
 
 | Next | Task | Why it matters |
 | --- | --- | --- |
-| 1 | **D2** dividend forecasting | Deterministic, explainable future events. |
-| 2 | **D3–D5/T1** core UI | Portfolio, calendar, forecast and Today. |
-| 3 | **E1/E2** delivery proof | End-to-end flows and artifact launch verification. |
-| 4 | **D6–D9** deeper portfolio data | Quality, currency and gross/net tax. |
+| 1 | **D3–D5/T1** core UI | Portfolio, calendar, forecast and Today. |
+| 2 | **E1/E2** delivery proof | End-to-end flows and artifact launch verification. |
+| 3 | **D6–D9** deeper portfolio data | Quality, currency and gross/net tax. |
 
 Then: D6 quality score · D7 currency · **D8/D9 gross-and-net tax** ·
 T2–T6 events, news, research ·
@@ -153,6 +153,12 @@ dart format .
   current year are excluded. CAGR is emitted only when every year in its
   3/5/10-year window exists and both endpoints are positive, and every result
   carries its period and comparison years.
+- **Forecasts are deterministic and labelled.** Payment seasonality supplies
+  the 24-month schedule, provider-announced events always win, and generated
+  rows use `historicallyEstimated`. Growth uses the longest available standard
+  CAGR or the disclosed 3% fallback; irregular and undated histories produce a
+  limitation instead of invented dates. Full rules are in
+  [`dividend-forecast.md`](dividend-forecast.md).
 - **A malformed stored amount fails loudly** as a `ParsingFailure` rather than
   parsing to something plausible.
 - **Value objects live in `lib/domain/value_objects/`**, a refinement of the

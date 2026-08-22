@@ -99,7 +99,7 @@ Each task names the `Vision.md` sections it satisfies.
 
 - [x] **D1** Dividend CAGR (3/5/10-year), years without a cut, latest increase
       and decrease. Always rendered with its period. Unit tests. — §12
-- [ ] **D2** Deterministic, explainable dividend forecast engine (frequency,
+- [x] **D2** Deterministic, explainable dividend forecast engine (frequency,
       last dividend, growth, seasonality, announced values) emitting an explicit
       status and confidence. Unit tests. — §11, §48
       - growth from the instrument's own dividend CAGR where history allows;

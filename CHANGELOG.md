@@ -56,6 +56,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 - Explainable dividend-growth analytics aggregate reported payments by
   completed calendar year and calculate period-labelled 3/5/10-year CAGR,
   consecutive no-cut years, and the latest annual increase and decrease.
+- A deterministic 24-month dividend forecast detects frequency and payment
+  seasonality, prefers the longest available instrument CAGR, preserves
+  announced values, marks every generated event as estimated, and explains its
+  documented 3% fallback when history is short.
 
 ### Changed
 
