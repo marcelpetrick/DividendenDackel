@@ -7,6 +7,7 @@ import 'package:dividendendackel/domain/analytics/analytics.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/domain/repositories/repositories.dart';
 import 'package:dividendendackel/features/calendar/forecast_state.dart';
+import 'package:dividendendackel/features/currency/fx_state.dart';
 import 'package:dividendendackel/features/settings/tax_settings.dart';
 import 'package:dividendendackel/features/tax/tax_estimates.dart';
 import 'package:flutter/material.dart';
@@ -80,6 +81,14 @@ class _ForecastScreenState extends ConsumerState<ForecastScreen> {
                   return AsyncValueView<TaxSettings>(
                     value: ref.watch(taxSettingsProvider),
                     builder: (BuildContext context, TaxSettings settings) {
+                      final bool needsFx = forecasts.any(
+                        (DividendForecast forecast) =>
+                            forecast.currency != Currency.eur,
+                      );
+                      final List<FxRate> fxRates = needsFx
+                          ? ref.watch(cachedFxRatesProvider).value ??
+                                const <FxRate>[]
+                          : const <FxRate>[];
                       final PortfolioDividendIncomeForecast projection =
                           const DividendIncomeForecastCalculator().calculate(
                             holdings: holdings,
@@ -94,6 +103,7 @@ class _ForecastScreenState extends ConsumerState<ForecastScreen> {
                             holdings: holdings,
                             instruments: instruments,
                             settings: settings,
+                            fxRates: fxRates,
                           );
                       return _ForecastBody(
                         projection: projection,
@@ -205,6 +215,8 @@ class _ForecastBody extends StatelessWidget {
           'EUR FX or source-country data remain explicitly unavailable.',
           style: Theme.of(context).textTheme.labelSmall,
         ),
+        if (taxes.fxDisclosure case final String disclosure)
+          Text(disclosure, style: Theme.of(context).textTheme.labelSmall),
         const SizedBox(height: AppTheme.space * 2),
         Text(
           'How this was estimated',
@@ -718,12 +730,30 @@ final class _ForecastTaxProjection {
   final List<DividendEvent> _events;
   final Map<String, TaxEventEstimate> _estimates;
 
+  String? get fxDisclosure {
+    final Set<FxRate> rates = <FxRate>{
+      for (final TaxEventEstimate estimate in _estimates.values)
+        if (estimate.fxConversion case final FxConversion conversion)
+          ...conversion.rates,
+    };
+    if (rates.isEmpty) return null;
+    final List<FxRate> ordered = rates.toList()
+      ..sort((FxRate a, FxRate b) => a.observedAt.compareTo(b.observedAt));
+    final bool stale = _estimates.values.any(
+      (TaxEventEstimate estimate) => estimate.fxConversion?.isStale ?? false,
+    );
+    return 'FX used for estimated net: '
+        '${ordered.map((FxRate rate) => '${rate.base.code}/${rate.quote.code} ${rate.rate} · ${rate.provenance.source} · ${_date(rate.observedAt)}').join('; ')}'
+        '${stale ? ' · includes stale rates' : ''}.';
+  }
+
   factory _ForecastTaxProjection.calculate({
     required List<DividendEvent> historicalEvents,
     required List<DividendForecast> forecasts,
     required List<Holding> holdings,
     required Map<String, Instrument> instruments,
     required TaxSettings settings,
+    required List<FxRate> fxRates,
   }) {
     final Map<String, DividendEvent> unique = <String, DividendEvent>{
       for (final DividendEvent event in historicalEvents)
@@ -746,6 +776,7 @@ final class _ForecastTaxProjection {
           holdings: holdings,
           instruments: instruments,
           settings: settings,
+          fxRates: fxRates,
         ).byEventKey,
       );
     }
@@ -772,6 +803,10 @@ final class _ForecastTaxProjection {
     }
     return _NetTotal(netEur: net, unsupportedCount: unsupported);
   }
+
+  static String _date(DateTime value) =>
+      '${value.year}-${value.month.toString().padLeft(2, '0')}-'
+      '${value.day.toString().padLeft(2, '0')}';
 }
 
 Map<Currency, Money> _maxTotals(Iterable<DividendIncomePeriod> periods) {

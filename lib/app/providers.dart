@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:decimal/decimal.dart';
 import 'package:dividendendackel/core/logging/logging.dart';
 import 'package:dividendendackel/core/networking/provider_status_monitor.dart';
 import 'package:dividendendackel/core/networking/request_coordinator.dart';
@@ -265,6 +266,43 @@ final FutureProvider<void> sampleDataProvider = FutureProvider<void>((
     final Object? failure = (await seeder.seed(dataset)).failureOrNull;
     if (failure != null) {
       log.error('seeding failed', operation: 'seed', error: failure);
+      return;
+    }
+    final DateTime now = ref.watch(clockProvider).now().toUtc();
+    final DateTime day = DateTime.utc(now.year, now.month, now.day);
+    final Provenance fxProvenance = Provenance.sample(
+      now,
+    ).copyWith(reportedCurrency: Currency.eur);
+    final Object? fxFailure =
+        (await ref.watch(fxRateRepositoryProvider).saveAll(<FxRate>[
+          FxRate(
+            base: Currency.eur,
+            quote: Currency.usd,
+            rate: Decimal.parse('1.17'),
+            observedAt: day,
+            provenance: fxProvenance.copyWith(reportedCurrency: Currency.usd),
+          ),
+          FxRate(
+            base: Currency.eur,
+            quote: Currency.gbp,
+            rate: Decimal.parse('0.87'),
+            observedAt: day,
+            provenance: fxProvenance.copyWith(reportedCurrency: Currency.gbp),
+          ),
+          FxRate(
+            base: Currency.eur,
+            quote: Currency.chf,
+            rate: Decimal.parse('0.94'),
+            observedAt: day,
+            provenance: fxProvenance.copyWith(reportedCurrency: Currency.chf),
+          ),
+        ])).failureOrNull;
+    if (fxFailure != null) {
+      log.error(
+        'sample FX seeding failed',
+        operation: 'seed',
+        error: fxFailure,
+      );
     }
   });
 });

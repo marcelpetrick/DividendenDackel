@@ -2,8 +2,10 @@ import 'package:decimal/decimal.dart';
 import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/core/errors/result.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
+import 'package:dividendendackel/features/currency/fx_state.dart';
 import 'package:dividendendackel/features/portfolio/portfolio_editor.dart';
 import 'package:dividendendackel/features/portfolio/portfolio_screen.dart';
+import 'package:dividendendackel/features/settings/currency_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -27,6 +29,8 @@ void main() {
     List<WatchlistEntry> watchlist = const <WatchlistEntry>[],
     Map<String, Quote>? quotes,
     List<DividendEvent>? dividends,
+    Currency displayCurrency = Currency.eur,
+    List<FxRate> fxRates = const <FxRate>[],
   }) async {
     tester.view.physicalSize = const Size(900, 900);
     tester.view.devicePixelRatio = 1;
@@ -38,6 +42,12 @@ void main() {
       ProviderScope(
         overrides: [
           clockProvider.overrideWithValue(FakeClock(now)),
+          displayCurrencyStoreProvider.overrideWithValue(
+            _DisplayCurrencyStore(displayCurrency),
+          ),
+          cachedFxRatesProvider.overrideWith(
+            (Ref ref) => Stream<List<FxRate>>.value(fxRates),
+          ),
           portfolioEditorProvider.overrideWithValue(editor),
           holdingsProvider.overrideWith(
             (Ref ref) =>
@@ -140,6 +150,43 @@ void main() {
     expect(find.text('Allianz SE added to the portfolio.'), findsOneWidget);
   });
 
+  testWidgets('shows a sourced converted total and currency exposure', (
+    WidgetTester tester,
+  ) async {
+    final Holding holding = Holding(
+      instrumentId: instrument.internalId,
+      quantity: Decimal.fromInt(10),
+      provenance: provenance,
+    );
+    final Quote quote = Quote(
+      instrumentId: instrument.internalId,
+      price: Money.parse('100', Currency.eur),
+      asOf: now,
+      provenance: provenance,
+    );
+    final FxRate rate = FxRate(
+      base: Currency.eur,
+      quote: Currency.usd,
+      rate: Decimal.parse('2'),
+      observedAt: DateTime.utc(2026, 8, 22),
+      provenance: Provenance(source: 'ecb', fetchedAt: now),
+    );
+
+    await pumpPortfolio(
+      tester,
+      holdings: <Holding>[holding],
+      quotes: <String, Quote>{instrument.internalId: quote},
+      displayCurrency: Currency.usd,
+      fxRates: <FxRate>[rate],
+    );
+    await tester.pump();
+
+    expect(find.text('USD display view'), findsOneWidget);
+    expect(find.text(r'$2000.00'), findsOneWidget);
+    expect(find.text('Currency exposure'), findsOneWidget);
+    expect(find.textContaining('EUR/USD 2 · ecb · 2026-08-22'), findsOneWidget);
+  });
+
   testWidgets('adds a search result to the watchlist', (
     WidgetTester tester,
   ) async {
@@ -184,6 +231,17 @@ void main() {
     expect(find.byType(AlertDialog), findsOneWidget);
     expect(editor.addedHolding, isNull);
   });
+}
+
+final class _DisplayCurrencyStore implements DisplayCurrencyStore {
+  _DisplayCurrencyStore(this.currency);
+  final Currency currency;
+
+  @override
+  Future<Currency> load() async => currency;
+
+  @override
+  Future<void> save(Currency currency) async {}
 }
 
 final class _FakePortfolioEditor implements PortfolioEditor {

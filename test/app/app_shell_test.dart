@@ -224,6 +224,7 @@ void main() {
 
       // The version is visible in Settings itself, so checking it does not
       // require knowing to open another screen.
+      await tester.scrollUntilVisible(find.text('About'), 300);
       expect(find.text('Version 0.1.0 (1)'), findsOneWidget);
 
       await tester.tap(find.text('About'));

@@ -46,6 +46,15 @@ class SettingsScreen extends ConsumerWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push('/settings/tax'),
           ),
+          ListTile(
+            leading: const Icon(Icons.currency_exchange),
+            title: const Text('Currency & exchange rates'),
+            subtitle: const Text(
+              'Display currency, ECB rate dates, sources and staleness',
+            ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/settings/currency'),
+          ),
           const Divider(height: 1),
           Padding(
             padding: const EdgeInsets.all(AppTheme.space * 2),

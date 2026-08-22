@@ -31,6 +31,13 @@ class GrossNetAmount extends ConsumerWidget {
       children: <Widget>[
         Text('Gross ${gross.format(withSymbol: true)}'),
         Text('Net (estimated) $net'),
+        if (estimate?.fxConversion case final FxConversion conversion)
+          Text(
+            'FX ${conversion.rates.map((rate) => rate.provenance.source).toSet().join('/')} '
+            '${_date(conversion.oldestRateDate!)}'
+            '${conversion.isStale ? ' · stale' : ''}',
+            style: Theme.of(context).textTheme.labelSmall,
+          ),
         Text(
           'Estimate—not tax advice.',
           style: Theme.of(context).textTheme.labelSmall,
@@ -38,4 +45,8 @@ class GrossNetAmount extends ConsumerWidget {
       ],
     );
   }
+
+  static String _date(DateTime value) =>
+      '${value.year}-${value.month.toString().padLeft(2, '0')}-'
+      '${value.day.toString().padLeft(2, '0')}';
 }
