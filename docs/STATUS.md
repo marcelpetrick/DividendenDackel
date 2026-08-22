@@ -6,7 +6,7 @@ including a future session — can pick up without re-reading the whole history.
 - **Last updated:** 2026-08-22
 - **Version:** 0.1.0+1 (pre-release, `0.x.y`)
 - **Branch:** `master` (pushed to `origin`)
-- **Quality gate:** green — `./localPipeline.sh --noRun` passes, 199 tests
+- **Quality gate:** green — `./localPipeline.sh --noRun` passes, 221 tests, both platforms build
 
 ---
 
@@ -19,50 +19,58 @@ task queue in [`BACKLOG.md`](BACKLOG.md); working rules in
 
 ## 2. Where we are
 
-**Foundation phase.** The engineering substrate is built and tested; the
-product UI is not yet. `flutter run -d linux` currently still shows the Flutter
-counter demo — that is replaced in task **F10**.
+**Foundation complete; product UI is next.** Everything below the UI is built
+and tested. `flutter run -d linux` still shows the Flutter counter demo — that
+is replaced by **F10**, the next task.
 
-Done so far:
+### Done
 
-| Area | State |
-| --- | --- |
-| Flutter app, Android + Linux targets | done, both build in release |
-| `minSdk 29` / `targetSdk 36` pinned + asserted in CI | done |
-| Strict static analysis | done |
-| Local pipeline + GitHub Actions CI | done |
-| README, LICENSE, CONTRIBUTING, CHANGELOG | done |
-| Typed `Failure` + `Result` (F1) | done |
-| Structured logging with redaction (F2) | done |
-| Domain entities and value objects (F3) | done |
-| SQLite schema + migration safety (F4) | done |
-| Repositories over the database (F5) | done |
-| Bundled sample data (F9) | **next** |
-| Everything else | see BACKLOG |
+| Area | Task | State |
+| --- | --- | --- |
+| Flutter app, Android + Linux | — | both build in release (APK 49 MB, bundle 25 MB) |
+| `minSdk 29` pinned and asserted in CI | — | done |
+| Strict static analysis | B3 | done |
+| Local pipeline + PR CI + release pipeline | R1, R3 | done |
+| README, LICENSE, CONTRIBUTING, CHANGELOG | R4a | done |
+| Typed `Failure` + `Result` | F1 | done |
+| Structured logging with redaction | F2 | done |
+| Domain entities and value objects | F3 | done |
+| SQLite schema + migration safety | F4 | done |
+| Repositories over the database | F5 | done |
+| Bundled sample dataset | F9 | done |
+| App icon, both platforms | Q8 | done |
+
+### What is left
+
+Ordered by what unblocks a usable app soonest.
+
+| Next | Task | Why it matters |
+| --- | --- | --- |
+| 1 | **F10** app shell | Riverpod, routing, responsive nav, light/dark. The app stops looking like a demo. |
+| 2 | **D3** portfolio | Search, add holding, portfolio overview. |
+| 3 | **D4** dividend calendar | Month/year/agenda, ex-date vs payment toggle. |
+| 4 | **D5** monthly forecast | Income per month, confirmed vs estimated. |
+| 5 | **T1** Today screen | The actual product experience. |
+| 6 | **E1/E2** end-to-end + artifact verification | Proof it works, not just that it compiles. |
+
+Then: D1 CAGR · D2 forecast engine · D6 quality score · D7 currency ·
+**D8/D9 gross-and-net tax** · F6 cache TTL · F7 Request Coordinator ·
+F8 provider abstraction · **F8a SEC EDGAR (keyless)** · **F8b FX (keyless)** ·
+F11 settings · F12 Data Status · T2–T6 events, news, research ·
+Q1–Q7 offline, states, accessibility, health, simulator, onboarding,
+notifications · R2 dependency workflows · R4b remaining docs ·
+R5 optional keyed providers · R6 release readiness · S1 self-review ·
+Phase 6 post-1.0.
+
+Full detail in [`BACKLOG.md`](BACKLOG.md).
 
 ## 3. Immediate goal
 
 **A working, installable Android APK plus a Linux build that visibly does
-something useful, driven by bundled sample data and needing no API keys.**
+something useful, driven by bundled sample data and needing no API key.**
 
-The backlog was reordered for this: repositories → sample data → app shell →
-portfolio/calendar/Today. The Request Coordinator and live provider adapters
-(F6–F8) come *after* that, because they are not needed for a usable app and
-would otherwise delay one.
-
-Path to the goal:
-
-```text
-F9  sample data         →  a realistic portfolio with no API key
-Q8  app icon            →  a Dackel fetching a coin, on both platforms
-F10 app shell           →  navigation, themes; app stops looking like a demo
-D3  portfolio           →  holdings, search, add
-D4  dividend calendar   →  month/year/agenda, ex-date vs payment toggle
-D5  monthly forecast    →  income per month
-T1  Today screen        →  the actual product experience
-E1  end-to-end tests    →  integration_test over the real flows
-E2  release verification→  APK + Linux bundle launched and checked
-```
+The APK already builds and installs; it does not yet *do* anything. F10 through
+T1 close that gap.
 
 ## 4. How to build and check
 
@@ -105,13 +113,27 @@ dart format .
   parsing to something plausible.
 - **Value objects live in `lib/domain/value_objects/`**, a refinement of the
   layout Vision.md §53 recommends.
-- **No API keys in the repo or the built app.** Keys are user-supplied and
-  stored locally; the app is designed to be fully usable without any.
+- **No API keys in the repo or the built app.** Two genuinely keyless public
+  sources — SEC EDGAR for real dividend history and filings, Frankfurter/ECB
+  for FX — are the default tier, so the app ships with real data and no user
+  setup. Keyed providers are an opt-in upgrade. The app will not provision a
+  secret credential on the user's behalf; embedding one would not keep it
+  secret (Vision.md §34).
+- **Sample data is generated from patterns, not fixed dates**, so the calendar
+  is populated whenever the app runs, and the generated history actually grows
+  year on year so dividend CAGR has something real to compute.
+- **Dividends will be shown gross *and* net**, with withholding, treaty cap and
+  German tax modelled as an explainable estimate — see
+  [`dividend-taxation.md`](dividend-taxation.md).
 
 ## 6. Known issues and follow-ups
 
 - `lib/main.dart` is still the generated counter demo (fixed by F10).
-- No provider adapters yet, so nothing fetches live data (F8, R5).
+- No provider adapters yet, so nothing fetches live data (F8a, F8b, R5).
+- The withholding tax table in `dividend-taxation.md` is a design sketch; the
+  rates must be verified against the BZSt publication before release.
+- The release workflow has never run. It is written and validated but unproven
+  until the first `v*` tag is pushed.
 - `build_runner` is pinned to 2.15.1; 2.16.0 conflicts with the pinned Flutter
   SDK's constraints. Recheck on the next SDK bump.
 - Generated `*.g.dart` files are committed so CI needs no codegen step. They
