@@ -8,6 +8,8 @@ import 'package:dividendendackel/app/widgets/value_labels.dart';
 import 'package:dividendendackel/core/errors/failure.dart';
 import 'package:dividendendackel/core/networking/request_coordinator.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
+import 'package:dividendendackel/features/calendar/calendar_state.dart';
+import 'package:dividendendackel/features/calendar/forecast_state.dart';
 import 'package:dividendendackel/features/settings/about_screen.dart';
 import 'package:dividendendackel/features/settings/data_source_settings.dart';
 import 'package:flutter/material.dart';
@@ -61,6 +63,14 @@ void main() {
           ),
           upcomingDividendsProvider.overrideWith(
             (Ref ref, int days) =>
+                Stream<List<DividendEvent>>.value(const <DividendEvent>[]),
+          ),
+          calendarEventsProvider.overrideWith(
+            (Ref ref, CalendarEventsQuery query) =>
+                Stream<List<DividendEvent>>.value(const <DividendEvent>[]),
+          ),
+          forecastSourceEventsProvider.overrideWith(
+            (Ref ref, ForecastEventsQuery query) =>
                 Stream<List<DividendEvent>>.value(const <DividendEvent>[]),
           ),
           providerStatusesProvider.overrideWith(
@@ -165,6 +175,20 @@ void main() {
 
       expect(find.byType(NavigationBar), findsOneWidget);
       expect(find.text('Portfolio'), findsWidgets);
+    });
+
+    testWidgets('opens the income forecast from the calendar', (
+      WidgetTester tester,
+    ) async {
+      await pumpApp(tester, size: const Size(1000, 900));
+
+      await tester.tap(find.text('Calendar').last);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Income forecast'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('No holdings to forecast'), findsOneWidget);
+      expect(find.text('Calendar'), findsWidgets);
     });
 
     testWidgets('reaches the data status screen', (WidgetTester tester) async {

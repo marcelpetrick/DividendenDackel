@@ -126,7 +126,7 @@ Each task names the `Vision.md` sections it satisfies.
       - estimated events carry a **shape/letter marker, not just a colour**,
         which §27 requires anyway;
       - display-currency selector, feeding D7.
-- [ ] **D5** Monthly + annual dividend forecast with bar visualization,
+- [x] **D5** Monthly + annual dividend forecast with bar visualization,
       confirmed vs estimated split, share of annual income, current-month
       already-paid breakdown. — §10
       Concrete capabilities:

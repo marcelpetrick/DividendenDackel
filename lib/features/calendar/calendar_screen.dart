@@ -6,6 +6,7 @@ import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/features/calendar/calendar_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 /// Interactive dividend calendar (Vision.md §9).
 class CalendarScreen extends ConsumerStatefulWidget {
@@ -89,6 +90,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           onWeekendsChanged: (bool value) => setState(() => _weekends = value),
           onCurrencyChanged: (Currency? currency) =>
               setState(() => _displayCurrency = currency),
+          onForecast: () => context.push('/calendar/forecast'),
         ),
         if (_displayCurrency != null)
           _ConversionNotice(currency: _displayCurrency!),
@@ -178,6 +180,7 @@ class _Controls extends StatelessWidget {
     required this.onDateModeChanged,
     required this.onWeekendsChanged,
     required this.onCurrencyChanged,
+    required this.onForecast,
   });
 
   final DateTime focus;
@@ -194,6 +197,7 @@ class _Controls extends StatelessWidget {
   final ValueChanged<DividendDateMode> onDateModeChanged;
   final ValueChanged<bool> onWeekendsChanged;
   final ValueChanged<Currency?> onCurrencyChanged;
+  final VoidCallback onForecast;
 
   @override
   Widget build(BuildContext context) {
@@ -228,6 +232,11 @@ class _Controls extends StatelessWidget {
                   icon: const Icon(Icons.chevron_right),
                 ),
                 TextButton(onPressed: onToday, child: const Text('Today')),
+                FilledButton.tonalIcon(
+                  onPressed: onForecast,
+                  icon: const Icon(Icons.stacked_line_chart),
+                  label: const Text('Income forecast'),
+                ),
                 SegmentedButton<DividendCalendarView>(
                   showSelectedIcon: false,
                   segments: const <ButtonSegment<DividendCalendarView>>[

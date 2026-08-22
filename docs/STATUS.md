@@ -6,7 +6,7 @@ including a future session — can pick up without re-reading the whole history.
 - **Last updated:** 2026-08-23
 - **Version:** 0.1.0+1 (pre-release, `0.x.y`)
 - **Branch:** `master` (local work ahead of `origin`)
-- **Quality gate:** green — 380 tests, analyzer clean, both platforms build
+- **Quality gate:** green — 389 tests, analyzer clean, both platforms build
 
 ---
 
@@ -25,8 +25,8 @@ switches between a bottom bar and a navigation rail, light and dark themes,
 Settings, About with the version, and a Data Status screen. Sample data is
 seeded on first launch, so the screens are populated with no API key.
 
-The core portfolio and calendar are functional. Forecast visualization and the
-Today ranking land with D5 and T1.
+The core portfolio, calendar and 24-month income forecast are functional. The
+Today ranking lands with T1.
 
 ### Done
 
@@ -57,6 +57,7 @@ Today ranking land with D5 and T1.
 | Deterministic dividend forecast engine | D2 | done |
 | Instrument add flows + portfolio overview | D3 | done |
 | Month/year/agenda dividend calendar | D4 | done |
+| 24-month dividend income forecast | D5 | done |
 
 ### What is left
 
@@ -64,7 +65,7 @@ Ordered by what unblocks a usable app soonest.
 
 | Next | Task | Why it matters |
 | --- | --- | --- |
-| 1 | **D5/T1** core UI | Forecast and Today. |
+| 1 | **T1** core UI | Make Today the useful daily starting point. |
 | 2 | **E1/E2** delivery proof | End-to-end flows and artifact launch verification. |
 | 3 | **D6–D9** deeper portfolio data | Quality, currency and gross/net tax. |
 
@@ -174,6 +175,13 @@ dart format .
   markers. Year totals are held gross payments separated by currency—not sums
   of unrelated per-share amounts. Selecting a future display currency never
   relabels native money before D7 can supply an attributable daily FX rate.
+- **Income forecasts remain certainty- and currency-separated.** D5 merges
+  events found by ex-date or payment date, runs D2 per held instrument and
+  applies today’s quantities to a 24-month cash timeline. Monthly, calendar
+  quarter and annual buckets expose paid-date-passed, confirmed-upcoming and
+  estimated components; TTM comparisons use reported payments only. The UI
+  states that this is not broker reconciliation and shows every instrument’s
+  rule-based explanation or limitation.
 - **A malformed stored amount fails loudly** as a `ParsingFailure` rather than
   parsing to something plausible.
 - **Value objects live in `lib/domain/value_objects/`**, a refinement of the
