@@ -6,7 +6,11 @@ plugins {
 
 android {
     namespace = "it.marcelpetrick.dividend_tracker"
-    compileSdk = flutter.compileSdkVersion
+
+    // Vision.md 4.1 / 58: Android 10 (API 29) is the minimum *runtime*, while the
+    // app targets the API level currently required for Google Play publication.
+    // As of 2026-08-31 new apps and updates must target API 36 or newer.
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -15,12 +19,11 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "it.marcelpetrick.dividend_tracker"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        // Do not raise without re-reading Vision.md 58: Android 10 support is a
+        // product requirement and CI asserts this value stays at 29.
+        minSdk = 29
+        targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
