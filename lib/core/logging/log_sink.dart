@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:developer' as developer;
 
-import 'package:dividend_tracker/core/logging/log_level.dart';
-import 'package:dividend_tracker/core/logging/log_record.dart';
+import 'package:dividendendackel/core/logging/log_level.dart';
+import 'package:dividendendackel/core/logging/log_record.dart';
 import 'package:flutter/foundation.dart';
 
 /// Destination for emitted [LogRecord]s.

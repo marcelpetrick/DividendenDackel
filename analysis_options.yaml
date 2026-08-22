@@ -1,4 +1,4 @@
-# Static analysis configuration for Dividend Tracker.
+# Static analysis configuration for DividendenDackel.
 #
 # Vision.md 67 asks for strict static analysis; warnings are not routinely
 # ignored, so the analyzer is configured to treat the important ones as errors.

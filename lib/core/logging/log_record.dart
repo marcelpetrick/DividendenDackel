@@ -1,5 +1,5 @@
-import 'package:dividend_tracker/core/errors/failure.dart';
-import 'package:dividend_tracker/core/logging/log_level.dart';
+import 'package:dividendendackel/core/errors/failure.dart';
+import 'package:dividendendackel/core/logging/log_level.dart';
 
 /// A single structured log entry (Vision.md §56).
 ///

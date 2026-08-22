@@ -1,5 +1,5 @@
-import 'package:dividend_tracker/core/errors/failure.dart';
-import 'package:dividend_tracker/core/errors/result.dart';
+import 'package:dividendendackel/core/errors/failure.dart';
+import 'package:dividendendackel/core/errors/result.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

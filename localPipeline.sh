@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Local project pipeline for Dividend Tracker.
+# Local project pipeline for DividendenDackel.
 #
 # Runs the same quality gate that CI runs, so a green run here means a green
 # run on GitHub (Vision.md §65, §67). The CI workflow invokes this very script
@@ -191,7 +191,7 @@ build_linux() {
         return 1
     fi
     local bundle="build/linux/x64/release/bundle"
-    if [[ ! -x "${bundle}/dividend_tracker" ]]; then
+    if [[ ! -x "${bundle}/dividendendackel" ]]; then
         BUILD_LINUX_DETAILS="executable missing from ${bundle}"
         return 1
     fi
@@ -217,7 +217,7 @@ build_android() {
 # Smoke test: start the freshly built Linux bundle and confirm it stays up.
 # Requires a display, so CI and headless machines pass --noRun.
 smoke_test_linux_app() {
-    local bundle="build/linux/x64/release/bundle/dividend_tracker"
+    local bundle="build/linux/x64/release/bundle/dividendendackel"
     if [[ ! -x "${bundle}" ]]; then
         return 1
     fi

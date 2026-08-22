@@ -1,4 +1,4 @@
-import 'package:dividend_tracker/core/utils/clock.dart';
+import 'package:dividendendackel/core/utils/clock.dart';
 
 /// A [Clock] whose time only moves when a test moves it.
 final class FakeClock implements Clock {

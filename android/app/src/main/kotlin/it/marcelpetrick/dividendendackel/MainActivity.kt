@@ -1,4 +1,4 @@
-package it.marcelpetrick.dividend_tracker
+package it.marcelpetrick.dividendendackel
 
 import io.flutter.embedding.android.FlutterActivity
 

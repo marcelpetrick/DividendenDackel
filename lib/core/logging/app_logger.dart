@@ -1,9 +1,9 @@
-import 'package:dividend_tracker/core/errors/failure.dart';
-import 'package:dividend_tracker/core/logging/log_level.dart';
-import 'package:dividend_tracker/core/logging/log_record.dart';
-import 'package:dividend_tracker/core/logging/log_redactor.dart';
-import 'package:dividend_tracker/core/logging/log_sink.dart';
-import 'package:dividend_tracker/core/utils/clock.dart';
+import 'package:dividendendackel/core/errors/failure.dart';
+import 'package:dividendendackel/core/logging/log_level.dart';
+import 'package:dividendendackel/core/logging/log_record.dart';
+import 'package:dividendendackel/core/logging/log_redactor.dart';
+import 'package:dividendendackel/core/logging/log_sink.dart';
+import 'package:dividendendackel/core/utils/clock.dart';
 import 'package:flutter/foundation.dart';
 
 /// Structured application logger (Vision.md §56).

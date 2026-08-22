@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "it.marcelpetrick.dividend_tracker"
+    namespace = "it.marcelpetrick.dividendendackel"
 
     // Vision.md 4.1 / 58: Android 10 (API 29) is the minimum *runtime*, while the
     // app targets the API level currently required for Google Play publication.
@@ -19,7 +19,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "it.marcelpetrick.dividend_tracker"
+        applicationId = "it.marcelpetrick.dividendendackel"
         // Do not raise without re-reading Vision.md 58: Android 10 support is a
         // product requirement and CI asserts this value stays at 29.
         minSdk = 29
