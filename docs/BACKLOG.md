@@ -23,7 +23,7 @@ Each task names the `Vision.md` sections it satisfies.
 - [x] **F1** Typed error/failure model (`Failure` hierarchy: network, timeout,
       rateLimited, auth, providerUnavailable, parsing, invalidInstrument,
       noData, stale) plus a `Result<T>` type. Unit tests. — §55
-- [ ] **F2** Structured logging (component, provider, operation, duration,
+- [x] **F2** Structured logging (component, provider, operation, duration,
       error category; verbose in debug, controlled in release; never logs
       portfolio contents). Unit tests. — §56, §80
 - [ ] **F3** Domain entities and value objects: `Money`/`Currency`,
