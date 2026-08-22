@@ -36,6 +36,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
   source commit for the About screen.
 - Configurable per-data-type cache lifetimes, explicit fresh/stale/missing
   resolution, and persisted cache metadata for request coordination.
+- Central request coordination with global/provider concurrency limits,
+  provider pacing, priorities, typed timeouts, exponential retries,
+  in-flight deduplication, cancellation and live operation status.
 
 ### Changed
 

@@ -14,6 +14,7 @@ void main() {
         InvalidInstrumentFailure(),
         NoDataFailure(),
         StaleDataFailure(),
+        CancelledFailure(),
         UnexpectedFailure(),
       ];
 
@@ -35,6 +36,7 @@ void main() {
         const InvalidInstrumentFailure(),
         const NoDataFailure(),
         const StaleDataFailure(),
+        const CancelledFailure(),
         const UnexpectedFailure(),
       ]) {
         expect(failure.message, isNotEmpty, reason: '${failure.runtimeType}');
@@ -53,6 +55,7 @@ void main() {
       expect(const InvalidInstrumentFailure().isRetryable, isFalse);
       expect(const NoDataFailure().isRetryable, isFalse);
       expect(const UnexpectedFailure().isRetryable, isFalse);
+      expect(const CancelledFailure().isRetryable, isFalse);
     });
 
     test('keeps diagnostics out of the user-facing message', () {

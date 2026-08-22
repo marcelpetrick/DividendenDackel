@@ -39,6 +39,9 @@ enum FailureCategory {
   /// Only outdated cached data is available.
   stale,
 
+  /// The caller no longer needs the operation.
+  cancelled,
+
   /// An error that does not fit any known category.
   unexpected,
 }
@@ -283,6 +286,23 @@ final class StaleDataFailure extends Failure {
 
   @override
   int get hashCode => Object.hash(super.hashCode, lastUpdatedAt);
+}
+
+/// A queued or running operation was cancelled by its caller.
+final class CancelledFailure extends Failure {
+  const CancelledFailure({
+    String message = 'Request cancelled.',
+    super.technicalDetail,
+    super.cause,
+  }) : super(message);
+
+  @override
+  FailureCategory get category => FailureCategory.cancelled;
+
+  /// Cancellation expresses caller intent; retrying automatically would undo
+  /// it.
+  @override
+  bool get isRetryable => false;
 }
 
 /// An error that could not be classified.

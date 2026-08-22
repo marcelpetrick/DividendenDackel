@@ -74,7 +74,7 @@ Each task names the `Vision.md` sections it satisfies.
 - [x] **F6** Cache metadata + configurable TTL policy per data type with the
       defaults from the vision, and a `CacheState` (fresh/stale/missing)
       resolver. Unit tests for expiry. — §37
-- [ ] **F7** Request Coordinator: global + per-provider concurrency limits,
+- [x] **F7** Request Coordinator: global + per-provider concurrency limits,
       per-provider rate limiting, timeouts, retry with exponential backoff,
       in-flight deduplication, priorities (high/medium/low), cancellation,
       and a broadcast status stream of active operations. Unit tests for
