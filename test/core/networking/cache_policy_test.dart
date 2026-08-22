@@ -13,6 +13,10 @@ void main() {
       for (final CacheDataType dataType in CacheDataType.values) {
         expect(policy.lifetimeFor(dataType), greaterThan(Duration.zero));
       }
+      expect(
+        policy.lifetimeFor(CacheDataType.fxRates),
+        const Duration(hours: 12),
+      );
     });
 
     test(

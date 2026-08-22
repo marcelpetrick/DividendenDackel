@@ -148,6 +148,25 @@ abstract interface class MarketDataRepository {
   Future<Result<void>> saveQuote(Quote quote);
 }
 
+/// Reads and writes daily foreign-exchange reference rates.
+abstract interface class FxRateRepository {
+  /// Emits rates inside [range], oldest first.
+  Stream<List<FxRate>> watchInRange(
+    Currency base,
+    Set<Currency> quotes,
+    DateRange range,
+  );
+
+  /// Emits the newest cached rate for every requested quote.
+  Stream<Map<Currency, FxRate>> watchLatest(
+    Currency base,
+    Set<Currency> quotes,
+  );
+
+  /// Inserts or updates exact daily rate rows.
+  Future<Result<void>> saveAll(List<FxRate> rates);
+}
+
 /// Reads and writes cache-expiry bookkeeping used by the coordinator.
 abstract interface class CacheMetadataRepository {
   /// Reads metadata for [cacheKey], or `null` on a cache miss.

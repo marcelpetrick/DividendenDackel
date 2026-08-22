@@ -283,4 +283,25 @@ final class ProviderMarketDataService {
           cancellationToken: token,
         ),
   );
+
+  /// Fetches normalized daily foreign-exchange reference rates.
+  Future<Result<List<FxRate>>> fxRates(
+    Currency base,
+    Set<Currency> quotes,
+    DateRange range,
+  ) => fallback.run<List<FxRate>>(
+    dataType: ProviderDataType.fxRates,
+    requestKey:
+        'fx:${base.code}:'
+        '${quotes.map((Currency currency) => currency.code).toList()..sort()}:'
+        '${range.start.toIso8601String()}:${range.end.toIso8601String()}',
+    operation: 'fetchFxRates',
+    invoke: (MarketDataProvider provider, CancellationToken token) =>
+        (provider as FxRateDataProvider).fetchFxRates(
+          base,
+          quotes,
+          range,
+          cancellationToken: token,
+        ),
+  );
 }

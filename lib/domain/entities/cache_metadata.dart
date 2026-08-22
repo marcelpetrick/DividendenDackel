@@ -25,6 +25,9 @@ enum CacheDataType {
 
   /// SEC filing metadata for followed instruments.
   secFilings,
+
+  /// Daily foreign-exchange reference rates.
+  fxRates,
 }
 
 /// Bookkeeping for one cached request payload.

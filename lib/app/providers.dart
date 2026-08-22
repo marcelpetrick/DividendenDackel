@@ -4,11 +4,13 @@ import 'package:dividendendackel/core/logging/logging.dart';
 import 'package:dividendendackel/core/networking/request_coordinator.dart';
 import 'package:dividendendackel/core/utils/clock.dart';
 import 'package:dividendendackel/data/database/app_database.dart';
+import 'package:dividendendackel/data/providers/frankfurter_fx_provider.dart';
 import 'package:dividendendackel/data/providers/market_data_provider.dart';
 import 'package:dividendendackel/data/providers/provider_registry.dart';
 import 'package:dividendendackel/data/providers/sec_edgar_provider.dart';
 import 'package:dividendendackel/data/repositories/drift_cache_metadata_repository.dart';
 import 'package:dividendendackel/data/repositories/drift_dividend_repository.dart';
+import 'package:dividendendackel/data/repositories/drift_fx_rate_repository.dart';
 import 'package:dividendendackel/data/repositories/drift_instrument_repository.dart';
 import 'package:dividendendackel/data/repositories/drift_market_data_repository.dart';
 import 'package:dividendendackel/data/repositories/drift_portfolio_repository.dart';
@@ -79,6 +81,12 @@ final Provider<MarketDataRepository> marketDataRepositoryProvider =
       (Ref ref) => DriftMarketDataRepository(ref.watch(databaseProvider)),
     );
 
+/// Daily FX reference-rate repository.
+final Provider<FxRateRepository> fxRateRepositoryProvider =
+    Provider<FxRateRepository>(
+      (Ref ref) => DriftFxRateRepository(ref.watch(databaseProvider)),
+    );
+
 /// Cache-expiry metadata used by the request coordinator.
 final Provider<CacheMetadataRepository> cacheMetadataRepositoryProvider =
     Provider<CacheMetadataRepository>(
@@ -122,6 +130,15 @@ final Provider<SecEdgarProvider> secEdgarProvider = Provider<SecEdgarProvider>(
   ),
 );
 
+/// Keyless Frankfurter adapter, explicitly restricted to ECB rates.
+final Provider<FrankfurterFxProvider> frankfurterFxProvider =
+    Provider<FrankfurterFxProvider>(
+      (Ref ref) => FrankfurterFxProvider(
+        ref.watch(providerHttpClientProvider),
+        ref.watch(clockProvider),
+      ),
+    );
+
 /// Validated market-data adapters and their per-capability fallback order.
 final Provider<ProviderRegistry> providerRegistryProvider =
     Provider<ProviderRegistry>((Ref ref) {
@@ -129,11 +146,15 @@ final Provider<ProviderRegistry> providerRegistryProvider =
         dataSourceSettingsProvider,
       );
       return ProviderRegistry(
-        providers: <MarketDataProvider>[ref.watch(secEdgarProvider)],
+        providers: <MarketDataProvider>[
+          ref.watch(secEdgarProvider),
+          ref.watch(frankfurterFxProvider),
+        ],
         priorities: const <ProviderDataType, List<String>>{
           ProviderDataType.instrumentSearch: <String>['sec'],
           ProviderDataType.dividends: <String>['sec'],
           ProviderDataType.filings: <String>['sec'],
+          ProviderDataType.fxRates: <String>['frankfurter'],
         },
         isEnabled: (String providerId) => settings.configurations.any(
           (DataSourceConfiguration configuration) =>

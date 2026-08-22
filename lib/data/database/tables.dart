@@ -169,6 +169,30 @@ class Quotes extends Table with ProvenanceColumns {
   Set<Column<Object>> get primaryKey => <Column<Object>>{instrumentId};
 }
 
+/// Daily reference exchange rates (Vision.md §20, §45).
+@TableIndex(name: 'idx_fx_rate_observed_at', columns: <Symbol>{#observedAt})
+@DataClassName('DbFxRate')
+class FxRates extends Table with ProvenanceColumns {
+  /// Currency one unit is converted from.
+  TextColumn get baseCurrency => text().withLength(min: 3, max: 8)();
+
+  /// Currency the quoted amount is denominated in.
+  TextColumn get quoteCurrency => text().withLength(min: 3, max: 8)();
+
+  /// Exact decimal units of quote currency for one base unit.
+  TextColumn get rate => text()();
+
+  /// Reference-rate date.
+  DateTimeColumn get observedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => <Column<Object>>{
+    baseCurrency,
+    quoteCurrency,
+    observedAt,
+  };
+}
+
 /// Dividend payments, past, announced and estimated (Vision.md §9).
 @TableIndex(name: 'idx_dividend_ex_date', columns: <Symbol>{#exDate})
 @TableIndex(name: 'idx_dividend_payment_date', columns: <Symbol>{#paymentDate})

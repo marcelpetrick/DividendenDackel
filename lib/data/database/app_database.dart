@@ -22,6 +22,7 @@ part 'app_database.g.dart';
     Holdings,
     WatchlistEntries,
     Quotes,
+    FxRates,
     DividendEvents,
     EarningsEvents,
     NewsItems,
@@ -47,7 +48,7 @@ class AppDatabase extends _$AppDatabase {
 
   /// Bumped whenever the schema changes. Never reused for a different schema.
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -60,15 +61,19 @@ class AppDatabase extends _$AppDatabase {
       // not an acceptable default once releases exist. Schema version 1 is the
       // first app schema; every supported transition is additive and explicit,
       // while an unknown path fails loudly instead of dropping data.
-      if (from == 1 && to == 2) {
+      if (from < 1 || from >= to || to > 3) {
+        throw StateError(
+          'No migration is defined from schema version $from to $to. '
+          'Refusing to modify the database rather than risk user data.',
+        );
+      }
+      if (from < 2 && to >= 2) {
         await m.addColumn(dividendEvents, dividendEvents.reportedPeriodStart);
         await m.addColumn(dividendEvents, dividendEvents.reportedPeriodEnd);
-        return;
       }
-      throw StateError(
-        'No migration is defined from schema version $from to $to. '
-        'Refusing to modify the database rather than risk user data.',
-      );
+      if (from < 3 && to >= 3) {
+        await m.createTable(fxRates);
+      }
     },
     beforeOpen: (OpeningDetails details) async {
       // Referential integrity is off by default in SQLite and must be enabled

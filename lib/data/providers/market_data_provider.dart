@@ -22,6 +22,9 @@ enum ProviderDataType {
 
   /// Regulatory filing metadata.
   filings,
+
+  /// Daily foreign-exchange reference rates.
+  fxRates,
 }
 
 /// Identity and declared capabilities shared by every adapter.
@@ -93,6 +96,17 @@ abstract interface class FilingDataProvider implements MarketDataProvider {
   });
 }
 
+/// Foreign-exchange reference-rate adapter contract.
+abstract interface class FxRateDataProvider implements MarketDataProvider {
+  /// Retrieves normalized daily rates for [quotes] against [base].
+  Future<Result<List<FxRate>>> fetchFxRates(
+    Currency base,
+    Set<Currency> quotes,
+    DateRange range, {
+    required CancellationToken cancellationToken,
+  });
+}
+
 /// Whether [provider] actually implements the contract it advertises.
 bool providerImplementsCapability(
   MarketDataProvider provider,
@@ -104,4 +118,5 @@ bool providerImplementsCapability(
   ProviderDataType.earnings => provider is EarningsDataProvider,
   ProviderDataType.news => provider is NewsDataProvider,
   ProviderDataType.filings => provider is FilingDataProvider,
+  ProviderDataType.fxRates => provider is FxRateDataProvider,
 };

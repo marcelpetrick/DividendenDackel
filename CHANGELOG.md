@@ -47,6 +47,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
   Access pacing, fixture contract tests and explicit source provenance.
 - Additive database schema 2 fields that preserve SEC reporting periods
   without mislabelling them as ex-, declaration or payment dates.
+- Keyless daily FX reference rates through Frankfurter v2, explicitly filtered
+  to ECB data, with exact-decimal conversion, local history, a 12-hour cache
+  policy, fixture contracts and additive database schema 3 migrations.
 
 ### Changed
 
