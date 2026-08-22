@@ -32,7 +32,7 @@ Each task names the `Vision.md` sections it satisfies.
 - [x] **F2** Structured logging (component, provider, operation, duration,
       error category; verbose in debug, controlled in release; never logs
       portfolio contents). Unit tests. — §56, §80
-- [ ] **F3** Domain entities and value objects: `Money`/`Currency`,
+- [x] **F3** Domain entities and value objects: `Money`/`Currency`,
       `Instrument` (internalId, symbol, exchange, MIC, ISIN, name, currency,
       country, providerMappings), `Holding`, `WatchlistEntry`, `Quote`,
       `DividendEvent` (+`DividendStatus`, `Confidence`), `EarningsEvent`,
