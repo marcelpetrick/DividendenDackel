@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:dividendendackel/core/logging/logging.dart';
+import 'package:dividendendackel/core/networking/request_coordinator.dart';
 import 'package:dividendendackel/core/utils/clock.dart';
 import 'package:dividendendackel/data/database/app_database.dart';
 import 'package:dividendendackel/data/repositories/drift_cache_metadata_repository.dart';
@@ -76,6 +79,23 @@ final Provider<CacheMetadataRepository> cacheMetadataRepositoryProvider =
     Provider<CacheMetadataRepository>(
       (Ref ref) => DriftCacheMetadataRepository(ref.watch(databaseProvider)),
     );
+
+/// Bounded scheduler shared by every provider adapter.
+final Provider<RequestCoordinator> requestCoordinatorProvider =
+    Provider<RequestCoordinator>((Ref ref) {
+      final RequestCoordinator coordinator = RequestCoordinator(
+        clock: ref.watch(clockProvider),
+        providerPolicies: <String, ProviderRequestPolicy>{
+          // SEC asks automated clients to remain below 10 requests/second.
+          'sec': ProviderRequestPolicy(
+            maxConcurrent: 2,
+            minimumSpacing: Duration(milliseconds: 110),
+          ),
+        },
+      );
+      ref.onDispose(() => unawaited(coordinator.dispose()));
+      return coordinator;
+    });
 
 /// Seeds the bundled sample dataset on first run.
 ///
