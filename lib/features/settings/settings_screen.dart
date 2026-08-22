@@ -1,4 +1,5 @@
 import 'package:dividendendackel/app/theme/app_theme.dart';
+import 'package:dividendendackel/app/theme/theme_preference.dart';
 import 'package:dividendendackel/features/settings/about_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,15 +7,17 @@ import 'package:go_router/go_router.dart';
 
 /// Application settings (Vision.md §26, §34).
 ///
-/// Theme mode and the tax profile arrive with later tasks; this is the frame
-/// and the route to About.
-class SettingsScreen extends StatelessWidget {
+/// Theme selection, data-source entry points and the route to About.
+class SettingsScreen extends ConsumerWidget {
   /// Creates the settings screen.
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final ThemeData theme = Theme.of(context);
+    final ThemePreferenceState themePreference = ref.watch(
+      themePreferenceProvider,
+    );
 
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
@@ -33,6 +36,70 @@ class SettingsScreen extends StatelessWidget {
             ),
             onTap: null,
           ),
+          const Divider(height: 1),
+          Padding(
+            padding: const EdgeInsets.all(AppTheme.space * 2),
+            child: Text('Appearance', style: theme.textTheme.titleSmall),
+          ),
+          IgnorePointer(
+            ignoring: themePreference.isLoading,
+            child: RadioGroup<ThemeMode>(
+              groupValue: themePreference.mode,
+              onChanged: (ThemeMode? mode) {
+                if (mode != null) {
+                  ref.read(themePreferenceProvider.notifier).select(mode);
+                }
+              },
+              child: const Column(
+                children: <Widget>[
+                  RadioListTile<ThemeMode>(
+                    value: ThemeMode.system,
+                    secondary: Icon(Icons.brightness_auto_outlined),
+                    title: Text('System'),
+                    subtitle: Text('Match this device'),
+                  ),
+                  RadioListTile<ThemeMode>(
+                    value: ThemeMode.light,
+                    secondary: Icon(Icons.light_mode_outlined),
+                    title: Text('Light'),
+                  ),
+                  RadioListTile<ThemeMode>(
+                    value: ThemeMode.dark,
+                    secondary: Icon(Icons.dark_mode_outlined),
+                    title: Text('Dark'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (themePreference.isSaving)
+            const LinearProgressIndicator(semanticsLabel: 'Saving theme'),
+          if (themePreference.errorMessage case final String message)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppTheme.space * 2,
+                AppTheme.space,
+                AppTheme.space * 2,
+                AppTheme.space * 2,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Icon(
+                    Icons.warning_amber_outlined,
+                    color: theme.colorScheme.error,
+                  ),
+                  const SizedBox(width: AppTheme.space),
+                  Expanded(child: Text(message)),
+                  TextButton(
+                    onPressed: () => ref
+                        .read(themePreferenceProvider.notifier)
+                        .select(themePreference.mode),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
           const Divider(height: 1),
           Padding(
             padding: const EdgeInsets.all(AppTheme.space * 2),

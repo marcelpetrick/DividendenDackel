@@ -29,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
   release notes generated from the commit history.
 - Application shell: Riverpod, routing, a responsive frame that switches
   between a bottom bar and a navigation rail, and light and dark themes.
+- Persisted System, Light and Dark theme selection in Settings, with verified
+  WCAG AA semantic-colour contrast and large-text layout coverage.
 
 ### Changed
 

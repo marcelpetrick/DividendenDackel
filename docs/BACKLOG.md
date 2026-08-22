@@ -61,7 +61,7 @@ Each task names the `Vision.md` sections it satisfies.
 - [x] **F10** App shell: Riverpod, routing, responsive scaffold (bottom nav on
       Android, navigation rail on Linux), light/dark/system themes with
       accessible contrast, design tokens. Widget tests. — §6, §24, §25, §26, §54
-- [ ] **Q10** Theme selection: a System / Light / Dark control in Settings,
+- [x] **Q10** Theme selection: a System / Light / Dark control in Settings,
       persisted across launches, applied instantly. The two themes and the
       semantic palette exist (F10); what is missing is the user's choice and
       its persistence, which Vision.md §26 requires alongside System.

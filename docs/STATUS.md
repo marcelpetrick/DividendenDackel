@@ -6,7 +6,7 @@ including a future session — can pick up without re-reading the whole history.
 - **Last updated:** 2026-08-22
 - **Version:** 0.1.0+1 (pre-release, `0.x.y`)
 - **Branch:** `master` (pushed to `origin`)
-- **Quality gate:** green — 230 tests, analyzer clean, both platforms build
+- **Quality gate:** green — 240 tests, analyzer clean, both platforms build
 
 ---
 
@@ -45,6 +45,7 @@ Today ranking land with D3–D5 and T1.
 | Bundled sample dataset | F9 | done |
 | App icon, both platforms | Q8 | done |
 | Application shell, themes, navigation | F10 | done |
+| Persisted System/Light/Dark selection | Q10 | done |
 
 ### What is left
 
@@ -56,8 +57,7 @@ Ordered by what unblocks a usable app soonest.
 | 2 | **D4** dividend calendar | Month/year/agenda, ex-date vs payment toggle. |
 | 3 | **D5** monthly forecast | Income per month, confirmed vs estimated. |
 | 4 | **T1** Today screen | The actual product experience. |
-| 5 | **Q10** theme selection | System/Light/Dark chooser, persisted. |
-| 6 | **E1/E2** end-to-end + artifact verification | Proof it works, not just that it compiles. |
+| 5 | **E1/E2** end-to-end + artifact verification | Proof it works, not just that it compiles. |
 
 Then: D1 CAGR · D2 forecast engine · D6 quality score · D7 currency ·
 **D8/D9 gross-and-net tax** · F6 cache TTL · F7 Request Coordinator ·
@@ -75,8 +75,8 @@ Full detail in [`BACKLOG.md`](BACKLOG.md).
 **A working, installable Android APK plus a Linux build that visibly does
 something useful, driven by bundled sample data and needing no API key.**
 
-The APK already builds and installs; it does not yet *do* anything. F10 through
-T1 close that gap.
+The APK and Linux bundle already build and open onto populated sample-driven
+screens. D3 through T1 turn those thin read-only screens into the core product.
 
 ## 4. How to build and check
 
@@ -136,7 +136,6 @@ dart format .
 
 - Screens are functional but minimal; the calendar is an agenda list and the
   Today ranking is not implemented yet.
-- Theme mode is fixed to "follow system"; the chooser is Q10.
 - Widget tests run without a database on purpose: drift's stream machinery
   outlives the widget tree and the test binding reports it as a pending timer.
   The data layer is covered by its own tests.

@@ -182,28 +182,41 @@ class _ExpectedDividendsCard extends StatelessWidget {
         ? null
         : _expected(events.requireValue);
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Text(label, style: theme.textTheme.bodyMedium),
-        if (totals == null)
-          Text('…', style: theme.textTheme.bodyMedium)
-        else if (totals.isEmpty)
-          Text(
+    final Widget value = totals == null
+        ? Text('…', style: theme.textTheme.bodyMedium)
+        : totals.isEmpty
+        ? Text(
             'none',
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
           )
-        else
-          Column(
+        : Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: <Widget>[
               for (final Money total in totals.values)
                 MoneyText(total, style: theme.textTheme.titleSmall),
             ],
-          ),
+          );
+    final bool useVerticalLayout =
+        MediaQuery.textScalerOf(context).scale(16) >= 24;
+
+    if (useVerticalLayout) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Text(label, style: theme.textTheme.bodyMedium),
+          const SizedBox(height: AppTheme.space / 4),
+          Align(alignment: Alignment.centerRight, child: value),
+        ],
+      );
+    }
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Expanded(child: Text(label, style: theme.textTheme.bodyMedium)),
+        const SizedBox(width: AppTheme.space),
+        value,
       ],
     );
   }

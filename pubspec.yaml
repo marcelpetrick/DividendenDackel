@@ -47,6 +47,9 @@ dependencies:
   # Reads the real version and build number from the installed package, so
   # the About screen can never disagree with the artifact (Vision.md §62).
   package_info_plus: 10.2.1
+  # Small, non-sensitive app preferences shared by Android and Linux. Secrets
+  # use platform-secure storage in F11 instead.
+  shared_preferences: 2.5.5
 
 dev_dependencies:
   # 2.16.0 conflicts with the constraints of the pinned Flutter SDK.

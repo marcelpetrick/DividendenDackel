@@ -1,6 +1,7 @@
 import 'package:dividendendackel/app/navigation/app_router.dart';
 import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
+import 'package:dividendendackel/app/theme/theme_preference.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -34,14 +35,14 @@ class _DividendenDackelAppState extends ConsumerState<DividendenDackelApp> {
     // Seeding runs once and is idempotent; watching it here means the very
     // first frame already has data on the way.
     ref.watch(sampleDataProvider);
+    final ThemeMode themeMode = ref.watch(themePreferenceProvider).mode;
 
     return MaterialApp.router(
       title: 'DividendenDackel',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
-      // Vision.md §26: System, Light and Dark are supported from the start.
-      themeMode: ThemeMode.system,
+      themeMode: themeMode,
       routerConfig: _router,
     );
   }
