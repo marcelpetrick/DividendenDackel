@@ -3461,6 +3461,799 @@ class QuotesCompanion extends UpdateCompanion<DbQuote> {
   }
 }
 
+class $FxRatesTable extends FxRates with TableInfo<$FxRatesTable, DbFxRate> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FxRatesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 64,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fetchedAtMeta = const VerificationMeta(
+    'fetchedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> fetchedAt = GeneratedColumn<DateTime>(
+    'fetched_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<CacheState, String> cacheState =
+      GeneratedColumn<String>(
+        'cache_state',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('fresh'),
+      ).withConverter<CacheState>($FxRatesTable.$convertercacheState);
+  @override
+  late final GeneratedColumnWithTypeConverter<Confidence, String> confidence =
+      GeneratedColumn<String>(
+        'confidence',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('high'),
+      ).withConverter<Confidence>($FxRatesTable.$converterconfidence);
+  static const VerificationMeta _reportedCurrencyMeta = const VerificationMeta(
+    'reportedCurrency',
+  );
+  @override
+  late final GeneratedColumn<String> reportedCurrency = GeneratedColumn<String>(
+    'reported_currency',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _originalSymbolMeta = const VerificationMeta(
+    'originalSymbol',
+  );
+  @override
+  late final GeneratedColumn<String> originalSymbol = GeneratedColumn<String>(
+    'original_symbol',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _providerExchangeMeta = const VerificationMeta(
+    'providerExchange',
+  );
+  @override
+  late final GeneratedColumn<String> providerExchange = GeneratedColumn<String>(
+    'provider_exchange',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _baseCurrencyMeta = const VerificationMeta(
+    'baseCurrency',
+  );
+  @override
+  late final GeneratedColumn<String> baseCurrency = GeneratedColumn<String>(
+    'base_currency',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 3,
+      maxTextLength: 8,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _quoteCurrencyMeta = const VerificationMeta(
+    'quoteCurrency',
+  );
+  @override
+  late final GeneratedColumn<String> quoteCurrency = GeneratedColumn<String>(
+    'quote_currency',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 3,
+      maxTextLength: 8,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _rateMeta = const VerificationMeta('rate');
+  @override
+  late final GeneratedColumn<String> rate = GeneratedColumn<String>(
+    'rate',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _observedAtMeta = const VerificationMeta(
+    'observedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> observedAt = GeneratedColumn<DateTime>(
+    'observed_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    source,
+    fetchedAt,
+    updatedAt,
+    cacheState,
+    confidence,
+    reportedCurrency,
+    originalSymbol,
+    providerExchange,
+    baseCurrency,
+    quoteCurrency,
+    rate,
+    observedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'fx_rates';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DbFxRate> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('source')) {
+      context.handle(
+        _sourceMeta,
+        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceMeta);
+    }
+    if (data.containsKey('fetched_at')) {
+      context.handle(
+        _fetchedAtMeta,
+        fetchedAt.isAcceptableOrUnknown(data['fetched_at']!, _fetchedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_fetchedAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('reported_currency')) {
+      context.handle(
+        _reportedCurrencyMeta,
+        reportedCurrency.isAcceptableOrUnknown(
+          data['reported_currency']!,
+          _reportedCurrencyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('original_symbol')) {
+      context.handle(
+        _originalSymbolMeta,
+        originalSymbol.isAcceptableOrUnknown(
+          data['original_symbol']!,
+          _originalSymbolMeta,
+        ),
+      );
+    }
+    if (data.containsKey('provider_exchange')) {
+      context.handle(
+        _providerExchangeMeta,
+        providerExchange.isAcceptableOrUnknown(
+          data['provider_exchange']!,
+          _providerExchangeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('base_currency')) {
+      context.handle(
+        _baseCurrencyMeta,
+        baseCurrency.isAcceptableOrUnknown(
+          data['base_currency']!,
+          _baseCurrencyMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_baseCurrencyMeta);
+    }
+    if (data.containsKey('quote_currency')) {
+      context.handle(
+        _quoteCurrencyMeta,
+        quoteCurrency.isAcceptableOrUnknown(
+          data['quote_currency']!,
+          _quoteCurrencyMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_quoteCurrencyMeta);
+    }
+    if (data.containsKey('rate')) {
+      context.handle(
+        _rateMeta,
+        rate.isAcceptableOrUnknown(data['rate']!, _rateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_rateMeta);
+    }
+    if (data.containsKey('observed_at')) {
+      context.handle(
+        _observedAtMeta,
+        observedAt.isAcceptableOrUnknown(data['observed_at']!, _observedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_observedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {
+    baseCurrency,
+    quoteCurrency,
+    observedAt,
+  };
+  @override
+  DbFxRate map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DbFxRate(
+      source: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source'],
+      )!,
+      fetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}fetched_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      ),
+      cacheState: $FxRatesTable.$convertercacheState.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}cache_state'],
+        )!,
+      ),
+      confidence: $FxRatesTable.$converterconfidence.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}confidence'],
+        )!,
+      ),
+      reportedCurrency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reported_currency'],
+      ),
+      originalSymbol: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}original_symbol'],
+      ),
+      providerExchange: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}provider_exchange'],
+      ),
+      baseCurrency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}base_currency'],
+      )!,
+      quoteCurrency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}quote_currency'],
+      )!,
+      rate: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}rate'],
+      )!,
+      observedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}observed_at'],
+      )!,
+    );
+  }
+
+  @override
+  $FxRatesTable createAlias(String alias) {
+    return $FxRatesTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<CacheState, String, String> $convertercacheState =
+      const EnumNameConverter<CacheState>(CacheState.values);
+  static JsonTypeConverter2<Confidence, String, String> $converterconfidence =
+      const EnumNameConverter<Confidence>(Confidence.values);
+}
+
+class DbFxRate extends DataClass implements Insertable<DbFxRate> {
+  /// Provider that supplied the row, e.g. `fmp`, `user`, `sample`.
+  final String source;
+
+  /// When the row was retrieved.
+  final DateTime fetchedAt;
+
+  /// When the content last changed, if the provider reports it.
+  final DateTime? updatedAt;
+
+  /// Freshness relative to the configured cache lifetime.
+  final CacheState cacheState;
+
+  /// How much trust the value deserves.
+  final Confidence confidence;
+
+  /// Currency the provider reported, before normalization.
+  final String? reportedCurrency;
+
+  /// Symbol the provider used.
+  final String? originalSymbol;
+
+  /// Exchange the provider attributed the row to.
+  final String? providerExchange;
+
+  /// Currency one unit is converted from.
+  final String baseCurrency;
+
+  /// Currency the quoted amount is denominated in.
+  final String quoteCurrency;
+
+  /// Exact decimal units of quote currency for one base unit.
+  final String rate;
+
+  /// Reference-rate date.
+  final DateTime observedAt;
+  const DbFxRate({
+    required this.source,
+    required this.fetchedAt,
+    this.updatedAt,
+    required this.cacheState,
+    required this.confidence,
+    this.reportedCurrency,
+    this.originalSymbol,
+    this.providerExchange,
+    required this.baseCurrency,
+    required this.quoteCurrency,
+    required this.rate,
+    required this.observedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['source'] = Variable<String>(source);
+    map['fetched_at'] = Variable<DateTime>(fetchedAt);
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    {
+      map['cache_state'] = Variable<String>(
+        $FxRatesTable.$convertercacheState.toSql(cacheState),
+      );
+    }
+    {
+      map['confidence'] = Variable<String>(
+        $FxRatesTable.$converterconfidence.toSql(confidence),
+      );
+    }
+    if (!nullToAbsent || reportedCurrency != null) {
+      map['reported_currency'] = Variable<String>(reportedCurrency);
+    }
+    if (!nullToAbsent || originalSymbol != null) {
+      map['original_symbol'] = Variable<String>(originalSymbol);
+    }
+    if (!nullToAbsent || providerExchange != null) {
+      map['provider_exchange'] = Variable<String>(providerExchange);
+    }
+    map['base_currency'] = Variable<String>(baseCurrency);
+    map['quote_currency'] = Variable<String>(quoteCurrency);
+    map['rate'] = Variable<String>(rate);
+    map['observed_at'] = Variable<DateTime>(observedAt);
+    return map;
+  }
+
+  FxRatesCompanion toCompanion(bool nullToAbsent) {
+    return FxRatesCompanion(
+      source: Value(source),
+      fetchedAt: Value(fetchedAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+      cacheState: Value(cacheState),
+      confidence: Value(confidence),
+      reportedCurrency: reportedCurrency == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reportedCurrency),
+      originalSymbol: originalSymbol == null && nullToAbsent
+          ? const Value.absent()
+          : Value(originalSymbol),
+      providerExchange: providerExchange == null && nullToAbsent
+          ? const Value.absent()
+          : Value(providerExchange),
+      baseCurrency: Value(baseCurrency),
+      quoteCurrency: Value(quoteCurrency),
+      rate: Value(rate),
+      observedAt: Value(observedAt),
+    );
+  }
+
+  factory DbFxRate.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DbFxRate(
+      source: serializer.fromJson<String>(json['source']),
+      fetchedAt: serializer.fromJson<DateTime>(json['fetchedAt']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+      cacheState: $FxRatesTable.$convertercacheState.fromJson(
+        serializer.fromJson<String>(json['cacheState']),
+      ),
+      confidence: $FxRatesTable.$converterconfidence.fromJson(
+        serializer.fromJson<String>(json['confidence']),
+      ),
+      reportedCurrency: serializer.fromJson<String?>(json['reportedCurrency']),
+      originalSymbol: serializer.fromJson<String?>(json['originalSymbol']),
+      providerExchange: serializer.fromJson<String?>(json['providerExchange']),
+      baseCurrency: serializer.fromJson<String>(json['baseCurrency']),
+      quoteCurrency: serializer.fromJson<String>(json['quoteCurrency']),
+      rate: serializer.fromJson<String>(json['rate']),
+      observedAt: serializer.fromJson<DateTime>(json['observedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'source': serializer.toJson<String>(source),
+      'fetchedAt': serializer.toJson<DateTime>(fetchedAt),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+      'cacheState': serializer.toJson<String>(
+        $FxRatesTable.$convertercacheState.toJson(cacheState),
+      ),
+      'confidence': serializer.toJson<String>(
+        $FxRatesTable.$converterconfidence.toJson(confidence),
+      ),
+      'reportedCurrency': serializer.toJson<String?>(reportedCurrency),
+      'originalSymbol': serializer.toJson<String?>(originalSymbol),
+      'providerExchange': serializer.toJson<String?>(providerExchange),
+      'baseCurrency': serializer.toJson<String>(baseCurrency),
+      'quoteCurrency': serializer.toJson<String>(quoteCurrency),
+      'rate': serializer.toJson<String>(rate),
+      'observedAt': serializer.toJson<DateTime>(observedAt),
+    };
+  }
+
+  DbFxRate copyWith({
+    String? source,
+    DateTime? fetchedAt,
+    Value<DateTime?> updatedAt = const Value.absent(),
+    CacheState? cacheState,
+    Confidence? confidence,
+    Value<String?> reportedCurrency = const Value.absent(),
+    Value<String?> originalSymbol = const Value.absent(),
+    Value<String?> providerExchange = const Value.absent(),
+    String? baseCurrency,
+    String? quoteCurrency,
+    String? rate,
+    DateTime? observedAt,
+  }) => DbFxRate(
+    source: source ?? this.source,
+    fetchedAt: fetchedAt ?? this.fetchedAt,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+    cacheState: cacheState ?? this.cacheState,
+    confidence: confidence ?? this.confidence,
+    reportedCurrency: reportedCurrency.present
+        ? reportedCurrency.value
+        : this.reportedCurrency,
+    originalSymbol: originalSymbol.present
+        ? originalSymbol.value
+        : this.originalSymbol,
+    providerExchange: providerExchange.present
+        ? providerExchange.value
+        : this.providerExchange,
+    baseCurrency: baseCurrency ?? this.baseCurrency,
+    quoteCurrency: quoteCurrency ?? this.quoteCurrency,
+    rate: rate ?? this.rate,
+    observedAt: observedAt ?? this.observedAt,
+  );
+  DbFxRate copyWithCompanion(FxRatesCompanion data) {
+    return DbFxRate(
+      source: data.source.present ? data.source.value : this.source,
+      fetchedAt: data.fetchedAt.present ? data.fetchedAt.value : this.fetchedAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      cacheState: data.cacheState.present
+          ? data.cacheState.value
+          : this.cacheState,
+      confidence: data.confidence.present
+          ? data.confidence.value
+          : this.confidence,
+      reportedCurrency: data.reportedCurrency.present
+          ? data.reportedCurrency.value
+          : this.reportedCurrency,
+      originalSymbol: data.originalSymbol.present
+          ? data.originalSymbol.value
+          : this.originalSymbol,
+      providerExchange: data.providerExchange.present
+          ? data.providerExchange.value
+          : this.providerExchange,
+      baseCurrency: data.baseCurrency.present
+          ? data.baseCurrency.value
+          : this.baseCurrency,
+      quoteCurrency: data.quoteCurrency.present
+          ? data.quoteCurrency.value
+          : this.quoteCurrency,
+      rate: data.rate.present ? data.rate.value : this.rate,
+      observedAt: data.observedAt.present
+          ? data.observedAt.value
+          : this.observedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DbFxRate(')
+          ..write('source: $source, ')
+          ..write('fetchedAt: $fetchedAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('cacheState: $cacheState, ')
+          ..write('confidence: $confidence, ')
+          ..write('reportedCurrency: $reportedCurrency, ')
+          ..write('originalSymbol: $originalSymbol, ')
+          ..write('providerExchange: $providerExchange, ')
+          ..write('baseCurrency: $baseCurrency, ')
+          ..write('quoteCurrency: $quoteCurrency, ')
+          ..write('rate: $rate, ')
+          ..write('observedAt: $observedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    source,
+    fetchedAt,
+    updatedAt,
+    cacheState,
+    confidence,
+    reportedCurrency,
+    originalSymbol,
+    providerExchange,
+    baseCurrency,
+    quoteCurrency,
+    rate,
+    observedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DbFxRate &&
+          other.source == this.source &&
+          other.fetchedAt == this.fetchedAt &&
+          other.updatedAt == this.updatedAt &&
+          other.cacheState == this.cacheState &&
+          other.confidence == this.confidence &&
+          other.reportedCurrency == this.reportedCurrency &&
+          other.originalSymbol == this.originalSymbol &&
+          other.providerExchange == this.providerExchange &&
+          other.baseCurrency == this.baseCurrency &&
+          other.quoteCurrency == this.quoteCurrency &&
+          other.rate == this.rate &&
+          other.observedAt == this.observedAt);
+}
+
+class FxRatesCompanion extends UpdateCompanion<DbFxRate> {
+  final Value<String> source;
+  final Value<DateTime> fetchedAt;
+  final Value<DateTime?> updatedAt;
+  final Value<CacheState> cacheState;
+  final Value<Confidence> confidence;
+  final Value<String?> reportedCurrency;
+  final Value<String?> originalSymbol;
+  final Value<String?> providerExchange;
+  final Value<String> baseCurrency;
+  final Value<String> quoteCurrency;
+  final Value<String> rate;
+  final Value<DateTime> observedAt;
+  final Value<int> rowid;
+  const FxRatesCompanion({
+    this.source = const Value.absent(),
+    this.fetchedAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.cacheState = const Value.absent(),
+    this.confidence = const Value.absent(),
+    this.reportedCurrency = const Value.absent(),
+    this.originalSymbol = const Value.absent(),
+    this.providerExchange = const Value.absent(),
+    this.baseCurrency = const Value.absent(),
+    this.quoteCurrency = const Value.absent(),
+    this.rate = const Value.absent(),
+    this.observedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  FxRatesCompanion.insert({
+    required String source,
+    required DateTime fetchedAt,
+    this.updatedAt = const Value.absent(),
+    this.cacheState = const Value.absent(),
+    this.confidence = const Value.absent(),
+    this.reportedCurrency = const Value.absent(),
+    this.originalSymbol = const Value.absent(),
+    this.providerExchange = const Value.absent(),
+    required String baseCurrency,
+    required String quoteCurrency,
+    required String rate,
+    required DateTime observedAt,
+    this.rowid = const Value.absent(),
+  }) : source = Value(source),
+       fetchedAt = Value(fetchedAt),
+       baseCurrency = Value(baseCurrency),
+       quoteCurrency = Value(quoteCurrency),
+       rate = Value(rate),
+       observedAt = Value(observedAt);
+  static Insertable<DbFxRate> custom({
+    Expression<String>? source,
+    Expression<DateTime>? fetchedAt,
+    Expression<DateTime>? updatedAt,
+    Expression<String>? cacheState,
+    Expression<String>? confidence,
+    Expression<String>? reportedCurrency,
+    Expression<String>? originalSymbol,
+    Expression<String>? providerExchange,
+    Expression<String>? baseCurrency,
+    Expression<String>? quoteCurrency,
+    Expression<String>? rate,
+    Expression<DateTime>? observedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (source != null) 'source': source,
+      if (fetchedAt != null) 'fetched_at': fetchedAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (cacheState != null) 'cache_state': cacheState,
+      if (confidence != null) 'confidence': confidence,
+      if (reportedCurrency != null) 'reported_currency': reportedCurrency,
+      if (originalSymbol != null) 'original_symbol': originalSymbol,
+      if (providerExchange != null) 'provider_exchange': providerExchange,
+      if (baseCurrency != null) 'base_currency': baseCurrency,
+      if (quoteCurrency != null) 'quote_currency': quoteCurrency,
+      if (rate != null) 'rate': rate,
+      if (observedAt != null) 'observed_at': observedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  FxRatesCompanion copyWith({
+    Value<String>? source,
+    Value<DateTime>? fetchedAt,
+    Value<DateTime?>? updatedAt,
+    Value<CacheState>? cacheState,
+    Value<Confidence>? confidence,
+    Value<String?>? reportedCurrency,
+    Value<String?>? originalSymbol,
+    Value<String?>? providerExchange,
+    Value<String>? baseCurrency,
+    Value<String>? quoteCurrency,
+    Value<String>? rate,
+    Value<DateTime>? observedAt,
+    Value<int>? rowid,
+  }) {
+    return FxRatesCompanion(
+      source: source ?? this.source,
+      fetchedAt: fetchedAt ?? this.fetchedAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      cacheState: cacheState ?? this.cacheState,
+      confidence: confidence ?? this.confidence,
+      reportedCurrency: reportedCurrency ?? this.reportedCurrency,
+      originalSymbol: originalSymbol ?? this.originalSymbol,
+      providerExchange: providerExchange ?? this.providerExchange,
+      baseCurrency: baseCurrency ?? this.baseCurrency,
+      quoteCurrency: quoteCurrency ?? this.quoteCurrency,
+      rate: rate ?? this.rate,
+      observedAt: observedAt ?? this.observedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (fetchedAt.present) {
+      map['fetched_at'] = Variable<DateTime>(fetchedAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (cacheState.present) {
+      map['cache_state'] = Variable<String>(
+        $FxRatesTable.$convertercacheState.toSql(cacheState.value),
+      );
+    }
+    if (confidence.present) {
+      map['confidence'] = Variable<String>(
+        $FxRatesTable.$converterconfidence.toSql(confidence.value),
+      );
+    }
+    if (reportedCurrency.present) {
+      map['reported_currency'] = Variable<String>(reportedCurrency.value);
+    }
+    if (originalSymbol.present) {
+      map['original_symbol'] = Variable<String>(originalSymbol.value);
+    }
+    if (providerExchange.present) {
+      map['provider_exchange'] = Variable<String>(providerExchange.value);
+    }
+    if (baseCurrency.present) {
+      map['base_currency'] = Variable<String>(baseCurrency.value);
+    }
+    if (quoteCurrency.present) {
+      map['quote_currency'] = Variable<String>(quoteCurrency.value);
+    }
+    if (rate.present) {
+      map['rate'] = Variable<String>(rate.value);
+    }
+    if (observedAt.present) {
+      map['observed_at'] = Variable<DateTime>(observedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FxRatesCompanion(')
+          ..write('source: $source, ')
+          ..write('fetchedAt: $fetchedAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('cacheState: $cacheState, ')
+          ..write('confidence: $confidence, ')
+          ..write('reportedCurrency: $reportedCurrency, ')
+          ..write('originalSymbol: $originalSymbol, ')
+          ..write('providerExchange: $providerExchange, ')
+          ..write('baseCurrency: $baseCurrency, ')
+          ..write('quoteCurrency: $quoteCurrency, ')
+          ..write('rate: $rate, ')
+          ..write('observedAt: $observedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $DividendEventsTable extends DividendEvents
     with TableInfo<$DividendEventsTable, DbDividendEvent> {
   @override
@@ -11541,6 +12334,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     this,
   );
   late final $QuotesTable quotes = $QuotesTable(this);
+  late final $FxRatesTable fxRates = $FxRatesTable(this);
   late final $DividendEventsTable dividendEvents = $DividendEventsTable(this);
   late final $EarningsEventsTable earningsEvents = $EarningsEventsTable(this);
   late final $NewsItemsTable newsItems = $NewsItemsTable(this);
@@ -11554,6 +12348,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $SyncJobsTable syncJobs = $SyncJobsTable(this);
   late final $SyncLogsTable syncLogs = $SyncLogsTable(this);
   late final $CacheMetadataTable cacheMetadata = $CacheMetadataTable(this);
+  late final Index idxFxRateObservedAt = Index(
+    'idx_fx_rate_observed_at',
+    'CREATE INDEX idx_fx_rate_observed_at ON fx_rates (observed_at)',
+  );
   late final Index idxDividendExDate = Index(
     'idx_dividend_ex_date',
     'CREATE INDEX idx_dividend_ex_date ON dividend_events (ex_date)',
@@ -11596,6 +12394,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     holdings,
     watchlistEntries,
     quotes,
+    fxRates,
     dividendEvents,
     earningsEvents,
     newsItems,
@@ -11607,6 +12406,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     syncJobs,
     syncLogs,
     cacheMetadata,
+    idxFxRateObservedAt,
     idxDividendExDate,
     idxDividendPaymentDate,
     idxDividendInstrument,
@@ -14743,6 +15543,353 @@ typedef $$QuotesTableProcessedTableManager =
       (DbQuote, $$QuotesTableReferences),
       DbQuote,
       PrefetchHooks Function({bool instrumentId})
+    >;
+typedef $$FxRatesTableCreateCompanionBuilder =
+    FxRatesCompanion Function({
+      required String source,
+      required DateTime fetchedAt,
+      Value<DateTime?> updatedAt,
+      Value<CacheState> cacheState,
+      Value<Confidence> confidence,
+      Value<String?> reportedCurrency,
+      Value<String?> originalSymbol,
+      Value<String?> providerExchange,
+      required String baseCurrency,
+      required String quoteCurrency,
+      required String rate,
+      required DateTime observedAt,
+      Value<int> rowid,
+    });
+typedef $$FxRatesTableUpdateCompanionBuilder =
+    FxRatesCompanion Function({
+      Value<String> source,
+      Value<DateTime> fetchedAt,
+      Value<DateTime?> updatedAt,
+      Value<CacheState> cacheState,
+      Value<Confidence> confidence,
+      Value<String?> reportedCurrency,
+      Value<String?> originalSymbol,
+      Value<String?> providerExchange,
+      Value<String> baseCurrency,
+      Value<String> quoteCurrency,
+      Value<String> rate,
+      Value<DateTime> observedAt,
+      Value<int> rowid,
+    });
+
+class $$FxRatesTableFilterComposer
+    extends Composer<_$AppDatabase, $FxRatesTable> {
+  $$FxRatesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<CacheState, CacheState, String>
+  get cacheState => $composableBuilder(
+    column: $table.cacheState,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<Confidence, Confidence, String>
+  get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get reportedCurrency => $composableBuilder(
+    column: $table.reportedCurrency,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get originalSymbol => $composableBuilder(
+    column: $table.originalSymbol,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get providerExchange => $composableBuilder(
+    column: $table.providerExchange,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get baseCurrency => $composableBuilder(
+    column: $table.baseCurrency,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get quoteCurrency => $composableBuilder(
+    column: $table.quoteCurrency,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get rate => $composableBuilder(
+    column: $table.rate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get observedAt => $composableBuilder(
+    column: $table.observedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$FxRatesTableOrderingComposer
+    extends Composer<_$AppDatabase, $FxRatesTable> {
+  $$FxRatesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get cacheState => $composableBuilder(
+    column: $table.cacheState,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get reportedCurrency => $composableBuilder(
+    column: $table.reportedCurrency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get originalSymbol => $composableBuilder(
+    column: $table.originalSymbol,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get providerExchange => $composableBuilder(
+    column: $table.providerExchange,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get baseCurrency => $composableBuilder(
+    column: $table.baseCurrency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get quoteCurrency => $composableBuilder(
+    column: $table.quoteCurrency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get rate => $composableBuilder(
+    column: $table.rate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get observedAt => $composableBuilder(
+    column: $table.observedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$FxRatesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $FxRatesTable> {
+  $$FxRatesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get fetchedAt =>
+      $composableBuilder(column: $table.fetchedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<CacheState, String> get cacheState =>
+      $composableBuilder(
+        column: $table.cacheState,
+        builder: (column) => column,
+      );
+
+  GeneratedColumnWithTypeConverter<Confidence, String> get confidence =>
+      $composableBuilder(
+        column: $table.confidence,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<String> get reportedCurrency => $composableBuilder(
+    column: $table.reportedCurrency,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get originalSymbol => $composableBuilder(
+    column: $table.originalSymbol,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get providerExchange => $composableBuilder(
+    column: $table.providerExchange,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get baseCurrency => $composableBuilder(
+    column: $table.baseCurrency,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get quoteCurrency => $composableBuilder(
+    column: $table.quoteCurrency,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get rate =>
+      $composableBuilder(column: $table.rate, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get observedAt => $composableBuilder(
+    column: $table.observedAt,
+    builder: (column) => column,
+  );
+}
+
+class $$FxRatesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $FxRatesTable,
+          DbFxRate,
+          $$FxRatesTableFilterComposer,
+          $$FxRatesTableOrderingComposer,
+          $$FxRatesTableAnnotationComposer,
+          $$FxRatesTableCreateCompanionBuilder,
+          $$FxRatesTableUpdateCompanionBuilder,
+          (DbFxRate, BaseReferences<_$AppDatabase, $FxRatesTable, DbFxRate>),
+          DbFxRate,
+          PrefetchHooks Function()
+        > {
+  $$FxRatesTableTableManager(_$AppDatabase db, $FxRatesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$FxRatesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$FxRatesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$FxRatesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> source = const Value.absent(),
+                Value<DateTime> fetchedAt = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<CacheState> cacheState = const Value.absent(),
+                Value<Confidence> confidence = const Value.absent(),
+                Value<String?> reportedCurrency = const Value.absent(),
+                Value<String?> originalSymbol = const Value.absent(),
+                Value<String?> providerExchange = const Value.absent(),
+                Value<String> baseCurrency = const Value.absent(),
+                Value<String> quoteCurrency = const Value.absent(),
+                Value<String> rate = const Value.absent(),
+                Value<DateTime> observedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FxRatesCompanion(
+                source: source,
+                fetchedAt: fetchedAt,
+                updatedAt: updatedAt,
+                cacheState: cacheState,
+                confidence: confidence,
+                reportedCurrency: reportedCurrency,
+                originalSymbol: originalSymbol,
+                providerExchange: providerExchange,
+                baseCurrency: baseCurrency,
+                quoteCurrency: quoteCurrency,
+                rate: rate,
+                observedAt: observedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String source,
+                required DateTime fetchedAt,
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<CacheState> cacheState = const Value.absent(),
+                Value<Confidence> confidence = const Value.absent(),
+                Value<String?> reportedCurrency = const Value.absent(),
+                Value<String?> originalSymbol = const Value.absent(),
+                Value<String?> providerExchange = const Value.absent(),
+                required String baseCurrency,
+                required String quoteCurrency,
+                required String rate,
+                required DateTime observedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => FxRatesCompanion.insert(
+                source: source,
+                fetchedAt: fetchedAt,
+                updatedAt: updatedAt,
+                cacheState: cacheState,
+                confidence: confidence,
+                reportedCurrency: reportedCurrency,
+                originalSymbol: originalSymbol,
+                providerExchange: providerExchange,
+                baseCurrency: baseCurrency,
+                quoteCurrency: quoteCurrency,
+                rate: rate,
+                observedAt: observedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$FxRatesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $FxRatesTable,
+      DbFxRate,
+      $$FxRatesTableFilterComposer,
+      $$FxRatesTableOrderingComposer,
+      $$FxRatesTableAnnotationComposer,
+      $$FxRatesTableCreateCompanionBuilder,
+      $$FxRatesTableUpdateCompanionBuilder,
+      (DbFxRate, BaseReferences<_$AppDatabase, $FxRatesTable, DbFxRate>),
+      DbFxRate,
+      PrefetchHooks Function()
     >;
 typedef $$DividendEventsTableCreateCompanionBuilder =
     DividendEventsCompanion Function({
@@ -19358,6 +20505,8 @@ class $AppDatabaseManager {
       $$WatchlistEntriesTableTableManager(_db, _db.watchlistEntries);
   $$QuotesTableTableManager get quotes =>
       $$QuotesTableTableManager(_db, _db.quotes);
+  $$FxRatesTableTableManager get fxRates =>
+      $$FxRatesTableTableManager(_db, _db.fxRates);
   $$DividendEventsTableTableManager get dividendEvents =>
       $$DividendEventsTableTableManager(_db, _db.dividendEvents);
   $$EarningsEventsTableTableManager get earningsEvents =>

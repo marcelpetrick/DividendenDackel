@@ -55,6 +55,7 @@ final class CachePolicy {
         CacheDataType.news: Duration(minutes: 10),
         CacheDataType.quotes: Duration(minutes: 5),
         CacheDataType.secFilings: Duration(minutes: 10),
+        CacheDataType.fxRates: Duration(hours: 12),
       };
 
   final Map<CacheDataType, Duration> _lifetimes;

@@ -29,8 +29,8 @@ void main() {
       );
 
   group('AppDatabase', () {
-    test('opens at schema version 2 with every table created', () async {
-      expect(db.schemaVersion, 2);
+    test('opens at schema version 3 with every table created', () async {
+      expect(db.schemaVersion, 3);
 
       final List<String> tables =
           await db
@@ -51,6 +51,7 @@ void main() {
           'dividend_events',
           'earnings_events',
           'filings',
+          'fx_rates',
           'holdings',
           'instruments',
           'news_items',
@@ -258,7 +259,7 @@ void main() {
       expect(row.exDate, isNotNull);
     });
 
-    test('migrates schema 1 dividend rows without losing them', () async {
+    test('migrates schema 1 through 3 without losing dividend rows', () async {
       await db.close();
       final AppDatabase migrated = AppDatabase.withExecutor(
         NativeDatabase.memory(
@@ -291,6 +292,30 @@ void main() {
         containsAll(<String>['reported_period_start', 'reported_period_end']),
       );
       expect(marker, 'yes');
+      final List<String> tables = await migrated
+          .customSelect("SELECT name FROM sqlite_master WHERE type = 'table'")
+          .map((QueryRow row) => row.read<String>('name'))
+          .get();
+      expect(tables, contains('fx_rates'));
+    });
+
+    test('migrates schema 2 by adding the FX table', () async {
+      await db.close();
+      final AppDatabase migrated = AppDatabase.withExecutor(
+        NativeDatabase.memory(
+          setup: (database) {
+            database.execute('PRAGMA user_version = 2');
+          },
+        ),
+      );
+      db = migrated;
+
+      final List<String> tables = await migrated
+          .customSelect("SELECT name FROM sqlite_master WHERE type = 'table'")
+          .map((QueryRow row) => row.read<String>('name'))
+          .get();
+
+      expect(tables, contains('fx_rates'));
     });
 
     test(
@@ -311,7 +336,7 @@ void main() {
       final MigrationStrategy strategy = db.migration;
 
       await expectLater(
-        strategy.onUpgrade(Migrator(db), 0, 2),
+        strategy.onUpgrade(Migrator(db), 0, 3),
         throwsA(isA<StateError>()),
       );
     });

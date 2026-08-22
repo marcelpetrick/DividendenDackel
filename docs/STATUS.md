@@ -6,7 +6,7 @@ including a future session — can pick up without re-reading the whole history.
 - **Last updated:** 2026-08-22
 - **Version:** 0.1.0+1 (pre-release, `0.x.y`)
 - **Branch:** `master` (local work ahead of `origin`)
-- **Quality gate:** green — 311 tests, analyzer clean, both platforms build
+- **Quality gate:** green — 326 tests, analyzer clean, both platforms build
 
 ---
 
@@ -51,6 +51,7 @@ Today ranking land with D3–D5 and T1.
 | Bounded, deduplicating Request Coordinator | F7 | done |
 | Provider contracts, registry + fallback chain | F8 | done |
 | Keyless SEC EDGAR adapter | F8a | done |
+| Keyless Frankfurter/ECB FX adapter | F8b | done |
 
 ### What is left
 
@@ -58,11 +59,11 @@ Ordered by what unblocks a usable app soonest.
 
 | Next | Task | Why it matters |
 | --- | --- | --- |
-| 1 | **F8b** Frankfurter / ECB | Keyless daily reference FX rates. |
-| 2 | **F12** Data Status | Provider health, operations and cache visibility. |
-| 3 | **D1/D2** dividend analytics | CAGR and an explainable forecast engine. |
-| 4 | **D3–D5/T1** core UI | Portfolio, calendar, forecast and Today. |
-| 5 | **E1/E2** delivery proof | End-to-end flows and artifact launch verification. |
+| 1 | **F12** Data Status | Provider health, operations and cache visibility. |
+| 2 | **D1/D2** dividend analytics | CAGR and an explainable forecast engine. |
+| 3 | **D3–D5/T1** core UI | Portfolio, calendar, forecast and Today. |
+| 4 | **E1/E2** delivery proof | End-to-end flows and artifact launch verification. |
+| 5 | **D6–D9** deeper portfolio data | Quality, currency and gross/net tax. |
 
 Then: D6 quality score · D7 currency · **D8/D9 gross-and-net tax** ·
 T2–T6 events, news, research ·
@@ -135,8 +136,13 @@ dart format .
   dividend-per-share fact is normalized with explicit reporting-period fields;
   ex-date, declaration date and payment date stay null. Annual facts supersede
   overlapping quarters so totals are not double-counted.
-- **Database schema 2 is additive.** It adds nullable dividend reporting-period
-  columns and has a tested 1→2 migration that preserves existing rows.
+- **Database schemas 2 and 3 are additive.** Version 2 adds nullable dividend
+  reporting-period columns; version 3 adds exact daily FX rows. Tested 1→3 and
+  2→3 migrations preserve existing data.
+- **FX rates stay exact and attributable.** Frankfurter v2 requests are always
+  filtered to `providers=ECB`; rows store decimal text, UTC reference dates and
+  provenance. Range translation preserves the domain's half-open convention,
+  and conversion rounds only at the final display boundary.
 - **A malformed stored amount fails loudly** as a `ParsingFailure` rather than
   parsing to something plausible.
 - **Value objects live in `lib/domain/value_objects/`**, a refinement of the

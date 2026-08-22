@@ -3,6 +3,7 @@ import 'package:dividendendackel/core/errors/failure.dart';
 import 'package:dividendendackel/core/errors/result.dart';
 import 'package:dividendendackel/data/database/app_database.dart';
 import 'package:dividendendackel/data/repositories/drift_dividend_repository.dart';
+import 'package:dividendendackel/data/repositories/drift_fx_rate_repository.dart';
 import 'package:dividendendackel/data/repositories/drift_instrument_repository.dart';
 import 'package:dividendendackel/data/repositories/drift_market_data_repository.dart';
 import 'package:dividendendackel/data/repositories/drift_portfolio_repository.dart';
@@ -16,6 +17,7 @@ void main() {
   late DriftInstrumentRepository instruments;
   late DriftPortfolioRepository portfolio;
   late DriftDividendRepository dividends;
+  late DriftFxRateRepository fxRates;
   late DriftMarketDataRepository marketData;
 
   final DateTime now = DateTime.utc(2026, 8, 22, 12);
@@ -50,6 +52,7 @@ void main() {
     instruments = DriftInstrumentRepository(db);
     portfolio = DriftPortfolioRepository(db);
     dividends = DriftDividendRepository(db);
+    fxRates = DriftFxRateRepository(db);
     marketData = DriftMarketDataRepository(db);
     await instruments.save(allianz);
     await instruments.save(apple);
@@ -459,6 +462,76 @@ void main() {
       }).first;
 
       expect(quotes.keys, <String>[allianz.internalId]);
+    });
+  });
+
+  group('DriftFxRateRepository', () {
+    FxRate fx(String quote, String value, DateTime observedAt) => FxRate(
+      base: Currency.eur,
+      quote: Currency.parse(quote),
+      rate: Decimal.parse(value),
+      observedAt: observedAt,
+      provenance: Provenance(
+        source: 'frankfurter',
+        fetchedAt: now,
+        updatedAt: observedAt,
+      ),
+    );
+
+    test(
+      'round-trips exact daily rates and selects a half-open range',
+      () async {
+        await fxRates.saveAll(<FxRate>[
+          fx('USD', '1.15', DateTime.utc(2026, 8, 10)),
+          fx('GBP', '0.85', DateTime.utc(2026, 8, 10)),
+          fx('USD', '1.16', DateTime.utc(2026, 8, 11)),
+        ]);
+
+        final List<FxRate> stored = await fxRates.watchInRange(
+          Currency.eur,
+          <Currency>{Currency.usd, Currency.gbp},
+          DateRange(DateTime.utc(2026, 8, 10), DateTime.utc(2026, 8, 11)),
+        ).first;
+
+        expect(stored, hasLength(2));
+        expect(stored.first.quote, Currency.gbp);
+        expect(stored.last.rate, Decimal.parse('1.15'));
+        expect(stored.last.provenance.source, 'frankfurter');
+      },
+    );
+
+    test('returns only the newest rate for each quote', () async {
+      await fxRates.saveAll(<FxRate>[
+        fx('USD', '1.15', DateTime.utc(2026, 8, 10)),
+        fx('GBP', '0.85', DateTime.utc(2026, 8, 10)),
+        fx('USD', '1.16', DateTime.utc(2026, 8, 11)),
+      ]);
+
+      final Map<Currency, FxRate> latest = await fxRates.watchLatest(
+        Currency.eur,
+        <Currency>{Currency.usd, Currency.gbp},
+      ).first;
+
+      expect(latest[Currency.usd]!.rate, Decimal.parse('1.16'));
+      expect(latest[Currency.gbp]!.rate, Decimal.parse('0.85'));
+    });
+
+    test('updates a duplicate pair and day instead of accumulating', () async {
+      await fxRates.saveAll(<FxRate>[
+        fx('USD', '1.15', DateTime.utc(2026, 8, 10)),
+      ]);
+      await fxRates.saveAll(<FxRate>[
+        fx('USD', '1.17', DateTime.utc(2026, 8, 10)),
+      ]);
+
+      final List<FxRate> stored = await fxRates.watchInRange(
+        Currency.eur,
+        <Currency>{Currency.usd},
+        DateRange(DateTime.utc(2026), DateTime.utc(2027)),
+      ).first;
+
+      expect(stored, hasLength(1));
+      expect(stored.single.rate, Decimal.parse('1.17'));
     });
   });
 

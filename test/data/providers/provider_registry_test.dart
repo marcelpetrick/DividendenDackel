@@ -309,6 +309,39 @@ void main() {
     expect(result.valueOrNull, <DividendEvent>[expected]);
     expect(result.valueOrNull!.single.provenance.source, 'provider');
   });
+
+  test('ProviderMarketDataService routes FX rates by capability', () async {
+    final RequestCoordinator coordinator = RequestCoordinator(
+      defaultPolicy: ProviderRequestPolicy(maxAttempts: 1),
+    );
+    addTearDown(coordinator.dispose);
+    final FxRate expected = FxRate(
+      base: Currency.eur,
+      quote: Currency.usd,
+      rate: Decimal.parse('1.15'),
+      observedAt: DateTime.utc(2026, 8, 21),
+      provenance: Provenance(
+        source: 'fx-provider',
+        fetchedAt: DateTime.utc(2026, 8, 22),
+      ),
+    );
+    final ProviderMarketDataService service = ProviderMarketDataService(
+      ProviderFallbackChain(
+        registry: ProviderRegistry(
+          providers: <MarketDataProvider>[_FakeFxProvider(expected)],
+        ),
+        coordinator: coordinator,
+      ),
+    );
+
+    final Result<List<FxRate>> result = await service.fxRates(
+      Currency.eur,
+      <Currency>{Currency.usd},
+      DateRange(DateTime.utc(2026, 8, 21), DateTime.utc(2026, 8, 22)),
+    );
+
+    expect(result.valueOrNull, <FxRate>[expected]);
+  });
 }
 
 const Instrument _instrument = Instrument(
@@ -380,6 +413,28 @@ final class _MisdeclaredProvider implements MarketDataProvider {
   Set<ProviderDataType> get capabilities => const <ProviderDataType>{
     ProviderDataType.dividends,
   };
+}
+
+final class _FakeFxProvider implements FxRateDataProvider {
+  const _FakeFxProvider(this.rate);
+
+  final FxRate rate;
+
+  @override
+  String get id => 'fx-provider';
+
+  @override
+  Set<ProviderDataType> get capabilities => const <ProviderDataType>{
+    ProviderDataType.fxRates,
+  };
+
+  @override
+  Future<Result<List<FxRate>>> fetchFxRates(
+    Currency base,
+    Set<Currency> quotes,
+    DateRange range, {
+    required CancellationToken cancellationToken,
+  }) async => Success<List<FxRate>>(<FxRate>[rate]);
 }
 
 Future<void> _waitUntil(bool Function() condition) async {

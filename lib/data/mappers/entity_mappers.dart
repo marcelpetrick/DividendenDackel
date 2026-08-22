@@ -172,6 +172,27 @@ extension QuoteRowMapper on DbQuote {
   );
 }
 
+/// Maps a stored daily FX reference rate.
+extension FxRateRowMapper on DbFxRate {
+  /// Builds the domain rate.
+  FxRate toDomain() => FxRate(
+    base: Currency.parse(baseCurrency),
+    quote: Currency.parse(quoteCurrency),
+    rate: EntityMappers.parseDecimal(rate, 'fxRate.rate'),
+    observedAt: EntityMappers.utc(observedAt),
+    provenance: ProvenanceRowMapper.fromColumns(
+      source: source,
+      fetchedAt: fetchedAt,
+      updatedAt: updatedAt,
+      cacheState: cacheState,
+      confidence: confidence,
+      reportedCurrency: reportedCurrency,
+      originalSymbol: originalSymbol,
+      providerExchange: providerExchange,
+    ),
+  );
+}
+
 /// Maps dividend rows.
 extension DividendRowMapper on DbDividendEvent {
   /// Builds the domain dividend event.
@@ -396,6 +417,25 @@ abstract final class CompanionMappers {
         quote.previousClose?.amount.toString(),
       ),
       asOf: quote.asOf.toUtc(),
+      source: p.source,
+      fetchedAt: p.fetchedAt,
+      updatedAt: p.updatedAt,
+      cacheState: p.cacheState,
+      confidence: p.confidence,
+      reportedCurrency: p.reportedCurrency,
+      originalSymbol: p.originalSymbol,
+      providerExchange: p.providerExchange,
+    );
+  }
+
+  /// Builds a daily FX reference-rate row.
+  static FxRatesCompanion fxRate(FxRate rate) {
+    final _ProvenanceValues p = _provenanceValues(rate.provenance);
+    return FxRatesCompanion.insert(
+      baseCurrency: rate.base.code,
+      quoteCurrency: rate.quote.code,
+      rate: rate.rate.toString(),
+      observedAt: rate.observedAt.toUtc(),
       source: p.source,
       fetchedAt: p.fetchedAt,
       updatedAt: p.updatedAt,

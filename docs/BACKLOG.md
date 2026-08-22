@@ -87,7 +87,7 @@ Each task names the `Vision.md` sections it satisfies.
       company facts for US listings. Polite `User-Agent` and the 10 req/s limit
       enforced by the coordinator. Real dividend history, no user setup.
       — §32, §46, §77
-- [ ] **F8b** FX rate adapter (Frankfurter / ECB) — **keyless**, enabled by
+- [x] **F8b** FX rate adapter (Frankfurter / ECB) — **keyless**, enabled by
       default. Daily reference rates powering multi-currency totals (D7).
       — §32, §46, §77
 - [ ] **F12** Data Status screen: provider health, active operations, cache hit

@@ -5,6 +5,7 @@ export 'package:dividendendackel/domain/entities/cache_metadata.dart';
 export 'package:dividendendackel/domain/entities/dividend_event.dart';
 export 'package:dividendendackel/domain/entities/earnings_event.dart';
 export 'package:dividendendackel/domain/entities/filing.dart';
+export 'package:dividendendackel/domain/entities/fx_rate.dart';
 export 'package:dividendendackel/domain/entities/holding.dart';
 export 'package:dividendendackel/domain/entities/instrument.dart';
 export 'package:dividendendackel/domain/entities/news_item.dart';

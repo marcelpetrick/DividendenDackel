@@ -53,5 +53,32 @@ older ranges instead of pretending the history is exhaustive.
 
 ## Frankfurter / ECB
 
-Licensing and endpoint behavior will be reviewed immediately before the F8b
-adapter is implemented.
+| Question | Review |
+| --- | --- |
+| Provider | Frankfurter v2 public API, explicitly filtered to European Central Bank (`providers=ECB`) reference rates |
+| Endpoint used | `api.frankfurter.dev/v2/rates` with bounded date, base, quote and provider parameters |
+| Free usage allowed? | Yes. Frankfurter states that the public API is free for commercial use; underlying ECB data may be used freely under the ECB conditions below. |
+| Client-side usage allowed? | Yes. The public API requires no API key and enables cross-origin requests. |
+| Caching allowed? | Frankfurter recommends caching for higher-volume use. The app stores daily rows locally and refreshes them on a 12-hour policy. |
+| Redistribution allowed? | ECB information may be distributed or reproduced accurately when the ECB is cited as source. Modified calculations must be labelled as modified. |
+| Attribution required? | Yes for the underlying data. User-facing FX provenance says “Frankfurter · source: ECB”; derived conversions remain labelled as calculations. |
+| Rate limit | No published quota or monthly/daily cap. Frankfurter says abuse prevention rate limits apply. The app uses the shared bounded coordinator and requests only required pairs/dates. |
+| Retention limit | None stated in the reviewed Frankfurter or ECB sources. |
+| Commercial restrictions | Frankfurter says commercial use is allowed. If ECB information is included in something sold, buyers must be told that the information is available free from the ECB website. |
+| API-key restrictions | No key is required. |
+| Data warning | Daily reference rates are informational, normally published around 16:00 CET on working days, and are not transaction rates. The ECB strongly discourages transaction use. |
+| Reviewed | 2026-08-22 |
+
+Primary sources:
+
+- [Frankfurter v2 documentation and FAQ](https://frankfurter.dev/)
+- [Frankfurter v2 OpenAPI contract](https://api.frankfurter.dev/v2/openapi.json)
+- [Frankfurter MIT software license](https://github.com/lineofflight/frankfurter/blob/main/LICENSE)
+- [ECB reference-rate description](https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html)
+- [ECB disclaimer and reuse conditions](https://www.ecb.europa.eu/services/using-our-site/disclaimer/html/index.en.html)
+
+The v2 API blends multiple institutions by default. DividendenDackel always
+sends `providers=ECB`; silently switching to the blend would change both the
+meaning and licensing provenance of persisted rates. Range endpoints are
+inclusive, while the app's `DateRange` is half-open, so the adapter requests
+the calendar day immediately before `range.end` as its final date.
