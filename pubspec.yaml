@@ -34,10 +34,18 @@ dependencies:
   # Exact decimal arithmetic. Money must never be represented as a binary
   # floating-point number (Vision.md §79: never fabricate values).
   decimal: 3.2.6
+  # Local SQLite persistence (Vision.md §35). drift_flutter supplies the
+  # platform database directory and the bundled native sqlite3 for Android
+  # and Linux.
+  drift: 2.34.3
+  drift_flutter: 0.3.1
   flutter:
     sdk: flutter
 
 dev_dependencies:
+  # 2.16.0 conflicts with the constraints of the pinned Flutter SDK.
+  build_runner: 2.15.1
+  drift_dev: 2.34.5
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your

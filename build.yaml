@@ -1,0 +1,13 @@
+# Code generation settings (Vision.md §35).
+targets:
+  $default:
+    builders:
+      drift_dev:
+        options:
+          # Store timestamps as ISO-8601 text rather than Unix seconds.
+          # Dividend ex-dates and payment dates are compared and grouped by
+          # calendar day across timezones, and text keeps them unambiguous and
+          # readable when inspecting the database directly.
+          store_date_time_values_as_text: true
+          # Fail generation on schema mistakes instead of warning.
+          fatal_warnings: true
