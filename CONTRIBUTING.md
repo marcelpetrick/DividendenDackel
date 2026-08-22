@@ -24,7 +24,7 @@ flutter pub get
 Linux desktop builds additionally need:
 
 ```sh
-clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libsecret-1-dev libjsoncpp-dev
 ```
 
 ## The quality gate

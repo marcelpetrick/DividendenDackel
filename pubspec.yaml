@@ -43,6 +43,10 @@ dependencies:
     sdk: flutter
   # One state-management approach across the app (Vision.md §54).
   flutter_riverpod: 3.4.2
+  # User-supplied provider credentials live in Android Keystore-backed or
+  # Linux Secret Service-backed storage, never in plain preferences.
+  # 11.x requires compileSdk 37, beyond the pinned Flutter/AGP toolchain.
+  flutter_secure_storage: 10.3.1
   go_router: 17.5.0
   # Reads the real version and build number from the installed package, so
   # the About screen can never disagree with the artifact (Vision.md §62).

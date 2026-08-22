@@ -6,7 +6,7 @@ including a future session — can pick up without re-reading the whole history.
 - **Last updated:** 2026-08-22
 - **Version:** 0.1.0+1 (pre-release, `0.x.y`)
 - **Branch:** `master` (pushed to `origin`)
-- **Quality gate:** green — 240 tests, analyzer clean, both platforms build
+- **Quality gate:** green — 252 tests, analyzer clean, both platforms build
 
 ---
 
@@ -46,6 +46,7 @@ Today ranking land with D3–D5 and T1.
 | App icon, both platforms | Q8 | done |
 | Application shell, themes, navigation | F10 | done |
 | Persisted System/Light/Dark selection | Q10 | done |
+| Secure provider settings + build identity | F11 | done |
 
 ### What is left
 
@@ -62,7 +63,7 @@ Ordered by what unblocks a usable app soonest.
 Then: D1 CAGR · D2 forecast engine · D6 quality score · D7 currency ·
 **D8/D9 gross-and-net tax** · F6 cache TTL · F7 Request Coordinator ·
 F8 provider abstraction · **F8a SEC EDGAR (keyless)** · **F8b FX (keyless)** ·
-F11 settings · F12 Data Status · T2–T6 events, news, research ·
+F12 Data Status · T2–T6 events, news, research ·
 Q1–Q7 offline, states, accessibility, health, simulator, onboarding,
 notifications · R2 dependency workflows · R4b remaining docs ·
 R5 optional keyed providers · R6 release readiness · S1 self-review ·
@@ -125,6 +126,11 @@ dart format .
   setup. Keyed providers are an opt-in upgrade. The app will not provision a
   secret credential on the user's behalf; embedding one would not keep it
   secret (Vision.md §34).
+- **Optional API keys use platform-secure storage.** Android uses a
+  Keystore-backed implementation and Linux uses Secret Service; enable flags
+  are the only provider settings stored in plain preferences. Android app
+  backup is disabled so encrypted values cannot be restored without their
+  device-bound key.
 - **Sample data is generated from patterns, not fixed dates**, so the calendar
   is populated whenever the app runs, and the generated history actually grows
   year on year so dividend CAGR has something real to compute.
