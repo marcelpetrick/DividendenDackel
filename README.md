@@ -63,7 +63,7 @@ backlog for exactly what is done and what is not.
 
 ## Build
 
-Requires Flutter **3.44.7** (pinned — see [`localPipeline.sh`](localPipeline.sh)).
+Requires Flutter **3.47.1** (pinned — see [`localPipeline.sh`](localPipeline.sh)).
 
 ```sh
 flutter pub get

@@ -10,7 +10,7 @@ android {
     // Vision.md 4.1 / 58: Android 10 (API 29) is the minimum *runtime*, while the
     // app targets the API level currently required for Google Play publication.
     // As of 2026-08-31 new apps and updates must target API 36 or newer.
-    compileSdk = 36
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -39,7 +39,7 @@ android {
 }
 
 dependencies {
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
 }
 
 kotlin {

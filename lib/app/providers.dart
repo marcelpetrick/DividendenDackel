@@ -286,9 +286,8 @@ final FutureProvider<void> sampleDataProvider = FutureProvider<void>((
     }
     final DateTime now = ref.watch(clockProvider).now().toUtc();
     final DateTime day = DateTime.utc(now.year, now.month, now.day);
-    final Provenance fxProvenance = Provenance.sample(
-      now,
-    ).copyWith(reportedCurrency: Currency.eur);
+    final Provenance fxProvenance = Provenance.sample(now)
+        .copyWith(reportedCurrency: Currency.eur);
     final Object? fxFailure =
         (await ref.watch(fxRateRepositoryProvider).saveAll(<FxRate>[
           FxRate(

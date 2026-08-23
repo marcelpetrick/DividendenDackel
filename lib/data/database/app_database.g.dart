@@ -15084,19 +15084,15 @@ class $$ProviderMappingsTableTableManager
                     >
                   >(state) {
                     if (instrumentId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.instrumentId,
-                                referencedTable:
-                                    $$ProviderMappingsTableReferences
-                                        ._instrumentIdTable(db),
-                                referencedColumn:
-                                    $$ProviderMappingsTableReferences
-                                        ._instrumentIdTable(db)
-                                        .internalId,
-                              )
-                              as T;
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.instrumentId,
+                        referencedTable: $$ProviderMappingsTableReferences
+                            ._instrumentIdTable(db),
+                        referencedColumn: $$ProviderMappingsTableReferences
+                            ._instrumentIdTable(db)
+                            .internalId,
+                      ) as T;
                     }
 
                     return state;
@@ -15124,42 +15120,40 @@ typedef $$ProviderMappingsTableProcessedTableManager =
       DbProviderMapping,
       PrefetchHooks Function({bool instrumentId})
     >;
-typedef $$HoldingsTableCreateCompanionBuilder =
-    HoldingsCompanion Function({
-      required String source,
-      required DateTime fetchedAt,
-      Value<DateTime?> updatedAt,
-      Value<CacheState> cacheState,
-      Value<Confidence> confidence,
-      Value<String?> reportedCurrency,
-      Value<String?> originalSymbol,
-      Value<String?> providerExchange,
-      Value<int> id,
-      required String instrumentId,
-      required String quantity,
-      Value<String?> averagePriceAmount,
-      Value<String?> averagePriceCurrency,
-      Value<DateTime?> purchaseDate,
-      Value<String?> notes,
-    });
-typedef $$HoldingsTableUpdateCompanionBuilder =
-    HoldingsCompanion Function({
-      Value<String> source,
-      Value<DateTime> fetchedAt,
-      Value<DateTime?> updatedAt,
-      Value<CacheState> cacheState,
-      Value<Confidence> confidence,
-      Value<String?> reportedCurrency,
-      Value<String?> originalSymbol,
-      Value<String?> providerExchange,
-      Value<int> id,
-      Value<String> instrumentId,
-      Value<String> quantity,
-      Value<String?> averagePriceAmount,
-      Value<String?> averagePriceCurrency,
-      Value<DateTime?> purchaseDate,
-      Value<String?> notes,
-    });
+typedef $$HoldingsTableCreateCompanionBuilder = HoldingsCompanion Function({
+  required String source,
+  required DateTime fetchedAt,
+  Value<DateTime?> updatedAt,
+  Value<CacheState> cacheState,
+  Value<Confidence> confidence,
+  Value<String?> reportedCurrency,
+  Value<String?> originalSymbol,
+  Value<String?> providerExchange,
+  Value<int> id,
+  required String instrumentId,
+  required String quantity,
+  Value<String?> averagePriceAmount,
+  Value<String?> averagePriceCurrency,
+  Value<DateTime?> purchaseDate,
+  Value<String?> notes,
+});
+typedef $$HoldingsTableUpdateCompanionBuilder = HoldingsCompanion Function({
+  Value<String> source,
+  Value<DateTime> fetchedAt,
+  Value<DateTime?> updatedAt,
+  Value<CacheState> cacheState,
+  Value<Confidence> confidence,
+  Value<String?> reportedCurrency,
+  Value<String?> originalSymbol,
+  Value<String?> providerExchange,
+  Value<int> id,
+  Value<String> instrumentId,
+  Value<String> quantity,
+  Value<String?> averagePriceAmount,
+  Value<String?> averagePriceCurrency,
+  Value<DateTime?> purchaseDate,
+  Value<String?> notes,
+});
 
 final class $$HoldingsTableReferences
     extends BaseReferences<_$AppDatabase, $HoldingsTable, DbHolding> {
@@ -15608,17 +15602,15 @@ class $$HoldingsTableTableManager
                     >
                   >(state) {
                     if (instrumentId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.instrumentId,
-                                referencedTable: $$HoldingsTableReferences
-                                    ._instrumentIdTable(db),
-                                referencedColumn: $$HoldingsTableReferences
-                                    ._instrumentIdTable(db)
-                                    .internalId,
-                              )
-                              as T;
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.instrumentId,
+                        referencedTable: $$HoldingsTableReferences
+                            ._instrumentIdTable(db),
+                        referencedColumn: $$HoldingsTableReferences
+                            ._instrumentIdTable(db)
+                            .internalId,
+                      ) as T;
                     }
 
                     return state;
@@ -16066,19 +16058,15 @@ class $$WatchlistEntriesTableTableManager
                     >
                   >(state) {
                     if (instrumentId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.instrumentId,
-                                referencedTable:
-                                    $$WatchlistEntriesTableReferences
-                                        ._instrumentIdTable(db),
-                                referencedColumn:
-                                    $$WatchlistEntriesTableReferences
-                                        ._instrumentIdTable(db)
-                                        .internalId,
-                              )
-                              as T;
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.instrumentId,
+                        referencedTable: $$WatchlistEntriesTableReferences
+                            ._instrumentIdTable(db),
+                        referencedColumn: $$WatchlistEntriesTableReferences
+                            ._instrumentIdTable(db)
+                            .internalId,
+                      ) as T;
                     }
 
                     return state;
@@ -16106,40 +16094,38 @@ typedef $$WatchlistEntriesTableProcessedTableManager =
       DbWatchlistEntry,
       PrefetchHooks Function({bool instrumentId})
     >;
-typedef $$QuotesTableCreateCompanionBuilder =
-    QuotesCompanion Function({
-      required String source,
-      required DateTime fetchedAt,
-      Value<DateTime?> updatedAt,
-      Value<CacheState> cacheState,
-      Value<Confidence> confidence,
-      Value<String?> reportedCurrency,
-      Value<String?> originalSymbol,
-      Value<String?> providerExchange,
-      required String instrumentId,
-      required String priceAmount,
-      required String priceCurrency,
-      Value<String?> previousCloseAmount,
-      required DateTime asOf,
-      Value<int> rowid,
-    });
-typedef $$QuotesTableUpdateCompanionBuilder =
-    QuotesCompanion Function({
-      Value<String> source,
-      Value<DateTime> fetchedAt,
-      Value<DateTime?> updatedAt,
-      Value<CacheState> cacheState,
-      Value<Confidence> confidence,
-      Value<String?> reportedCurrency,
-      Value<String?> originalSymbol,
-      Value<String?> providerExchange,
-      Value<String> instrumentId,
-      Value<String> priceAmount,
-      Value<String> priceCurrency,
-      Value<String?> previousCloseAmount,
-      Value<DateTime> asOf,
-      Value<int> rowid,
-    });
+typedef $$QuotesTableCreateCompanionBuilder = QuotesCompanion Function({
+  required String source,
+  required DateTime fetchedAt,
+  Value<DateTime?> updatedAt,
+  Value<CacheState> cacheState,
+  Value<Confidence> confidence,
+  Value<String?> reportedCurrency,
+  Value<String?> originalSymbol,
+  Value<String?> providerExchange,
+  required String instrumentId,
+  required String priceAmount,
+  required String priceCurrency,
+  Value<String?> previousCloseAmount,
+  required DateTime asOf,
+  Value<int> rowid,
+});
+typedef $$QuotesTableUpdateCompanionBuilder = QuotesCompanion Function({
+  Value<String> source,
+  Value<DateTime> fetchedAt,
+  Value<DateTime?> updatedAt,
+  Value<CacheState> cacheState,
+  Value<Confidence> confidence,
+  Value<String?> reportedCurrency,
+  Value<String?> originalSymbol,
+  Value<String?> providerExchange,
+  Value<String> instrumentId,
+  Value<String> priceAmount,
+  Value<String> priceCurrency,
+  Value<String?> previousCloseAmount,
+  Value<DateTime> asOf,
+  Value<int> rowid,
+});
 
 final class $$QuotesTableReferences
     extends BaseReferences<_$AppDatabase, $QuotesTable, DbQuote> {
@@ -16556,17 +16542,15 @@ class $$QuotesTableTableManager
                     >
                   >(state) {
                     if (instrumentId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.instrumentId,
-                                referencedTable: $$QuotesTableReferences
-                                    ._instrumentIdTable(db),
-                                referencedColumn: $$QuotesTableReferences
-                                    ._instrumentIdTable(db)
-                                    .internalId,
-                              )
-                              as T;
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.instrumentId,
+                        referencedTable: $$QuotesTableReferences
+                            ._instrumentIdTable(db),
+                        referencedColumn: $$QuotesTableReferences
+                            ._instrumentIdTable(db)
+                            .internalId,
+                      ) as T;
                     }
 
                     return state;
@@ -16594,38 +16578,36 @@ typedef $$QuotesTableProcessedTableManager =
       DbQuote,
       PrefetchHooks Function({bool instrumentId})
     >;
-typedef $$FxRatesTableCreateCompanionBuilder =
-    FxRatesCompanion Function({
-      required String source,
-      required DateTime fetchedAt,
-      Value<DateTime?> updatedAt,
-      Value<CacheState> cacheState,
-      Value<Confidence> confidence,
-      Value<String?> reportedCurrency,
-      Value<String?> originalSymbol,
-      Value<String?> providerExchange,
-      required String baseCurrency,
-      required String quoteCurrency,
-      required String rate,
-      required DateTime observedAt,
-      Value<int> rowid,
-    });
-typedef $$FxRatesTableUpdateCompanionBuilder =
-    FxRatesCompanion Function({
-      Value<String> source,
-      Value<DateTime> fetchedAt,
-      Value<DateTime?> updatedAt,
-      Value<CacheState> cacheState,
-      Value<Confidence> confidence,
-      Value<String?> reportedCurrency,
-      Value<String?> originalSymbol,
-      Value<String?> providerExchange,
-      Value<String> baseCurrency,
-      Value<String> quoteCurrency,
-      Value<String> rate,
-      Value<DateTime> observedAt,
-      Value<int> rowid,
-    });
+typedef $$FxRatesTableCreateCompanionBuilder = FxRatesCompanion Function({
+  required String source,
+  required DateTime fetchedAt,
+  Value<DateTime?> updatedAt,
+  Value<CacheState> cacheState,
+  Value<Confidence> confidence,
+  Value<String?> reportedCurrency,
+  Value<String?> originalSymbol,
+  Value<String?> providerExchange,
+  required String baseCurrency,
+  required String quoteCurrency,
+  required String rate,
+  required DateTime observedAt,
+  Value<int> rowid,
+});
+typedef $$FxRatesTableUpdateCompanionBuilder = FxRatesCompanion Function({
+  Value<String> source,
+  Value<DateTime> fetchedAt,
+  Value<DateTime?> updatedAt,
+  Value<CacheState> cacheState,
+  Value<Confidence> confidence,
+  Value<String?> reportedCurrency,
+  Value<String?> originalSymbol,
+  Value<String?> providerExchange,
+  Value<String> baseCurrency,
+  Value<String> quoteCurrency,
+  Value<String> rate,
+  Value<DateTime> observedAt,
+  Value<int> rowid,
+});
 
 class $$FxRatesTableFilterComposer
     extends Composer<_$AppDatabase, $FxRatesTable> {
@@ -17543,18 +17525,15 @@ class $$DividendEventsTableTableManager
                     >
                   >(state) {
                     if (instrumentId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.instrumentId,
-                                referencedTable: $$DividendEventsTableReferences
-                                    ._instrumentIdTable(db),
-                                referencedColumn:
-                                    $$DividendEventsTableReferences
-                                        ._instrumentIdTable(db)
-                                        .internalId,
-                              )
-                              as T;
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.instrumentId,
+                        referencedTable: $$DividendEventsTableReferences
+                            ._instrumentIdTable(db),
+                        referencedColumn: $$DividendEventsTableReferences
+                            ._instrumentIdTable(db)
+                            .internalId,
+                      ) as T;
                     }
 
                     return state;
@@ -18163,18 +18142,15 @@ class $$EarningsEventsTableTableManager
                     >
                   >(state) {
                     if (instrumentId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.instrumentId,
-                                referencedTable: $$EarningsEventsTableReferences
-                                    ._instrumentIdTable(db),
-                                referencedColumn:
-                                    $$EarningsEventsTableReferences
-                                        ._instrumentIdTable(db)
-                                        .internalId,
-                              )
-                              as T;
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.instrumentId,
+                        referencedTable: $$EarningsEventsTableReferences
+                            ._instrumentIdTable(db),
+                        referencedColumn: $$EarningsEventsTableReferences
+                            ._instrumentIdTable(db)
+                            .internalId,
+                      ) as T;
                     }
 
                     return state;
@@ -18701,19 +18677,15 @@ class $$CorporateEventsTableTableManager
                     >
                   >(state) {
                     if (instrumentId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.instrumentId,
-                                referencedTable:
-                                    $$CorporateEventsTableReferences
-                                        ._instrumentIdTable(db),
-                                referencedColumn:
-                                    $$CorporateEventsTableReferences
-                                        ._instrumentIdTable(db)
-                                        .internalId,
-                              )
-                              as T;
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.instrumentId,
+                        referencedTable: $$CorporateEventsTableReferences
+                            ._instrumentIdTable(db),
+                        referencedColumn: $$CorporateEventsTableReferences
+                            ._instrumentIdTable(db)
+                            .internalId,
+                      ) as T;
                     }
 
                     return state;
@@ -18741,46 +18713,44 @@ typedef $$CorporateEventsTableProcessedTableManager =
       DbCorporateEvent,
       PrefetchHooks Function({bool instrumentId})
     >;
-typedef $$NewsItemsTableCreateCompanionBuilder =
-    NewsItemsCompanion Function({
-      required String source,
-      required DateTime fetchedAt,
-      Value<DateTime?> updatedAt,
-      Value<CacheState> cacheState,
-      Value<Confidence> confidence,
-      Value<String?> reportedCurrency,
-      Value<String?> originalSymbol,
-      Value<String?> providerExchange,
-      required String id,
-      required String headline,
-      required String sourceName,
-      required DateTime publishedAt,
-      required String url,
-      Value<NewsCategory> category,
-      Value<String?> summary,
-      Value<double?> relevance,
-      Value<int> rowid,
-    });
-typedef $$NewsItemsTableUpdateCompanionBuilder =
-    NewsItemsCompanion Function({
-      Value<String> source,
-      Value<DateTime> fetchedAt,
-      Value<DateTime?> updatedAt,
-      Value<CacheState> cacheState,
-      Value<Confidence> confidence,
-      Value<String?> reportedCurrency,
-      Value<String?> originalSymbol,
-      Value<String?> providerExchange,
-      Value<String> id,
-      Value<String> headline,
-      Value<String> sourceName,
-      Value<DateTime> publishedAt,
-      Value<String> url,
-      Value<NewsCategory> category,
-      Value<String?> summary,
-      Value<double?> relevance,
-      Value<int> rowid,
-    });
+typedef $$NewsItemsTableCreateCompanionBuilder = NewsItemsCompanion Function({
+  required String source,
+  required DateTime fetchedAt,
+  Value<DateTime?> updatedAt,
+  Value<CacheState> cacheState,
+  Value<Confidence> confidence,
+  Value<String?> reportedCurrency,
+  Value<String?> originalSymbol,
+  Value<String?> providerExchange,
+  required String id,
+  required String headline,
+  required String sourceName,
+  required DateTime publishedAt,
+  required String url,
+  Value<NewsCategory> category,
+  Value<String?> summary,
+  Value<double?> relevance,
+  Value<int> rowid,
+});
+typedef $$NewsItemsTableUpdateCompanionBuilder = NewsItemsCompanion Function({
+  Value<String> source,
+  Value<DateTime> fetchedAt,
+  Value<DateTime?> updatedAt,
+  Value<CacheState> cacheState,
+  Value<Confidence> confidence,
+  Value<String?> reportedCurrency,
+  Value<String?> originalSymbol,
+  Value<String?> providerExchange,
+  Value<String> id,
+  Value<String> headline,
+  Value<String> sourceName,
+  Value<DateTime> publishedAt,
+  Value<String> url,
+  Value<NewsCategory> category,
+  Value<String?> summary,
+  Value<double?> relevance,
+  Value<int> rowid,
+});
 
 final class $$NewsItemsTableReferences
     extends BaseReferences<_$AppDatabase, $NewsItemsTable, DbNewsItem> {
@@ -19593,34 +19563,26 @@ class $$NewsInstrumentLinksTableTableManager
                     >
                   >(state) {
                     if (newsId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.newsId,
-                                referencedTable:
-                                    $$NewsInstrumentLinksTableReferences
-                                        ._newsIdTable(db),
-                                referencedColumn:
-                                    $$NewsInstrumentLinksTableReferences
-                                        ._newsIdTable(db)
-                                        .id,
-                              )
-                              as T;
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.newsId,
+                        referencedTable: $$NewsInstrumentLinksTableReferences
+                            ._newsIdTable(db),
+                        referencedColumn: $$NewsInstrumentLinksTableReferences
+                            ._newsIdTable(db)
+                            .id,
+                      ) as T;
                     }
                     if (instrumentId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.instrumentId,
-                                referencedTable:
-                                    $$NewsInstrumentLinksTableReferences
-                                        ._instrumentIdTable(db),
-                                referencedColumn:
-                                    $$NewsInstrumentLinksTableReferences
-                                        ._instrumentIdTable(db)
-                                        .internalId,
-                              )
-                              as T;
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.instrumentId,
+                        referencedTable: $$NewsInstrumentLinksTableReferences
+                            ._instrumentIdTable(db),
+                        referencedColumn: $$NewsInstrumentLinksTableReferences
+                            ._instrumentIdTable(db)
+                            .internalId,
+                      ) as T;
                     }
 
                     return state;
@@ -19648,44 +19610,42 @@ typedef $$NewsInstrumentLinksTableProcessedTableManager =
       DbNewsInstrumentLink,
       PrefetchHooks Function({bool newsId, bool instrumentId})
     >;
-typedef $$FilingsTableCreateCompanionBuilder =
-    FilingsCompanion Function({
-      required String source,
-      required DateTime fetchedAt,
-      Value<DateTime?> updatedAt,
-      Value<CacheState> cacheState,
-      Value<Confidence> confidence,
-      Value<String?> reportedCurrency,
-      Value<String?> originalSymbol,
-      Value<String?> providerExchange,
-      required String id,
-      required String instrumentId,
-      required String formType,
-      required DateTime filedAt,
-      required String url,
-      Value<String?> title,
-      Value<DateTime?> periodOfReport,
-      Value<int> rowid,
-    });
-typedef $$FilingsTableUpdateCompanionBuilder =
-    FilingsCompanion Function({
-      Value<String> source,
-      Value<DateTime> fetchedAt,
-      Value<DateTime?> updatedAt,
-      Value<CacheState> cacheState,
-      Value<Confidence> confidence,
-      Value<String?> reportedCurrency,
-      Value<String?> originalSymbol,
-      Value<String?> providerExchange,
-      Value<String> id,
-      Value<String> instrumentId,
-      Value<String> formType,
-      Value<DateTime> filedAt,
-      Value<String> url,
-      Value<String?> title,
-      Value<DateTime?> periodOfReport,
-      Value<int> rowid,
-    });
+typedef $$FilingsTableCreateCompanionBuilder = FilingsCompanion Function({
+  required String source,
+  required DateTime fetchedAt,
+  Value<DateTime?> updatedAt,
+  Value<CacheState> cacheState,
+  Value<Confidence> confidence,
+  Value<String?> reportedCurrency,
+  Value<String?> originalSymbol,
+  Value<String?> providerExchange,
+  required String id,
+  required String instrumentId,
+  required String formType,
+  required DateTime filedAt,
+  required String url,
+  Value<String?> title,
+  Value<DateTime?> periodOfReport,
+  Value<int> rowid,
+});
+typedef $$FilingsTableUpdateCompanionBuilder = FilingsCompanion Function({
+  Value<String> source,
+  Value<DateTime> fetchedAt,
+  Value<DateTime?> updatedAt,
+  Value<CacheState> cacheState,
+  Value<Confidence> confidence,
+  Value<String?> reportedCurrency,
+  Value<String?> originalSymbol,
+  Value<String?> providerExchange,
+  Value<String> id,
+  Value<String> instrumentId,
+  Value<String> formType,
+  Value<DateTime> filedAt,
+  Value<String> url,
+  Value<String?> title,
+  Value<DateTime?> periodOfReport,
+  Value<int> rowid,
+});
 
 final class $$FilingsTableReferences
     extends BaseReferences<_$AppDatabase, $FilingsTable, DbFiling> {
@@ -20134,17 +20094,15 @@ class $$FilingsTableTableManager
                     >
                   >(state) {
                     if (instrumentId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.instrumentId,
-                                referencedTable: $$FilingsTableReferences
-                                    ._instrumentIdTable(db),
-                                referencedColumn: $$FilingsTableReferences
-                                    ._instrumentIdTable(db)
-                                    .internalId,
-                              )
-                              as T;
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.instrumentId,
+                        referencedTable: $$FilingsTableReferences
+                            ._instrumentIdTable(db),
+                        referencedColumn: $$FilingsTableReferences
+                            ._instrumentIdTable(db)
+                            .internalId,
+                      ) as T;
                     }
 
                     return state;
@@ -20673,19 +20631,15 @@ class $$ResearchSnapshotsTableTableManager
                     >
                   >(state) {
                     if (instrumentId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.instrumentId,
-                                referencedTable:
-                                    $$ResearchSnapshotsTableReferences
-                                        ._instrumentIdTable(db),
-                                referencedColumn:
-                                    $$ResearchSnapshotsTableReferences
-                                        ._instrumentIdTable(db)
-                                        .internalId,
-                              )
-                              as T;
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.instrumentId,
+                        referencedTable: $$ResearchSnapshotsTableReferences
+                            ._instrumentIdTable(db),
+                        referencedColumn: $$ResearchSnapshotsTableReferences
+                            ._instrumentIdTable(db)
+                            .internalId,
+                      ) as T;
                     }
 
                     return state;
@@ -20713,22 +20667,20 @@ typedef $$ResearchSnapshotsTableProcessedTableManager =
       DbResearchSnapshot,
       PrefetchHooks Function({bool instrumentId})
     >;
-typedef $$AlertRulesTableCreateCompanionBuilder =
-    AlertRulesCompanion Function({
-      Value<int> id,
-      Value<String?> instrumentId,
-      required String kind,
-      Value<bool> enabled,
-      Value<String> configJson,
-    });
-typedef $$AlertRulesTableUpdateCompanionBuilder =
-    AlertRulesCompanion Function({
-      Value<int> id,
-      Value<String?> instrumentId,
-      Value<String> kind,
-      Value<bool> enabled,
-      Value<String> configJson,
-    });
+typedef $$AlertRulesTableCreateCompanionBuilder = AlertRulesCompanion Function({
+  Value<int> id,
+  Value<String?> instrumentId,
+  required String kind,
+  Value<bool> enabled,
+  Value<String> configJson,
+});
+typedef $$AlertRulesTableUpdateCompanionBuilder = AlertRulesCompanion Function({
+  Value<int> id,
+  Value<String?> instrumentId,
+  Value<String> kind,
+  Value<bool> enabled,
+  Value<String> configJson,
+});
 
 final class $$AlertRulesTableReferences
     extends BaseReferences<_$AppDatabase, $AlertRulesTable, DbAlertRule> {
@@ -20989,17 +20941,15 @@ class $$AlertRulesTableTableManager
                     >
                   >(state) {
                     if (instrumentId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.instrumentId,
-                                referencedTable: $$AlertRulesTableReferences
-                                    ._instrumentIdTable(db),
-                                referencedColumn: $$AlertRulesTableReferences
-                                    ._instrumentIdTable(db)
-                                    .internalId,
-                              )
-                              as T;
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.instrumentId,
+                        referencedTable: $$AlertRulesTableReferences
+                            ._instrumentIdTable(db),
+                        referencedColumn: $$AlertRulesTableReferences
+                            ._instrumentIdTable(db)
+                            .internalId,
+                      ) as T;
                     }
 
                     return state;
@@ -21302,32 +21252,30 @@ typedef $$ProviderStatesTableProcessedTableManager =
       DbProviderState,
       PrefetchHooks Function()
     >;
-typedef $$SyncJobsTableCreateCompanionBuilder =
-    SyncJobsCompanion Function({
-      Value<int> id,
-      required String kind,
-      Value<String?> instrumentId,
-      required String priority,
-      required String state,
-      Value<String?> providerId,
-      Value<DateTime?> startedAt,
-      Value<DateTime?> finishedAt,
-      Value<int> attempts,
-      Value<String?> lastErrorCategory,
-    });
-typedef $$SyncJobsTableUpdateCompanionBuilder =
-    SyncJobsCompanion Function({
-      Value<int> id,
-      Value<String> kind,
-      Value<String?> instrumentId,
-      Value<String> priority,
-      Value<String> state,
-      Value<String?> providerId,
-      Value<DateTime?> startedAt,
-      Value<DateTime?> finishedAt,
-      Value<int> attempts,
-      Value<String?> lastErrorCategory,
-    });
+typedef $$SyncJobsTableCreateCompanionBuilder = SyncJobsCompanion Function({
+  Value<int> id,
+  required String kind,
+  Value<String?> instrumentId,
+  required String priority,
+  required String state,
+  Value<String?> providerId,
+  Value<DateTime?> startedAt,
+  Value<DateTime?> finishedAt,
+  Value<int> attempts,
+  Value<String?> lastErrorCategory,
+});
+typedef $$SyncJobsTableUpdateCompanionBuilder = SyncJobsCompanion Function({
+  Value<int> id,
+  Value<String> kind,
+  Value<String?> instrumentId,
+  Value<String> priority,
+  Value<String> state,
+  Value<String?> providerId,
+  Value<DateTime?> startedAt,
+  Value<DateTime?> finishedAt,
+  Value<int> attempts,
+  Value<String?> lastErrorCategory,
+});
 
 class $$SyncJobsTableFilterComposer
     extends Composer<_$AppDatabase, $SyncJobsTable> {
@@ -21593,30 +21541,28 @@ typedef $$SyncJobsTableProcessedTableManager =
       DbSyncJob,
       PrefetchHooks Function()
     >;
-typedef $$SyncLogsTableCreateCompanionBuilder =
-    SyncLogsCompanion Function({
-      Value<int> id,
-      required DateTime timestamp,
-      required String level,
-      required String component,
-      Value<String?> provider,
-      Value<String?> operation,
-      required String message,
-      Value<int?> durationMs,
-      Value<String?> errorCategory,
-    });
-typedef $$SyncLogsTableUpdateCompanionBuilder =
-    SyncLogsCompanion Function({
-      Value<int> id,
-      Value<DateTime> timestamp,
-      Value<String> level,
-      Value<String> component,
-      Value<String?> provider,
-      Value<String?> operation,
-      Value<String> message,
-      Value<int?> durationMs,
-      Value<String?> errorCategory,
-    });
+typedef $$SyncLogsTableCreateCompanionBuilder = SyncLogsCompanion Function({
+  Value<int> id,
+  required DateTime timestamp,
+  required String level,
+  required String component,
+  Value<String?> provider,
+  Value<String?> operation,
+  required String message,
+  Value<int?> durationMs,
+  Value<String?> errorCategory,
+});
+typedef $$SyncLogsTableUpdateCompanionBuilder = SyncLogsCompanion Function({
+  Value<int> id,
+  Value<DateTime> timestamp,
+  Value<String> level,
+  Value<String> component,
+  Value<String?> provider,
+  Value<String?> operation,
+  Value<String> message,
+  Value<int?> durationMs,
+  Value<String?> errorCategory,
+});
 
 class $$SyncLogsTableFilterComposer
     extends Composer<_$AppDatabase, $SyncLogsTable> {

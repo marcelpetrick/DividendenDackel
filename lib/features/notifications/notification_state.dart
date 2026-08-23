@@ -378,8 +378,7 @@ final class NotificationSettingsController
         if (!_disposed) {
           state = NotificationSettingsState(
             mode: state.mode,
-            errorMessage:
-                'Notification permission was not granted. The setting was not changed.',
+            errorMessage: 'Notification permission was not granted. The setting was not changed.',
           );
         }
         return;
@@ -428,8 +427,7 @@ final class NotificationSettingsController
       if (!_disposed) {
         state = NotificationSettingsState(
           mode: mode,
-          errorMessage:
-              'Could not reconcile notifications. Saved portfolio data remains unchanged.',
+          errorMessage: 'Could not reconcile notifications. Saved portfolio data remains unchanged.',
         );
       }
     }

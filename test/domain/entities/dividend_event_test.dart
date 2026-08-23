@@ -122,9 +122,8 @@ void main() {
     });
 
     test('copyWith replaces only the named fields', () {
-      final DividendEvent confirmed = eventWith(
-        status: DividendStatus.expected,
-      ).copyWith(status: DividendStatus.confirmed);
+      final DividendEvent confirmed = eventWith(status: DividendStatus.expected)
+          .copyWith(status: DividendStatus.confirmed);
 
       expect(confirmed.status, DividendStatus.confirmed);
       expect(confirmed.amountPerShare, Money.parse('13.80', Currency.eur));

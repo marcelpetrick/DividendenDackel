@@ -67,9 +67,8 @@ void main() {
       ]),
     );
 
-    final InstrumentSearchOutcome outcome = (await editor.search(
-      'AAA',
-    )).valueOrNull!;
+    final InstrumentSearchOutcome outcome = (await editor.search('AAA'))
+        .valueOrNull!;
 
     expect(outcome.instruments, <Instrument>[liveInstrument, secondInstrument]);
     expect(outcome.instruments.first.name, 'Alpha Live');
@@ -82,9 +81,8 @@ void main() {
       (_) async => const Failed<List<Instrument>>(NetworkFailure()),
     );
 
-    final InstrumentSearchOutcome outcome = (await editor.search(
-      'Alpha',
-    )).valueOrNull!;
+    final InstrumentSearchOutcome outcome = (await editor.search('Alpha'))
+        .valueOrNull!;
 
     expect(outcome.instruments, <Instrument>[localInstrument]);
     expect(outcome.warning, isA<NetworkFailure>());

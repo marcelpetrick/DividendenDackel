@@ -36,9 +36,10 @@ void main() {
         clock: clock,
       );
 
-      final Instrument selected = (await editor.search(
-        'Allianz',
-      )).valueOrNull!.instruments.single;
+      final Instrument selected = (await editor.search('Allianz'))
+          .valueOrNull!
+          .instruments
+          .single;
       final Result<void> saved = await editor.addHolding(
         instrument: selected,
         quantity: Decimal.parse('3.5'),

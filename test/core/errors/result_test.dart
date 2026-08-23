@@ -100,9 +100,8 @@ void main() {
         const Result<int>.success(42),
       );
       expect(
-        const Result<int>.success(
-          7,
-        ).recover((Failure f) => const Result<int>.success(42)),
+        const Result<int>.success(7)
+            .recover((Failure f) => const Result<int>.success(42)),
         const Result<int>.success(7),
       );
     });
