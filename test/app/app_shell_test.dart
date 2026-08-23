@@ -1,5 +1,6 @@
 import 'package:dividendendackel/app/app.dart';
 import 'package:dividendendackel/app/navigation/app_shell.dart';
+import 'package:dividendendackel/app/navigation/destinations.dart';
 import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/app/theme/app_colors.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
@@ -15,6 +16,7 @@ import 'package:dividendendackel/features/settings/about_screen.dart';
 import 'package:dividendendackel/features/settings/data_source_settings.dart';
 import 'package:dividendendackel/features/today/today_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -203,6 +205,35 @@ void main() {
       expect(find.text('Portfolio'), findsWidgets);
     });
 
+    testWidgets('supports Linux keyboard shortcuts between destinations', (
+      WidgetTester tester,
+    ) async {
+      await pumpApp(tester, size: const Size(1000, 800));
+
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.altLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.digit3);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.altLeft);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Overview'), findsOneWidget);
+      expect(
+        tester
+            .widget<NavigationRail>(find.byType(NavigationRail))
+            .selectedIndex,
+        AppDestination.portfolio.index,
+      );
+    });
+
+    testWidgets(
+      'interactive shell controls meet labelled tap-target guidance',
+      (WidgetTester tester) async {
+        await pumpApp(tester, size: const Size(1000, 800));
+
+        await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+        await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+      },
+    );
+
     testWidgets('opens the income forecast from the calendar', (
       WidgetTester tester,
     ) async {
@@ -332,6 +363,26 @@ void main() {
       expect(tester.takeException(), isNull);
       await tester.scrollUntilVisible(find.text('About'), 200);
       expect(find.text('About'), findsOneWidget);
+    });
+
+    testWidgets('all primary destinations render at large text scale', (
+      WidgetTester tester,
+    ) async {
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await pumpApp(tester, size: const Size(412, 915));
+
+      expect(tester.takeException(), isNull);
+      for (final String destination in <String>[
+        'Calendar',
+        'Portfolio',
+        'Research',
+        'Today',
+      ]) {
+        await tester.tap(find.text(destination).last);
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull, reason: destination);
+      }
     });
   });
 
