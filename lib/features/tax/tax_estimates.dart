@@ -137,6 +137,12 @@ final portfolioTaxEstimatesProvider =
       Ref ref,
       int year,
     ) async {
+      if (ref.watch(effectivePortfolioIdProvider) == null) {
+        return PortfolioTaxEstimates(
+          year: year,
+          byEventKey: const <String, TaxEventEstimate>{},
+        );
+      }
       final List<Holding> holdings = await ref.watch(holdingsProvider.future);
       final Map<String, Instrument> instruments = await ref.watch(
         instrumentsByIdProvider.future,

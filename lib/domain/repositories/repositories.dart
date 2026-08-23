@@ -79,6 +79,13 @@ abstract interface class PortfolioRepository {
   /// Creates or updates portfolio metadata.
   Future<Result<void>> savePortfolio(InvestmentPortfolio portfolio);
 
+  /// Permanently clears user-owned contents while retaining the portfolio.
+  Future<Result<void>> clearPortfolio(String portfolioId);
+
+  /// Permanently removes an empty or populated portfolio and its owned rows.
+  /// The final remaining portfolio cannot be deleted.
+  Future<Result<void>> deletePortfolio(String portfolioId);
+
   /// Emits holdings in [portfolioId]. `null` means a consolidated view.
   Stream<List<Holding>> watchHoldings({
     String? portfolioId = InvestmentPortfolio.defaultId,
@@ -120,8 +127,8 @@ abstract interface class PortfolioRepository {
     String portfolioId = InvestmentPortfolio.defaultId,
   });
 
-  /// Emits newest-first immutable activities for [portfolioId].
-  Stream<List<PortfolioActivity>> watchActivities(String portfolioId);
+  /// Emits newest-first immutable activities. `null` means all portfolios.
+  Stream<List<PortfolioActivity>> watchActivities(String? portfolioId);
 
   /// Records an activity atomically and applies its holding impact.
   Future<Result<int>> recordActivity(PortfolioActivity activity);

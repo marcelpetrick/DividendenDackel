@@ -14,7 +14,8 @@ The app stores the following in its platform application-data directory:
   snapshots and daily FX rates;
 - cache metadata, provider health and privacy-safe synchronization logs;
 - notification mode and stable identifiers of events already delivered;
-- editable tax-profile inputs and withholding assumptions.
+- per-portfolio display-currency choices, tax-profile inputs and withholding
+  assumptions.
 
 CSV files selected for portfolio import are read locally for a review preview.
 The source file and filename are not copied into the database or sent over the

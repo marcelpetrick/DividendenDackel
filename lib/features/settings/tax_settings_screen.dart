@@ -1,3 +1,4 @@
+import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/app/widgets/async_value_view.dart';
 import 'package:dividendendackel/domain/analytics/analytics.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
@@ -12,6 +13,22 @@ class TaxSettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (ref.watch(effectivePortfolioIdProvider) == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Dividend tax estimate')),
+        body: const Center(
+          child: Padding(
+            padding: EdgeInsets.all(24),
+            child: Text(
+              'Select one portfolio before editing tax assumptions. Tax '
+              'allowances and estimated net income are never combined across '
+              'portfolio boundaries.',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
+    }
     final AsyncValue<TaxSettings> settings = ref.watch(taxSettingsProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('Dividend tax estimate')),

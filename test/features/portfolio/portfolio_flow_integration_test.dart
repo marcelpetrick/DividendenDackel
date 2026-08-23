@@ -41,6 +41,7 @@ void main() {
           .instruments
           .single;
       final Result<void> saved = await editor.addHolding(
+        portfolioId: InvestmentPortfolio.defaultId,
         instrument: selected,
         quantity: Decimal.parse('3.5'),
         averagePurchasePrice: Money.parse('210.40', Currency.eur),

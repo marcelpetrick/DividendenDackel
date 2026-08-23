@@ -25,6 +25,7 @@ import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/domain/repositories/repositories.dart';
 import 'package:dividendendackel/domain/use_cases/portfolio_import.dart';
 import 'package:dividendendackel/features/portfolio/portfolio_editor.dart';
+import 'package:dividendendackel/features/portfolio/portfolio_selection.dart';
 import 'package:dividendendackel/features/settings/data_source_settings.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -290,7 +291,10 @@ final FutureProvider<void> sampleDataProvider = FutureProvider<void>((
       marketData: ref.watch(marketDataRepositoryProvider),
       clock: ref.watch(clockProvider),
     );
-    final Object? failure = (await seeder.seed(dataset)).failureOrNull;
+    final Object? failure = (await seeder.seed(
+      dataset,
+      includePortfolio: false,
+    )).failureOrNull;
     if (failure != null) {
       log.error('seeding failed', operation: 'seed', error: failure);
       return;
@@ -333,39 +337,81 @@ final FutureProvider<void> sampleDataProvider = FutureProvider<void>((
   });
 });
 
-/// The user's holdings.
+/// User-owned portfolio containers.
+final StreamProvider<List<InvestmentPortfolio>> portfoliosProvider =
+    StreamProvider<List<InvestmentPortfolio>>(
+      (Ref ref) => ref.watch(portfolioRepositoryProvider).watchPortfolios(),
+    );
+
+/// Valid selected scope, falling back to the first portfolio after deletion.
+final Provider<String?> effectivePortfolioIdProvider = Provider<String?>((
+  Ref ref,
+) {
+  final String? selected = ref.watch(selectedPortfolioIdProvider);
+  final AsyncValue<List<InvestmentPortfolio>> portfoliosValue = ref.watch(
+    portfoliosProvider,
+  );
+  final List<InvestmentPortfolio>? portfolios = portfoliosValue.value;
+  if (!portfoliosValue.hasValue || portfolios == null || portfolios.isEmpty) {
+    return null;
+  }
+  if (selected == null) return null;
+  return portfolios.any((InvestmentPortfolio item) => item.id == selected)
+      ? selected
+      : portfolios.first.id;
+});
+
+/// Holdings in the selected portfolio or aggregated consolidated scope.
 final StreamProvider<List<Holding>> holdingsProvider =
-    StreamProvider<List<Holding>>(
-      (Ref ref) => ref.watch(portfolioRepositoryProvider).watchHoldings(),
-    );
+    StreamProvider<List<Holding>>((Ref ref) {
+      final String? portfolioId = ref.watch(effectivePortfolioIdProvider);
+      final Stream<List<Holding>> source = ref
+          .watch(portfolioRepositoryProvider)
+          .watchHoldings(portfolioId: portfolioId);
+      return portfolioId == null
+          ? source.map(PortfolioScopeProjector.consolidateHoldings)
+          : source;
+    });
 
-/// The user's watchlist.
+/// Watchlist in the selected portfolio or deduplicated consolidated scope.
 final StreamProvider<List<WatchlistEntry>> watchlistProvider =
-    StreamProvider<List<WatchlistEntry>>(
-      (Ref ref) => ref.watch(portfolioRepositoryProvider).watchWatchlist(),
-    );
+    StreamProvider<List<WatchlistEntry>>((Ref ref) {
+      final String? portfolioId = ref.watch(effectivePortfolioIdProvider);
+      final Stream<List<WatchlistEntry>> source = ref
+          .watch(portfolioRepositoryProvider)
+          .watchWatchlist(portfolioId: portfolioId);
+      return portfolioId == null
+          ? source.map(PortfolioScopeProjector.consolidateWatchlist)
+          : source;
+    });
 
-/// Immutable activities in the currently selected MVP portfolio.
+/// Immutable activities in the selected portfolio or consolidated scope.
 final StreamProvider<List<PortfolioActivity>> portfolioActivitiesProvider =
     StreamProvider<List<PortfolioActivity>>(
       (Ref ref) => ref
           .watch(portfolioRepositoryProvider)
-          .watchActivities(InvestmentPortfolio.defaultId),
+          .watchActivities(ref.watch(effectivePortfolioIdProvider)),
     );
 
 /// Applied local import batches available for precise undo.
 final StreamProvider<List<PortfolioImportBatch>>
-portfolioImportBatchesProvider = StreamProvider<List<PortfolioImportBatch>>(
-  (Ref ref) => ref
-      .watch(portfolioRepositoryProvider)
-      .watchImportBatches(InvestmentPortfolio.defaultId),
-);
+portfolioImportBatchesProvider = StreamProvider<List<PortfolioImportBatch>>((
+  Ref ref,
+) {
+  final String? portfolioId = ref.watch(effectivePortfolioIdProvider);
+  return portfolioId == null
+      ? Stream<List<PortfolioImportBatch>>.value(const <PortfolioImportBatch>[])
+      : ref.watch(portfolioRepositoryProvider).watchImportBatches(portfolioId);
+});
 
 /// Instrument ids the user holds or watches.
 final StreamProvider<Set<String>> followedInstrumentIdsProvider =
     StreamProvider<Set<String>>(
-      (Ref ref) =>
-          ref.watch(portfolioRepositoryProvider).watchFollowedInstrumentIds(),
+      (Ref ref) => ref
+          .watch(portfolioRepositoryProvider)
+          .watchFollowedInstrumentIds(
+            portfolioId: ref.watch(effectivePortfolioIdProvider),
+          ),
     );
 
 /// Held or watched instruments, keyed by internal id for quick lookup.

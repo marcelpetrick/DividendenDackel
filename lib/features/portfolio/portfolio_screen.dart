@@ -9,7 +9,10 @@ import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/features/currency/fx_state.dart';
 import 'package:dividendendackel/features/portfolio/activity_dialog.dart';
 import 'package:dividendendackel/features/portfolio/add_instrument_dialog.dart';
+import 'package:dividendendackel/features/portfolio/holding_edit_dialog.dart';
 import 'package:dividendendackel/features/portfolio/import_dialog.dart';
+import 'package:dividendendackel/features/portfolio/portfolio_management_dialog.dart';
+import 'package:dividendendackel/features/portfolio/portfolio_selection.dart';
 import 'package:dividendendackel/features/settings/currency_settings.dart';
 import 'package:dividendendackel/features/tax/tax_estimates.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +25,15 @@ class PortfolioScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final AsyncValue<List<InvestmentPortfolio>> portfoliosValue = ref.watch(
+      portfoliosProvider,
+    );
+    final List<InvestmentPortfolio> portfolios =
+        portfoliosValue.value ?? const <InvestmentPortfolio>[];
+    final String? portfolioId = ref.watch(effectivePortfolioIdProvider);
+    final PortfolioSelectionState selection = ref.watch(
+      portfolioSelectionProvider,
+    );
     final AsyncValue<List<Holding>> holdings = ref.watch(holdingsProvider);
     final AsyncValue<List<WatchlistEntry>> watchlistValue = ref.watch(
       watchlistProvider,
@@ -132,6 +144,9 @@ class PortfolioScreen extends ConsumerWidget {
             asOf: now,
           );
           return _PortfolioBody(
+            portfolios: portfolios,
+            portfolioId: portfolioId,
+            selection: selection,
             overview: overview,
             watchlist: watchlist,
             instruments: instruments,
@@ -143,11 +158,34 @@ class PortfolioScreen extends ConsumerWidget {
             activities: activities,
             importBatches: importBatches,
             reconciliation: reconciliation,
-            onRecordActivity: () => _showActivity(context, ref, instruments),
-            onReverseActivity: (int id) => _reverseActivity(context, ref, id),
-            onImport: () => _showImport(context),
-            onUndoImport: (String batchId) =>
-                _undoImport(context, ref, batchId),
+            onSelectPortfolio: (String? id) =>
+                ref.read(portfolioSelectionProvider.notifier).select(id),
+            onManagePortfolios: () => _showPortfolioManagement(context),
+            onRecordActivity: portfolioId == null
+                ? null
+                : () => _showActivity(context, ref, portfolioId, instruments),
+            onReverseActivity: portfolioId == null
+                ? null
+                : (int id) => _reverseActivity(context, ref, id),
+            onImport: portfolioId == null
+                ? null
+                : () => _showImport(context, portfolioId),
+            onUndoImport: (PortfolioImportBatch batch) =>
+                _undoImport(context, ref, batch),
+            onEditHolding: portfolioId == null
+                ? null
+                : (Holding holding) => _editHolding(
+                    context,
+                    holding,
+                    instruments[holding.instrumentId],
+                  ),
+            onRemoveHolding: portfolioId == null
+                ? null
+                : (Holding holding) => _removeHolding(context, ref, holding),
+            onRemoveWatchlist: portfolioId == null
+                ? null
+                : (WatchlistEntry entry) =>
+                      _removeWatchlist(context, ref, entry),
             fxRefreshing: fxRefresh.isRefreshing,
             fxError: fxRefresh.errorMessage,
             refreshFx: () => ref.read(fxRefreshProvider.notifier).refresh(),
@@ -166,6 +204,9 @@ class PortfolioScreen extends ConsumerWidget {
                 'Portfolio activities could not be read.',
               if (importBatchesValue.hasError)
                 'Import history could not be read.',
+              if (portfoliosValue.hasError)
+                'Portfolio selection could not be read.',
+              if (selection.errorMessage case final String message) message,
               if (yearPaymentsValue.hasError)
                 'Expected payments could not be reconciled.',
               if (fxRatesValue?.hasError ?? false) 'Exchange rates could not be read; converted totals are unavailable.',
@@ -173,19 +214,25 @@ class PortfolioScreen extends ConsumerWidget {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        key: const ValueKey<String>('add-instrument'),
-        onPressed: () => _showAddInstrument(context),
-        icon: const Icon(Icons.add),
-        label: const Text('Add instrument'),
-      ),
+      floatingActionButton: portfolioId == null
+          ? null
+          : FloatingActionButton.extended(
+              key: const ValueKey<String>('add-instrument'),
+              onPressed: () => _showAddInstrument(context, portfolioId),
+              icon: const Icon(Icons.add),
+              label: const Text('Add instrument'),
+            ),
     );
   }
 
-  Future<void> _showAddInstrument(BuildContext context) async {
+  Future<void> _showAddInstrument(
+    BuildContext context,
+    String portfolioId,
+  ) async {
     final String? message = await showDialog<String>(
       context: context,
-      builder: (BuildContext context) => const AddInstrumentDialog(),
+      builder: (BuildContext context) =>
+          AddInstrumentDialog(portfolioId: portfolioId),
     );
     if (message != null && context.mounted) {
       ScaffoldMessenger.of(context)
@@ -196,12 +243,13 @@ class PortfolioScreen extends ConsumerWidget {
   Future<void> _showActivity(
     BuildContext context,
     WidgetRef ref,
+    String portfolioId,
     Map<String, Instrument> instruments,
   ) async {
     final String? message = await showDialog<String>(
       context: context,
       builder: (BuildContext context) => PortfolioActivityDialog(
-        portfolioId: InvestmentPortfolio.defaultId,
+        portfolioId: portfolioId,
         instruments: instruments,
       ),
     );
@@ -211,12 +259,122 @@ class PortfolioScreen extends ConsumerWidget {
     }
   }
 
-  Future<void> _showImport(BuildContext context) async {
+  Future<void> _showPortfolioManagement(BuildContext context) =>
+      showDialog<void>(
+        context: context,
+        builder: (BuildContext context) => const PortfolioManagementDialog(),
+      );
+
+  Future<void> _editHolding(
+    BuildContext context,
+    Holding holding,
+    Instrument? instrument,
+  ) async {
+    if (instrument == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Instrument metadata is unavailable.')),
+      );
+      return;
+    }
     final String? message = await showDialog<String>(
       context: context,
-      builder: (BuildContext context) => const PortfolioImportDialog(
-        portfolioId: InvestmentPortfolio.defaultId,
-      ),
+      builder: (BuildContext context) =>
+          HoldingEditDialog(holding: holding, instrument: instrument),
+    );
+    if (message != null && context.mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
+    }
+  }
+
+  Future<void> _removeHolding(
+    BuildContext context,
+    WidgetRef ref,
+    Holding holding,
+  ) async {
+    final bool confirmed = await _confirmRemoval(
+      context,
+      title: 'Remove holding?',
+      message:
+          'The current position will be removed and an auditable quantity '
+          'adjustment will remain in the activity ledger.',
+      action: 'Remove holding',
+    );
+    if (!confirmed || !context.mounted) return;
+    final result = await ref
+        .read(portfolioEditorProvider)
+        .removeHolding(
+          portfolioId: holding.portfolioId,
+          instrumentId: holding.instrumentId,
+        );
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.failureOrNull?.message ?? 'Holding removed.'),
+        ),
+      );
+    }
+  }
+
+  Future<void> _removeWatchlist(
+    BuildContext context,
+    WidgetRef ref,
+    WatchlistEntry entry,
+  ) async {
+    final bool confirmed = await _confirmRemoval(
+      context,
+      title: 'Remove watchlist entry?',
+      message: 'The cached instrument and its market data will remain.',
+      action: 'Remove',
+    );
+    if (!confirmed || !context.mounted) return;
+    final result = await ref
+        .read(portfolioEditorProvider)
+        .removeFromWatchlist(
+          portfolioId: entry.portfolioId,
+          instrumentId: entry.instrumentId,
+        );
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            result.failureOrNull?.message ?? 'Watchlist entry removed.',
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<bool> _confirmRemoval(
+    BuildContext context, {
+    required String title,
+    required String message,
+    required String action,
+  }) async =>
+      await showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(action),
+            ),
+          ],
+        ),
+      ) ??
+      false;
+
+  Future<void> _showImport(BuildContext context, String portfolioId) async {
+    final String? message = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) =>
+          PortfolioImportDialog(portfolioId: portfolioId),
     );
     if (message != null && context.mounted) {
       ScaffoldMessenger.of(context)
@@ -227,7 +385,7 @@ class PortfolioScreen extends ConsumerWidget {
   Future<void> _undoImport(
     BuildContext context,
     WidgetRef ref,
-    String batchId,
+    PortfolioImportBatch batch,
   ) async {
     final bool? confirmed = await showDialog<bool>(
       context: context,
@@ -253,8 +411,8 @@ class PortfolioScreen extends ConsumerWidget {
     final result = await ref
         .read(portfolioRepositoryProvider)
         .undoImportBatch(
-          InvestmentPortfolio.defaultId,
-          batchId,
+          batch.portfolioId,
+          batch.id,
           occurredAt: ref.read(clockProvider).now().toUtc(),
         );
     if (context.mounted) {
@@ -308,8 +466,98 @@ class PortfolioScreen extends ConsumerWidget {
   }
 }
 
+class _PortfolioScopeCard extends StatelessWidget {
+  const _PortfolioScopeCard({
+    required this.portfolios,
+    required this.portfolioId,
+    required this.saving,
+    required this.onSelect,
+    required this.onManage,
+  });
+
+  final List<InvestmentPortfolio> portfolios;
+  final String? portfolioId;
+  final bool saving;
+  final ValueChanged<String?> onSelect;
+  final VoidCallback onManage;
+
+  @override
+  Widget build(BuildContext context) => Card(
+    child: Padding(
+      padding: const EdgeInsets.all(AppTheme.space * 2),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              const Icon(Icons.account_balance_wallet_outlined),
+              const SizedBox(width: AppTheme.space),
+              Expanded(
+                child: Text(
+                  'Portfolio scope',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ),
+              OutlinedButton.icon(
+                key: const ValueKey<String>('manage-portfolios'),
+                onPressed: onManage,
+                icon: const Icon(Icons.settings_outlined),
+                label: const Text('Manage'),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppTheme.space),
+          DropdownButtonFormField<String>(
+            key: ValueKey<String>(
+              'portfolio-selector-${portfolioId ?? InvestmentPortfolio.consolidatedId}',
+            ),
+            initialValue: portfolioId ?? InvestmentPortfolio.consolidatedId,
+            isExpanded: true,
+            decoration: const InputDecoration(labelText: 'Showing'),
+            items: <DropdownMenuItem<String>>[
+              for (final InvestmentPortfolio portfolio in portfolios)
+                DropdownMenuItem<String>(
+                  value: portfolio.id,
+                  child: Text(
+                    portfolio.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              const DropdownMenuItem<String>(
+                value: InvestmentPortfolio.consolidatedId,
+                child: Text(
+                  'All portfolios (consolidated)',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+            onChanged: saving
+                ? null
+                : (String? id) => onSelect(
+                    id == InvestmentPortfolio.consolidatedId ? null : id,
+                  ),
+          ),
+          if (portfolioId == null) ...<Widget>[
+            const SizedBox(height: AppTheme.space),
+            const Text(
+              'Consolidated is a read-only combined view. Select one portfolio '
+              'to add, edit, remove, record or import data. Tax estimates are '
+              'not combined across portfolio boundaries.',
+            ),
+          ],
+        ],
+      ),
+    ),
+  );
+}
+
 class _PortfolioBody extends StatelessWidget {
   const _PortfolioBody({
+    required this.portfolios,
+    required this.portfolioId,
+    required this.selection,
     required this.overview,
     required this.watchlist,
     required this.instruments,
@@ -321,10 +569,15 @@ class _PortfolioBody extends StatelessWidget {
     required this.activities,
     required this.importBatches,
     required this.reconciliation,
+    required this.onSelectPortfolio,
+    required this.onManagePortfolios,
     required this.onRecordActivity,
     required this.onReverseActivity,
     required this.onImport,
     required this.onUndoImport,
+    required this.onEditHolding,
+    required this.onRemoveHolding,
+    required this.onRemoveWatchlist,
     required this.fxRefreshing,
     required this.fxError,
     required this.refreshFx,
@@ -332,6 +585,9 @@ class _PortfolioBody extends StatelessWidget {
     required this.partialFailures,
   });
 
+  final List<InvestmentPortfolio> portfolios;
+  final String? portfolioId;
+  final PortfolioSelectionState selection;
   final PortfolioOverview overview;
   final List<WatchlistEntry> watchlist;
   final Map<String, Instrument> instruments;
@@ -343,10 +599,15 @@ class _PortfolioBody extends StatelessWidget {
   final List<PortfolioActivity> activities;
   final List<PortfolioImportBatch> importBatches;
   final List<DividendReconciliationLine> reconciliation;
-  final VoidCallback onRecordActivity;
-  final ValueChanged<int> onReverseActivity;
-  final VoidCallback onImport;
-  final ValueChanged<String> onUndoImport;
+  final ValueChanged<String?> onSelectPortfolio;
+  final VoidCallback onManagePortfolios;
+  final VoidCallback? onRecordActivity;
+  final ValueChanged<int>? onReverseActivity;
+  final VoidCallback? onImport;
+  final ValueChanged<PortfolioImportBatch> onUndoImport;
+  final ValueChanged<Holding>? onEditHolding;
+  final ValueChanged<Holding>? onRemoveHolding;
+  final ValueChanged<WatchlistEntry>? onRemoveWatchlist;
   final bool fxRefreshing;
   final String? fxError;
   final VoidCallback refreshFx;
@@ -362,6 +623,14 @@ class _PortfolioBody extends StatelessWidget {
       AppTheme.space * 10,
     ),
     children: <Widget>[
+      _PortfolioScopeCard(
+        portfolios: portfolios,
+        portfolioId: portfolioId,
+        saving: selection.isSaving,
+        onSelect: onSelectPortfolio,
+        onManage: onManagePortfolios,
+      ),
+      const SizedBox(height: AppTheme.space * 2),
       if (partialFailures.isNotEmpty) ...<Widget>[
         Card(
           child: ListTile(
@@ -387,6 +656,7 @@ class _PortfolioBody extends StatelessWidget {
                 summary: summary,
                 dividendDataAvailable: dividendDataAvailable,
                 taxWindow: taxWindow,
+                taxBoundaryAvailable: portfolioId != null,
               ),
           ],
         ),
@@ -418,6 +688,12 @@ class _PortfolioBody extends StatelessWidget {
             portfolioValue: position.value == null
                 ? null
                 : overview.byCurrency[position.value!.currency]?.totalValue,
+            onEdit: onEditHolding == null
+                ? null
+                : () => onEditHolding!(position.holding),
+            onRemove: onRemoveHolding == null
+                ? null
+                : () => onRemoveHolding!(position.holding),
           ),
       if (overview.positions.isNotEmpty) ...<Widget>[
         const SizedBox(height: AppTheme.space * 2),
@@ -445,6 +721,13 @@ class _PortfolioBody extends StatelessWidget {
                     instruments[entry.instrumentId]?.displaySymbol ??
                         'Instrument metadata unavailable',
                   ),
+                  trailing: onRemoveWatchlist == null
+                      ? null
+                      : IconButton(
+                          tooltip: 'Remove from watchlist',
+                          onPressed: () => onRemoveWatchlist!(entry),
+                          icon: const Icon(Icons.bookmark_remove_outlined),
+                        ),
                 ),
             ],
           ),
@@ -454,6 +737,11 @@ class _PortfolioBody extends StatelessWidget {
         activities: activities,
         importBatches: importBatches,
         instruments: instruments,
+        portfolioNames: <String, String>{
+          for (final InvestmentPortfolio portfolio in portfolios)
+            portfolio.id: portfolio.name,
+        },
+        showPortfolio: portfolioId == null,
         reconciliation: reconciliation,
         onRecord: onRecordActivity,
         onReverse: onReverseActivity,
@@ -469,6 +757,8 @@ class _ActivityLedgerCard extends StatelessWidget {
     required this.activities,
     required this.importBatches,
     required this.instruments,
+    required this.portfolioNames,
+    required this.showPortfolio,
     required this.reconciliation,
     required this.onRecord,
     required this.onReverse,
@@ -479,11 +769,13 @@ class _ActivityLedgerCard extends StatelessWidget {
   final List<PortfolioActivity> activities;
   final List<PortfolioImportBatch> importBatches;
   final Map<String, Instrument> instruments;
+  final Map<String, String> portfolioNames;
+  final bool showPortfolio;
   final List<DividendReconciliationLine> reconciliation;
-  final VoidCallback onRecord;
-  final ValueChanged<int> onReverse;
-  final VoidCallback onImport;
-  final ValueChanged<String> onUndoImport;
+  final VoidCallback? onRecord;
+  final ValueChanged<int>? onReverse;
+  final VoidCallback? onImport;
+  final ValueChanged<PortfolioImportBatch> onUndoImport;
 
   @override
   Widget build(BuildContext context) {
@@ -558,7 +850,7 @@ class _ActivityLedgerCard extends StatelessWidget {
                   trailing: batch.isUndone
                       ? null
                       : TextButton(
-                          onPressed: () => onUndoImport(batch.id),
+                          onPressed: () => onUndoImport(batch),
                           child: const Text('Undo'),
                         ),
                 ),
@@ -599,16 +891,22 @@ class _ActivityLedgerCard extends StatelessWidget {
                   leading: Icon(_activityIcon(activity.type)),
                   title: Text(_activityTitle(activity, instruments)),
                   subtitle: Text(
-                    MaterialLocalizations.of(context)
-                        .formatMediumDate(activity.occurredAt),
+                    <String>[
+                      MaterialLocalizations.of(context)
+                          .formatMediumDate(activity.occurredAt),
+                      if (showPortfolio)
+                        portfolioNames[activity.portfolioId] ??
+                            activity.portfolioId,
+                    ].join(' · '),
                   ),
                   trailing:
-                      activity.id != null &&
+                      onReverse != null &&
+                          activity.id != null &&
                           activity.type != PortfolioActivityType.reversal &&
                           !reversed.contains(activity.id)
                       ? IconButton(
                           tooltip: 'Reverse activity',
-                          onPressed: () => onReverse(activity.id!),
+                          onPressed: () => onReverse!(activity.id!),
                           icon: const Icon(Icons.undo),
                         )
                       : null,
@@ -1001,11 +1299,13 @@ class _CurrencySummaryCard extends StatelessWidget {
     required this.summary,
     required this.dividendDataAvailable,
     required this.taxWindow,
+    required this.taxBoundaryAvailable,
   });
 
   final PortfolioCurrencySummary summary;
   final bool dividendDataAvailable;
   final _TaxWindow taxWindow;
+  final bool taxBoundaryAvailable;
 
   @override
   Widget build(BuildContext context) {
@@ -1065,7 +1365,9 @@ class _CurrencySummaryCard extends StatelessWidget {
               ),
               _SummaryRow(
                 label: 'Net (estimated)',
-                value: !dividendDataAvailable || taxWindow.loading
+                value: !taxBoundaryAvailable
+                    ? const Text('Select one portfolio')
+                    : !dividendDataAvailable || taxWindow.loading
                     ? const Text('Calculating…')
                     : summary.currency != Currency.eur
                     ? const Text('Needs dated EUR FX')
@@ -1135,11 +1437,15 @@ class _PositionCard extends StatelessWidget {
     required this.position,
     required this.dividendDataAvailable,
     required this.portfolioValue,
+    required this.onEdit,
+    required this.onRemove,
   });
 
   final PortfolioPositionSummary position;
   final bool dividendDataAvailable;
   final Money? portfolioValue;
+  final VoidCallback? onEdit;
+  final VoidCallback? onRemove;
 
   @override
   Widget build(BuildContext context) {
@@ -1204,18 +1510,43 @@ class _PositionCard extends StatelessWidget {
                 ),
               ],
             ),
-            if (_canSimulate) ...<Widget>[
+            if (_canSimulate || onEdit != null || onRemove != null) ...<Widget>[
               const SizedBox(height: AppTheme.space),
-              OutlinedButton.icon(
-                onPressed: () => showDialog<void>(
-                  context: context,
-                  builder: (BuildContext context) => _SimulationDialog(
-                    position: position,
-                    portfolioValue: portfolioValue!,
-                  ),
-                ),
-                icon: const Icon(Icons.calculate_outlined),
-                label: const Text('Simulate investment'),
+              Wrap(
+                spacing: AppTheme.space / 2,
+                runSpacing: AppTheme.space / 2,
+                children: <Widget>[
+                  if (_canSimulate)
+                    OutlinedButton.icon(
+                      onPressed: () => showDialog<void>(
+                        context: context,
+                        builder: (BuildContext context) => _SimulationDialog(
+                          position: position,
+                          portfolioValue: portfolioValue!,
+                        ),
+                      ),
+                      icon: const Icon(Icons.calculate_outlined),
+                      label: const Text('Simulate investment'),
+                    ),
+                  if (onEdit != null)
+                    OutlinedButton.icon(
+                      key: ValueKey<String>(
+                        'edit-holding-${position.holding.instrumentId}',
+                      ),
+                      onPressed: onEdit,
+                      icon: const Icon(Icons.edit_outlined),
+                      label: const Text('Edit'),
+                    ),
+                  if (onRemove != null)
+                    TextButton.icon(
+                      key: ValueKey<String>(
+                        'remove-holding-${position.holding.instrumentId}',
+                      ),
+                      onPressed: onRemove,
+                      icon: const Icon(Icons.delete_outline),
+                      label: const Text('Remove'),
+                    ),
+                ],
               ),
             ],
             const Divider(height: AppTheme.space * 2),

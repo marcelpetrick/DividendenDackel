@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/data/tax/withholding_rate_loader.dart';
 import 'package:dividendendackel/domain/analytics/analytics.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
@@ -20,11 +21,14 @@ final class TaxSettings {
 
 /// Persistence boundary for tax settings.
 abstract interface class TaxSettingsStore {
-  /// Loads saved settings or [defaults].
-  Future<TaxSettings> load(WithholdingRateTable defaults);
+  /// Loads saved settings for [portfolioId] or [defaults].
+  Future<TaxSettings> load(
+    WithholdingRateTable defaults, {
+    required String portfolioId,
+  });
 
-  /// Saves all non-sensitive tax assumptions.
-  Future<void> save(TaxSettings settings);
+  /// Saves all non-sensitive tax assumptions for [portfolioId].
+  Future<void> save(String portfolioId, TaxSettings settings);
 }
 
 /// SharedPreferences implementation for Android and Linux.
@@ -33,21 +37,30 @@ final class PlatformTaxSettingsStore implements TaxSettingsStore {
   PlatformTaxSettingsStore({Future<SharedPreferences> Function()? preferences})
     : _preferences = preferences ?? SharedPreferences.getInstance;
 
-  static const String _key = 'tax.settings.v1';
+  static const String _legacyKey = 'tax.settings.v1';
+  static const String _keyPrefix = 'tax.settings.v2.';
   final Future<SharedPreferences> Function() _preferences;
 
   @override
-  Future<TaxSettings> load(WithholdingRateTable defaults) async {
-    final String? saved = (await _preferences()).getString(_key);
+  Future<TaxSettings> load(
+    WithholdingRateTable defaults, {
+    required String portfolioId,
+  }) async {
+    final SharedPreferences preferences = await _preferences();
+    final String? scoped = preferences.getString(_key(portfolioId));
+    final String? migrated = portfolioId == InvestmentPortfolio.defaultId
+        ? preferences.getString(_legacyKey)
+        : null;
+    final String? saved = scoped ?? migrated;
     return saved == null
         ? _defaults(defaults)
         : TaxSettingsCodec.decode(saved, defaults);
   }
 
   @override
-  Future<void> save(TaxSettings settings) async {
+  Future<void> save(String portfolioId, TaxSettings settings) async {
     final bool saved = await (await _preferences()).setString(
-      _key,
+      _key(portfolioId),
       TaxSettingsCodec.encode(settings),
     );
     if (!saved) {
@@ -57,6 +70,9 @@ final class PlatformTaxSettingsStore implements TaxSettingsStore {
 
   static TaxSettings _defaults(WithholdingRateTable table) =>
       TaxSettings(profile: DividendTaxProfile(), table: table);
+
+  static String _key(String portfolioId) =>
+      '$_keyPrefix${Uri.encodeComponent(portfolioId)}';
 }
 
 /// Stable JSON representation used by platform storage and tests.
@@ -150,10 +166,17 @@ abstract final class TaxSettingsCodec {
 
 /// Loads and saves tax settings as one consistent value.
 final class TaxSettingsController extends AsyncNotifier<TaxSettings> {
+  String _scopeId = InvestmentPortfolio.defaultId;
+
   @override
-  Future<TaxSettings> build() async => ref
-      .watch(taxSettingsStoreProvider)
-      .load(await WithholdingRateLoader.load());
+  Future<TaxSettings> build() async {
+    _scopeId =
+        ref.watch(effectivePortfolioIdProvider) ??
+        InvestmentPortfolio.consolidatedId;
+    return ref
+        .watch(taxSettingsStoreProvider)
+        .load(await WithholdingRateLoader.load(), portfolioId: _scopeId);
+  }
 
   /// Persists a changed profile.
   Future<void> updateProfile(DividendTaxProfile profile) async {
@@ -182,11 +205,14 @@ final class TaxSettingsController extends AsyncNotifier<TaxSettings> {
   }
 
   Future<void> _save(TaxSettings next) async {
+    final String scopeId = _scopeId;
     state = AsyncData<TaxSettings>(next);
     try {
-      await ref.read(taxSettingsStoreProvider).save(next);
+      await ref.read(taxSettingsStoreProvider).save(scopeId, next);
     } on Object catch (error, stackTrace) {
-      state = AsyncError<TaxSettings>(error, stackTrace);
+      if (scopeId == _scopeId) {
+        state = AsyncError<TaxSettings>(error, stackTrace);
+      }
     }
   }
 }

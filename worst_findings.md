@@ -1,5 +1,56 @@
 # Engineering self-review
 
+## Phase 6 P4 multiple-portfolio review
+
+Base: P2 (`0c025c5`) plus release fixes through `4002254`<br>
+Review date: 2026-08-23
+
+### Findings
+
+#1 HIGH Code `lib/features/tax/tax_estimates.dart`
+
+The first consolidated implementation fed combined holdings into one tax
+profile, which could spend one portfolio's annual allowance against another.
+Fixed by making consolidated tax estimates explicitly unavailable and showing
+that boundary in the UI.
+
+#2 MEDIUM Code `lib/features/settings/currency_settings.dart` and
+`lib/features/settings/tax_settings.dart`
+
+Display currency and tax assumptions were originally global preferences.
+Fixed with portfolio-scoped keys, safe migration of the prior default portfolio
+value and isolation tests; the consolidated view has its own display preference
+but never a combined tax estimate.
+
+#3 MEDIUM Code `lib/features/portfolio/portfolio_selection.dart`
+
+A delayed startup preference read could overwrite a portfolio the user selected
+immediately after launch. Fixed with a revision guard and a deterministic race
+regression test.
+
+#4 MEDIUM Code `lib/features/portfolio/portfolio_screen.dart`
+
+The first consolidated ledger still exposed reversal buttons and omitted the
+owning portfolio from each activity, crossing the promised read-only and
+provenance boundaries. Fixed by disabling every ledger mutation in consolidated
+scope and appending the portfolio name to each activity; widget coverage checks
+both conditions.
+
+#5 LOW Code `lib/features/portfolio/portfolio_management_dialog.dart`
+
+Portfolio ids initially used only the clock's microsecond value, allowing a
+collision under a fixed clock or exceptionally fast repeated creation. Fixed
+by checking existing ids and adding a stable numeric suffix.
+
+### Verdict
+
+P4 passes the full quality gate: every mutation is portfolio-scoped,
+destructive operations are confirmed and the final container is protected,
+consolidation is explicitly read-only, unknown/mixed cost is not fabricated,
+and fresh installs receive reference data without demo portfolio contents.
+
+---
+
 ## Phase 6 P2 local-import review
 
 Base: P1 (`621c252`)<br>

@@ -232,7 +232,7 @@ local-first model and improves the dividend workflow before broadening the app.
 - [ ] **P3** Calendar export as a local `.ics` snapshot importable into Google
       Calendar, Outlook and Apple Calendar. Preserve portfolio/date filters and
       mark estimates in text; do not create a public subscription URL.
-- [ ] **P4** Multiple portfolios and explicit consolidated views, preserving
+- [x] **P4** Multiple portfolios and explicit consolidated views, preserving
       per-portfolio tax, currency and provenance boundaries.
 - [ ] **P5** Explainable cash-flow and performance analytics after P1: monthly,
       quarterly and annual detail, XIRR, TTWROR and optional benchmarks with

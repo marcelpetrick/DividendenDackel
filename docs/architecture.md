@@ -36,8 +36,9 @@ Riverpod provider observes the corresponding database stream.
 ## Startup and refresh
 
 The root `ProviderScope` constructs dependencies lazily. On first launch the
-sample seeder writes a realistic offline dataset idempotently. The application
-then performs one coalesced refresh cycle:
+sample seeder writes a realistic offline reference dataset idempotently but
+does not populate the user's holdings or watchlist. The application then
+performs one coalesced refresh cycle:
 
 1. wait for local seeding;
 2. refresh followed instruments through the provider registry;
@@ -78,6 +79,15 @@ SQLite transaction. A correction appends a reversal that points to the
 original row; it does not rewrite history. The v4 migration assigns every
 existing holding and watchlist entry to the default portfolio and creates an
 opening-balance activity with the preserved quantity, price and provenance.
+
+Every write carries a concrete portfolio identity. The selected identity is a
+persisted local preference used by portfolio, Today, calendar, forecast and
+refresh providers. The explicit consolidated scope is read-only: holdings are
+combined with exact quantities, an average cost is shown only when every source
+cost has one currency, watchlist instruments are deduplicated, and activities
+remain immutable. Tax estimates are not combined across portfolios. Tax
+assumptions and display-currency choices use separately scoped preference keys,
+with migration of the original default-portfolio values.
 
 Local CSV import parses and validates without writing, resolves instruments by
 exact ISIN or unambiguous ticker, and previews accepted, duplicate and rejected
@@ -125,7 +135,7 @@ See [`privacy.md`](privacy.md) for the user-visible data inventory.
 
 `./localPipeline.sh` is shared by local development, CI and release automation.
 It checks the pinned Flutter toolchain, dependency resolution, formatting,
-analysis, 525 unit/widget tests, the real Linux integration journey, Android 10
+analysis, 540 unit/widget tests, the real Linux integration journey, Android 10
 compatibility, both release builds and—unless disabled—a rendered Linux first
 frame. Provider contracts use recorded fixtures and do not depend on network
 availability.

@@ -1,3 +1,4 @@
+import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/domain/analytics/analytics.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/features/settings/tax_settings.dart';
@@ -5,6 +6,7 @@ import 'package:dividendendackel/features/settings/tax_settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   final WithholdingRateTable table = _table();
@@ -40,13 +42,41 @@ void main() {
     expect(decoded.table.sourceUrl, table.sourceUrl);
   });
 
+  test('platform store isolates tax profiles by portfolio', () async {
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+    final PlatformTaxSettingsStore store = PlatformTaxSettingsStore();
+    final TaxSettings retirement = TaxSettings(
+      profile: DividendTaxProfile(assessment: TaxAssessment.joint),
+      table: table,
+    );
+
+    await store.save('retirement', retirement);
+
+    expect(
+      (await store.load(table, portfolioId: 'retirement')).profile.assessment,
+      TaxAssessment.joint,
+    );
+    expect(
+      (await store.load(
+        table,
+        portfolioId: InvestmentPortfolio.defaultId,
+      )).profile.assessment,
+      TaxAssessment.single,
+    );
+  });
+
   testWidgets('shows defaults and persists assessment changes', (
     WidgetTester tester,
   ) async {
     final _Store store = _Store();
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [taxSettingsStoreProvider.overrideWithValue(store)],
+        overrides: [
+          taxSettingsStoreProvider.overrideWithValue(store),
+          effectivePortfolioIdProvider.overrideWith(
+            (Ref ref) => InvestmentPortfolio.defaultId,
+          ),
+        ],
         child: const MaterialApp(home: TaxSettingsScreen()),
       ),
     );
@@ -65,6 +95,22 @@ void main() {
 
     expect(find.text('€2000.00'), findsOneWidget);
     expect(store.saved?.profile.assessment, TaxAssessment.joint);
+  });
+
+  testWidgets('does not edit tax assumptions in consolidated scope', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          effectivePortfolioIdProvider.overrideWith((Ref ref) => null),
+        ],
+        child: const MaterialApp(home: TaxSettingsScreen()),
+      ),
+    );
+
+    expect(find.textContaining('Select one portfolio'), findsOneWidget);
+    expect(find.text('Annual savings allowance'), findsNothing);
   });
 }
 
@@ -93,9 +139,12 @@ final class _Store implements TaxSettingsStore {
   TaxSettings? saved;
 
   @override
-  Future<TaxSettings> load(WithholdingRateTable defaults) async =>
-      TaxSettings(profile: DividendTaxProfile(), table: _table());
+  Future<TaxSettings> load(
+    WithholdingRateTable defaults, {
+    required String portfolioId,
+  }) async => TaxSettings(profile: DividendTaxProfile(), table: _table());
 
   @override
-  Future<void> save(TaxSettings settings) async => saved = settings;
+  Future<void> save(String portfolioId, TaxSettings settings) async =>
+      saved = settings;
 }

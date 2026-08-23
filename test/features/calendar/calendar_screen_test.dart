@@ -60,6 +60,9 @@ void main() {
       ProviderScope(
         overrides: [
           clockProvider.overrideWithValue(FakeClock(now)),
+          effectivePortfolioIdProvider.overrideWith(
+            (Ref ref) => InvestmentPortfolio.defaultId,
+          ),
           holdingsProvider.overrideWith(
             (Ref ref) => Stream<List<Holding>>.value(<Holding>[holding]),
           ),

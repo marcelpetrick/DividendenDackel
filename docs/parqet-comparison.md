@@ -16,7 +16,7 @@ local-first privacy model and explainable calculations.
 | Portfolio capture | Manual activities, PDF/CSV import and broker autosync | Manual holding/watchlist entry with average price | Add a transaction/activity ledger first, then local file imports. Broker credential sync is later and requires a separate threat model. |
 | Actual cash flows | Purchases, sales, distributions, fees and taxes are activities | Holdings and forecast events; no broker-recorded cash-flow history | Add actual dividend/tax/fee records and forecast-versus-paid reconciliation. This directly improves the dividend product. |
 | Performance | Capital-weighted return, TTWROR, XIRR, benchmarks, monthly/quarterly/yearly return detail and capital-flow analysis | Value/day change, allocation, yield, health and dividend-income analytics | Add only after the activity ledger. Every method must disclose formula, cash-flow treatment, period and data coverage. |
-| Multiple portfolios | Multiple portfolios/subaccounts and consolidated views | One local portfolio plus one watchlist | Keep multiple portfolios as a high-value post-1.0 candidate, with consolidated and isolated views. |
+| Multiple portfolios | Multiple portfolios/subaccounts and consolidated views | Local create/rename/clear/delete, isolated holdings/watchlists/ledgers/preferences and an explicit read-only consolidated view | Covered without crossing tax, currency, provenance or write boundaries. |
 | Taxes and fees | Actual tax/withholding and fee analysis from activities | Explainable German estimated net dividend tax, treaty/credit/reclaim split and editable assumptions | Preserve the estimate advantage; add actual-versus-estimated reconciliation rather than another standalone estimate chart. |
 | News and analysis | Portfolio-filtered news, allocation/performance analysis and integrations | Portfolio-ranked Today feed, provider provenance, health, explainable dividend/research scores and change conditions | Current direction is stronger for the product statement. No generic news volume or hidden score. |
 | Platforms and privacy | Hosted account, web/mobile apps, local broker-sync options and external integrations | No account/backend, Android 10+ and native Linux, local database, offline sample/cache, no analytics | Local-first remains a differentiator. Sync and integrations must not become prerequisites. |
@@ -34,8 +34,9 @@ local-first privacy model and explainable calculations.
 3. **Private calendar export.** Export the currently selected portfolio/date
    mode to `.ics`, with estimates visibly marked. Avoid a remotely hosted secret
    URL in the local-only architecture.
-4. **Multiple portfolios and consolidated views.** Preserve per-portfolio tax,
-   currency and provenance boundaries while allowing an explicit combined view.
+4. **Multiple portfolios and consolidated views — implemented.** Per-portfolio
+   tax, currency, provenance and write boundaries are retained while an explicit
+   read-only view combines safe projections.
 5. **Explainable performance.** Add capital flows, XIRR and TTWROR plus optional
    benchmark comparison only after transaction history is trustworthy. Never
    compare money-weighted portfolio return with a time-weighted benchmark

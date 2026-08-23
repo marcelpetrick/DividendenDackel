@@ -1,18 +1,19 @@
 # Project status
 
 - **Last updated:** 2026-08-23
-- **Version:** 0.43.0+71
+- **Version:** 0.46.0+77
 - **Branch:** `master` (local work ahead of `origin/master`)
 - **Pinned toolchain:** Flutter 3.47.1 / Dart 3.13.1
-- **Quality gate:** green — 525 tests, Linux integration, Android and Linux
+- **Quality gate:** green — 540 tests, Linux integration, Android and Linux
   release builds, Android 10 compatibility
 
 ## Product state
 
 DividendenDackel is a working local-first desktop and Android application, not a
-scaffold. Its bundled sample data makes every primary flow usable without an
-account, API key or network. Keyless SEC EDGAR and Frankfurter/ECB adapters add
-real US company facts, filings, dividend history and daily reference FX rates.
+scaffold. Fresh installs start with an empty personal portfolio; the bundled
+reference data keeps discovery and primary screens usable without an account,
+API key or network. Keyless SEC EDGAR and Frankfurter/ECB adapters add real US
+company facts, filings, dividend history and daily reference FX rates.
 
 Implemented user capabilities:
 
@@ -20,6 +21,10 @@ Implemented user capabilities:
 - first-run onboarding and persisted System/Light/Dark themes;
 - Today dashboard with ranked portfolio-relevant events and income windows;
 - holding/watchlist search and editing, allocation, yield and next dividend;
+- multiple local portfolios with create, rename, clear and protected delete,
+  persistent selection and an explicit read-only consolidated view;
+- per-portfolio display currency and tax assumptions, with no cross-portfolio
+  net-tax calculation;
 - immutable purchase, sale and cash-flow activities with reversal-based
   corrections and expected-versus-actual dividend reconciliation;
 - review-first local DividendenDackel and Portfolio Performance CSV import with
@@ -87,7 +92,7 @@ comparison in [`parqet-comparison.md`](parqet-comparison.md) reprioritized the
 post-1.0 queue around private calendar export,
 multiple portfolios and explainable cash-flow performance. The activity ledger
 and actual-versus-forecast reconciliation plus reviewable CSV import are
-implemented. Optional keyed providers,
+implemented, as is isolated multi-portfolio management. Optional keyed providers,
 broker credential sync, encrypted cross-device sync, widgets/tray mode,
 research history and localization remain candidates rather than MVP blockers.
 

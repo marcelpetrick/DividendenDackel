@@ -44,6 +44,53 @@ final class DriftPortfolioRepository implements PortfolioRepository {
       });
 
   @override
+  Future<Result<void>> clearPortfolio(String portfolioId) =>
+      Result.guardAsync<void>(() async {
+        await db.transaction(() async {
+          await _requirePortfolio(portfolioId);
+          await (db.delete(db.watchlistEntries)..where(
+                ($WatchlistEntriesTable table) =>
+                    table.portfolioId.equals(portfolioId),
+              ))
+              .go();
+          await (db.delete(db.holdings)..where(
+                ($HoldingsTable table) => table.portfolioId.equals(portfolioId),
+              ))
+              .go();
+          await (db.delete(db.portfolioActivities)..where(
+                ($PortfolioActivitiesTable table) =>
+                    table.portfolioId.equals(portfolioId),
+              ))
+              .go();
+        });
+      });
+
+  @override
+  Future<Result<void>> deletePortfolio(String portfolioId) =>
+      Result.guardAsync<void>(() async {
+        await db.transaction(() async {
+          await _requirePortfolio(portfolioId);
+          final Expression<int> countExpression = db.investmentPortfolios.id
+              .count();
+          final int portfolioCount =
+              await (db.selectOnly(db.investmentPortfolios)
+                    ..addColumns(<Expression<Object>>[countExpression]))
+                  .map((TypedResult row) => row.read(countExpression) ?? 0)
+                  .getSingle();
+          if (portfolioCount <= 1) {
+            throw const InvalidInstrumentFailure(
+              message: 'The final portfolio cannot be deleted.',
+            );
+          }
+          await (db.delete(db.investmentPortfolios)..where(
+                ($InvestmentPortfoliosTable table) =>
+                    table.id.equals(portfolioId),
+              ))
+              .go();
+        });
+      });
+
+  @override
   Stream<List<Holding>> watchHoldings({
     String? portfolioId = InvestmentPortfolio.defaultId,
   }) {
@@ -224,23 +271,25 @@ final class DriftPortfolioRepository implements PortfolioRepository {
   });
 
   @override
-  Stream<List<PortfolioActivity>> watchActivities(String portfolioId) =>
-      (db.select(db.portfolioActivities)
-            ..where(
-              ($PortfolioActivitiesTable table) =>
-                  table.portfolioId.equals(portfolioId),
-            )
-            ..orderBy(<OrderClauseGenerator<$PortfolioActivitiesTable>>[
-              ($PortfolioActivitiesTable table) =>
-                  OrderingTerm.desc(table.occurredAt),
-              ($PortfolioActivitiesTable table) => OrderingTerm.desc(table.id),
-            ]))
-          .watch()
-          .map(
-            (List<DbPortfolioActivity> rows) => rows
-                .map((DbPortfolioActivity row) => row.toDomain())
-                .toList(growable: false),
-          );
+  Stream<List<PortfolioActivity>> watchActivities(String? portfolioId) {
+    final SimpleSelectStatement<$PortfolioActivitiesTable, DbPortfolioActivity>
+    query = db.select(db.portfolioActivities);
+    if (portfolioId != null) {
+      query.where(
+        ($PortfolioActivitiesTable table) =>
+            table.portfolioId.equals(portfolioId),
+      );
+    }
+    query.orderBy(<OrderClauseGenerator<$PortfolioActivitiesTable>>[
+      ($PortfolioActivitiesTable table) => OrderingTerm.desc(table.occurredAt),
+      ($PortfolioActivitiesTable table) => OrderingTerm.desc(table.id),
+    ]);
+    return query.watch().map(
+      (List<DbPortfolioActivity> rows) => rows
+          .map((DbPortfolioActivity row) => row.toDomain())
+          .toList(growable: false),
+    );
+  }
 
   @override
   Future<Result<int>> recordActivity(PortfolioActivity activity) =>

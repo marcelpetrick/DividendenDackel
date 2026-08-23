@@ -5,6 +5,7 @@ import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/features/currency/fx_state.dart';
 import 'package:dividendendackel/features/portfolio/portfolio_editor.dart';
 import 'package:dividendendackel/features/portfolio/portfolio_screen.dart';
+import 'package:dividendendackel/features/portfolio/portfolio_selection.dart';
 import 'package:dividendendackel/features/settings/currency_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -34,6 +35,7 @@ void main() {
     List<PortfolioActivity> activities = const <PortfolioActivity>[],
     Currency displayCurrency = Currency.eur,
     List<FxRate> fxRates = const <FxRate>[],
+    bool consolidated = false,
   }) async {
     tester.view.physicalSize = const Size(900, 900);
     tester.view.devicePixelRatio = 1;
@@ -52,6 +54,25 @@ void main() {
             (Ref ref) => Stream<List<FxRate>>.value(fxRates),
           ),
           portfolioEditorProvider.overrideWithValue(editor),
+          portfolioSelectionStoreProvider.overrideWithValue(
+            _PortfolioSelectionStore(
+              consolidated ? null : InvestmentPortfolio.defaultId,
+            ),
+          ),
+          effectivePortfolioIdProvider.overrideWith(
+            (Ref ref) => consolidated ? null : InvestmentPortfolio.defaultId,
+          ),
+          portfoliosProvider.overrideWith(
+            (Ref ref) =>
+                Stream<List<InvestmentPortfolio>>.value(<InvestmentPortfolio>[
+                  InvestmentPortfolio(
+                    id: InvestmentPortfolio.defaultId,
+                    name: 'My portfolio',
+                    createdAt: now,
+                    updatedAt: now,
+                  ),
+                ]),
+          ),
           holdingsProvider.overrideWith(
             (Ref ref) =>
                 Stream<List<Holding>>.value(holdings ?? const <Holding>[]),
@@ -154,6 +175,8 @@ void main() {
       dividends: <DividendEvent>[dividend],
     );
 
+    await tester.scrollUntilVisible(find.text('Allianz SE'), 300);
+
     expect(find.text('EUR portfolio'), findsOneWidget);
     expect(find.text('€1000.00'), findsWidgets);
     expect(find.text('100.0%'), findsWidgets);
@@ -202,6 +225,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(editor.addedHolding, instrument);
+    expect(editor.portfolioId, InvestmentPortfolio.defaultId);
     expect(editor.quantity, Decimal.parse('2.75'));
     expect(editor.averagePrice, Money.parse('123.45', Currency.eur));
     expect(find.text('Allianz SE added to the portfolio.'), findsOneWidget);
@@ -236,6 +260,8 @@ void main() {
     );
 
     await tester.scrollUntilVisible(find.text('Simulate investment'), 250);
+    await tester.ensureVisible(find.text('Simulate investment'));
+    await tester.pump();
     await tester.tap(find.text('Simulate investment'));
     await tester.pumpAndSettle();
     await tester.enterText(
@@ -382,6 +408,104 @@ void main() {
     expect(find.byType(AlertDialog), findsOneWidget);
     expect(editor.addedHolding, isNull);
   });
+
+  testWidgets('edits and removes a holding with confirmation', (
+    WidgetTester tester,
+  ) async {
+    final Holding holding = Holding(
+      instrumentId: instrument.internalId,
+      quantity: Decimal.fromInt(10),
+      averagePurchasePrice: Money.parse('90', Currency.eur),
+      notes: 'old',
+      provenance: provenance,
+    );
+    final _FakePortfolioEditor editor = await pumpPortfolio(
+      tester,
+      holdings: <Holding>[holding],
+    );
+
+    final Finder edit = find.byKey(
+      const ValueKey<String>('edit-holding-isin:DE0008404005'),
+    );
+    await tester.scrollUntilVisible(edit, 300);
+    await tester.ensureVisible(edit);
+    await tester.tap(edit);
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey<String>('edit-holding-quantity')),
+      '12.5',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey<String>('edit-holding-notes')),
+      'updated',
+    );
+    await tester.tap(find.byKey(const ValueKey<String>('save-holding-edit')));
+    await tester.pumpAndSettle();
+
+    expect(editor.updatedHolding?.quantity, Decimal.parse('12.5'));
+    expect(editor.updatedHolding?.notes, 'updated');
+
+    final Finder remove = find.byKey(
+      const ValueKey<String>('remove-holding-isin:DE0008404005'),
+    );
+    await tester.scrollUntilVisible(remove, 300);
+    await tester.ensureVisible(remove);
+    await tester.tap(remove);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Remove holding').last);
+    await tester.pumpAndSettle();
+
+    expect(editor.removedHoldingId, instrument.internalId);
+    expect(editor.portfolioId, InvestmentPortfolio.defaultId);
+  });
+
+  testWidgets('removes a watchlist entry with confirmation', (
+    WidgetTester tester,
+  ) async {
+    final WatchlistEntry entry = WatchlistEntry(
+      instrumentId: instrument.internalId,
+      addedAt: now,
+      provenance: provenance,
+    );
+    final _FakePortfolioEditor editor = await pumpPortfolio(
+      tester,
+      watchlist: <WatchlistEntry>[entry],
+    );
+
+    final Finder remove = find.byTooltip('Remove from watchlist');
+    await tester.scrollUntilVisible(remove, 300);
+    await tester.tap(remove);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Remove').last);
+    await tester.pumpAndSettle();
+
+    expect(editor.removedWatchlistId, instrument.internalId);
+  });
+
+  testWidgets('keeps the consolidated activity view read-only and attributed', (
+    WidgetTester tester,
+  ) async {
+    final PortfolioActivity activity = PortfolioActivity(
+      id: 7,
+      portfolioId: InvestmentPortfolio.defaultId,
+      type: PortfolioActivityType.deposit,
+      occurredAt: now,
+      cashAmount: Money.parse('50', Currency.eur),
+      provenance: provenance,
+    );
+
+    await pumpPortfolio(
+      tester,
+      activities: <PortfolioActivity>[activity],
+      consolidated: true,
+    );
+    await tester.scrollUntilVisible(find.textContaining('Deposit'), 500);
+
+    expect(find.text('All portfolios (consolidated)'), findsOneWidget);
+    expect(find.byKey(const ValueKey<String>('add-instrument')), findsNothing);
+    expect(find.byTooltip('Reverse activity'), findsNothing);
+    expect(find.textContaining('My portfolio'), findsWidgets);
+  });
 }
 
 final class _DisplayCurrencyStore implements DisplayCurrencyStore {
@@ -389,10 +513,21 @@ final class _DisplayCurrencyStore implements DisplayCurrencyStore {
   final Currency currency;
 
   @override
-  Future<Currency> load() async => currency;
+  Future<Currency> load(String portfolioId) async => currency;
 
   @override
-  Future<void> save(Currency currency) async {}
+  Future<void> save(String portfolioId, Currency currency) async {}
+}
+
+final class _PortfolioSelectionStore implements PortfolioSelectionStore {
+  const _PortfolioSelectionStore(this.portfolioId);
+  final String? portfolioId;
+
+  @override
+  Future<String?> load() async => portfolioId;
+
+  @override
+  Future<void> save(String? portfolioId) async {}
 }
 
 final class _FakePortfolioEditor implements PortfolioEditor {
@@ -403,6 +538,10 @@ final class _FakePortfolioEditor implements PortfolioEditor {
   Instrument? addedWatchlist;
   Decimal? quantity;
   Money? averagePrice;
+  String? portfolioId;
+  Holding? updatedHolding;
+  String? removedHoldingId;
+  String? removedWatchlistId;
 
   @override
   Future<Result<InstrumentSearchOutcome>> search(String query) async =>
@@ -412,19 +551,51 @@ final class _FakePortfolioEditor implements PortfolioEditor {
 
   @override
   Future<Result<void>> addHolding({
+    required String portfolioId,
     required Instrument instrument,
     required Decimal quantity,
     Money? averagePurchasePrice,
   }) async {
     addedHolding = instrument;
+    this.portfolioId = portfolioId;
     this.quantity = quantity;
     averagePrice = averagePurchasePrice;
     return const Success<void>(null);
   }
 
   @override
-  Future<Result<void>> addToWatchlist(Instrument instrument) async {
+  Future<Result<void>> addToWatchlist({
+    required String portfolioId,
+    required Instrument instrument,
+  }) async {
     addedWatchlist = instrument;
+    this.portfolioId = portfolioId;
+    return const Success<void>(null);
+  }
+
+  @override
+  Future<Result<void>> updateHolding(Holding holding) async {
+    updatedHolding = holding;
+    return const Success<void>(null);
+  }
+
+  @override
+  Future<Result<void>> removeHolding({
+    required String portfolioId,
+    required String instrumentId,
+  }) async {
+    this.portfolioId = portfolioId;
+    removedHoldingId = instrumentId;
+    return const Success<void>(null);
+  }
+
+  @override
+  Future<Result<void>> removeFromWatchlist({
+    required String portfolioId,
+    required String instrumentId,
+  }) async {
+    this.portfolioId = portfolioId;
+    removedWatchlistId = instrumentId;
     return const Success<void>(null);
   }
 }
