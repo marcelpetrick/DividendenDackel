@@ -26,6 +26,7 @@ part 'app_database.g.dart';
     WatchlistEntries,
     PortfolioActivities,
     Quotes,
+    PortfolioValuationSnapshots,
     FxRates,
     DividendEvents,
     EarningsEvents,
@@ -53,7 +54,7 @@ class AppDatabase extends _$AppDatabase {
 
   /// Bumped whenever the schema changes. Never reused for a different schema.
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -67,7 +68,7 @@ class AppDatabase extends _$AppDatabase {
       // not an acceptable default once releases exist. Schema version 1 is the
       // first app schema; every supported transition is additive and explicit,
       // while an unknown path fails loudly instead of dropping data.
-      if (from < 1 || from >= to || to > 6) {
+      if (from < 1 || from >= to || to > 7) {
         throw StateError(
           'No migration is defined from schema version $from to $to. '
           'Refusing to modify the database rather than risk user data.',
@@ -138,6 +139,9 @@ class AppDatabase extends _$AppDatabase {
           'CREATE UNIQUE INDEX idx_portfolio_activity_external '
           'ON portfolio_activities (portfolio_id, source, external_id)',
         );
+      }
+      if (from < 7 && to >= 7) {
+        await m.createTable(portfolioValuationSnapshots);
       }
     },
     beforeOpen: (OpeningDetails details) async {

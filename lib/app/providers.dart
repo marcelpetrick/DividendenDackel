@@ -393,6 +393,18 @@ final StreamProvider<List<PortfolioActivity>> portfolioActivitiesProvider =
           .watchActivities(ref.watch(effectivePortfolioIdProvider)),
     );
 
+/// Local end-of-day valuations for the selected or consolidated scope.
+final StreamProvider<List<PortfolioValuationSnapshot>>
+portfolioValuationSnapshotsProvider =
+    StreamProvider<List<PortfolioValuationSnapshot>>((Ref ref) {
+      final String scopeId =
+          ref.watch(effectivePortfolioIdProvider) ??
+          InvestmentPortfolio.consolidatedId;
+      return ref
+          .watch(portfolioRepositoryProvider)
+          .watchValuationSnapshots(scopeId);
+    });
+
 /// Applied local import batches available for precise undo.
 final StreamProvider<List<PortfolioImportBatch>>
 portfolioImportBatchesProvider = StreamProvider<List<PortfolioImportBatch>>((

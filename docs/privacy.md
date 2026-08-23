@@ -9,7 +9,7 @@ crash-reporting service.
 The app stores the following in its platform application-data directory:
 
 - portfolio names, holdings, watchlist entries, immutable activities and user
-  preferences;
+  preferences, plus locally derived daily portfolio valuations;
 - cached instruments, quotes, dividends, events, headlines, filings, research
   snapshots and daily FX rates;
 - cache metadata, provider health and privacy-safe synchronization logs;
@@ -23,6 +23,10 @@ network. Only validated activities, a stable duplicate-detection identity and
 an import-batch identifier are retained. Undo appends local reversal records.
 Interactive Brokers account ids or aliases are used only to hash a
 collision-safe duplicate identity; the raw account value is not retained.
+
+XIRR, TTWROR and cash-flow detail are calculated entirely on the device. Daily
+valuation snapshots contain only portfolio scope, native currency, exact total,
+date and coverage counts; they are neither uploaded nor shared with providers.
 
 Calendar export creates an `.ics` snapshot only after the user selects Export
 and a destination. The file contains the currently filtered instrument names,

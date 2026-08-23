@@ -234,7 +234,7 @@ local-first model and improves the dividend workflow before broadening the app.
       mark estimates in text; do not create a public subscription URL.
 - [x] **P4** Multiple portfolios and explicit consolidated views, preserving
       per-portfolio tax, currency and provenance boundaries.
-- [ ] **P5** Explainable cash-flow and performance analytics after P1: monthly,
+- [x] **P5** Explainable cash-flow and performance analytics after P1: monthly,
       quarterly and annual detail, XIRR, TTWROR and optional benchmarks with
       formulas, period, coverage and cash-flow treatment visible.
 - [x] **P6** Local broker-document import extensions; consider credential-based

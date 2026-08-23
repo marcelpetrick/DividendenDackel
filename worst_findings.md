@@ -1,5 +1,47 @@
 # Engineering self-review
 
+## Phase 6 P5 portfolio-performance review
+
+Base: P3 (`9e1e211`)<br>
+Review date: 2026-08-23
+
+### Findings
+
+#1 HIGH Architecture `lib/data/repositories/drift_portfolio_repository.dart`
+
+A backdated position activity could leave newer valuation snapshots in place,
+allowing TTWROR to consume totals derived before the corrected holding existed.
+Fixed by invalidating portfolio and consolidated valuations from the economic
+activity date inside the same transaction. Reversals invalidate from the
+original activity date, and a regression proves earlier valid evidence remains.
+
+#2 HIGH Code `lib/domain/analytics/portfolio_performance.dart`
+
+The first calculation path could label today's holdings with an older quote
+date and could adjust a cash flow across a sparse TTWROR interval without
+knowing its timing. Fixed by refusing current valuation evidence after any
+later position change and requiring a complete valuation on every security
+cash-flow day inside the TTWROR window. Both refusal paths have unit coverage.
+
+#3 MEDIUM Code `lib/features/portfolio/performance_card.dart`
+
+If current instrument metadata was temporarily unavailable, a holding whose
+currency was still evident from its purchase could be mistaken for a sold-out
+zero balance. Fixed by correlating ledger currency with every current holding
+identity before deciding that zero is complete; widget coverage verifies the
+unpriced-position limitation remains visible.
+
+### Verdict
+
+P5 passes the complete local/CI/release gate. Native currencies remain separate,
+money and persisted values stay exact-decimal, XIRR uses a coherent terminal
+valuation date, TTWROR uses only defensible valuation segments, and benchmark
+comparison is explicitly unavailable without like-for-like history. All 565
+tests, the real Linux journey, Android 10 compatibility, both release builds
+and a rendered Linux first frame pass.
+
+---
+
 ## Phase 6 P3 calendar-export review
 
 Base: P6 (`ea76c6c`)<br>

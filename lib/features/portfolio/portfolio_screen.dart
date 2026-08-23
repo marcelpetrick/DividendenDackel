@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:decimal/decimal.dart';
 import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
@@ -11,6 +13,8 @@ import 'package:dividendendackel/features/portfolio/activity_dialog.dart';
 import 'package:dividendendackel/features/portfolio/add_instrument_dialog.dart';
 import 'package:dividendendackel/features/portfolio/holding_edit_dialog.dart';
 import 'package:dividendendackel/features/portfolio/import_dialog.dart';
+import 'package:dividendendackel/features/portfolio/performance_card.dart';
+import 'package:dividendendackel/features/portfolio/performance_state.dart';
 import 'package:dividendendackel/features/portfolio/portfolio_management_dialog.dart';
 import 'package:dividendendackel/features/portfolio/portfolio_selection.dart';
 import 'package:dividendendackel/features/settings/currency_settings.dart';
@@ -61,6 +65,10 @@ class PortfolioScreen extends ConsumerWidget {
     );
     final List<PortfolioActivity> activities =
         activitiesValue.value ?? const <PortfolioActivity>[];
+    final AsyncValue<List<PortfolioValuationSnapshot>> valuationsValue = ref
+        .watch(portfolioValuationSnapshotsProvider);
+    final List<PortfolioValuationSnapshot> valuations =
+        valuationsValue.value ?? const <PortfolioValuationSnapshot>[];
     final AsyncValue<List<PortfolioImportBatch>> importBatchesValue = ref.watch(
       portfolioImportBatchesProvider,
     );
@@ -143,6 +151,21 @@ class PortfolioScreen extends ConsumerWidget {
             rates: rateBook,
             asOf: now,
           );
+          if (ref.watch(automaticPortfolioValuationEnabledProvider)) {
+            unawaited(
+              ref
+                  .read(portfolioValuationRecorderProvider)
+                  .record(
+                    scopeId: portfolioId ?? InvestmentPortfolio.consolidatedId,
+                    overview: overview,
+                    activities: activities,
+                    instrumentCurrencies: <String, Currency>{
+                      for (final Instrument instrument in instruments.values)
+                        instrument.internalId: instrument.currency,
+                    },
+                  ),
+            );
+          }
           return _PortfolioBody(
             portfolios: portfolios,
             portfolioId: portfolioId,
@@ -156,6 +179,8 @@ class PortfolioScreen extends ConsumerWidget {
             incomeExposure: incomeExposure,
             health: health,
             activities: activities,
+            valuations: valuations,
+            asOf: now,
             importBatches: importBatches,
             reconciliation: reconciliation,
             onSelectPortfolio: (String? id) =>
@@ -202,6 +227,8 @@ class PortfolioScreen extends ConsumerWidget {
                 'Dividend income could not be read; it is unavailable.',
               if (activitiesValue.hasError)
                 'Portfolio activities could not be read.',
+              if (valuationsValue.hasError)
+                'Historical portfolio valuations could not be read.',
               if (importBatchesValue.hasError)
                 'Import history could not be read.',
               if (portfoliosValue.hasError)
@@ -567,6 +594,8 @@ class _PortfolioBody extends StatelessWidget {
     required this.incomeExposure,
     required this.health,
     required this.activities,
+    required this.valuations,
+    required this.asOf,
     required this.importBatches,
     required this.reconciliation,
     required this.onSelectPortfolio,
@@ -597,6 +626,8 @@ class _PortfolioBody extends StatelessWidget {
   final PortfolioCurrencyExposure incomeExposure;
   final PortfolioHealth health;
   final List<PortfolioActivity> activities;
+  final List<PortfolioValuationSnapshot> valuations;
+  final DateTime asOf;
   final List<PortfolioImportBatch> importBatches;
   final List<DividendReconciliationLine> reconciliation;
   final ValueChanged<String?> onSelectPortfolio;
@@ -747,6 +778,15 @@ class _PortfolioBody extends StatelessWidget {
         onReverse: onReverseActivity,
         onImport: onImport,
         onUndoImport: onUndoImport,
+      ),
+      const SizedBox(height: AppTheme.space * 2),
+      PortfolioPerformanceCard(
+        activities: activities,
+        scopeId: portfolioId ?? InvestmentPortfolio.consolidatedId,
+        valuations: valuations,
+        overview: overview,
+        instruments: instruments,
+        asOf: asOf,
       ),
     ],
   );

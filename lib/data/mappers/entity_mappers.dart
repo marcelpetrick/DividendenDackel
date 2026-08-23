@@ -200,6 +200,23 @@ extension PortfolioActivityRowMapper on DbPortfolioActivity {
   );
 }
 
+/// Maps local valuation snapshot rows.
+extension PortfolioValuationSnapshotRowMapper on DbPortfolioValuationSnapshot {
+  /// Builds the currency-separated domain snapshot.
+  PortfolioValuationSnapshot toDomain() => PortfolioValuationSnapshot(
+    scopeId: scopeId,
+    currency: Currency.parse(currencyCode),
+    value: EntityMappers.parseMoney(
+      valueAmount,
+      currencyCode,
+      'portfolioValuation.value',
+    ),
+    observedAt: EntityMappers.utc(observedAt),
+    positionCount: positionCount,
+    pricedPositionCount: pricedPositionCount,
+  );
+}
+
 /// Maps quote rows.
 extension QuoteRowMapper on DbQuote {
   /// Builds the domain quote.
@@ -528,6 +545,18 @@ abstract final class CompanionMappers {
       providerExchange: p.providerExchange,
     );
   }
+
+  /// Builds one idempotent local portfolio valuation row.
+  static PortfolioValuationSnapshotsCompanion portfolioValuationSnapshot(
+    PortfolioValuationSnapshot snapshot,
+  ) => PortfolioValuationSnapshotsCompanion.insert(
+    scopeId: snapshot.scopeId,
+    currencyCode: snapshot.currency.code,
+    valueAmount: snapshot.value.amount.toString(),
+    observedAt: snapshot.observedAt.toUtc(),
+    positionCount: snapshot.positionCount,
+    pricedPositionCount: snapshot.pricedPositionCount,
+  );
 
   /// Builds a quote row.
   static QuotesCompanion quote(Quote quote) {

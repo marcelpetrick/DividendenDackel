@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ### Added
 
+- Explainable portfolio performance in each native currency: exact monthly,
+  quarterly and annual cash-flow detail, dated money-weighted XIRR, and TTWROR
+  over retained complete valuations. Formulas, coverage and cash treatment are
+  visible, while missing prices, incoherent quote dates and sparse valuation
+  history refuse a misleading result.
 - Private RFC 5545 calendar snapshots for the current portfolio/watchlist/all
   scope, visible range and ex/payment-date mode. Estimated events are explicit,
   Android uses the system document creator and Linux uses its native save

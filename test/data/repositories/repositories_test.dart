@@ -243,6 +243,24 @@ void main() {
           provenance: user,
         ),
       );
+      await portfolio.saveValuationSnapshots(<PortfolioValuationSnapshot>[
+        PortfolioValuationSnapshot(
+          scopeId: InvestmentPortfolio.defaultId,
+          currency: Currency.eur,
+          value: Money.parse('2000', Currency.eur),
+          observedAt: now,
+          positionCount: 1,
+          pricedPositionCount: 1,
+        ),
+        PortfolioValuationSnapshot(
+          scopeId: InvestmentPortfolio.consolidatedId,
+          currency: Currency.eur,
+          value: Money.parse('2000', Currency.eur),
+          observedAt: now,
+          positionCount: 1,
+          pricedPositionCount: 1,
+        ),
+      ]);
 
       final Result<void> result = await portfolio.clearPortfolio(
         InvestmentPortfolio.defaultId,
@@ -256,7 +274,97 @@ void main() {
         isEmpty,
       );
       expect(await portfolio.watchPortfolios().first, hasLength(1));
+      expect(
+        await portfolio
+            .watchValuationSnapshots(InvestmentPortfolio.defaultId)
+            .first,
+        isEmpty,
+      );
+      expect(
+        await portfolio
+            .watchValuationSnapshots(InvestmentPortfolio.consolidatedId)
+            .first,
+        isEmpty,
+      );
     });
+
+    test('stores exact idempotent portfolio valuation snapshots', () async {
+      PortfolioValuationSnapshot snapshot(String value) =>
+          PortfolioValuationSnapshot(
+            scopeId: InvestmentPortfolio.defaultId,
+            currency: Currency.eur,
+            value: Money.parse(value, Currency.eur),
+            observedAt: DateTime.utc(2026, 8, 22),
+            positionCount: 2,
+            pricedPositionCount: 1,
+          );
+
+      expect(
+        (await portfolio.saveValuationSnapshots(<PortfolioValuationSnapshot>[
+          snapshot('100'),
+        ])).isSuccess,
+        isTrue,
+      );
+      await portfolio.saveValuationSnapshots(<PortfolioValuationSnapshot>[
+        snapshot('110.25'),
+      ]);
+
+      final List<PortfolioValuationSnapshot> stored = await portfolio
+          .watchValuationSnapshots(InvestmentPortfolio.defaultId)
+          .first;
+      expect(stored, hasLength(1));
+      expect(stored.single.value, Money.parse('110.25', Currency.eur));
+      expect(stored.single.isComplete, isFalse);
+    });
+
+    test(
+      'invalidates valuations affected by a backdated position change',
+      () async {
+        PortfolioValuationSnapshot snapshot(String scopeId, DateTime date) =>
+            PortfolioValuationSnapshot(
+              scopeId: scopeId,
+              currency: Currency.eur,
+              value: Money.parse('100', Currency.eur),
+              observedAt: date,
+              positionCount: 1,
+              pricedPositionCount: 1,
+            );
+        final DateTime before = DateTime.utc(2026, 8, 1);
+        final DateTime changedAt = DateTime.utc(2026, 8, 10);
+        final DateTime after = DateTime.utc(2026, 8, 20);
+        await portfolio.saveValuationSnapshots(<PortfolioValuationSnapshot>[
+          snapshot(InvestmentPortfolio.defaultId, before),
+          snapshot(InvestmentPortfolio.defaultId, after),
+          snapshot(InvestmentPortfolio.consolidatedId, after),
+        ]);
+
+        final Result<int> result = await portfolio.recordActivity(
+          PortfolioActivity(
+            portfolioId: InvestmentPortfolio.defaultId,
+            type: PortfolioActivityType.purchase,
+            occurredAt: changedAt,
+            instrumentId: allianz.internalId,
+            quantity: Decimal.one,
+            unitPrice: Money.parse('80', Currency.eur),
+            provenance: Provenance.user(changedAt),
+          ),
+        );
+
+        expect(result.isSuccess, isTrue);
+        expect(
+          await portfolio
+              .watchValuationSnapshots(InvestmentPortfolio.defaultId)
+              .first,
+          hasLength(1),
+        );
+        expect(
+          await portfolio
+              .watchValuationSnapshots(InvestmentPortfolio.consolidatedId)
+              .first,
+          isEmpty,
+        );
+      },
+    );
 
     test(
       'deletes one portfolio by cascade but protects the final one',

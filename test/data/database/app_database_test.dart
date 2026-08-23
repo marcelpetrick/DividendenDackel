@@ -30,8 +30,8 @@ void main() {
       );
 
   group('AppDatabase', () {
-    test('opens at schema version 6 with every table created', () async {
-      expect(db.schemaVersion, 6);
+    test('opens at schema version 7 with every table created', () async {
+      expect(db.schemaVersion, 7);
 
       final List<String> tables =
           await db
@@ -59,6 +59,7 @@ void main() {
           'news_items',
           'investment_portfolios',
           'portfolio_activities',
+          'portfolio_valuation_snapshots',
           'provider_states',
           'quotes',
           'research_snapshots',
@@ -67,6 +68,24 @@ void main() {
           'watchlist_entries',
         ]),
       );
+    });
+
+    test('migrates schema 6 by adding local valuation history', () async {
+      await db.close();
+      final AppDatabase migrated = AppDatabase.withExecutor(
+        NativeDatabase.memory(
+          setup: (database) {
+            database.execute('PRAGMA user_version = 6');
+          },
+        ),
+      );
+      db = migrated;
+
+      final List<String> tables = await migrated
+          .customSelect("SELECT name FROM sqlite_master WHERE type = 'table'")
+          .map((QueryRow row) => row.read<String>('name'))
+          .get();
+      expect(tables, contains('portfolio_valuation_snapshots'));
     });
 
     test(
@@ -407,7 +426,7 @@ void main() {
       },
     );
 
-    test('migrates schema 1 through 6 without losing dividend rows', () async {
+    test('migrates schema 1 through 7 without losing dividend rows', () async {
       await db.close();
       final AppDatabase migrated = AppDatabase.withExecutor(
         NativeDatabase.memory(
@@ -448,6 +467,7 @@ void main() {
       expect(tables, contains('corporate_events'));
       expect(tables, contains('investment_portfolios'));
       expect(tables, contains('portfolio_activities'));
+      expect(tables, contains('portfolio_valuation_snapshots'));
     });
 
     test('migrates schema 2 by adding the FX table', () async {

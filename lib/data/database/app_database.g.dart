@@ -5289,6 +5289,477 @@ class QuotesCompanion extends UpdateCompanion<DbQuote> {
   }
 }
 
+class $PortfolioValuationSnapshotsTable extends PortfolioValuationSnapshots
+    with
+        TableInfo<
+          $PortfolioValuationSnapshotsTable,
+          DbPortfolioValuationSnapshot
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PortfolioValuationSnapshotsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _scopeIdMeta = const VerificationMeta(
+    'scopeId',
+  );
+  @override
+  late final GeneratedColumn<String> scopeId = GeneratedColumn<String>(
+    'scope_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _currencyCodeMeta = const VerificationMeta(
+    'currencyCode',
+  );
+  @override
+  late final GeneratedColumn<String> currencyCode = GeneratedColumn<String>(
+    'currency_code',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 3,
+      maxTextLength: 8,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _valueAmountMeta = const VerificationMeta(
+    'valueAmount',
+  );
+  @override
+  late final GeneratedColumn<String> valueAmount = GeneratedColumn<String>(
+    'value_amount',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _observedAtMeta = const VerificationMeta(
+    'observedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> observedAt = GeneratedColumn<DateTime>(
+    'observed_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _positionCountMeta = const VerificationMeta(
+    'positionCount',
+  );
+  @override
+  late final GeneratedColumn<int> positionCount = GeneratedColumn<int>(
+    'position_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _pricedPositionCountMeta =
+      const VerificationMeta('pricedPositionCount');
+  @override
+  late final GeneratedColumn<int> pricedPositionCount = GeneratedColumn<int>(
+    'priced_position_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    scopeId,
+    currencyCode,
+    valueAmount,
+    observedAt,
+    positionCount,
+    pricedPositionCount,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'portfolio_valuation_snapshots';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DbPortfolioValuationSnapshot> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('scope_id')) {
+      context.handle(
+        _scopeIdMeta,
+        scopeId.isAcceptableOrUnknown(data['scope_id']!, _scopeIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_scopeIdMeta);
+    }
+    if (data.containsKey('currency_code')) {
+      context.handle(
+        _currencyCodeMeta,
+        currencyCode.isAcceptableOrUnknown(
+          data['currency_code']!,
+          _currencyCodeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_currencyCodeMeta);
+    }
+    if (data.containsKey('value_amount')) {
+      context.handle(
+        _valueAmountMeta,
+        valueAmount.isAcceptableOrUnknown(
+          data['value_amount']!,
+          _valueAmountMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_valueAmountMeta);
+    }
+    if (data.containsKey('observed_at')) {
+      context.handle(
+        _observedAtMeta,
+        observedAt.isAcceptableOrUnknown(data['observed_at']!, _observedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_observedAtMeta);
+    }
+    if (data.containsKey('position_count')) {
+      context.handle(
+        _positionCountMeta,
+        positionCount.isAcceptableOrUnknown(
+          data['position_count']!,
+          _positionCountMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_positionCountMeta);
+    }
+    if (data.containsKey('priced_position_count')) {
+      context.handle(
+        _pricedPositionCountMeta,
+        pricedPositionCount.isAcceptableOrUnknown(
+          data['priced_position_count']!,
+          _pricedPositionCountMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_pricedPositionCountMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {scopeId, currencyCode, observedAt};
+  @override
+  DbPortfolioValuationSnapshot map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DbPortfolioValuationSnapshot(
+      scopeId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}scope_id'],
+      )!,
+      currencyCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}currency_code'],
+      )!,
+      valueAmount: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}value_amount'],
+      )!,
+      observedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}observed_at'],
+      )!,
+      positionCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}position_count'],
+      )!,
+      pricedPositionCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}priced_position_count'],
+      )!,
+    );
+  }
+
+  @override
+  $PortfolioValuationSnapshotsTable createAlias(String alias) {
+    return $PortfolioValuationSnapshotsTable(attachedDatabase, alias);
+  }
+}
+
+class DbPortfolioValuationSnapshot extends DataClass
+    implements Insertable<DbPortfolioValuationSnapshot> {
+  /// Portfolio identity or the explicit consolidated scope identity.
+  final String scopeId;
+
+  /// Currency of every represented position.
+  final String currencyCode;
+
+  /// Exact covered portfolio value.
+  final String valueAmount;
+
+  /// End-of-day quote date represented by the value.
+  final DateTime observedAt;
+
+  /// Positions denominated in this currency.
+  final int positionCount;
+
+  /// Positions included in the value.
+  final int pricedPositionCount;
+  const DbPortfolioValuationSnapshot({
+    required this.scopeId,
+    required this.currencyCode,
+    required this.valueAmount,
+    required this.observedAt,
+    required this.positionCount,
+    required this.pricedPositionCount,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['scope_id'] = Variable<String>(scopeId);
+    map['currency_code'] = Variable<String>(currencyCode);
+    map['value_amount'] = Variable<String>(valueAmount);
+    map['observed_at'] = Variable<DateTime>(observedAt);
+    map['position_count'] = Variable<int>(positionCount);
+    map['priced_position_count'] = Variable<int>(pricedPositionCount);
+    return map;
+  }
+
+  PortfolioValuationSnapshotsCompanion toCompanion(bool nullToAbsent) {
+    return PortfolioValuationSnapshotsCompanion(
+      scopeId: Value(scopeId),
+      currencyCode: Value(currencyCode),
+      valueAmount: Value(valueAmount),
+      observedAt: Value(observedAt),
+      positionCount: Value(positionCount),
+      pricedPositionCount: Value(pricedPositionCount),
+    );
+  }
+
+  factory DbPortfolioValuationSnapshot.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DbPortfolioValuationSnapshot(
+      scopeId: serializer.fromJson<String>(json['scopeId']),
+      currencyCode: serializer.fromJson<String>(json['currencyCode']),
+      valueAmount: serializer.fromJson<String>(json['valueAmount']),
+      observedAt: serializer.fromJson<DateTime>(json['observedAt']),
+      positionCount: serializer.fromJson<int>(json['positionCount']),
+      pricedPositionCount: serializer.fromJson<int>(
+        json['pricedPositionCount'],
+      ),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'scopeId': serializer.toJson<String>(scopeId),
+      'currencyCode': serializer.toJson<String>(currencyCode),
+      'valueAmount': serializer.toJson<String>(valueAmount),
+      'observedAt': serializer.toJson<DateTime>(observedAt),
+      'positionCount': serializer.toJson<int>(positionCount),
+      'pricedPositionCount': serializer.toJson<int>(pricedPositionCount),
+    };
+  }
+
+  DbPortfolioValuationSnapshot copyWith({
+    String? scopeId,
+    String? currencyCode,
+    String? valueAmount,
+    DateTime? observedAt,
+    int? positionCount,
+    int? pricedPositionCount,
+  }) => DbPortfolioValuationSnapshot(
+    scopeId: scopeId ?? this.scopeId,
+    currencyCode: currencyCode ?? this.currencyCode,
+    valueAmount: valueAmount ?? this.valueAmount,
+    observedAt: observedAt ?? this.observedAt,
+    positionCount: positionCount ?? this.positionCount,
+    pricedPositionCount: pricedPositionCount ?? this.pricedPositionCount,
+  );
+  DbPortfolioValuationSnapshot copyWithCompanion(
+    PortfolioValuationSnapshotsCompanion data,
+  ) {
+    return DbPortfolioValuationSnapshot(
+      scopeId: data.scopeId.present ? data.scopeId.value : this.scopeId,
+      currencyCode: data.currencyCode.present
+          ? data.currencyCode.value
+          : this.currencyCode,
+      valueAmount: data.valueAmount.present
+          ? data.valueAmount.value
+          : this.valueAmount,
+      observedAt: data.observedAt.present
+          ? data.observedAt.value
+          : this.observedAt,
+      positionCount: data.positionCount.present
+          ? data.positionCount.value
+          : this.positionCount,
+      pricedPositionCount: data.pricedPositionCount.present
+          ? data.pricedPositionCount.value
+          : this.pricedPositionCount,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DbPortfolioValuationSnapshot(')
+          ..write('scopeId: $scopeId, ')
+          ..write('currencyCode: $currencyCode, ')
+          ..write('valueAmount: $valueAmount, ')
+          ..write('observedAt: $observedAt, ')
+          ..write('positionCount: $positionCount, ')
+          ..write('pricedPositionCount: $pricedPositionCount')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    scopeId,
+    currencyCode,
+    valueAmount,
+    observedAt,
+    positionCount,
+    pricedPositionCount,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DbPortfolioValuationSnapshot &&
+          other.scopeId == this.scopeId &&
+          other.currencyCode == this.currencyCode &&
+          other.valueAmount == this.valueAmount &&
+          other.observedAt == this.observedAt &&
+          other.positionCount == this.positionCount &&
+          other.pricedPositionCount == this.pricedPositionCount);
+}
+
+class PortfolioValuationSnapshotsCompanion
+    extends UpdateCompanion<DbPortfolioValuationSnapshot> {
+  final Value<String> scopeId;
+  final Value<String> currencyCode;
+  final Value<String> valueAmount;
+  final Value<DateTime> observedAt;
+  final Value<int> positionCount;
+  final Value<int> pricedPositionCount;
+  final Value<int> rowid;
+  const PortfolioValuationSnapshotsCompanion({
+    this.scopeId = const Value.absent(),
+    this.currencyCode = const Value.absent(),
+    this.valueAmount = const Value.absent(),
+    this.observedAt = const Value.absent(),
+    this.positionCount = const Value.absent(),
+    this.pricedPositionCount = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PortfolioValuationSnapshotsCompanion.insert({
+    required String scopeId,
+    required String currencyCode,
+    required String valueAmount,
+    required DateTime observedAt,
+    required int positionCount,
+    required int pricedPositionCount,
+    this.rowid = const Value.absent(),
+  }) : scopeId = Value(scopeId),
+       currencyCode = Value(currencyCode),
+       valueAmount = Value(valueAmount),
+       observedAt = Value(observedAt),
+       positionCount = Value(positionCount),
+       pricedPositionCount = Value(pricedPositionCount);
+  static Insertable<DbPortfolioValuationSnapshot> custom({
+    Expression<String>? scopeId,
+    Expression<String>? currencyCode,
+    Expression<String>? valueAmount,
+    Expression<DateTime>? observedAt,
+    Expression<int>? positionCount,
+    Expression<int>? pricedPositionCount,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (scopeId != null) 'scope_id': scopeId,
+      if (currencyCode != null) 'currency_code': currencyCode,
+      if (valueAmount != null) 'value_amount': valueAmount,
+      if (observedAt != null) 'observed_at': observedAt,
+      if (positionCount != null) 'position_count': positionCount,
+      if (pricedPositionCount != null)
+        'priced_position_count': pricedPositionCount,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PortfolioValuationSnapshotsCompanion copyWith({
+    Value<String>? scopeId,
+    Value<String>? currencyCode,
+    Value<String>? valueAmount,
+    Value<DateTime>? observedAt,
+    Value<int>? positionCount,
+    Value<int>? pricedPositionCount,
+    Value<int>? rowid,
+  }) {
+    return PortfolioValuationSnapshotsCompanion(
+      scopeId: scopeId ?? this.scopeId,
+      currencyCode: currencyCode ?? this.currencyCode,
+      valueAmount: valueAmount ?? this.valueAmount,
+      observedAt: observedAt ?? this.observedAt,
+      positionCount: positionCount ?? this.positionCount,
+      pricedPositionCount: pricedPositionCount ?? this.pricedPositionCount,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (scopeId.present) {
+      map['scope_id'] = Variable<String>(scopeId.value);
+    }
+    if (currencyCode.present) {
+      map['currency_code'] = Variable<String>(currencyCode.value);
+    }
+    if (valueAmount.present) {
+      map['value_amount'] = Variable<String>(valueAmount.value);
+    }
+    if (observedAt.present) {
+      map['observed_at'] = Variable<DateTime>(observedAt.value);
+    }
+    if (positionCount.present) {
+      map['position_count'] = Variable<int>(positionCount.value);
+    }
+    if (pricedPositionCount.present) {
+      map['priced_position_count'] = Variable<int>(pricedPositionCount.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PortfolioValuationSnapshotsCompanion(')
+          ..write('scopeId: $scopeId, ')
+          ..write('currencyCode: $currencyCode, ')
+          ..write('valueAmount: $valueAmount, ')
+          ..write('observedAt: $observedAt, ')
+          ..write('positionCount: $positionCount, ')
+          ..write('pricedPositionCount: $pricedPositionCount, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $FxRatesTable extends FxRates with TableInfo<$FxRatesTable, DbFxRate> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -15103,6 +15574,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $PortfolioActivitiesTable portfolioActivities =
       $PortfolioActivitiesTable(this);
   late final $QuotesTable quotes = $QuotesTable(this);
+  late final $PortfolioValuationSnapshotsTable portfolioValuationSnapshots =
+      $PortfolioValuationSnapshotsTable(this);
   late final $FxRatesTable fxRates = $FxRatesTable(this);
   late final $DividendEventsTable dividendEvents = $DividendEventsTable(this);
   late final $EarningsEventsTable earningsEvents = $EarningsEventsTable(this);
@@ -15127,6 +15600,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final Index idxPortfolioActivityExternal = Index(
     'idx_portfolio_activity_external',
     'CREATE UNIQUE INDEX idx_portfolio_activity_external ON portfolio_activities (portfolio_id, source, external_id)',
+  );
+  late final Index idxPortfolioValuationScopeTime = Index(
+    'idx_portfolio_valuation_scope_time',
+    'CREATE INDEX idx_portfolio_valuation_scope_time ON portfolio_valuation_snapshots (scope_id, observed_at)',
   );
   late final Index idxFxRateObservedAt = Index(
     'idx_fx_rate_observed_at',
@@ -15180,6 +15657,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     watchlistEntries,
     portfolioActivities,
     quotes,
+    portfolioValuationSnapshots,
     fxRates,
     dividendEvents,
     earningsEvents,
@@ -15195,6 +15673,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     cacheMetadata,
     idxPortfolioActivityTime,
     idxPortfolioActivityExternal,
+    idxPortfolioValuationScopeTime,
     idxFxRateObservedAt,
     idxDividendExDate,
     idxDividendPaymentDate,
@@ -20060,6 +20539,254 @@ typedef $$QuotesTableProcessedTableManager =
       (DbQuote, $$QuotesTableReferences),
       DbQuote,
       PrefetchHooks Function({bool instrumentId})
+    >;
+typedef $$PortfolioValuationSnapshotsTableCreateCompanionBuilder =
+    PortfolioValuationSnapshotsCompanion Function({
+      required String scopeId,
+      required String currencyCode,
+      required String valueAmount,
+      required DateTime observedAt,
+      required int positionCount,
+      required int pricedPositionCount,
+      Value<int> rowid,
+    });
+typedef $$PortfolioValuationSnapshotsTableUpdateCompanionBuilder =
+    PortfolioValuationSnapshotsCompanion Function({
+      Value<String> scopeId,
+      Value<String> currencyCode,
+      Value<String> valueAmount,
+      Value<DateTime> observedAt,
+      Value<int> positionCount,
+      Value<int> pricedPositionCount,
+      Value<int> rowid,
+    });
+
+class $$PortfolioValuationSnapshotsTableFilterComposer
+    extends Composer<_$AppDatabase, $PortfolioValuationSnapshotsTable> {
+  $$PortfolioValuationSnapshotsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get scopeId => $composableBuilder(
+    column: $table.scopeId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get currencyCode => $composableBuilder(
+    column: $table.currencyCode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get valueAmount => $composableBuilder(
+    column: $table.valueAmount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get observedAt => $composableBuilder(
+    column: $table.observedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get positionCount => $composableBuilder(
+    column: $table.positionCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get pricedPositionCount => $composableBuilder(
+    column: $table.pricedPositionCount,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$PortfolioValuationSnapshotsTableOrderingComposer
+    extends Composer<_$AppDatabase, $PortfolioValuationSnapshotsTable> {
+  $$PortfolioValuationSnapshotsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get scopeId => $composableBuilder(
+    column: $table.scopeId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get currencyCode => $composableBuilder(
+    column: $table.currencyCode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get valueAmount => $composableBuilder(
+    column: $table.valueAmount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get observedAt => $composableBuilder(
+    column: $table.observedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get positionCount => $composableBuilder(
+    column: $table.positionCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get pricedPositionCount => $composableBuilder(
+    column: $table.pricedPositionCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$PortfolioValuationSnapshotsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PortfolioValuationSnapshotsTable> {
+  $$PortfolioValuationSnapshotsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get scopeId =>
+      $composableBuilder(column: $table.scopeId, builder: (column) => column);
+
+  GeneratedColumn<String> get currencyCode => $composableBuilder(
+    column: $table.currencyCode,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get valueAmount => $composableBuilder(
+    column: $table.valueAmount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get observedAt => $composableBuilder(
+    column: $table.observedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get positionCount => $composableBuilder(
+    column: $table.positionCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get pricedPositionCount => $composableBuilder(
+    column: $table.pricedPositionCount,
+    builder: (column) => column,
+  );
+}
+
+class $$PortfolioValuationSnapshotsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PortfolioValuationSnapshotsTable,
+          DbPortfolioValuationSnapshot,
+          $$PortfolioValuationSnapshotsTableFilterComposer,
+          $$PortfolioValuationSnapshotsTableOrderingComposer,
+          $$PortfolioValuationSnapshotsTableAnnotationComposer,
+          $$PortfolioValuationSnapshotsTableCreateCompanionBuilder,
+          $$PortfolioValuationSnapshotsTableUpdateCompanionBuilder,
+          (
+            DbPortfolioValuationSnapshot,
+            BaseReferences<
+              _$AppDatabase,
+              $PortfolioValuationSnapshotsTable,
+              DbPortfolioValuationSnapshot
+            >,
+          ),
+          DbPortfolioValuationSnapshot,
+          PrefetchHooks Function()
+        > {
+  $$PortfolioValuationSnapshotsTableTableManager(
+    _$AppDatabase db,
+    $PortfolioValuationSnapshotsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PortfolioValuationSnapshotsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$PortfolioValuationSnapshotsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$PortfolioValuationSnapshotsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> scopeId = const Value.absent(),
+                Value<String> currencyCode = const Value.absent(),
+                Value<String> valueAmount = const Value.absent(),
+                Value<DateTime> observedAt = const Value.absent(),
+                Value<int> positionCount = const Value.absent(),
+                Value<int> pricedPositionCount = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PortfolioValuationSnapshotsCompanion(
+                scopeId: scopeId,
+                currencyCode: currencyCode,
+                valueAmount: valueAmount,
+                observedAt: observedAt,
+                positionCount: positionCount,
+                pricedPositionCount: pricedPositionCount,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String scopeId,
+                required String currencyCode,
+                required String valueAmount,
+                required DateTime observedAt,
+                required int positionCount,
+                required int pricedPositionCount,
+                Value<int> rowid = const Value.absent(),
+              }) => PortfolioValuationSnapshotsCompanion.insert(
+                scopeId: scopeId,
+                currencyCode: currencyCode,
+                valueAmount: valueAmount,
+                observedAt: observedAt,
+                positionCount: positionCount,
+                pricedPositionCount: pricedPositionCount,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$PortfolioValuationSnapshotsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PortfolioValuationSnapshotsTable,
+      DbPortfolioValuationSnapshot,
+      $$PortfolioValuationSnapshotsTableFilterComposer,
+      $$PortfolioValuationSnapshotsTableOrderingComposer,
+      $$PortfolioValuationSnapshotsTableAnnotationComposer,
+      $$PortfolioValuationSnapshotsTableCreateCompanionBuilder,
+      $$PortfolioValuationSnapshotsTableUpdateCompanionBuilder,
+      (
+        DbPortfolioValuationSnapshot,
+        BaseReferences<
+          _$AppDatabase,
+          $PortfolioValuationSnapshotsTable,
+          DbPortfolioValuationSnapshot
+        >,
+      ),
+      DbPortfolioValuationSnapshot,
+      PrefetchHooks Function()
     >;
 typedef $$FxRatesTableCreateCompanionBuilder = FxRatesCompanion Function({
   required String source,
@@ -25527,6 +26254,12 @@ class $AppDatabaseManager {
       $$PortfolioActivitiesTableTableManager(_db, _db.portfolioActivities);
   $$QuotesTableTableManager get quotes =>
       $$QuotesTableTableManager(_db, _db.quotes);
+  $$PortfolioValuationSnapshotsTableTableManager
+  get portfolioValuationSnapshots =>
+      $$PortfolioValuationSnapshotsTableTableManager(
+        _db,
+        _db.portfolioValuationSnapshots,
+      );
   $$FxRatesTableTableManager get fxRates =>
       $$FxRatesTableTableManager(_db, _db.fxRates);
   $$DividendEventsTableTableManager get dividendEvents =>

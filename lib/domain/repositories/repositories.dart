@@ -130,6 +130,16 @@ abstract interface class PortfolioRepository {
   /// Emits newest-first immutable activities. `null` means all portfolios.
   Stream<List<PortfolioActivity>> watchActivities(String? portfolioId);
 
+  /// Emits oldest-first local valuation snapshots for [scopeId].
+  Stream<List<PortfolioValuationSnapshot>> watchValuationSnapshots(
+    String scopeId,
+  );
+
+  /// Stores one or more idempotent local end-of-day valuations.
+  Future<Result<void>> saveValuationSnapshots(
+    List<PortfolioValuationSnapshot> snapshots,
+  );
+
   /// Records an activity atomically and applies its holding impact.
   Future<Result<int>> recordActivity(PortfolioActivity activity);
 
