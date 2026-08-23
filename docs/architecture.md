@@ -52,7 +52,7 @@ Retry delays do not hold a concurrency slot.
 ## Persistence and migrations
 
 `AppDatabase` is a Drift database stored in the platform application-data
-directory. The current schema is version 5 and contains portfolio ownership,
+directory. The current schema is version 6 and contains portfolio ownership,
 normalized market data, research snapshots, provider health and cache metadata.
 Money and rates are decimal text; timestamps are ISO-8601 text; enums persist by
 name.
@@ -65,6 +65,7 @@ Migrations are explicit and additive:
 | 2 → 3 | exact daily FX rates |
 | 3 → 4 | corporate events |
 | 4 → 5 | portfolio identities and immutable activity ledger |
+| 5 → 6 | unique per-portfolio import identities |
 
 Unknown or backward paths fail instead of resetting the database. Foreign keys
 are enabled for every connection, while user-owned holdings deliberately do not
@@ -77,6 +78,12 @@ SQLite transaction. A correction appends a reversal that points to the
 original row; it does not rewrite history. The v4 migration assigns every
 existing holding and watchlist entry to the default portfolio and creates an
 opening-balance activity with the preserved quantity, price and provenance.
+
+Local CSV import parses and validates without writing, resolves instruments by
+exact ISIN or unambiguous ticker, and previews accepted, duplicate and rejected
+rows. Applying a reviewed batch and rebuilding affected positions share one
+transaction. Undo appends reversals for that batch. Source documents and
+filenames are never persisted; see [`portfolio-import.md`](portfolio-import.md).
 
 ## Data provenance and offline behavior
 
@@ -118,7 +125,7 @@ See [`privacy.md`](privacy.md) for the user-visible data inventory.
 
 `./localPipeline.sh` is shared by local development, CI and release automation.
 It checks the pinned Flutter toolchain, dependency resolution, formatting,
-analysis, 500 unit/widget tests, the real Linux integration journey, Android 10
+analysis, 525 unit/widget tests, the real Linux integration journey, Android 10
 compatibility, both release builds and—unless disabled—a rendered Linux first
 frame. Provider contracts use recorded fixtures and do not depend on network
 availability.

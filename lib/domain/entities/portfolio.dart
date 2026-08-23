@@ -218,3 +218,34 @@ final class PortfolioActivity implements HasProvenance {
   @override
   String toString() => 'PortfolioActivity(${id ?? 'new'}, ${type.name})';
 }
+
+/// One persisted local import batch, derived from its immutable activities.
+final class PortfolioImportBatch {
+  /// Creates a batch summary.
+  const PortfolioImportBatch({
+    required this.id,
+    required this.portfolioId,
+    required this.source,
+    required this.importedAt,
+    required this.activityCount,
+    required this.isUndone,
+  });
+
+  /// Stable batch identity used for precise undo.
+  final String id;
+
+  /// Portfolio that received the rows.
+  final String portfolioId;
+
+  /// Import adapter identifier, never a source filename.
+  final String source;
+
+  /// When the batch was applied.
+  final DateTime importedAt;
+
+  /// Number of original activities in the batch.
+  final int activityCount;
+
+  /// Whether every original activity has an appended reversal.
+  final bool isUndone;
+}

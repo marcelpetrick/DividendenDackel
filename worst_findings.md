@@ -1,5 +1,49 @@
 # Engineering self-review
 
+## Phase 6 P2 local-import review
+
+Base: P1 (`621c252`)<br>
+Review date: 2026-08-23
+
+### Findings
+
+#1 HIGH Code `lib/data/repositories/drift_portfolio_repository.dart`
+
+Batch undo was initially keyed only by the generated batch id, so an unlikely
+same-time/same-file collision across portfolios could reverse both portfolios.
+Fixed by requiring the portfolio identity at the repository boundary, filtering
+all undo reads by it, and covering a deliberate collision with a regression
+test.
+
+#2 MEDIUM Code `lib/data/repositories/drift_portfolio_repository.dart`
+
+Duplicate detection initially put every external identity into one SQL `IN`
+clause, which could exceed Android SQLite's bind-variable limit on a large but
+valid CSV. Fixed with bounded 500-identity query chunks and a 1,200-row test.
+
+#3 MEDIUM Code `lib/domain/use_cases/portfolio_import.dart`
+
+Portfolio Performance's transaction currency was initially applied to its
+gross amount, which could silently relabel a security price when fees were in a
+different currency. Fixed by independently selecting gross-amount and
+transaction currencies; tests retain a USD gross trade and EUR fee separately.
+
+#4 LOW Code `lib/data/repositories/drift_portfolio_repository.dart`
+
+Import history originally watched only rows with a batch id, so a manual
+reversal of an imported activity was excluded and the batch could remain shown
+as active. Fixed by considering all portfolio reversals while grouping only
+original imported rows.
+
+### Verdict
+
+P2 is complete after the fixes: source files stay local and ephemeral, preview
+is non-mutating, duplicates are stable and Android-safe, apply and position
+rebuild are atomic, undo is portfolio-scoped and auditable, schema migration is
+additive, and the complete local CI pipeline is green with both release builds.
+
+---
+
 ## Phase 6 P1 activity-ledger review
 
 Base: `v0.43.0` (`2157bbe`)<br>

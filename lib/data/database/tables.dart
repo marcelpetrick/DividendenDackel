@@ -190,6 +190,11 @@ class WatchlistEntries extends Table with ProvenanceColumns {
   name: 'idx_portfolio_activity_time',
   columns: <Symbol>{#portfolioId, #occurredAt},
 )
+@TableIndex(
+  name: 'idx_portfolio_activity_external',
+  columns: <Symbol>{#portfolioId, #source, #externalId},
+  unique: true,
+)
 @DataClassName('DbPortfolioActivity')
 class PortfolioActivities extends Table with ProvenanceColumns {
   /// Local activity identity.

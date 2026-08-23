@@ -407,6 +407,147 @@ void main() {
       expect(await portfolio.watchHoldings().first, isEmpty);
     });
 
+    test('rolls back an entire import batch when one row oversells', () async {
+      final String batchId = 'import-atomic';
+      final Provenance imported = Provenance(
+        source: 'import:test-csv',
+        fetchedAt: now,
+      );
+      final Result<int> result = await portfolio.applyImportBatch(
+        batchId,
+        <PortfolioActivity>[
+          PortfolioActivity(
+            portfolioId: InvestmentPortfolio.defaultId,
+            type: PortfolioActivityType.purchase,
+            occurredAt: now,
+            instrumentId: allianz.internalId,
+            quantity: Decimal.one,
+            unitPrice: Money.parse('100', Currency.eur),
+            externalId: 'purchase',
+            importBatchId: batchId,
+            provenance: imported,
+          ),
+          PortfolioActivity(
+            portfolioId: InvestmentPortfolio.defaultId,
+            type: PortfolioActivityType.sale,
+            occurredAt: now.add(const Duration(days: 1)),
+            instrumentId: allianz.internalId,
+            quantity: Decimal.parse('2'),
+            unitPrice: Money.parse('110', Currency.eur),
+            externalId: 'oversale',
+            importBatchId: batchId,
+            provenance: imported,
+          ),
+        ],
+      );
+
+      expect(result.failureOrNull, isA<InvalidInstrumentFailure>());
+      expect(
+        await portfolio.watchActivities(InvestmentPortfolio.defaultId).first,
+        isEmpty,
+      );
+      expect(await portfolio.watchHoldings().first, isEmpty);
+    });
+
+    test(
+      'undo is scoped to its portfolio even when batch ids collide',
+      () async {
+        await portfolio.savePortfolio(
+          InvestmentPortfolio(
+            id: 'retirement',
+            name: 'Retirement',
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
+        const String batchId = 'shared-batch-id';
+        final Provenance imported = Provenance(
+          source: 'import:test-csv',
+          fetchedAt: now,
+        );
+        PortfolioActivity purchase(String portfolioId) => PortfolioActivity(
+          portfolioId: portfolioId,
+          type: PortfolioActivityType.purchase,
+          occurredAt: now,
+          instrumentId: allianz.internalId,
+          quantity: Decimal.one,
+          unitPrice: Money.parse('100', Currency.eur),
+          externalId: 'same-source-id',
+          importBatchId: batchId,
+          provenance: imported,
+        );
+
+        await portfolio.applyImportBatch(batchId, <PortfolioActivity>[
+          purchase(InvestmentPortfolio.defaultId),
+        ]);
+        await portfolio.applyImportBatch(batchId, <PortfolioActivity>[
+          purchase('retirement'),
+        ]);
+        final Result<int> undone = await portfolio.undoImportBatch(
+          InvestmentPortfolio.defaultId,
+          batchId,
+          occurredAt: now.add(const Duration(days: 1)),
+        );
+
+        expect(undone.valueOrNull, 1);
+        expect(await portfolio.watchHoldings().first, isEmpty);
+        expect(
+          (await portfolio.watchHoldings(portfolioId: 'retirement').first)
+              .single
+              .quantity,
+          Decimal.one,
+        );
+      },
+    );
+
+    test('import history notices an individually reversed row', () async {
+      const String batchId = 'individually-reversed';
+      await portfolio.applyImportBatch(batchId, <PortfolioActivity>[
+        PortfolioActivity(
+          portfolioId: InvestmentPortfolio.defaultId,
+          type: PortfolioActivityType.purchase,
+          occurredAt: now,
+          instrumentId: allianz.internalId,
+          quantity: Decimal.one,
+          unitPrice: Money.parse('100', Currency.eur),
+          externalId: 'individual-row',
+          importBatchId: batchId,
+          provenance: Provenance(source: 'import:test-csv', fetchedAt: now),
+        ),
+      ]);
+      final int activityId =
+          (await portfolio.watchActivities(InvestmentPortfolio.defaultId).first)
+              .single
+              .id!;
+
+      await portfolio.reverseActivity(
+        activityId,
+        occurredAt: now.add(const Duration(days: 1)),
+      );
+
+      expect(
+        (await portfolio
+                .watchImportBatches(InvestmentPortfolio.defaultId)
+                .first)
+            .single
+            .isUndone,
+        isTrue,
+      );
+    });
+
+    test('chunks large duplicate lookups for Android SQLite limits', () async {
+      final Result<Set<String>> result = await portfolio
+          .findImportedExternalIds(
+            portfolioId: InvestmentPortfolio.defaultId,
+            source: 'import:test-csv',
+            externalIds: <String>{
+              for (int index = 0; index < 1200; index++) 'row-$index',
+            },
+          );
+
+      expect(result.valueOrNull, isEmpty);
+    });
+
     test('reversal removes the original economic effect once', () async {
       final int purchaseId = (await portfolio.recordActivity(
         PortfolioActivity(

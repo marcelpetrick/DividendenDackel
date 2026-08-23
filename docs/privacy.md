@@ -16,6 +16,11 @@ The app stores the following in its platform application-data directory:
 - notification mode and stable identifiers of events already delivered;
 - editable tax-profile inputs and withholding assumptions.
 
+CSV files selected for portfolio import are read locally for a review preview.
+The source file and filename are not copied into the database or sent over the
+network. Only validated activities, a stable duplicate-detection identity and
+an import-batch identifier are retained. Undo appends local reversal records.
+
 Optional third-party API keys are stored separately through Android secure
 storage backed by the Keystore or Linux Secret Service. The application never
 includes a shared provider credential in its source code or artifacts. Android

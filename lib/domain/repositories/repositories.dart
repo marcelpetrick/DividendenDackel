@@ -135,6 +135,29 @@ abstract interface class PortfolioRepository {
   /// Instrument ids the user holds or watches, which drive refresh priority
   /// and news relevance (Vision.md §17, §40).
   Stream<Set<String>> watchFollowedInstrumentIds({String? portfolioId});
+
+  /// Existing stable identities for one import source.
+  Future<Result<Set<String>>> findImportedExternalIds({
+    required String portfolioId,
+    required String source,
+    required Set<String> externalIds,
+  });
+
+  /// Atomically records all non-duplicate activities in one import batch.
+  Future<Result<int>> applyImportBatch(
+    String batchId,
+    List<PortfolioActivity> activities,
+  );
+
+  /// Emits newest-first local import batches without retaining source files.
+  Stream<List<PortfolioImportBatch>> watchImportBatches(String portfolioId);
+
+  /// Appends reversals for an entire batch and rebuilds affected positions.
+  Future<Result<int>> undoImportBatch(
+    String portfolioId,
+    String batchId, {
+    required DateTime occurredAt,
+  });
 }
 
 /// Reads and writes dividend events.

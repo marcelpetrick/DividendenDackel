@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
   transactionally, corrections append auditable reversals, and actual gross
   dividends reconcile against dated expected payments without mixing
   currencies.
+- Review-first local CSV import for the native schema and Portfolio Performance
+  transaction exports, with row validation, stable duplicate detection, one
+  atomic apply transaction, retained batch history and reversal-based undo.
 - Current official Parqet comparison and a reprioritized post-1.0 scope focused
   on local transaction truth, dividend reconciliation, private import/export,
   multiple portfolios and explainable performance.

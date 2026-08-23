@@ -226,7 +226,7 @@ local-first model and improves the dividend workflow before broadening the app.
 - [x] **P1** Local activity ledger for purchases, sales, deposits, withdrawals,
       dividends, taxes and fees, including corrections/reversals and
       forecast-versus-paid dividend reconciliation.
-- [ ] **P2** Local import with preview, validation, idempotent duplicate
+- [x] **P2** Local import with preview, validation, idempotent duplicate
       handling, atomic application and undo: documented CSV first, then
       Portfolio Performance CSV. Source documents never leave the device.
 - [ ] **P3** Calendar export as a local `.ics` snapshot importable into Google
