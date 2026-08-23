@@ -102,6 +102,12 @@ class PortfolioScreen extends ConsumerWidget {
                 rates: rateBook,
                 asOf: now,
               );
+          final PortfolioHealth health = PortfolioHealthCalculator.calculate(
+            overview: overview,
+            displayCurrency: displayCurrency,
+            rates: rateBook,
+            asOf: now,
+          );
           return _PortfolioBody(
             overview: overview,
             watchlist: watchlist,
@@ -110,6 +116,7 @@ class PortfolioScreen extends ConsumerWidget {
             taxWindow: taxWindow,
             valueExposure: valueExposure,
             incomeExposure: incomeExposure,
+            health: health,
             fxRefreshing: fxRefresh.isRefreshing,
             fxError: fxRefresh.errorMessage,
             refreshFx: () => ref.read(fxRefreshProvider.notifier).refresh(),
@@ -161,6 +168,7 @@ class _PortfolioBody extends StatelessWidget {
     required this.taxWindow,
     required this.valueExposure,
     required this.incomeExposure,
+    required this.health,
     required this.fxRefreshing,
     required this.fxError,
     required this.refreshFx,
@@ -175,6 +183,7 @@ class _PortfolioBody extends StatelessWidget {
   final _TaxWindow taxWindow;
   final PortfolioCurrencyExposure valueExposure;
   final PortfolioCurrencyExposure incomeExposure;
+  final PortfolioHealth health;
   final bool fxRefreshing;
   final String? fxError;
   final VoidCallback refreshFx;
@@ -244,6 +253,10 @@ class _PortfolioBody extends StatelessWidget {
             position: position,
             dividendDataAvailable: dividendDataAvailable,
           ),
+      if (overview.positions.isNotEmpty) ...<Widget>[
+        const SizedBox(height: AppTheme.space * 2),
+        _PortfolioHealthCard(health: health),
+      ],
       const SizedBox(height: AppTheme.space * 2),
       Text('Watchlist', style: Theme.of(context).textTheme.titleLarge),
       const SizedBox(height: AppTheme.space),
@@ -270,6 +283,192 @@ class _PortfolioBody extends StatelessWidget {
             ],
           ),
         ),
+    ],
+  );
+}
+
+class _PortfolioHealthCard extends StatelessWidget {
+  const _PortfolioHealthCard({required this.health});
+
+  final PortfolioHealth health;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppTheme.space * 2),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Row(
+              children: <Widget>[
+                const Icon(Icons.health_and_safety_outlined),
+                const SizedBox(width: AppTheme.space),
+                Expanded(
+                  child: Text(
+                    'Portfolio health',
+                    style: theme.textTheme.titleLarge,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppTheme.space / 2),
+            Text(
+              'Concentration context—not a rating or investment advice. '
+              'Shares use cached values converted to '
+              '${health.displayCurrency.code}.',
+              style: theme.textTheme.bodySmall,
+            ),
+            const SizedBox(height: AppTheme.space),
+            Text(
+              'Value coverage: ${health.pricedPositionCount} of '
+              '${health.positionCount} holdings',
+            ),
+            if (!health.valueCoverageComplete ||
+                health.missingValueCurrencies.isNotEmpty)
+              Text(
+                'Unpriced holdings and currencies without a dated FX rate are '
+                'excluded, not treated as zero.',
+                style: theme.textTheme.bodySmall,
+              ),
+            if (health.missingIncomeCurrencies.isNotEmpty)
+              Text(
+                'Dividend income in ${health.missingIncomeCurrencies.map((Currency item) => item.code).join(', ')} is excluded because no dated FX rate is cached.',
+                style: theme.textTheme.bodySmall,
+              ),
+            if (health.positions.isEmpty)
+              const Padding(
+                padding: EdgeInsets.only(top: AppTheme.space),
+                child: Text(
+                  'Cached quotes are needed before value concentration can be '
+                  'calculated.',
+                ),
+              )
+            else ...<Widget>[
+              const Divider(height: AppTheme.space * 3),
+              if (health.topFiveShare case final Percentage share)
+                Text(
+                  'Top ${health.positions.length.clamp(0, 5)} positions: '
+                  '${share.format()} of covered value',
+                  style: theme.textTheme.titleSmall,
+                ),
+              const SizedBox(height: AppTheme.space),
+              for (final String insight in health.insights)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: AppTheme.space / 2),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      const Icon(Icons.info_outline, size: 18),
+                      const SizedBox(width: AppTheme.space / 2),
+                      Expanded(child: Text(insight)),
+                    ],
+                  ),
+                ),
+              const SizedBox(height: AppTheme.space),
+              LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+                  final double width = constraints.maxWidth < 760
+                      ? constraints.maxWidth
+                      : (constraints.maxWidth - AppTheme.space * 2) / 3;
+                  return Wrap(
+                    spacing: AppTheme.space,
+                    runSpacing: AppTheme.space,
+                    children: <Widget>[
+                      SizedBox(
+                        width: width,
+                        child: _ExposureList(
+                          title: 'Positions',
+                          values: health.positions,
+                        ),
+                      ),
+                      SizedBox(
+                        width: width,
+                        child: _ExposureList(
+                          title: 'Sectors',
+                          values: health.sectors,
+                        ),
+                      ),
+                      SizedBox(
+                        width: width,
+                        child: _ExposureList(
+                          title: 'Countries',
+                          values: health.countries,
+                        ),
+                      ),
+                      SizedBox(
+                        width: width,
+                        child: _ExposureList(
+                          title: 'Currencies',
+                          values: health.currencies,
+                        ),
+                      ),
+                      SizedBox(
+                        width: width,
+                        child: _ExposureList(
+                          title: 'Expected dividend income',
+                          values: health.dividendIncome,
+                          emptyMessage: 'No dated dividend income available.',
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ExposureList extends StatelessWidget {
+  const _ExposureList({
+    required this.title,
+    required this.values,
+    this.emptyMessage = 'No covered values.',
+  });
+
+  final String title;
+  final List<PortfolioHealthSlice> values;
+  final String emptyMessage;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: <Widget>[
+      Text(title, style: Theme.of(context).textTheme.titleSmall),
+      const SizedBox(height: AppTheme.space / 2),
+      if (values.isEmpty)
+        Text(emptyMessage)
+      else
+        for (final PortfolioHealthSlice slice in values.take(5))
+          Padding(
+            padding: const EdgeInsets.only(bottom: AppTheme.space / 2),
+            child: Semantics(
+              label: '${slice.label}, ${slice.share.format()}',
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: Text(
+                          slice.label,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: AppTheme.space),
+                      Text(slice.share.format()),
+                    ],
+                  ),
+                  LinearProgressIndicator(value: slice.share.rate.toDouble()),
+                ],
+              ),
+            ),
+          ),
     ],
   );
 }

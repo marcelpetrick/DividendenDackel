@@ -183,7 +183,7 @@ Each task names the `Vision.md` sections it satisfies.
       the vision; never fabricate missing values. — §79, §87
 - [x] **Q3** Accessibility pass: scalable text, semantic labels, focus states,
       keyboard navigation on Linux, non-colour-only status indicators. — §27
-- [ ] **Q4** Portfolio health (concentration, sector/country/currency exposure,
+- [x] **Q4** Portfolio health (concentration, sector/country/currency exposure,
       dividend-income concentration) with contextual insights. — §20
 - [ ] **Q5** Dividend simulator (additional investment → shares, added income,
       new weight, concentration impact). — §21
