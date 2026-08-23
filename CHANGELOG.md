@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ### Added
 
+- Direct local Interactive Brokers Flex CSV import for stock trades,
+  commissions, taxes, dividends and account cash movements. The adapter accepts
+  official trade and statement-of-funds fields, refuses derivatives, canceled
+  trades and ambiguous dates, and reuses the review/duplicate/atomic-undo flow.
 - Complete local multi-portfolio management: create, rename, clear and delete
   portfolios; edit/delete holdings and watchlist entries; persistent portfolio
   selection; and an explicit read-only consolidated projection. Tax assumptions

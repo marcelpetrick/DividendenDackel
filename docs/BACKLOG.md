@@ -237,7 +237,7 @@ local-first model and improves the dividend workflow before broadening the app.
 - [ ] **P5** Explainable cash-flow and performance analytics after P1: monthly,
       quarterly and annual detail, XIRR, TTWROR and optional benchmarks with
       formulas, period, coverage and cash-flow treatment visible.
-- [ ] **P6** Local broker-document import extensions; consider credential-based
+- [x] **P6** Local broker-document import extensions; consider credential-based
       autosync only after a provider-specific threat model, licensing review and
       reconciliation design.
 - [ ] **P7** Encrypted Android/Linux sync, optional and never required for local

@@ -1,10 +1,11 @@
 # Project status
 
 - **Last updated:** 2026-08-23
-- **Version:** 0.46.0+77
+- **Version:** 0.47.0+78
 - **Branch:** `master` (local work ahead of `origin/master`)
 - **Pinned toolchain:** Flutter 3.47.1 / Dart 3.13.1
-- **Quality gate:** green — 540 tests, Linux integration, Android and Linux
+- **Quality gate:** green — 544 tests, Linux integration, Android and Linux
+  release builds, Android 10 compatibility
   release builds, Android 10 compatibility
 
 ## Product state
@@ -29,6 +30,8 @@ Implemented user capabilities:
   corrections and expected-versus-actual dividend reconciliation;
 - review-first local DividendenDackel and Portfolio Performance CSV import with
   validation, duplicate detection, atomic apply, batch history and undo;
+- direct Interactive Brokers Flex CSV support for stock trades, commissions,
+  taxes, dividends and cash movements, with unsafe rows refused;
 - portfolio health by holding, sector, country, currency and dividend income;
 - additional-investment dividend simulator;
 - month/year/agenda dividend calendar with ex/payment date modes, scopes,

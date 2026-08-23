@@ -91,9 +91,11 @@ with migration of the original default-portfolio values.
 
 Local CSV import parses and validates without writing, resolves instruments by
 exact ISIN or unambiguous ticker, and previews accepted, duplicate and rejected
-rows. Applying a reviewed batch and rebuilding affected positions share one
-transaction. Undo appends reversals for that batch. Source documents and
-filenames are never persisted; see [`portfolio-import.md`](portfolio-import.md).
+rows. Native, Portfolio Performance and Interactive Brokers Flex adapters
+normalize into the same domain activities. Applying a reviewed batch and
+rebuilding affected positions share one transaction. Undo appends reversals for
+that batch. Source documents and filenames are never persisted; see
+[`portfolio-import.md`](portfolio-import.md).
 
 ## Data provenance and offline behavior
 
@@ -135,7 +137,7 @@ See [`privacy.md`](privacy.md) for the user-visible data inventory.
 
 `./localPipeline.sh` is shared by local development, CI and release automation.
 It checks the pinned Flutter toolchain, dependency resolution, formatting,
-analysis, 540 unit/widget tests, the real Linux integration journey, Android 10
+analysis, 544 unit/widget tests, the real Linux integration journey, Android 10
 compatibility, both release builds and—unless disabled—a rendered Linux first
 frame. Provider contracts use recorded fixtures and do not depend on network
 availability.

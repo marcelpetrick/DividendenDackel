@@ -958,6 +958,7 @@ class _ActivityLedgerCard extends StatelessWidget {
   static String _importSource(String source) => switch (source) {
     'import:portfolio-performance-csv' => 'Portfolio Performance CSV',
     'import:dividendendackel-csv' => 'DividendenDackel CSV',
+    'import:interactive-brokers-flex-csv' => 'Interactive Brokers Flex CSV',
     _ => 'Local CSV',
   };
 }

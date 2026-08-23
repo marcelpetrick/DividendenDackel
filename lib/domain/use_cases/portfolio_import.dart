@@ -10,7 +10,11 @@ import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/domain/repositories/repositories.dart';
 
 /// Supported, explicitly documented local CSV layouts.
-enum PortfolioImportFormat { dividendendackel, portfolioPerformance }
+enum PortfolioImportFormat {
+  dividendendackel,
+  portfolioPerformance,
+  interactiveBrokersFlex,
+}
 
 /// One rejected source row with safe, actionable detail.
 final class PortfolioImportIssue {
@@ -146,7 +150,7 @@ final class PortfolioImportService {
 /// Pure CSV parser. It performs no I/O and accepts only exact local instrument
 /// matches so an ambiguous ticker can never mutate the wrong holding.
 abstract final class PortfolioCsvParser {
-  /// Parses the native schema or a Portfolio Performance transaction export.
+  /// Parses native, Portfolio Performance or Interactive Brokers Flex CSV.
   static PortfolioCsvParseResult parse({
     required String portfolioId,
     required String contents,
@@ -171,24 +175,38 @@ abstract final class PortfolioCsvParser {
         message: 'The CSV needs a header and at least one data row.',
       );
     }
-    final List<String> headers = decoded.first
+    final List<String> rawHeaders = decoded.first
         .map((dynamic value) => _normalizeHeader(value.toString()))
         .toList(growable: false);
+    final bool isInteractiveBrokers =
+        (rawHeaders.contains('trade_date') &&
+            rawHeaders.contains('buy_sell')) ||
+        rawHeaders.contains('activity_code') ||
+        (rawHeaders.contains('trade_id') &&
+            (rawHeaders.contains('trade_money') ||
+                rawHeaders.contains('proceeds')));
+    final List<String> headers = <String>[
+      for (final String header in rawHeaders)
+        isInteractiveBrokers ? _interactiveBrokersHeader(header) : header,
+    ];
     if (!headers.contains('date') || !headers.contains('type')) {
       throw const ParsingFailure(
         message: 'The CSV needs Date and Type columns.',
       );
     }
-    final PortfolioImportFormat format =
-        headers.contains('transaction_currency') ||
-            headers.contains('ticker_symbol') ||
-            headers.contains('security_name')
+    final PortfolioImportFormat format = isInteractiveBrokers
+        ? PortfolioImportFormat.interactiveBrokersFlex
+        : headers.contains('transaction_currency') ||
+              headers.contains('ticker_symbol') ||
+              headers.contains('security_name')
         ? PortfolioImportFormat.portfolioPerformance
         : PortfolioImportFormat.dividendendackel;
     final String source = switch (format) {
       PortfolioImportFormat.dividendendackel => 'import:dividendendackel-csv',
       PortfolioImportFormat.portfolioPerformance =>
         'import:portfolio-performance-csv',
+      PortfolioImportFormat.interactiveBrokersFlex =>
+        'import:interactive-brokers-flex-csv',
     };
     final _InstrumentIndex index = _InstrumentIndex(instruments);
     final List<PortfolioActivity> activities = <PortfolioActivity>[];
@@ -210,6 +228,7 @@ abstract final class PortfolioCsvParser {
             row: row,
             index: index,
             source: source,
+            format: format,
             importedAt: importedAt,
           ),
         );
@@ -238,22 +257,63 @@ abstract final class PortfolioCsvParser {
     required Map<String, String> row,
     required _InstrumentIndex index,
     required String source,
+    required PortfolioImportFormat format,
     required DateTime importedAt,
   }) {
     final PortfolioActivityType type = _activityType(
       _field(row, <String>['type']),
     );
-    final DateTime occurredAt = _date(_field(row, <String>['date']));
+    final bool securityRequired =
+        type == PortfolioActivityType.purchase ||
+        type == PortfolioActivityType.sale ||
+        type == PortfolioActivityType.openingBalance;
+    if (format == PortfolioImportFormat.interactiveBrokersFlex) {
+      final String assetClass = _field(row, <String>[
+        'asset_class',
+      ]).toUpperCase();
+      final bool stockAsset =
+          assetClass == 'STK' ||
+          assetClass == 'STOCK' ||
+          assetClass == 'EQUITY';
+      final bool cashAsset = assetClass == 'CASH' && !securityRequired;
+      if (assetClass.isNotEmpty && !stockAsset && !cashAsset) {
+        throw FormatException(
+          'Interactive Brokers asset class "$assetClass" is not a stock.',
+        );
+      }
+      final String detail = _field(row, <String>[
+        'level_of_detail',
+      ]).toUpperCase();
+      if (securityRequired &&
+          detail.isNotEmpty &&
+          detail != 'EXECUTION' &&
+          detail != 'EXECUTIONS') {
+        throw const FormatException(
+          'Interactive Brokers trades must use execution-level rows.',
+        );
+      }
+      final Set<String> codes = _field(row, <String>['notes_codes', 'code'])
+          .toLowerCase()
+          .split(RegExp(r'[^a-z0-9]+'))
+          .where((String value) => value.isNotEmpty)
+          .toSet();
+      if (codes.contains('ca')) {
+        throw const FormatException(
+          'Canceled Interactive Brokers trades are not imported.',
+        );
+      }
+    }
+    final DateTime occurredAt = _date(
+      _field(row, <String>['date']),
+      interactiveBrokers:
+          format == PortfolioImportFormat.interactiveBrokersFlex,
+    );
     final String isin = _field(row, <String>['isin']);
     final String symbol = _field(row, <String>[
       'symbol',
       'ticker',
       'ticker_symbol',
     ]);
-    final bool securityRequired =
-        type == PortfolioActivityType.purchase ||
-        type == PortfolioActivityType.sale ||
-        type == PortfolioActivityType.openingBalance;
     final Instrument? instrument = index.resolve(isin: isin, symbol: symbol);
     if (securityRequired && instrument == null) {
       throw const FormatException(
@@ -280,13 +340,21 @@ abstract final class PortfolioCsvParser {
         directAmountText.isEmpty &&
         grossAmountText.isNotEmpty &&
         (securityRequired || type == PortfolioActivityType.dividend);
+    final String brokerAmountText = _field(row, <String>[
+      'trade_money',
+      'proceeds',
+      'trade_gross',
+      'net_cash',
+    ]);
     final String amountText = directAmountText.isNotEmpty
         ? directAmountText
         : useGrossAmount
         ? grossAmountText
         : valueText.isNotEmpty
         ? valueText
-        : grossAmountText;
+        : grossAmountText.isNotEmpty
+        ? grossAmountText
+        : brokerAmountText;
     final String currencyText = useGrossAmount
         ? (grossCurrencyText.isNotEmpty
               ? grossCurrencyText
@@ -300,9 +368,13 @@ abstract final class PortfolioCsvParser {
     final Currency? transactionCurrency = transactionCurrencyText.isNotEmpty
         ? Currency.parse(transactionCurrencyText)
         : currency;
-    final Decimal? quantity = _decimalOrNull(
-      _field(row, <String>['quantity', 'shares']),
+    final Decimal? parsedQuantity = _decimalOrNull(
+      _field(row, <String>['quantity', 'shares', 'trade_quantity']),
     );
+    final Decimal? quantity =
+        format == PortfolioImportFormat.interactiveBrokersFlex
+        ? parsedQuantity?.abs()
+        : parsedQuantity;
     final Decimal? amount = _decimalOrNull(amountText)?.abs();
     Decimal? unitPrice = _decimalOrNull(
       _field(row, <String>['unit_price', 'quote', 'price']),
@@ -314,23 +386,43 @@ abstract final class PortfolioCsvParser {
         securityRequired) {
       unitPrice = (amount / quantity).toDecimal(scaleOnInfinitePrecision: 12);
     }
-    final Decimal? fee = _decimalOrNull(_field(row, <String>['fee', 'fees']))
-        ?.abs();
+    final Decimal? fee = _decimalOrNull(
+      _field(row, <String>['fee', 'fees', 'ib_commission']),
+    )?.abs();
+    final String feeCurrencyText = _field(row, <String>[
+      'fee_currency',
+      'ib_commission_currency',
+    ]);
+    final Currency? feeCurrency = feeCurrencyText.isEmpty
+        ? transactionCurrency
+        : Currency.parse(feeCurrencyText);
     final Decimal? tax = _decimalOrNull(_field(row, <String>['tax', 'taxes']))
         ?.abs();
     final String suppliedId = _field(row, <String>[
       'external_id',
       'transaction_id',
       'contract_ref',
+      'trade_id',
       'id',
     ]);
     final String canonical = row.entries
         .map((MapEntry<String, String> item) => '${item.key}=${item.value}')
         .join('|');
+    final String account = _field(row, <String>['account_id', 'account_alias']);
+    final String accountScope =
+        format == PortfolioImportFormat.interactiveBrokersFlex &&
+            account.isNotEmpty
+        ? '${sha256.convert(utf8.encode(account)).toString().substring(0, 12)}:'
+        : '';
     final String baseId = suppliedId.isNotEmpty
-        ? 'external:$suppliedId'
+        ? 'external:$accountScope$suppliedId'
         : 'row:${sha256.convert(utf8.encode(canonical))}';
-    final String notes = _field(row, <String>['notes', 'note']);
+    final String notes = _field(row, <String>[
+      'notes',
+      'note',
+      'notes_codes',
+      'activity_description',
+    ]);
     final Provenance provenance = Provenance(
       source: source,
       fetchedAt: importedAt,
@@ -399,7 +491,10 @@ abstract final class PortfolioCsvParser {
           type: PortfolioActivityType.fee,
           occurredAt: occurredAt,
           instrumentId: instrument?.internalId,
-          cashAmount: Money(fee, transactionCurrency ?? instrument!.currency),
+          cashAmount: Money(
+            fee,
+            feeCurrency ?? transactionCurrency ?? instrument!.currency,
+          ),
           externalId: '$baseId:fee',
           provenance: provenance,
         ),
@@ -420,6 +515,14 @@ abstract final class PortfolioCsvParser {
     final String normalized = value
         .replaceFirst('\u{FEFF}', '')
         .trim()
+        .replaceAllMapped(
+          RegExp(r'([A-Z]+)([A-Z][a-z])'),
+          (Match match) => '${match.group(1)}_${match.group(2)}',
+        )
+        .replaceAllMapped(
+          RegExp(r'([a-z0-9])([A-Z])'),
+          (Match match) => '${match.group(1)}_${match.group(2)}',
+        )
         .toLowerCase()
         .replaceAll('ä', 'ae')
         .replaceAll('ö', 'oe')
@@ -443,6 +546,13 @@ abstract final class PortfolioCsvParser {
     };
   }
 
+  static String _interactiveBrokersHeader(String header) => switch (header) {
+    'trade_date' => 'date',
+    'buy_sell' || 'activity_code' => 'type',
+    'trade_price' => 'unit_price',
+    _ => header,
+  };
+
   static String _field(Map<String, String> row, List<String> names) {
     for (final String name in names) {
       final String? value = row[name];
@@ -465,32 +575,64 @@ abstract final class PortfolioCsvParser {
       'buy' || 'purchase' || 'kauf' => PortfolioActivityType.purchase,
       'sell' || 'sale' || 'verkauf' => PortfolioActivityType.sale,
       'deposit' || 'einlage' => PortfolioActivityType.deposit,
+      'dep' => PortfolioActivityType.deposit,
       'withdrawal' ||
       'removal' ||
       'entnahme' => PortfolioActivityType.withdrawal,
+      'with' => PortfolioActivityType.withdrawal,
       'interest' ||
       'zinsen' ||
+      'cint' ||
+      'intr' ||
       'fees_refund' ||
       'tax_refund' ||
       'gebuehrenerstattung' ||
       'steuererstattung' => PortfolioActivityType.deposit,
-      'interest_charge' || 'zinsbelastung' => PortfolioActivityType.withdrawal,
-      'dividend' || 'dividende' => PortfolioActivityType.dividend,
+      'interest_charge' ||
+      'zinsbelastung' ||
+      'dint' ||
+      'intp' => PortfolioActivityType.withdrawal,
+      'dividend' ||
+      'dividende' ||
+      'div' ||
+      'pil' => PortfolioActivityType.dividend,
       'tax' || 'taxes' || 'steuer' || 'steuern' => PortfolioActivityType.tax,
+      'frtax' || 'stax' || 'ttax' => PortfolioActivityType.tax,
       'fee' || 'fees' || 'gebuehr' || 'gebuehren' => PortfolioActivityType.fee,
+      'mfee' || 'ofee' => PortfolioActivityType.fee,
       'openingbalance' ||
       'opening_balance' ||
       'delivery_inbound' ||
-      'einlieferung' => PortfolioActivityType.openingBalance,
-      'delivery_outbound' || 'auslieferung' => PortfolioActivityType.sale,
+      'einlieferung' ||
+      'rec' => PortfolioActivityType.openingBalance,
+      'delivery_outbound' ||
+      'auslieferung' ||
+      'del' => PortfolioActivityType.sale,
       _ => throw FormatException('Unsupported activity type "$raw".'),
     };
   }
 
-  static DateTime _date(String raw) {
+  static DateTime _date(String raw, {bool interactiveBrokers = false}) {
     final String value = raw.trim();
     final DateTime? iso = DateTime.tryParse(value);
     if (iso != null) return iso.toUtc();
+    if (interactiveBrokers) {
+      final RegExpMatch? compact = RegExp(
+        r'^(\d{4})(\d{2})(\d{2})(?:[; ,T].*)?$',
+      ).firstMatch(value);
+      if (compact != null) {
+        final int year = int.parse(compact.group(1)!);
+        final int month = int.parse(compact.group(2)!);
+        final int day = int.parse(compact.group(3)!);
+        final DateTime parsed = DateTime.utc(year, month, day, 12);
+        if (parsed.year == year && parsed.month == month && parsed.day == day) {
+          return parsed;
+        }
+      }
+      throw FormatException(
+        'Interactive Brokers date "$raw" must use yyyyMMdd or ISO yyyy-MM-dd.',
+      );
+    }
     final RegExpMatch? match = RegExp(
       r'^(\d{1,2})[./-](\d{1,2})[./-](\d{4})(?:[ T].*)?$',
     ).firstMatch(value);

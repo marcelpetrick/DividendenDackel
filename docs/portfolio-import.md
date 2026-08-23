@@ -63,10 +63,42 @@ Portfolio Performance's calculated performance figures.
 Portfolio Performance documents its transaction CSV columns in its
 [official export reference](https://help.portfolio-performance.info/en/reference/file/export/).
 
+## Interactive Brokers Flex CSV
+
+Interactive Brokers Flex Query CSVs are detected from the official Trades or
+Statement of Funds fields. For Trades, include `Trade Date`, `Buy/Sell`,
+`Asset Class`, `Currency`, `ISIN` or `Symbol`, `Quantity`, `Trade Price`,
+`Trade Money` or `Proceeds`, `Trade ID`, `IB Commission`, `IB Commission
+Currency`, `Taxes` and `Notes/Codes`. Use execution-level rows rather than
+summaries; non-execution detail levels are refused. For Statement of Funds,
+include `Date`, `Activity Code`, `Amount`,
+`Currency`, `Transaction ID` and the available instrument identity fields.
+
+The adapter supports stock purchases and sales, deposits, withdrawals,
+dividends, withholding/transaction taxes, fees and interest cash movements.
+Negative broker quantities and cash amounts are normalized to the positive
+absolute values required by the activity type. Stock sales still fail the
+entire apply transaction if they would make the selected portfolio negative.
+Options, futures, forex and other non-stock asset classes are rejected rather
+than approximated. Rows marked with Interactive Brokers' canceled-trade `Ca`
+code are also rejected.
+
+For multi-account files, the account id or alias is hashed into the duplicate
+identity so equal broker transaction ids cannot collide across accounts. The
+raw account id is not stored.
+
+Flex dates must use the official default `yyyyMMdd` format or ISO `yyyy-MM-dd`.
+Slash dates are intentionally refused because Interactive Brokers lets the
+exporter choose either month-first or day-first order, which cannot be inferred
+safely from values such as `03/04/2026`.
+
+Interactive Brokers documents the available [Trades fields](https://www.ibkrguides.com/reportingreference/reportguide/tradesfq.htm),
+[Statement of Funds fields and activity codes](https://www.ibkrguides.com/reportingreference/reportguide/statement%20of%20fundsfq.htm),
+and [Flex Query CSV configuration](https://www.ibkrguides.com/clientportal/performanceandstatements/tradeflex.htm).
+
 ## Deliberate limits
 
 - Import is local file import, not broker credential synchronization.
 - The source filename and source file are not stored.
 - The importer does not invent instruments, exchange rates, or missing dates.
-- One reviewed file targets one selected portfolio. Multiple-portfolio
-  selection is tracked separately in the implementation backlog.
+- One reviewed file targets one explicitly selected portfolio.
