@@ -9,3 +9,4 @@ export 'package:dividendendackel/domain/analytics/dividend_quality.dart';
 export 'package:dividendendackel/domain/analytics/dividend_tax.dart';
 export 'package:dividendendackel/domain/analytics/portfolio_overview.dart';
 export 'package:dividendendackel/domain/analytics/relevance_ranking.dart';
+export 'package:dividendendackel/domain/analytics/research_score.dart';

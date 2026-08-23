@@ -168,7 +168,7 @@ Each task names the `Vision.md` sections it satisfies.
 - [x] **T2** Earnings events + upcoming corporate events. — §7, §51
 - [x] **T3** News ingestion, categories, source links (no republishing). — §18
 - [x] **T4** Relevance ranking for "what matters today". Unit tests. — §17
-- [ ] **T5** Research score (valuation, quality, growth, momentum, dividend,
+- [x] **T5** Research score (valuation, quality, growth, momentum, dividend,
       event risk) with human-readable explanations. Unit tests. — §15
 - [ ] **T6** Research detail screen incl. dividend history, bull/bear case and
       "What would change the assessment?". — §16
