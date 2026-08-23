@@ -7,6 +7,9 @@ final class InvestmentPortfolio {
   /// Stable identifier used when upgrading the original single portfolio.
   static const String defaultId = 'default';
 
+  /// Read-only identity used only for aggregated presentation models.
+  static const String consolidatedId = '__consolidated__';
+
   /// Creates a portfolio.
   InvestmentPortfolio({
     required this.id,

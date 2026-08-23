@@ -1,16 +1,17 @@
 import 'dart:async';
 
+import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Persistence boundary for the non-sensitive display currency preference.
 abstract interface class DisplayCurrencyStore {
-  /// Loads the saved currency, defaulting to EUR.
-  Future<Currency> load();
+  /// Loads the saved currency for [portfolioId], defaulting to EUR.
+  Future<Currency> load(String portfolioId);
 
-  /// Saves the selected currency.
-  Future<void> save(Currency currency);
+  /// Saves the selected currency for [portfolioId].
+  Future<void> save(String portfolioId, Currency currency);
 }
 
 /// SharedPreferences implementation used on Android and Linux.
@@ -20,23 +21,35 @@ final class PlatformDisplayCurrencyStore implements DisplayCurrencyStore {
     Future<SharedPreferences> Function()? preferences,
   }) : _preferences = preferences ?? SharedPreferences.getInstance;
 
-  static const String _key = 'portfolio.displayCurrency';
+  static const String _legacyKey = 'portfolio.displayCurrency';
+  static const String _keyPrefix = 'portfolio.displayCurrency.v2.';
   final Future<SharedPreferences> Function() _preferences;
 
   @override
-  Future<Currency> load() async {
+  Future<Currency> load(String portfolioId) async {
+    final SharedPreferences preferences = await _preferences();
+    final String? scoped = preferences.getString(_key(portfolioId));
+    final String? migrated = portfolioId == InvestmentPortfolio.defaultId
+        ? preferences.getString(_legacyKey)
+        : null;
     final Currency saved = Currency.parse(
-      (await _preferences()).getString(_key) ?? Currency.eur.code,
+      scoped ?? migrated ?? Currency.eur.code,
     );
     return saved.isKnown ? saved : Currency.eur;
   }
 
   @override
-  Future<void> save(Currency currency) async {
-    if (!await (await _preferences()).setString(_key, currency.code)) {
+  Future<void> save(String portfolioId, Currency currency) async {
+    if (!await (await _preferences()).setString(
+      _key(portfolioId),
+      currency.code,
+    )) {
       throw StateError('The platform preference store rejected the write.');
     }
   }
+
+  static String _key(String portfolioId) =>
+      '$_keyPrefix${Uri.encodeComponent(portfolioId)}';
 }
 
 /// Immediately applied display-currency preference state.
@@ -57,22 +70,29 @@ final class DisplayCurrencyState {
 /// Loads and persists the display currency.
 final class DisplayCurrencyController extends Notifier<DisplayCurrencyState> {
   bool _disposed = false;
+  String _scopeId = InvestmentPortfolio.defaultId;
 
   @override
   DisplayCurrencyState build() {
+    _disposed = false;
+    _scopeId =
+        ref.watch(effectivePortfolioIdProvider) ??
+        InvestmentPortfolio.consolidatedId;
     ref.onDispose(() => _disposed = true);
-    unawaited(_load());
+    unawaited(_load(_scopeId));
     return const DisplayCurrencyState(isLoading: true);
   }
 
-  Future<void> _load() async {
+  Future<void> _load(String scopeId) async {
     try {
       final Currency currency = await ref
           .read(displayCurrencyStoreProvider)
-          .load();
-      if (!_disposed) state = DisplayCurrencyState(currency: currency);
+          .load(scopeId);
+      if (!_disposed && scopeId == _scopeId) {
+        state = DisplayCurrencyState(currency: currency);
+      }
     } on Object {
-      if (!_disposed) {
+      if (!_disposed && scopeId == _scopeId) {
         state = const DisplayCurrencyState(
           errorMessage: 'Could not load display currency. Using EUR.',
         );
@@ -82,12 +102,15 @@ final class DisplayCurrencyController extends Notifier<DisplayCurrencyState> {
 
   /// Applies [currency] now and saves it for the next launch.
   Future<void> select(Currency currency) async {
+    final String scopeId = _scopeId;
     state = DisplayCurrencyState(currency: currency, isSaving: true);
     try {
-      await ref.read(displayCurrencyStoreProvider).save(currency);
-      if (!_disposed) state = DisplayCurrencyState(currency: currency);
+      await ref.read(displayCurrencyStoreProvider).save(scopeId, currency);
+      if (!_disposed && scopeId == _scopeId) {
+        state = DisplayCurrencyState(currency: currency);
+      }
     } on Object {
-      if (!_disposed) {
+      if (!_disposed && scopeId == _scopeId) {
         state = DisplayCurrencyState(
           currency: currency,
           errorMessage:

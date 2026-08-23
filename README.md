@@ -28,7 +28,7 @@ question it answers is:
 
 ## Status
 
-**0.43.0.** The Android 10+ and Linux desktop applications are
+**0.46.0.** The Android 10+ and Linux desktop applications are
 implemented and build as release artifacts. They include the Today dashboard,
 portfolio editor and health insights, dividend calendar and 24-month income
 forecast, gross/net tax estimates, multi-currency conversion, explainable
@@ -38,6 +38,10 @@ notifications.
 Portfolio changes can be recorded in an immutable local activity ledger or
 imported from a reviewable DividendenDackel/Portfolio Performance CSV. Imports
 are duplicate-safe, atomic and undoable without deleting their audit history.
+Users start with an empty personal portfolio, can create and rename additional
+portfolios, edit or remove positions and watchlist entries, clear or delete a
+portfolio with confirmation, and use an explicit read-only consolidated view.
+Display currency and tax assumptions remain isolated per portfolio.
 
 The full specification lives in [`Vision.md`](Vision.md); current delivery
 work is tracked in [`docs/BACKLOG.md`](docs/BACKLOG.md).
@@ -120,9 +124,10 @@ use: an identifying `User-Agent` and respect for their rate limits, which the
 Request Coordinator enforces.
 
 Where those two do not reach — live quotes, non-US dividend calendars, news —
-the app falls back to a **bundled sample dataset** so every screen is still
-populated and explorable. Sample-derived values are labelled as such and are
-never presented as market data.
+the app retains a clearly labelled **bundled reference dataset** for instrument
+discovery and offline exploration. It does not add demo holdings or watchlist
+entries to the user's portfolio. Sample-derived values are labelled as such and
+are never presented as market data.
 
 Settings reserve secure credential entries for richer providers such as
 Financial Modeling Prep, Finnhub and Alpha Vantage. Their adapters are not part

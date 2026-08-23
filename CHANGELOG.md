@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ### Added
 
+- Complete local multi-portfolio management: create, rename, clear and delete
+  portfolios; edit/delete holdings and watchlist entries; persistent portfolio
+  selection; and an explicit read-only consolidated projection. Tax assumptions
+  and display-currency preferences are stored per portfolio, and fresh installs
+  no longer receive demonstration positions.
 - A local immutable activity ledger for purchases, sales, deposits,
   withdrawals, dividends, taxes and fees. Holding projections update
   transactionally, corrections append auditable reversals, and actual gross

@@ -24,13 +24,32 @@ abstract interface class PortfolioEditor {
 
   /// Saves an instrument and adds or replaces its holding.
   Future<Result<void>> addHolding({
+    required String portfolioId,
     required Instrument instrument,
     required Decimal quantity,
     Money? averagePurchasePrice,
   });
 
   /// Saves an instrument and adds it to the watchlist.
-  Future<Result<void>> addToWatchlist(Instrument instrument);
+  Future<Result<void>> addToWatchlist({
+    required String portfolioId,
+    required Instrument instrument,
+  });
+
+  /// Replaces editable holding fields and records a quantity adjustment.
+  Future<Result<void>> updateHolding(Holding holding);
+
+  /// Removes a holding while retaining its instrument and market cache.
+  Future<Result<void>> removeHolding({
+    required String portfolioId,
+    required String instrumentId,
+  });
+
+  /// Removes one portfolio-owned watchlist entry.
+  Future<Result<void>> removeFromWatchlist({
+    required String portfolioId,
+    required String instrumentId,
+  });
 }
 
 /// Injectable live-search boundary used alongside the local repository.
@@ -99,6 +118,7 @@ final class DefaultPortfolioEditor implements PortfolioEditor {
 
   @override
   Future<Result<void>> addHolding({
+    required String portfolioId,
     required Instrument instrument,
     required Decimal quantity,
     Money? averagePurchasePrice,
@@ -123,6 +143,7 @@ final class DefaultPortfolioEditor implements PortfolioEditor {
     _rethrow(
       await portfolio.saveHolding(
         Holding(
+          portfolioId: portfolioId,
           instrumentId: instrument.internalId,
           quantity: quantity,
           averagePurchasePrice: averagePurchasePrice,
@@ -133,20 +154,39 @@ final class DefaultPortfolioEditor implements PortfolioEditor {
   });
 
   @override
-  Future<Result<void>> addToWatchlist(Instrument instrument) =>
-      Result.guardAsync<void>(() async {
-        _rethrow(await instruments.save(instrument));
-        final DateTime now = clock.now();
-        _rethrow(
-          await portfolio.addToWatchlist(
-            WatchlistEntry(
-              instrumentId: instrument.internalId,
-              addedAt: now,
-              provenance: Provenance.user(now),
-            ),
-          ),
-        );
-      });
+  Future<Result<void>> addToWatchlist({
+    required String portfolioId,
+    required Instrument instrument,
+  }) => Result.guardAsync<void>(() async {
+    _rethrow(await instruments.save(instrument));
+    final DateTime now = clock.now();
+    _rethrow(
+      await portfolio.addToWatchlist(
+        WatchlistEntry(
+          portfolioId: portfolioId,
+          instrumentId: instrument.internalId,
+          addedAt: now,
+          provenance: Provenance.user(now),
+        ),
+      ),
+    );
+  });
+
+  @override
+  Future<Result<void>> updateHolding(Holding holding) =>
+      portfolio.saveHolding(holding);
+
+  @override
+  Future<Result<void>> removeHolding({
+    required String portfolioId,
+    required String instrumentId,
+  }) => portfolio.removeHolding(instrumentId, portfolioId: portfolioId);
+
+  @override
+  Future<Result<void>> removeFromWatchlist({
+    required String portfolioId,
+    required String instrumentId,
+  }) => portfolio.removeFromWatchlist(instrumentId, portfolioId: portfolioId);
 
   static void _rethrow(Result<void> result) {
     final Failure? failure = result.failureOrNull;

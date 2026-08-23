@@ -13,6 +13,19 @@ class CurrencySettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final String? portfolioId = ref.watch(effectivePortfolioIdProvider);
+    final List<InvestmentPortfolio> portfolios =
+        ref.watch(portfoliosProvider).value ?? const <InvestmentPortfolio>[];
+    final String scopeName = portfolioId == null
+        ? 'All portfolios (consolidated)'
+        : portfolios
+                  .where(
+                    (InvestmentPortfolio portfolio) =>
+                        portfolio.id == portfolioId,
+                  )
+                  .firstOrNull
+                  ?.name ??
+              'Selected portfolio';
     final DisplayCurrencyState preference = ref.watch(displayCurrencyProvider);
     final FxRefreshState refresh = ref.watch(fxRefreshProvider);
     final AsyncValue<List<FxRate>> ratesValue = ref.watch(
@@ -38,6 +51,8 @@ class CurrencySettingsScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(AppTheme.space * 2),
         children: <Widget>[
+          Text('Applies to: $scopeName'),
+          const SizedBox(height: AppTheme.space),
           Text(
             'Display currency',
             style: Theme.of(context).textTheme.titleMedium,

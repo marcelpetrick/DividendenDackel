@@ -50,7 +50,7 @@ class SettingsScreen extends ConsumerWidget {
             leading: const Icon(Icons.receipt_long_outlined),
             title: const Text('Dividend tax estimate'),
             subtitle: const Text(
-              'Gross/net assumptions, savings allowance and withholding rates',
+              'Per-portfolio gross/net assumptions, allowance and withholding',
             ),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push('/settings/tax'),

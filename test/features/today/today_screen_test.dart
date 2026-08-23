@@ -76,6 +76,9 @@ void main() {
       ProviderScope(
         overrides: [
           clockProvider.overrideWithValue(FakeClock(now)),
+          effectivePortfolioIdProvider.overrideWith(
+            (Ref ref) => InvestmentPortfolio.defaultId,
+          ),
           taxSettingsStoreProvider.overrideWithValue(_TaxStore()),
           holdingsProvider.overrideWith(
             (Ref ref) => Stream<List<Holding>>.value(<Holding>[holding]),
@@ -292,9 +295,11 @@ final class _SnapshotStore implements TodaySnapshotStore {
 
 final class _TaxStore implements TaxSettingsStore {
   @override
-  Future<TaxSettings> load(WithholdingRateTable defaults) async =>
-      TaxSettings(profile: DividendTaxProfile(), table: defaults);
+  Future<TaxSettings> load(
+    WithholdingRateTable defaults, {
+    required String portfolioId,
+  }) async => TaxSettings(profile: DividendTaxProfile(), table: defaults);
 
   @override
-  Future<void> save(TaxSettings settings) async {}
+  Future<void> save(String portfolioId, TaxSettings settings) async {}
 }

@@ -94,6 +94,7 @@ void main() {
     );
 
     final Result<void> result = await editor.addHolding(
+      portfolioId: InvestmentPortfolio.defaultId,
       instrument: liveInstrument,
       quantity: Decimal.parse('2.75'),
       averagePurchasePrice: Money.parse('123.45', Currency.usd),
@@ -118,6 +119,7 @@ void main() {
 
     expect(
       (await editor.addHolding(
+        portfolioId: InvestmentPortfolio.defaultId,
         instrument: liveInstrument,
         quantity: Decimal.zero,
       )).failureOrNull,
@@ -125,6 +127,7 @@ void main() {
     );
     expect(
       (await editor.addHolding(
+        portfolioId: InvestmentPortfolio.defaultId,
         instrument: liveInstrument,
         quantity: Decimal.one,
         averagePurchasePrice: Money.parse('-1', Currency.usd),
@@ -133,6 +136,7 @@ void main() {
     );
     expect(
       (await editor.addHolding(
+        portfolioId: InvestmentPortfolio.defaultId,
         instrument: liveInstrument,
         quantity: Decimal.one,
         averagePurchasePrice: Money.parse('1', Currency.eur),
@@ -149,7 +153,13 @@ void main() {
         (_) async => const Success<List<Instrument>>(<Instrument>[]),
       );
 
-      expect((await editor.addToWatchlist(secondInstrument)).isSuccess, isTrue);
+      expect(
+        (await editor.addToWatchlist(
+          portfolioId: InvestmentPortfolio.defaultId,
+          instrument: secondInstrument,
+        )).isSuccess,
+        isTrue,
+      );
 
       final WatchlistEntry entry =
           (await portfolio.watchWatchlist().first).single;

@@ -225,6 +225,76 @@ void main() {
       );
     });
 
+    test('clears owned data while retaining the portfolio container', () async {
+      await portfolio.saveHolding(holdingOf('20'));
+      await portfolio.addToWatchlist(
+        WatchlistEntry(
+          instrumentId: apple.internalId,
+          addedAt: now,
+          provenance: user,
+        ),
+      );
+      await portfolio.recordActivity(
+        PortfolioActivity(
+          portfolioId: InvestmentPortfolio.defaultId,
+          type: PortfolioActivityType.deposit,
+          occurredAt: now,
+          cashAmount: Money.parse('100', Currency.eur),
+          provenance: user,
+        ),
+      );
+
+      final Result<void> result = await portfolio.clearPortfolio(
+        InvestmentPortfolio.defaultId,
+      );
+
+      expect(result.isSuccess, isTrue);
+      expect(await portfolio.watchHoldings().first, isEmpty);
+      expect(await portfolio.watchWatchlist().first, isEmpty);
+      expect(
+        await portfolio.watchActivities(InvestmentPortfolio.defaultId).first,
+        isEmpty,
+      );
+      expect(await portfolio.watchPortfolios().first, hasLength(1));
+    });
+
+    test(
+      'deletes one portfolio by cascade but protects the final one',
+      () async {
+        await portfolio.savePortfolio(
+          InvestmentPortfolio(
+            id: 'retirement',
+            name: 'Retirement',
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
+        await portfolio.saveHolding(
+          Holding(
+            portfolioId: 'retirement',
+            instrumentId: allianz.internalId,
+            quantity: Decimal.one,
+            provenance: user,
+          ),
+        );
+
+        expect(
+          (await portfolio.deletePortfolio('retirement')).isSuccess,
+          isTrue,
+        );
+        expect(
+          await portfolio.watchHoldings(portfolioId: 'retirement').first,
+          isEmpty,
+        );
+        expect(await portfolio.watchPortfolios().first, hasLength(1));
+        expect(
+          (await portfolio.deletePortfolio(InvestmentPortfolio.defaultId))
+              .failureOrNull,
+          isA<InvalidInstrumentFailure>(),
+        );
+      },
+    );
+
     test('saves and streams a holding, preserving exact quantities', () async {
       await portfolio.saveHolding(holdingOf('20.5', averagePrice: '210.00'));
 

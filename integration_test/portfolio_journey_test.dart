@@ -236,19 +236,21 @@ final class _ThemeStore implements ThemePreferenceStore {
 
 final class _CurrencyStore implements DisplayCurrencyStore {
   @override
-  Future<Currency> load() async => Currency.eur;
+  Future<Currency> load(String portfolioId) async => Currency.eur;
 
   @override
-  Future<void> save(Currency currency) async {}
+  Future<void> save(String portfolioId, Currency currency) async {}
 }
 
 final class _TaxStore implements TaxSettingsStore {
   @override
-  Future<TaxSettings> load(WithholdingRateTable defaults) async =>
-      TaxSettings(profile: DividendTaxProfile(), table: defaults);
+  Future<TaxSettings> load(
+    WithholdingRateTable defaults, {
+    required String portfolioId,
+  }) async => TaxSettings(profile: DividendTaxProfile(), table: defaults);
 
   @override
-  Future<void> save(TaxSettings settings) async {}
+  Future<void> save(String portfolioId, TaxSettings settings) async {}
 }
 
 final class _SnapshotStore implements TodaySnapshotStore {

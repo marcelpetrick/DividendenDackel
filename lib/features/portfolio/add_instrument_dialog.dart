@@ -11,7 +11,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Search and add flow shared by Android and Linux portfolio screens.
 class AddInstrumentDialog extends ConsumerStatefulWidget {
   /// Creates the flow.
-  const AddInstrumentDialog({super.key});
+  const AddInstrumentDialog({required this.portfolioId, super.key});
+
+  /// Portfolio receiving the holding or watchlist entry.
+  final String portfolioId;
 
   @override
   ConsumerState<AddInstrumentDialog> createState() =>
@@ -81,6 +84,7 @@ class _AddInstrumentDialogState extends ConsumerState<AddInstrumentDialog> {
       () => ref
           .read(portfolioEditorProvider)
           .addHolding(
+            portfolioId: widget.portfolioId,
             instrument: selected,
             quantity: quantity,
             averagePurchasePrice: averagePrice,
@@ -92,7 +96,12 @@ class _AddInstrumentDialogState extends ConsumerState<AddInstrumentDialog> {
   Future<void> _addToWatchlist() async {
     final Instrument selected = _selected!;
     await _save(
-      () => ref.read(portfolioEditorProvider).addToWatchlist(selected),
+      () => ref
+          .read(portfolioEditorProvider)
+          .addToWatchlist(
+            portfolioId: widget.portfolioId,
+            instrument: selected,
+          ),
       '${selected.name} added to the watchlist.',
     );
   }
