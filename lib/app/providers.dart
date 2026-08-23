@@ -354,11 +354,30 @@ final upcomingDividendsProvider =
       final Set<String> followed = await ref.watch(
         followedInstrumentIdsProvider.future,
       );
+      final DateTime now = ref.watch(clockProvider).now();
+      final DateTime start = DateTime.utc(now.year, now.month, now.day);
       yield* ref
           .watch(dividendRepositoryProvider)
           .watchInRange(
-            DateRange.days(ref.watch(clockProvider).now(), days),
+            DateRange.days(start, days),
             DividendDateMode.exDate,
+            instrumentIds: followed,
+          );
+    });
+
+/// Dividend payments expected to reach the account over the requested window.
+final upcomingDividendPaymentsProvider =
+    StreamProvider.family<List<DividendEvent>, int>((Ref ref, int days) async* {
+      final Set<String> followed = await ref.watch(
+        followedInstrumentIdsProvider.future,
+      );
+      final DateTime now = ref.watch(clockProvider).now();
+      final DateTime start = DateTime.utc(now.year, now.month, now.day);
+      yield* ref
+          .watch(dividendRepositoryProvider)
+          .watchInRange(
+            DateRange.days(start, days),
+            DividendDateMode.paymentDate,
             instrumentIds: followed,
           );
     });

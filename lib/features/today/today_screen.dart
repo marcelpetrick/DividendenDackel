@@ -1,11 +1,11 @@
 import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
-import 'package:dividendendackel/app/widgets/async_value_view.dart';
 import 'package:dividendendackel/app/widgets/gross_net_amount.dart';
 import 'package:dividendendackel/app/widgets/value_labels.dart';
 import 'package:dividendendackel/domain/analytics/analytics.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/features/tax/tax_estimates.dart';
+import 'package:dividendendackel/features/today/today_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -20,71 +20,92 @@ class TodayScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final AsyncValue<List<DividendEvent>> next3Ex = ref.watch(
+      upcomingDividendsProvider(3),
+    );
+    final AsyncValue<List<DividendEvent>> next3Payments = ref.watch(
+      upcomingDividendPaymentsProvider(3),
+    );
     final AsyncValue<List<DividendEvent>> next7 = ref.watch(
-      upcomingDividendsProvider(7),
+      upcomingDividendPaymentsProvider(7),
     );
     final AsyncValue<List<DividendEvent>> next30 = ref.watch(
-      upcomingDividendsProvider(30),
+      upcomingDividendPaymentsProvider(30),
+    );
+    final AsyncValue<List<DividendEvent>> next365 = ref.watch(
+      upcomingDividendPaymentsProvider(365),
+    );
+    final AsyncValue<Map<String, Instrument>> instrumentValue = ref.watch(
+      instrumentsByIdProvider,
     );
     final Map<String, Instrument> instruments =
-        ref.watch(instrumentsByIdProvider).value ??
-        const <String, Instrument>{};
+        instrumentValue.value ?? const <String, Instrument>{};
     final AsyncValue<List<Holding>> holdings = ref.watch(holdingsProvider);
+    final AsyncValue<Map<String, Quote>> quoteValue = ref.watch(quotesProvider);
+    final Map<String, Quote> quotes =
+        quoteValue.value ?? const <String, Quote>{};
     final Map<String, Holding> holdingsByInstrument = <String, Holding>{
       for (final Holding holding in holdings.value ?? const <Holding>[])
         holding.instrumentId: holding,
     };
+    final DateTime now = ref.watch(clockProvider).now();
+    final PortfolioOverview? overview = holdings.value == null
+        ? null
+        : const PortfolioOverviewCalculator().calculate(
+            holdings: holdings.requireValue,
+            instruments: instruments,
+            quotes: quotes,
+            dividends: next365.value ?? const <DividendEvent>[],
+            asOf: now,
+          );
 
     return ListView(
       padding: const EdgeInsets.all(AppTheme.space * 2),
       children: <Widget>[
         _SummaryCard(
           holdingCount: holdings.value?.length,
-          upcomingCount: next7.value?.length,
+          relevantCount: next3Ex.hasValue && next3Payments.hasValue
+              ? next3Ex.requireValue.length + next3Payments.requireValue.length
+              : null,
+          overview: overview,
+          quoteDataAvailable: quoteValue.hasValue,
         ),
+        const SizedBox(height: AppTheme.space * 2),
+        _TodayMattersCard(
+          exEvents: next3Ex,
+          paymentEvents: next3Payments,
+          instruments: instruments,
+          holdings: holdingsByInstrument,
+          now: now,
+        ),
+        const SizedBox(height: AppTheme.space * 2),
+        _NextThreeDaysCard(exEvents: next3Ex, paymentEvents: next3Payments),
         const SizedBox(height: AppTheme.space * 2),
         _ExpectedDividendsCard(
           next7: next7,
           next30: next30,
+          next365: next365,
           holdings: holdings.value ?? const <Holding>[],
         ),
         const SizedBox(height: AppTheme.space * 2),
-        Text('Next 7 days', style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: AppTheme.space),
-        SizedBox(
-          height: 300,
-          child: AsyncValueView<List<DividendEvent>>(
-            value: next7,
-            isEmpty: (List<DividendEvent> data) => data.isEmpty,
-            emptyTitle: 'Nothing in the next 7 days',
-            emptyMessage:
-                'No ex-dividend dates are coming up for your '
-                'holdings or watchlist.',
-            emptyIcon: Icons.event_available_outlined,
-            builder: (BuildContext context, List<DividendEvent> data) =>
-                ListView.separated(
-                  itemCount: data.length,
-                  separatorBuilder: (BuildContext context, int index) =>
-                      const Divider(height: 1),
-                  itemBuilder: (BuildContext context, int index) =>
-                      DividendEventTile(
-                        event: data[index],
-                        instrument: instruments[data[index].instrumentId],
-                        holding: holdingsByInstrument[data[index].instrumentId],
-                      ),
-                ),
-          ),
-        ),
+        _ChangesCard(changes: ref.watch(todayChangesProvider)),
       ],
     );
   }
 }
 
 class _SummaryCard extends StatelessWidget {
-  const _SummaryCard({required this.holdingCount, required this.upcomingCount});
+  const _SummaryCard({
+    required this.holdingCount,
+    required this.relevantCount,
+    required this.overview,
+    required this.quoteDataAvailable,
+  });
 
   final int? holdingCount;
-  final int? upcomingCount;
+  final int? relevantCount;
+  final PortfolioOverview? overview;
+  final bool quoteDataAvailable;
 
   @override
   Widget build(BuildContext context) {
@@ -104,13 +125,43 @@ class _SummaryCard extends StatelessWidget {
               style: theme.textTheme.bodyLarge,
             ),
             Text(
-              upcomingCount == null
-                  ? ''
-                  : '$upcomingCount dividend events in the next 7 days',
+              relevantCount == null
+                  ? 'Loading the next 3 days…'
+                  : '$relevantCount relevant dividend date(s) in the next 3 days',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
+            const SizedBox(height: AppTheme.space),
+            if (overview == null)
+              const Text('Loading cached portfolio values…')
+            else if (!quoteDataAvailable ||
+                overview!.byCurrency.values.every(
+                  (PortfolioCurrencySummary summary) =>
+                      summary.pricedPositionCount == 0,
+                ))
+              const Text(
+                'No cached quotes. Holdings and the dividend schedule below '
+                'still work offline.',
+              )
+            else
+              for (final PortfolioCurrencySummary summary
+                  in overview!.byCurrency.values)
+                if (summary.pricedPositionCount > 0)
+                  Wrap(
+                    spacing: AppTheme.space,
+                    children: <Widget>[
+                      MoneyText(
+                        summary.totalValue,
+                        style: theme.textTheme.titleLarge,
+                      ),
+                      Text(
+                        summary.dayChange == null
+                            ? 'day change unavailable'
+                            : '${summary.dayChange!.format(withSymbol: true)} today',
+                      ),
+                    ],
+                  ),
           ],
         ),
       ),
@@ -118,15 +169,235 @@ class _SummaryCard extends StatelessWidget {
   }
 }
 
+class _TodayMattersCard extends StatelessWidget {
+  const _TodayMattersCard({
+    required this.exEvents,
+    required this.paymentEvents,
+    required this.instruments,
+    required this.holdings,
+    required this.now,
+  });
+  final AsyncValue<List<DividendEvent>> exEvents;
+  final AsyncValue<List<DividendEvent>> paymentEvents;
+  final Map<String, Instrument> instruments;
+  final Map<String, Holding> holdings;
+  final DateTime now;
+
+  @override
+  Widget build(BuildContext context) {
+    final List<_Matter> matters = <_Matter>[
+      for (final DividendEvent event
+          in exEvents.value ?? const <DividendEvent>[])
+        if (event.exDate case final DateTime date)
+          _Matter(event: event, date: date, kind: 'Ex-dividend'),
+      for (final DividendEvent event
+          in paymentEvents.value ?? const <DividendEvent>[])
+        if (event.paymentDate case final DateTime date)
+          _Matter(event: event, date: date, kind: 'Payment'),
+    ]..sort((_Matter a, _Matter b) => a.date.compareTo(b.date));
+    final bool loading = exEvents.isLoading || paymentEvents.isLoading;
+    final bool failed = exEvents.hasError || paymentEvents.hasError;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppTheme.space * 2),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              'Today matters',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: AppTheme.space),
+            if (failed)
+              const Text(
+                'Upcoming dates could not be refreshed. Cached portfolio and '
+                'income figures remain available.',
+              )
+            else if (loading)
+              const LinearProgressIndicator(semanticsLabel: 'Loading events')
+            else if (matters.isEmpty)
+              const Text('No dividend dates need attention in the next 3 days.')
+            else
+              for (final _Matter matter in matters.take(3))
+                _MatterTile(
+                  matter: matter,
+                  instrument: instruments[matter.event.instrumentId],
+                  holding: holdings[matter.event.instrumentId],
+                  now: now,
+                ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+final class _Matter {
+  const _Matter({required this.event, required this.date, required this.kind});
+  final DividendEvent event;
+  final DateTime date;
+  final String kind;
+}
+
+class _MatterTile extends StatelessWidget {
+  const _MatterTile({
+    required this.matter,
+    required this.instrument,
+    required this.holding,
+    required this.now,
+  });
+  final _Matter matter;
+  final Instrument? instrument;
+  final Holding? holding;
+  final DateTime now;
+
+  @override
+  Widget build(BuildContext context) {
+    final Money? gross = holding == null
+        ? null
+        : matter.event.grossPaymentFor(holding!.quantity);
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: Icon(
+        matter.kind == 'Payment'
+            ? Icons.payments_outlined
+            : Icons.event_available_outlined,
+      ),
+      title: Text(instrument?.name ?? matter.event.instrumentId),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text('${matter.kind} ${_relativeDay(matter.date, now)}'),
+          if (gross != null) GrossNetAmount(event: matter.event, gross: gross),
+        ],
+      ),
+      trailing: DividendStatusChip(matter.event.status),
+    );
+  }
+
+  static String _relativeDay(DateTime value, DateTime now) {
+    final DateTime day = DateTime(value.year, value.month, value.day);
+    final DateTime today = DateTime(now.year, now.month, now.day);
+    final int difference = day.difference(today).inDays;
+    return switch (difference) {
+      0 => 'today',
+      1 => 'tomorrow',
+      _ => 'in $difference days',
+    };
+  }
+}
+
+class _NextThreeDaysCard extends StatelessWidget {
+  const _NextThreeDaysCard({
+    required this.exEvents,
+    required this.paymentEvents,
+  });
+  final AsyncValue<List<DividendEvent>> exEvents;
+  final AsyncValue<List<DividendEvent>> paymentEvents;
+
+  @override
+  Widget build(BuildContext context) => Card(
+    child: Padding(
+      padding: const EdgeInsets.all(AppTheme.space * 2),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text('Next 3 days', style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: AppTheme.space),
+          Text(
+            exEvents.hasError
+                ? 'Ex-dividend dates: unavailable'
+                : exEvents.value == null
+                ? 'Ex-dividend dates: loading…'
+                : '${exEvents.requireValue.length} ex-dividend date(s)',
+          ),
+          Text(
+            paymentEvents.hasError
+                ? 'Payments: unavailable'
+                : paymentEvents.value == null
+                ? 'Payments: loading…'
+                : '${paymentEvents.requireValue.length} payment date(s)',
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+class _ChangesCard extends StatelessWidget {
+  const _ChangesCard({required this.changes});
+  final AsyncValue<TodayChanges> changes;
+
+  @override
+  Widget build(BuildContext context) => Card(
+    child: Padding(
+      padding: const EdgeInsets.all(AppTheme.space * 2),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            'Changes since last refresh',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: AppTheme.space),
+          switch (changes) {
+            AsyncData<TodayChanges>(:final TodayChanges value)
+                when value.isFirstSnapshot =>
+              const Text(
+                'Baseline saved on this device. Changes will appear after the '
+                'next data refresh.',
+              ),
+            AsyncData<TodayChanges>(:final TodayChanges value)
+                when !value.hasChanges =>
+              Text(
+                'No portfolio, quote or dividend-outlook changes since '
+                '${_dateTime(context, value.previousAt!)}.',
+              ),
+            AsyncData<TodayChanges>(:final TodayChanges value) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text('${value.holdingChanges} holding change(s)'),
+                Text('${value.quoteChanges} quote change(s)'),
+                Text('${value.dividendChanges} dividend-outlook change(s)'),
+                Text(
+                  'Compared with ${_dateTime(context, value.previousAt!)}.',
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
+              ],
+            ),
+            AsyncError<TodayChanges>() => const Text(
+              'Could not update the local comparison. Current portfolio and '
+              'dividend data remain available above.',
+            ),
+            _ => const LinearProgressIndicator(
+              semanticsLabel: 'Comparing refresh changes',
+            ),
+          },
+        ],
+      ),
+    ),
+  );
+
+  static String _dateTime(BuildContext context, DateTime value) {
+    final MaterialLocalizations localizations = MaterialLocalizations.of(
+      context,
+    );
+    return '${localizations.formatMediumDate(value)} at '
+        '${localizations.formatTimeOfDay(TimeOfDay.fromDateTime(value))}';
+  }
+}
+
 class _ExpectedDividendsCard extends ConsumerWidget {
   const _ExpectedDividendsCard({
     required this.next7,
     required this.next30,
+    required this.next365,
     required this.holdings,
   });
 
   final AsyncValue<List<DividendEvent>> next7;
   final AsyncValue<List<DividendEvent>> next30;
+  final AsyncValue<List<DividendEvent>> next365;
   final List<Holding> holdings;
 
   /// Sums the gross payments due to the user, grouped by currency.
@@ -167,6 +438,8 @@ class _ExpectedDividendsCard extends ConsumerWidget {
             _row(context, ref, 'Next 7 days', next7),
             const SizedBox(height: AppTheme.space / 2),
             _row(context, ref, 'Next 30 days', next30),
+            const SizedBox(height: AppTheme.space / 2),
+            _row(context, ref, 'Next 365 days', next365),
             const SizedBox(height: AppTheme.space),
             Text(
               'Gross and estimated net are never combined. Forecast events '
@@ -195,7 +468,9 @@ class _ExpectedDividendsCard extends ConsumerWidget {
         ? null
         : _net(ref, events.requireValue);
 
-    final Widget value = totals == null
+    final Widget value = events.hasError
+        ? Text('Unavailable', style: theme.textTheme.bodyMedium)
+        : totals == null
         ? Text('…', style: theme.textTheme.bodyMedium)
         : totals.isEmpty
         ? Text(
@@ -300,83 +575,4 @@ final class _ExpectedNet {
   final bool loading;
   final Money netEur;
   final int unsupportedCount;
-}
-
-/// One dividend event in a list.
-class DividendEventTile extends StatelessWidget {
-  /// Creates a tile for [event].
-  const DividendEventTile({
-    required this.event,
-    required this.instrument,
-    this.holding,
-    super.key,
-  });
-
-  /// The event to show.
-  final DividendEvent event;
-
-  /// The paying instrument, when known.
-  final Instrument? instrument;
-
-  /// The user's position, used to show the expected payment.
-  final Holding? holding;
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final Holding? holding = this.holding;
-    final Money? payment = holding == null
-        ? null
-        : event.grossPaymentFor(holding.quantity);
-
-    return ListTile(
-      title: Text(instrument?.name ?? event.instrumentId),
-      // Wrap rather than Row: on a narrow phone the amount and the status
-      // label together exceed the tile's subtitle width and would clip.
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Wrap(
-            spacing: AppTheme.space,
-            runSpacing: AppTheme.space / 4,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: <Widget>[
-              Text(
-                '${event.amountPerShare.format(withSymbol: true)} / share',
-                style: theme.textTheme.bodySmall,
-              ),
-              DividendStatusChip(event.status),
-            ],
-          ),
-          if (payment != null) GrossNetAmount(event: event, gross: payment),
-        ],
-      ),
-      trailing: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: <Widget>[
-          if (event.exDate != null)
-            Text(_formatDate(event.exDate!), style: theme.textTheme.bodyMedium),
-        ],
-      ),
-    );
-  }
-
-  static const List<String> _months = <String>[
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ];
-
-  static String _formatDate(DateTime date) =>
-      '${date.day} ${_months[date.month - 1]}';
 }
