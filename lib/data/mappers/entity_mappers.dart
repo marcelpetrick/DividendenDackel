@@ -602,6 +602,34 @@ abstract final class CompanionMappers {
       providerExchange: p.providerExchange,
     );
   }
+
+  /// Builds regulatory filing metadata. Filing bodies are never persisted.
+  static FilingsCompanion filing(Filing filing) {
+    if (!filing.url.hasScheme ||
+        (filing.url.scheme != 'https' && filing.url.scheme != 'http')) {
+      throw ParsingFailure(
+        technicalDetail: 'Unsupported filing URL scheme: ${filing.url.scheme}',
+      );
+    }
+    final _ProvenanceValues p = _provenanceValues(filing.provenance);
+    return FilingsCompanion.insert(
+      id: filing.id,
+      instrumentId: filing.instrumentId,
+      formType: filing.formType,
+      filedAt: filing.filedAt.toUtc(),
+      url: filing.url.toString(),
+      title: Value<String?>(filing.title),
+      periodOfReport: Value<DateTime?>(filing.periodOfReport?.toUtc()),
+      source: p.source,
+      fetchedAt: p.fetchedAt,
+      updatedAt: p.updatedAt,
+      cacheState: p.cacheState,
+      confidence: p.confidence,
+      reportedCurrency: p.reportedCurrency,
+      originalSymbol: p.originalSymbol,
+      providerExchange: p.providerExchange,
+    );
+  }
 }
 
 /// The provenance columns every cached record shares, ready for a companion.

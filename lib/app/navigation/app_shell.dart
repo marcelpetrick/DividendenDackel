@@ -19,6 +19,7 @@ class AppShell extends StatelessWidget {
     required this.currentDestination,
     required this.onDestinationSelected,
     this.actions = const <Widget>[],
+    this.banner,
     super.key,
   });
 
@@ -34,6 +35,9 @@ class AppShell extends StatelessWidget {
   /// Extra actions for the app bar.
   final List<Widget> actions;
 
+  /// Optional data-freshness context shared by every top-level screen.
+  final Widget? banner;
+
   @override
   Widget build(BuildContext context) {
     final double width = MediaQuery.sizeOf(context).width;
@@ -41,7 +45,12 @@ class AppShell extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(currentDestination.label), actions: actions),
-      body: useRail ? _railLayout(context, width) : child,
+      body: Column(
+        children: <Widget>[
+          if (banner case final Widget value) value,
+          Expanded(child: useRail ? _railLayout(context, width) : child),
+        ],
+      ),
       bottomNavigationBar: useRail ? null : _bottomBar(context),
     );
   }

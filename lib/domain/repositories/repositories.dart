@@ -165,6 +165,9 @@ abstract interface class MarketDataRepository {
 
   /// Inserts or updates headline metadata and replaces instrument links.
   Future<Result<void>> saveNews(List<NewsItem> items);
+
+  /// Inserts or updates regulatory filing metadata.
+  Future<Result<void>> saveFilings(List<Filing> filings);
 }
 
 /// Reads and writes daily foreign-exchange reference rates.

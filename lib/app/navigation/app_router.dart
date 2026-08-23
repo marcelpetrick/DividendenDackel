@@ -1,8 +1,12 @@
 import 'package:dividendendackel/app/navigation/app_shell.dart';
 import 'package:dividendendackel/app/navigation/destinations.dart';
+import 'package:dividendendackel/app/providers.dart';
+import 'package:dividendendackel/app/widgets/value_labels.dart';
 import 'package:dividendendackel/features/calendar/calendar_screen.dart';
 import 'package:dividendendackel/features/calendar/forecast_screen.dart';
+import 'package:dividendendackel/features/currency/fx_state.dart';
 import 'package:dividendendackel/features/portfolio/portfolio_screen.dart';
+import 'package:dividendendackel/features/refresh/portfolio_refresh.dart';
 import 'package:dividendendackel/features/research/research_detail_screen.dart';
 import 'package:dividendendackel/features/research/research_screen.dart';
 import 'package:dividendendackel/features/settings/about_screen.dart';
@@ -13,6 +17,7 @@ import 'package:dividendendackel/features/settings/tax_settings_screen.dart';
 import 'package:dividendendackel/features/status/data_status_screen.dart';
 import 'package:dividendendackel/features/today/today_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 /// Builds the application router.
@@ -24,23 +29,53 @@ GoRouter buildRouter({String initialLocation = '/today'}) => GoRouter(
   routes: <RouteBase>[
     ShellRoute(
       builder: (BuildContext context, GoRouterState state, Widget child) =>
-          AppShell(
-            currentDestination: AppDestination.fromLocation(state.uri.path),
-            onDestinationSelected: (AppDestination destination) =>
-                context.go(destination.path),
-            actions: <Widget>[
-              IconButton(
-                icon: const Icon(Icons.dns_outlined),
-                tooltip: 'Data status',
-                onPressed: () => context.push('/status'),
-              ),
-              IconButton(
-                icon: const Icon(Icons.settings_outlined),
-                tooltip: 'Settings',
-                onPressed: () => context.push('/settings'),
-              ),
-            ],
-            child: child,
+          Consumer(
+            builder: (BuildContext context, WidgetRef ref, Widget? _) {
+              final PortfolioRefreshState refresh = ref.watch(
+                portfolioRefreshProvider,
+              );
+              return AppShell(
+                currentDestination: AppDestination.fromLocation(state.uri.path),
+                onDestinationSelected: (AppDestination destination) =>
+                    context.go(destination.path),
+                actions: <Widget>[
+                  IconButton(
+                    icon: refresh.isRefreshing
+                        ? const SizedBox.square(
+                            dimension: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.refresh),
+                    tooltip: refresh.isRefreshing
+                        ? 'Refreshing data'
+                        : 'Refresh data',
+                    onPressed: refresh.isRefreshing
+                        ? null
+                        : () {
+                            ref
+                                .read(portfolioRefreshProvider.notifier)
+                                .refresh(force: true);
+                            ref.read(fxRefreshProvider.notifier).refresh();
+                          },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.dns_outlined),
+                    tooltip: 'Data status',
+                    onPressed: () => context.push('/status'),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.settings_outlined),
+                    tooltip: 'Settings',
+                    onPressed: () => context.push('/settings'),
+                  ),
+                ],
+                banner: DataFreshnessBanner(
+                  state: refresh,
+                  now: ref.watch(clockProvider).now(),
+                ),
+                child: child,
+              );
+            },
           ),
       routes: <RouteBase>[
         GoRoute(

@@ -177,7 +177,7 @@ Each task names the `Vision.md` sections it satisfies.
 
 ## Phase 4 — Quality
 
-- [ ] **Q1** Stale-while-revalidate everywhere + full offline behaviour with
+- [x] **Q1** Stale-while-revalidate everywhere + full offline behaviour with
       "Last updated …" instead of empty screens. — §38, §44
 - [ ] **Q2** Loading, empty and error states for every screen; failure copy from
       the vision; never fabricate missing values. — §79, §87

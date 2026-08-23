@@ -638,6 +638,32 @@ void main() {
       expect(result.failureOrNull, isA<ParsingFailure>());
       expect(await db.select(db.newsItems).get(), isEmpty);
     });
+
+    test('upserts and reads filing metadata', () async {
+      Filing filing(String title) => Filing(
+        id: '0000320193-26-000001',
+        instrumentId: apple.internalId,
+        formType: '10-Q',
+        filedAt: DateTime.utc(2026, 8, 20),
+        periodOfReport: DateTime.utc(2026, 6, 30),
+        title: title,
+        url: Uri.parse('https://www.sec.gov/Archives/filing.htm'),
+        provenance: fmp,
+      );
+
+      await marketData.saveFilings(<Filing>[filing('Quarterly report')]);
+      final Result<void> result = await marketData.saveFilings(<Filing>[
+        filing('Updated quarterly report'),
+      ]);
+      final List<Filing> stored = await marketData
+          .watchRecentFilings(instrumentIds: <String>{apple.internalId})
+          .first;
+
+      expect(result.isSuccess, isTrue);
+      expect(stored, hasLength(1));
+      expect(stored.single.title, 'Updated quarterly report');
+      expect(stored.single.periodOfReport, DateTime.utc(2026, 6, 30));
+    });
   });
 
   group('DriftFxRateRepository', () {
