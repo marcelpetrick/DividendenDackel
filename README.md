@@ -142,6 +142,7 @@ merged.
 - [Architecture and data flow](docs/architecture.md)
 - [Provider policy and licensing](docs/data-providers.md)
 - [Research score](docs/research-score.md)
+- [Current Parqet comparison and scope decisions](docs/parqet-comparison.md)
 - [Privacy and local data](docs/privacy.md)
 - [Release process](docs/releases.md)
 

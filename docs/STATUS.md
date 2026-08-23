@@ -78,12 +78,13 @@ versions with current stable upstream releases without blindly merging them.
 
 ## Remaining decisions and release work
 
-The authoritative queue is [`BACKLOG.md`](BACKLOG.md). Required 0.1.0 work after
-this documentation pass is the final Android 10/Linux/migration smoke audit and
-local `v0.1.0` tag. Optional keyed provider adapters are deliberately not
-required for the keyless MVP. Phase 6 ideas—imports, multiple portfolios, sync,
-widgets/tray mode, research history and localization—are post-1.0 candidates
-unless the product comparison changes their priority.
+The required 0.1.0 backlog is complete and locally tagged. The official Parqet
+comparison in [`parqet-comparison.md`](parqet-comparison.md) reprioritized the
+post-1.0 queue around a local activity ledger, actual-versus-forecast dividend
+reconciliation, reviewable local imports, private calendar export, multiple
+portfolios and explainable cash-flow performance. Optional keyed providers,
+broker credential sync, encrypted cross-device sync, widgets/tray mode,
+research history and localization remain candidates rather than MVP blockers.
 
 Known release limitations:
 

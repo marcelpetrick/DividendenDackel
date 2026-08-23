@@ -2500,7 +2500,8 @@ A release is complete only if:
 
 ## Parqet inspiration
 
-Parqet currently demonstrates several useful dividend UX patterns:
+The official Parqet product/help/changelog material was reviewed again on
+2026-08-23. Parqet currently demonstrates several useful dividend UX patterns:
 
 - month and year dividend calendar views,
 - portfolio/watchlist filtering,
@@ -2510,6 +2511,15 @@ Parqet currently demonstrates several useful dividend UX patterns:
 - monthly dividend income forecasting.
 
 DividendenDackel should use these ideas as product inspiration but implement its own design and interaction model.
+
+The 0.1.0 calendar now covers those core interaction patterns with its own
+accessible design. The current comparison identifies transaction history,
+local import, actual-versus-forecast dividend reconciliation, private iCal
+export, multiple portfolios and explainable cash-flow performance as the useful
+post-1.0 gaps. Hosted AI integrations, broad unrelated asset classes, social
+features and public portfolio calendar feeds do not fit the local-first product
+statement. Detailed evidence and scope decisions are recorded in
+`docs/parqet-comparison.md`.
 
 Reference:
 

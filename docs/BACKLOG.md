@@ -217,19 +217,34 @@ Each task names the `Vision.md` sections it satisfies.
 
 ---
 
-## Phase 6 — Post-1.0 candidates (Vision.md §52)
+## Phase 6 — Post-1.0 candidates (Vision.md §52, §89)
 
-Not part of MVP 1. Listed so the plan is complete.
+Not part of MVP 1. Reprioritized after the 2026-08-23 official Parqet review in
+[`parqet-comparison.md`](parqet-comparison.md). The order protects the
+local-first model and improves the dividend workflow before broadening the app.
 
-- [ ] **P1** Calendar export (iCal, importable into Google Calendar and
-      Outlook) and CSV import
-- [ ] **P2** Broker import
-- [ ] **P3** Multiple portfolios
-- [ ] **P4** Encrypted Android/Linux sync
-- [ ] **P5** Home-screen widgets and Linux tray mode
-- [ ] **P6** Advanced research history
-- [ ] **P7** German/English localization — not required by the vision, but the
-      product's audience makes it worth deciding on before 1.0
+- [ ] **P1** Local activity ledger for purchases, sales, deposits, withdrawals,
+      dividends, taxes and fees, including corrections/reversals and
+      forecast-versus-paid dividend reconciliation.
+- [ ] **P2** Local import with preview, validation, idempotent duplicate
+      handling, atomic application and undo: documented CSV first, then
+      Portfolio Performance CSV. Source documents never leave the device.
+- [ ] **P3** Calendar export as a local `.ics` snapshot importable into Google
+      Calendar, Outlook and Apple Calendar. Preserve portfolio/date filters and
+      mark estimates in text; do not create a public subscription URL.
+- [ ] **P4** Multiple portfolios and explicit consolidated views, preserving
+      per-portfolio tax, currency and provenance boundaries.
+- [ ] **P5** Explainable cash-flow and performance analytics after P1: monthly,
+      quarterly and annual detail, XIRR, TTWROR and optional benchmarks with
+      formulas, period, coverage and cash-flow treatment visible.
+- [ ] **P6** Local broker-document import extensions; consider credential-based
+      autosync only after a provider-specific threat model, licensing review and
+      reconciliation design.
+- [ ] **P7** Encrypted Android/Linux sync, optional and never required for local
+      use.
+- [ ] **P8** Home-screen widgets and Linux tray mode.
+- [ ] **P9** Advanced research history.
+- [ ] **P10** German/English localization.
 
 ---
 
