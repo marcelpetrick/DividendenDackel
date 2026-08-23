@@ -1,8 +1,12 @@
 # Release pipeline (Vision.md §69).
 #
-# Triggered by pushing a semantic version tag, e.g. `v0.1.0`. Builds both
-# platform artifacts, verifies them, and publishes a public GitHub Release.
-# Never publishes a pre-release or a draft.
+# Two ways in:
+#   * push a semantic version tag, e.g. `v0.42.8`; or
+#   * run it manually from the Actions tab, which builds the current head of
+#     the default branch and creates the tag from pubspec.yaml itself.
+#
+# Builds both platform artifacts, verifies them, and publishes a public GitHub
+# Release. Never publishes a pre-release or a draft.
 name: Release
 
 on:
@@ -11,9 +15,10 @@ on:
       - 'v*'
   workflow_dispatch:
     inputs:
-      tag:
-        description: 'Existing tag to release, e.g. v0.1.0'
-        required: true
+      ref:
+        description: 'Branch or commit to release. Defaults to the current head of the default branch.'
+        required: false
+        default: ''
         type: string
 
 permissions:
@@ -36,7 +41,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ inputs.tag || github.ref }}
+          ref: ${{ inputs.ref || github.ref }}
 
       - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
         with:
@@ -78,31 +83,42 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ inputs.tag || github.ref }}
+          ref: ${{ inputs.ref || github.ref }}
           fetch-depth: 0
 
-      - name: Resolve version and verify it matches the tag
+      - name: Resolve version and tag
         id: version
         run: |
-          tag="${{ inputs.tag || github.ref_name }}"
           pubspec_version="$(grep -E '^version:' pubspec.yaml | awk '{print $2}')"
           semver="${pubspec_version%%+*}"
           build_number="${pubspec_version##*+}"
 
-          # Vision.md §69 step 3: a tag that disagrees with pubspec.yaml would
-          # ship artifacts labelled with the wrong version.
-          if [[ "v${semver}" != "${tag}" ]]; then
-            echo "::error::Tag ${tag} does not match pubspec version ${semver} (expected tag v${semver})."
-            exit 1
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            tag="${GITHUB_REF_NAME}"
+            # A tag that disagrees with pubspec.yaml would ship artifacts
+            # labelled with the wrong version (Vision.md §69).
+            if [[ "v${semver}" != "${tag}" ]]; then
+              echo "::error::Tag ${tag} does not match pubspec version ${semver} (expected v${semver})."
+              exit 1
+            fi
+          else
+            # Manual run: the version in pubspec.yaml is the source of truth and
+            # the tag is created from it, so releasing needs no local git work.
+            tag="v${semver}"
+            if git rev-parse "${tag}" >/dev/null 2>&1; then
+              echo "::error::Tag ${tag} already exists. Bump the version in pubspec.yaml before releasing again."
+              exit 1
+            fi
           fi
 
-          previous="$(git describe --tags --abbrev=0 "${tag}^" 2>/dev/null || true)"
+          previous="$(git describe --tags --abbrev=0 --exclude="${tag}" 2>/dev/null || true)"
 
           {
             echo "tag=${tag}"
             echo "semver=${semver}"
             echo "build_number=${build_number}"
             echo "previous_tag=${previous}"
+            echo "create_tag=${{ github.event_name == 'workflow_dispatch' }}"
           } >> "$GITHUB_OUTPUT"
           echo "Releasing ${semver}+${build_number} as ${tag} (previous: ${previous:-none})"
 
@@ -140,7 +156,15 @@ jobs:
           cp build/app/outputs/flutter-apk/app-release.apk \
              "dist/dividendendackel-${version}-android.apk"
 
-          # The Linux build is a directory, so it has to be an archive.
+          # A Flutter Linux build is a directory, so the single-file direct
+          # download is an AppImage: chmod +x and run, no extraction, no root.
+          curl -sfL -o /tmp/appimagetool.AppImage \
+            https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
+          chmod +x /tmp/appimagetool.AppImage
+          APPIMAGETOOL=/tmp/appimagetool.AppImage \
+            ./tool/build-appimage.sh "${version}" dist
+
+          # The tarball stays for anyone who wants the plain bundle.
           tar -czf "dist/dividendendackel-${version}-linux-x86_64.tar.gz" \
               -C build/linux/x64/release/bundle .
 
@@ -181,10 +205,14 @@ jobs:
         uses: softprops/action-gh-release@fe965f7af51af5f2602596916f38a38df2e33de0 # v3.0.2
         with:
           tag_name: ${{ steps.version.outputs.tag }}
+          # On a manual run the tag does not exist yet; create it on the exact
+          # commit that was built and tested, not on a moving branch ref.
+          target_commitish: ${{ github.sha }}
           name: DividendenDackel ${{ steps.version.outputs.semver }}
           body_path: RELEASE_NOTES.md
           files: |
             dist/dividendendackel-${{ steps.version.outputs.semver }}-android.apk
+            dist/DividendenDackel-${{ steps.version.outputs.semver }}-x86_64.AppImage
             dist/dividendendackel-${{ steps.version.outputs.semver }}-linux-x86_64.tar.gz
             dist/SHA256SUMS
           draft: false

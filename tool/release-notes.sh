@@ -60,18 +60,23 @@ fi
 cat <<'FOOTER'
 ### Artifacts
 
-| File | Platform |
-| --- | --- |
-| `dividendendackel-<version>-android.apk` | Android 10 (API 29) and newer |
-| `dividendendackel-<version>-linux-x86_64.tar.gz` | Linux x86_64 desktop |
-| `SHA256SUMS` | Checksums for both artifacts |
+| File | Platform | How to run |
+| --- | --- | --- |
+| `dividendendackel-<version>-android.apk` | Android 10 (API 29) and newer | Install directly |
+| `DividendenDackel-<version>-x86_64.AppImage` | Linux x86_64 | `chmod +x` it and run — one file, no install, no root |
+| `dividendendackel-<version>-linux-x86_64.tar.gz` | Linux x86_64 | The plain bundle, for anyone who prefers it |
+| `SHA256SUMS` | — | Checksums for every artifact |
 
-The APK is unsigned beyond a debug key, so Android will warn on install from
-an unknown source. Verify the download against `SHA256SUMS` before installing.
+Both primary downloads are single files: the APK installs directly, the
+AppImage runs directly. Neither needs unpacking.
+
+The APK is signed with a debug key, so Android warns when installing from an
+unknown source. Verify downloads against `SHA256SUMS` first.
 
 ### Data sources
 
-Works out of the box with no API key: SEC EDGAR (dividend history, filings)
-and Frankfurter/ECB (foreign-exchange rates), with a bundled sample dataset
-filling the gaps. See `docs/data-providers.md`.
+Works out of the box with no API key: SEC EDGAR for real dividend history and
+filings, Frankfurter/ECB for daily reference exchange rates, and a bundled
+sample dataset covering the rest. Optional provider keys are stored only on
+the device. See `docs/data-providers.md`.
 FOOTER
