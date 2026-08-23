@@ -6,7 +6,7 @@ including a future session — can pick up without re-reading the whole history.
 - **Last updated:** 2026-08-23
 - **Version:** 0.1.0+1 (pre-release, `0.x.y`)
 - **Branch:** `master` (local work ahead of `origin`)
-- **Quality gate:** green — 405 tests, analyzer clean, both platforms build
+- **Quality gate:** green — 430 tests, analyzer clean, both platforms build
 
 ---
 
@@ -25,8 +25,9 @@ switches between a bottom bar and a navigation rail, light and dark themes,
 Settings, About with the version, and a Data Status screen. Sample data is
 seeded on first launch, so the screens are populated with no API key.
 
-The core portfolio, calendar and 24-month income forecast are functional. The
-Today ranking lands with T1.
+The core portfolio, calendar and 24-month income forecast are functional. Today
+combines portfolio value, dividend income, earnings and company events from the
+local cache; relevance-ranked news is the next product slice.
 
 ### Done
 
@@ -60,6 +61,10 @@ Today ranking lands with T1.
 | 24-month dividend income forecast | D5 | done |
 | Explainable Dividend Quality Score | D6 | done |
 | Explainable German dividend-tax model | D8 | done |
+| Display-currency conversion and exposure | D7 | done |
+| Gross and estimated-net income UI | D9 | done |
+| Offline-capable Today dashboard | T1 | done |
+| Earnings and corporate events | T2 | done |
 
 ### What is left
 
@@ -67,12 +72,11 @@ Ordered by what unblocks a usable app soonest.
 
 | Next | Task | Why it matters |
 | --- | --- | --- |
-| 1 | **T1** core UI | Make Today the useful daily starting point. |
-| 2 | **E1/E2** delivery proof | End-to-end flows and artifact launch verification. |
-| 3 | **D6–D9** deeper portfolio data | Quality, currency and gross/net tax. |
+| 1 | **T3/T4** news + relevance | Put attributable, ranked portfolio news on Today. |
+| 2 | **T5/T6** research | Complete the explainable research experience. |
+| 3 | **Q1–Q9** quality | Harden offline behavior, accessibility and performance. |
 
-Then: D6 quality score · D7 currency · **D8/D9 gross-and-net tax** ·
-T2–T6 events, news, research ·
+Then:
 Q1–Q7 offline, states, accessibility, health, simulator, onboarding,
 notifications · R2 dependency workflows · R4b remaining docs ·
 R5 optional keyed providers · R6 release readiness · S1 self-review ·
@@ -86,7 +90,7 @@ Full detail in [`BACKLOG.md`](BACKLOG.md).
 something useful, driven by bundled sample data and needing no API key.**
 
 The APK and Linux bundle already build and open onto populated sample-driven
-screens. D3 through T1 turn those thin read-only screens into the core product.
+screens. The remaining backlog deepens news, research and release quality.
 
 ## 4. How to build and check
 
@@ -142,9 +146,9 @@ dart format .
   dividend-per-share fact is normalized with explicit reporting-period fields;
   ex-date, declaration date and payment date stay null. Annual facts supersede
   overlapping quarters so totals are not double-counted.
-- **Database schemas 2 and 3 are additive.** Version 2 adds nullable dividend
-  reporting-period columns; version 3 adds exact daily FX rows. Tested 1→3 and
-  2→3 migrations preserve existing data.
+- **Database schemas 2, 3 and 4 are additive.** Version 2 adds nullable dividend
+  reporting-period columns, version 3 adds exact daily FX rows, and version 4
+  adds scheduled corporate events. Tested upgrades preserve existing rows.
 - **FX rates stay exact and attributable.** Frankfurter v2 requests are always
   filtered to `providers=ECB`; rows store decimal text, UTC reference dates and
   provenance. Range translation preserves the domain's half-open convention,
@@ -213,17 +217,17 @@ dart format .
   are the only provider settings stored in plain preferences. Android app
   backup is disabled so encrypted values cannot be restored without their
   device-bound key.
-- **Sample data is generated from patterns, not fixed dates**, so the calendar
-  is populated whenever the app runs, and the generated history actually grows
-  year on year so dividend CAGR has something real to compute.
+- **Sample data is generated from patterns, not fixed dates**, so dividend,
+  earnings and corporate-event views stay populated whenever the app runs, and
+  generated dividend history grows year on year so CAGR is computable.
 - **Dividends will be shown gross *and* net**, with withholding, treaty cap and
   German tax modelled as an explainable estimate — see
   [`dividend-taxation.md`](dividend-taxation.md).
 
 ## 6. Known issues and follow-ups
 
-- Screens are functional but minimal; the calendar is an agenda list and the
-  Today ranking is not implemented yet.
+- News ingestion and portfolio relevance ranking are not implemented yet, so
+  Today orders dated events chronologically until T3/T4 land.
 - Widget tests run without a database on purpose: drift's stream machinery
   outlives the widget tree and the test binding reports it as a pending timer.
   The data layer is covered by its own tests.

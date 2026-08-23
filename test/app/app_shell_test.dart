@@ -70,6 +70,14 @@ void main() {
             (Ref ref, int days) =>
                 Stream<List<DividendEvent>>.value(const <DividendEvent>[]),
           ),
+          upcomingEarningsProvider.overrideWith(
+            (Ref ref, int days) =>
+                Stream<List<EarningsEvent>>.value(const <EarningsEvent>[]),
+          ),
+          upcomingCorporateEventsProvider.overrideWith(
+            (Ref ref, int days) =>
+                Stream<List<CorporateEvent>>.value(const <CorporateEvent>[]),
+          ),
           todayChangesProvider.overrideWith(
             (Ref ref) async => const TodayChanges(
               previousAt: null,

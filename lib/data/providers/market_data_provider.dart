@@ -17,6 +17,9 @@ enum ProviderDataType {
   /// Earnings dates and results.
   earnings,
 
+  /// Scheduled company events other than dividends and earnings.
+  companyEvents,
+
   /// News metadata linking to the original source.
   news,
 
@@ -76,6 +79,17 @@ abstract interface class EarningsDataProvider implements MarketDataProvider {
   });
 }
 
+/// Scheduled company-event adapter contract.
+abstract interface class CompanyEventDataProvider
+    implements MarketDataProvider {
+  /// Retrieves normalized company events inside [range].
+  Future<Result<List<CorporateEvent>>> fetchCompanyEvents(
+    Instrument instrument,
+    DateRange range, {
+    required CancellationToken cancellationToken,
+  });
+}
+
 /// News adapter contract.
 abstract interface class NewsDataProvider implements MarketDataProvider {
   /// Retrieves normalized news metadata, never full article bodies.
@@ -116,6 +130,7 @@ bool providerImplementsCapability(
   ProviderDataType.quote => provider is QuoteDataProvider,
   ProviderDataType.dividends => provider is DividendDataProvider,
   ProviderDataType.earnings => provider is EarningsDataProvider,
+  ProviderDataType.companyEvents => provider is CompanyEventDataProvider,
   ProviderDataType.news => provider is NewsDataProvider,
   ProviderDataType.filings => provider is FilingDataProvider,
   ProviderDataType.fxRates => provider is FxRateDataProvider,

@@ -1,6 +1,7 @@
 import 'package:dividendendackel/data/database/tables.dart';
 // The generated part file references these enums by name, so they must be
 // visible in this library even though nothing here mentions them directly.
+import 'package:dividendendackel/domain/entities/corporate_event.dart';
 import 'package:dividendendackel/domain/entities/dividend_event.dart';
 import 'package:dividendendackel/domain/entities/earnings_event.dart';
 import 'package:dividendendackel/domain/entities/news_item.dart';
@@ -25,6 +26,7 @@ part 'app_database.g.dart';
     FxRates,
     DividendEvents,
     EarningsEvents,
+    CorporateEvents,
     NewsItems,
     NewsInstrumentLinks,
     Filings,
@@ -48,7 +50,7 @@ class AppDatabase extends _$AppDatabase {
 
   /// Bumped whenever the schema changes. Never reused for a different schema.
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -61,7 +63,7 @@ class AppDatabase extends _$AppDatabase {
       // not an acceptable default once releases exist. Schema version 1 is the
       // first app schema; every supported transition is additive and explicit,
       // while an unknown path fails loudly instead of dropping data.
-      if (from < 1 || from >= to || to > 3) {
+      if (from < 1 || from >= to || to > 4) {
         throw StateError(
           'No migration is defined from schema version $from to $to. '
           'Refusing to modify the database rather than risk user data.',
@@ -73,6 +75,9 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 3 && to >= 3) {
         await m.createTable(fxRates);
+      }
+      if (from < 4 && to >= 4) {
+        await m.createTable(corporateEvents);
       }
     },
     beforeOpen: (OpeningDetails details) async {

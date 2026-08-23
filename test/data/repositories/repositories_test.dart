@@ -463,6 +463,91 @@ void main() {
 
       expect(quotes.keys, <String>[allianz.internalId]);
     });
+
+    test('upserts and ranges earnings with exact optional figures', () async {
+      EarningsEvent event(String estimate) => EarningsEvent(
+        instrumentId: allianz.internalId,
+        scheduledFor: DateTime.utc(2026, 8, 25, 20),
+        status: EarningsStatus.confirmed,
+        timing: EarningsTiming.afterMarketClose,
+        fiscalPeriod: 'Q2 2026',
+        epsEstimate: Money.parse(estimate, Currency.eur),
+        provenance: fmp,
+      );
+
+      await marketData.saveEarnings(<EarningsEvent>[
+        event('3.10'),
+      ], idOf: (EarningsEvent _) => 'alv-q2');
+      await marketData.saveEarnings(<EarningsEvent>[
+        event('3.20'),
+      ], idOf: (EarningsEvent _) => 'alv-q2');
+
+      final List<EarningsEvent> stored = await marketData
+          .watchEarningsInRange(
+            DateRange(DateTime.utc(2026, 8, 25), DateTime.utc(2026, 8, 26)),
+            instrumentIds: <String>{allianz.internalId},
+          )
+          .first;
+      expect(stored, hasLength(1));
+      expect(stored.single.epsEstimate, Money.parse('3.20', Currency.eur));
+      expect(stored.single.timing, EarningsTiming.afterMarketClose);
+    });
+
+    test('rejects mixed-currency earnings figures', () async {
+      final Result<void> result = await marketData.saveEarnings(<EarningsEvent>[
+        EarningsEvent(
+          instrumentId: allianz.internalId,
+          scheduledFor: DateTime.utc(2026, 8, 25),
+          status: EarningsStatus.reported,
+          epsActual: Money.parse('3.20', Currency.eur),
+          revenueActual: Money.parse('100', Currency.usd),
+          provenance: fmp,
+        ),
+      ], idOf: (EarningsEvent _) => 'mixed');
+
+      expect(result.failureOrNull, isA<ParsingFailure>());
+      expect(await db.select(db.earningsEvents).get(), isEmpty);
+    });
+
+    test('returns only active company events in a half-open range', () async {
+      CorporateEvent event(
+        String id,
+        DateTime date, {
+        CorporateEventStatus status = CorporateEventStatus.confirmed,
+      }) => CorporateEvent(
+        id: id,
+        instrumentId: allianz.internalId,
+        scheduledFor: date,
+        type: CorporateEventType.shareholderMeeting,
+        status: status,
+        title: 'Shareholder meeting',
+        url: Uri.parse('https://example.test/events/$id'),
+        provenance: fmp,
+      );
+
+      await marketData.saveCorporateEvents(<CorporateEvent>[
+        event('inside', DateTime.utc(2026, 8, 25)),
+        event(
+          'completed',
+          DateTime.utc(2026, 8, 25),
+          status: CorporateEventStatus.completed,
+        ),
+        event('boundary', DateTime.utc(2026, 8, 26)),
+      ]);
+
+      final List<CorporateEvent> stored = await marketData
+          .watchCorporateEventsInRange(
+            DateRange(DateTime.utc(2026, 8, 25), DateTime.utc(2026, 8, 26)),
+            instrumentIds: <String>{allianz.internalId},
+          )
+          .first;
+      expect(stored, hasLength(1));
+      expect(stored.single.id, 'inside');
+      expect(
+        stored.single.url,
+        Uri.parse('https://example.test/events/inside'),
+      );
+    });
   });
 
   group('DriftFxRateRepository', () {

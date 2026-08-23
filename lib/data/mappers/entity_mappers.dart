@@ -266,6 +266,30 @@ extension EarningsRowMapper on DbEarningsEvent {
   );
 }
 
+/// Maps corporate-event rows.
+extension CorporateEventRowMapper on DbCorporateEvent {
+  /// Builds the domain corporate event.
+  CorporateEvent toDomain() => CorporateEvent(
+    id: id,
+    instrumentId: instrumentId,
+    scheduledFor: EntityMappers.utc(scheduledFor),
+    type: type,
+    status: status,
+    title: title,
+    url: url == null ? null : Uri.parse(url!),
+    provenance: ProvenanceRowMapper.fromColumns(
+      source: source,
+      fetchedAt: fetchedAt,
+      updatedAt: updatedAt,
+      cacheState: cacheState,
+      confidence: confidence,
+      reportedCurrency: reportedCurrency,
+      originalSymbol: originalSymbol,
+      providerExchange: providerExchange,
+    ),
+  );
+}
+
 /// Maps news rows.
 extension NewsRowMapper on DbNewsItem {
   /// Builds the domain news item, attaching [instrumentIds].
@@ -469,6 +493,71 @@ abstract final class CompanionMappers {
       recordDate: Value<DateTime?>(event.recordDate?.toUtc()),
       reportedPeriodStart: Value<DateTime?>(event.reportedPeriodStart?.toUtc()),
       reportedPeriodEnd: Value<DateTime?>(event.reportedPeriodEnd?.toUtc()),
+      source: p.source,
+      fetchedAt: p.fetchedAt,
+      updatedAt: p.updatedAt,
+      cacheState: p.cacheState,
+      confidence: p.confidence,
+      reportedCurrency: p.reportedCurrency,
+      originalSymbol: p.originalSymbol,
+      providerExchange: p.providerExchange,
+    );
+  }
+
+  /// Builds an earnings row with a caller-supplied deterministic [id].
+  static EarningsEventsCompanion earningsEvent(
+    EarningsEvent event, {
+    required String id,
+  }) {
+    final _ProvenanceValues p = _provenanceValues(event.provenance);
+    final Set<Currency> currencies = <Currency>{
+      if (event.epsEstimate case final Money value) value.currency,
+      if (event.epsActual case final Money value) value.currency,
+      if (event.revenueEstimate case final Money value) value.currency,
+      if (event.revenueActual case final Money value) value.currency,
+    };
+    if (currencies.length > 1) {
+      throw ParsingFailure(
+        technicalDetail:
+            'Earnings figures for ${event.instrumentId} use multiple '
+            'currencies: ${currencies.map((Currency c) => c.code).join(', ')}',
+      );
+    }
+    final Currency? currency = currencies.firstOrNull;
+    return EarningsEventsCompanion.insert(
+      id: id,
+      instrumentId: event.instrumentId,
+      scheduledFor: event.scheduledFor.toUtc(),
+      status: event.status,
+      timing: Value<EarningsTiming>(event.timing),
+      fiscalPeriod: Value<String?>(event.fiscalPeriod),
+      epsEstimate: Value<String?>(event.epsEstimate?.amount.toString()),
+      epsActual: Value<String?>(event.epsActual?.amount.toString()),
+      revenueEstimate: Value<String?>(event.revenueEstimate?.amount.toString()),
+      revenueActual: Value<String?>(event.revenueActual?.amount.toString()),
+      figuresCurrency: Value<String?>(currency?.code),
+      source: p.source,
+      fetchedAt: p.fetchedAt,
+      updatedAt: p.updatedAt,
+      cacheState: p.cacheState,
+      confidence: p.confidence,
+      reportedCurrency: p.reportedCurrency,
+      originalSymbol: p.originalSymbol,
+      providerExchange: p.providerExchange,
+    );
+  }
+
+  /// Builds a normalized corporate-event row.
+  static CorporateEventsCompanion corporateEvent(CorporateEvent event) {
+    final _ProvenanceValues p = _provenanceValues(event.provenance);
+    return CorporateEventsCompanion.insert(
+      id: event.id,
+      instrumentId: event.instrumentId,
+      scheduledFor: event.scheduledFor.toUtc(),
+      type: event.type,
+      status: event.status,
+      title: event.title,
+      url: Value<String?>(event.url?.toString()),
       source: p.source,
       fetchedAt: p.fetchedAt,
       updatedAt: p.updatedAt,

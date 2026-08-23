@@ -86,6 +86,25 @@ final class SampleDataSeeder {
       _rethrowFailure(await dividends.saveAll(events, idOf: dividendEventId));
     }
 
+    for (final SampleEarningsPattern pattern in dataset.earningsPatterns) {
+      final List<EarningsEvent> events = buildEarningsEvents(
+        pattern,
+        now: now,
+        provenance: provenance,
+      );
+      _rethrowFailure(
+        await marketData.saveEarnings(events, idOf: earningsEventId),
+      );
+    }
+
+    _rethrowFailure(
+      await marketData.saveCorporateEvents(<CorporateEvent>[
+        for (final SampleCorporateEventPattern pattern
+            in dataset.corporateEventPatterns)
+          ...buildCorporateEvents(pattern, now: now, provenance: provenance),
+      ]),
+    );
+
     if (includePortfolio) {
       for (final SampleHolding holding in dataset.portfolio) {
         _rethrowFailure(
@@ -174,6 +193,67 @@ final class SampleDataSeeder {
         : '${date.year}-${date.month.toString().padLeft(2, '0')}-'
               '${date.day.toString().padLeft(2, '0')}';
     return 'sample:${event.instrumentId}:$key';
+  }
+
+  /// Projects recurring earnings anchors through the current and next year.
+  static List<EarningsEvent> buildEarningsEvents(
+    SampleEarningsPattern pattern, {
+    required DateTime now,
+    required Provenance provenance,
+  }) {
+    final DateTime today = DateTime.utc(now.year, now.month, now.day);
+    return <EarningsEvent>[
+      for (final int year in <int>[now.year, now.year + 1])
+        for (final MonthDay anchor in pattern.anchors)
+          EarningsEvent(
+            instrumentId: pattern.instrumentId,
+            scheduledFor: anchor.inYear(year),
+            status: anchor.inYear(year).isBefore(today)
+                ? EarningsStatus.reported
+                : EarningsStatus.estimated,
+            timing: pattern.timing,
+            fiscalPeriod: null,
+            provenance: provenance.copyWith(
+              confidence: anchor.inYear(year).isBefore(today)
+                  ? Confidence.high
+                  : Confidence.low,
+            ),
+          ),
+    ];
+  }
+
+  /// Stable identity for a sample earnings date.
+  static String earningsEventId(EarningsEvent event) =>
+      'sample:earnings:${event.instrumentId}:'
+      '${event.scheduledFor.toIso8601String()}';
+
+  /// Projects annual company-event examples through this and next year.
+  static List<CorporateEvent> buildCorporateEvents(
+    SampleCorporateEventPattern pattern, {
+    required DateTime now,
+    required Provenance provenance,
+  }) {
+    final DateTime today = DateTime.utc(now.year, now.month, now.day);
+    return <CorporateEvent>[
+      for (final int year in <int>[now.year, now.year + 1])
+        CorporateEvent(
+          id:
+              'sample:company-event:${pattern.instrumentId}:'
+              '${pattern.type.name}:$year',
+          instrumentId: pattern.instrumentId,
+          scheduledFor: pattern.anchor.inYear(year),
+          type: pattern.type,
+          status: pattern.anchor.inYear(year).isBefore(today)
+              ? CorporateEventStatus.completed
+              : CorporateEventStatus.estimated,
+          title: pattern.title,
+          provenance: provenance.copyWith(
+            confidence: pattern.anchor.inYear(year).isBefore(today)
+                ? Confidence.high
+                : Confidence.low,
+          ),
+        ),
+    ];
   }
 
   static DividendStatus _statusFor(DateTime exDate, DateTime now) {
