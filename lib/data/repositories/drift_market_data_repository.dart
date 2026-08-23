@@ -87,12 +87,21 @@ final class DriftMarketDataRepository implements MarketDataRepository {
     Set<String>? instrumentIds,
     int limit = 50,
   }) {
-    final SimpleSelectStatement<$NewsItemsTable, DbNewsItem> query =
-        db.select(db.newsItems)
-          ..orderBy(<OrderClauseGenerator<$NewsItemsTable>>[
-            ($NewsItemsTable t) => OrderingTerm.desc(t.publishedAt),
-          ])
-          ..limit(limit);
+    final SimpleSelectStatement<$NewsItemsTable, DbNewsItem> query = db.select(
+      db.newsItems,
+    );
+    if (instrumentIds != null) {
+      final JoinedSelectStatement<HasResultSet, dynamic> linkedIds =
+          db.selectOnly(db.newsInstrumentLinks)
+            ..addColumns(<Expression<Object>>[db.newsInstrumentLinks.newsId])
+            ..where(db.newsInstrumentLinks.instrumentId.isIn(instrumentIds));
+      query.where(($NewsItemsTable item) => item.id.isInQuery(linkedIds));
+    }
+    query
+      ..orderBy(<OrderClauseGenerator<$NewsItemsTable>>[
+        ($NewsItemsTable t) => OrderingTerm.desc(t.publishedAt),
+      ])
+      ..limit(limit);
 
     return query.watch().asyncMap((List<DbNewsItem> rows) async {
       final List<DbNewsInstrumentLink> links =
@@ -114,15 +123,7 @@ final class DriftMarketDataRepository implements MarketDataRepository {
           )
           .toList(growable: false);
 
-      if (instrumentIds == null) {
-        return items;
-      }
-      return items
-          .where(
-            (NewsItem item) =>
-                item.relatedInstrumentIds.any(instrumentIds.contains),
-          )
-          .toList(growable: false);
+      return items;
     });
   }
 
@@ -179,6 +180,34 @@ final class DriftMarketDataRepository implements MarketDataRepository {
             await db
                 .into(db.corporateEvents)
                 .insertOnConflictUpdate(CompanionMappers.corporateEvent(event));
+          }
+        });
+      });
+
+  @override
+  Future<Result<void>> saveNews(List<NewsItem> items) =>
+      Result.guardAsync<void>(() async {
+        await db.transaction(() async {
+          for (final NewsItem item in items) {
+            await db
+                .into(db.newsItems)
+                .insertOnConflictUpdate(CompanionMappers.newsItem(item));
+            await (db.delete(db.newsInstrumentLinks)..where(
+                  ($NewsInstrumentLinksTable link) =>
+                      link.newsId.equals(item.id),
+                ))
+                .go();
+            for (final String instrumentId
+                in item.relatedInstrumentIds.toSet()) {
+              await db
+                  .into(db.newsInstrumentLinks)
+                  .insert(
+                    NewsInstrumentLinksCompanion.insert(
+                      newsId: item.id,
+                      instrumentId: instrumentId,
+                    ),
+                  );
+            }
           }
         });
       });

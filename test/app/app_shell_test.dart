@@ -86,6 +86,9 @@ void main() {
               quoteChanges: 0,
             ),
           ),
+          recentPortfolioNewsProvider.overrideWith(
+            (Ref ref) => Stream<List<NewsItem>>.value(const <NewsItem>[]),
+          ),
           calendarEventsProvider.overrideWith(
             (Ref ref, CalendarEventsQuery query) =>
                 Stream<List<DividendEvent>>.value(const <DividendEvent>[]),

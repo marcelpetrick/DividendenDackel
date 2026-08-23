@@ -4,6 +4,7 @@ import 'package:dividendendackel/app/widgets/gross_net_amount.dart';
 import 'package:dividendendackel/app/widgets/value_labels.dart';
 import 'package:dividendendackel/domain/analytics/analytics.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
+import 'package:dividendendackel/features/news/news_link_launcher.dart';
 import 'package:dividendendackel/features/tax/tax_estimates.dart';
 import 'package:dividendendackel/features/today/today_state.dart';
 import 'package:flutter/material.dart';
@@ -46,6 +47,9 @@ class TodayScreen extends ConsumerWidget {
     );
     final AsyncValue<List<CorporateEvent>> next30Corporate = ref.watch(
       upcomingCorporateEventsProvider(30),
+    );
+    final AsyncValue<List<NewsItem>> news = ref.watch(
+      recentPortfolioNewsProvider,
     );
     final AsyncValue<Map<String, Instrument>> instrumentValue = ref.watch(
       instrumentsByIdProvider,
@@ -112,6 +116,12 @@ class TodayScreen extends ConsumerWidget {
           corporateEvents: next30Corporate,
           instruments: instruments,
           now: now,
+        ),
+        const SizedBox(height: AppTheme.space * 2),
+        _PortfolioNewsCard(
+          news: news,
+          instruments: instruments,
+          launcher: ref.watch(newsLinkLauncherProvider),
         ),
         const SizedBox(height: AppTheme.space * 2),
         _ExpectedDividendsCard(
@@ -502,6 +512,125 @@ class _UpcomingCompanyEventsCard extends StatelessWidget {
   }
 }
 
+class _PortfolioNewsCard extends StatelessWidget {
+  const _PortfolioNewsCard({
+    required this.news,
+    required this.instruments,
+    required this.launcher,
+  });
+
+  final AsyncValue<List<NewsItem>> news;
+  final Map<String, Instrument> instruments;
+  final NewsLinkLauncher launcher;
+
+  @override
+  Widget build(BuildContext context) {
+    final List<NewsItem> items = news.value ?? const <NewsItem>[];
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppTheme.space * 2),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              'Portfolio news',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: AppTheme.space / 2),
+            const Text(
+              'Headlines and links only. Articles remain with their publishers.',
+            ),
+            const SizedBox(height: AppTheme.space),
+            if (news.hasError)
+              const Text(
+                'News could not be refreshed. Cached headlines remain visible.',
+              ),
+            if (items.isNotEmpty)
+              for (final NewsItem item in items.take(5))
+                _NewsTile(
+                  item: item,
+                  instrumentNames: <String>[
+                    for (final String id in item.relatedInstrumentIds)
+                      instruments[id]?.name ?? id,
+                  ],
+                  onOpen: () => _open(context, item),
+                )
+            else if (news.isLoading)
+              const LinearProgressIndicator(
+                semanticsLabel: 'Loading portfolio news',
+              )
+            else if (!news.hasError)
+              const Text('No recent headlines are cached for your portfolio.'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _open(BuildContext context, NewsItem item) async {
+    bool opened = false;
+    try {
+      opened = await launcher.open(item.url);
+    } on Object {
+      opened = false;
+    }
+    if (!context.mounted || opened) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Could not open the original publisher page.'),
+      ),
+    );
+  }
+}
+
+class _NewsTile extends StatelessWidget {
+  const _NewsTile({
+    required this.item,
+    required this.instrumentNames,
+    required this.onOpen,
+  });
+
+  final NewsItem item;
+  final List<String> instrumentNames;
+  final VoidCallback onOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    final MaterialLocalizations localizations = MaterialLocalizations.of(
+      context,
+    );
+    final DateTime localPublishedAt = item.publishedAt.toLocal();
+    final String published =
+        '${localizations.formatMediumDate(localPublishedAt)} · '
+        '${localizations.formatTimeOfDay(TimeOfDay.fromDateTime(localPublishedAt))}';
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: const Icon(Icons.article_outlined),
+      title: Text(item.headline),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text('${item.sourceName} · $published'),
+          if (instrumentNames.isNotEmpty) Text(instrumentNames.join(', ')),
+          Text(_newsCategory(item.category)),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: onOpen,
+              icon: const Icon(Icons.open_in_new, size: 16),
+              label: Text(
+                item.provenance.source == Provenance.sampleSource
+                    ? 'View sample source'
+                    : 'Open original',
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 String _earningsTiming(EarningsTiming timing) => switch (timing) {
   EarningsTiming.beforeMarketOpen => 'Before market open',
   EarningsTiming.afterMarketClose => 'After market close',
@@ -531,6 +660,20 @@ String _corporateStatus(CorporateEventStatus status) => switch (status) {
   CorporateEventStatus.confirmed => 'Confirmed',
   CorporateEventStatus.completed => 'Completed',
   CorporateEventStatus.cancelled => 'Cancelled',
+};
+
+String _newsCategory(NewsCategory category) => switch (category) {
+  NewsCategory.earnings => 'Earnings',
+  NewsCategory.dividends => 'Dividends',
+  NewsCategory.guidance => 'Guidance',
+  NewsCategory.mergersAndAcquisitions => 'Mergers & acquisitions',
+  NewsCategory.management => 'Management',
+  NewsCategory.regulation => 'Regulation',
+  NewsCategory.product => 'Product',
+  NewsCategory.analyst => 'Analyst',
+  NewsCategory.filing => 'Filing',
+  NewsCategory.macro => 'Macro',
+  NewsCategory.general => 'General',
 };
 
 class _ChangesCard extends StatelessWidget {

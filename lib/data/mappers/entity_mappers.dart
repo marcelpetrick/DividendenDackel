@@ -568,6 +568,40 @@ abstract final class CompanionMappers {
       providerExchange: p.providerExchange,
     );
   }
+
+  /// Builds headline metadata only; article bodies are never persisted.
+  static NewsItemsCompanion newsItem(NewsItem item) {
+    if (item.headline.trim().isEmpty || item.sourceName.trim().isEmpty) {
+      throw const ParsingFailure(
+        technicalDetail: 'News headline and source must not be empty.',
+      );
+    }
+    if (!item.url.hasScheme ||
+        (item.url.scheme != 'https' && item.url.scheme != 'http')) {
+      throw ParsingFailure(
+        technicalDetail: 'Unsupported news URL scheme: ${item.url.scheme}',
+      );
+    }
+    final _ProvenanceValues p = _provenanceValues(item.provenance);
+    return NewsItemsCompanion.insert(
+      id: item.id,
+      headline: item.headline,
+      sourceName: item.sourceName,
+      publishedAt: item.publishedAt.toUtc(),
+      url: item.url.toString(),
+      category: Value<NewsCategory>(item.category),
+      summary: Value<String?>(item.summary),
+      relevance: Value<double?>(item.relevance),
+      source: p.source,
+      fetchedAt: p.fetchedAt,
+      updatedAt: p.updatedAt,
+      cacheState: p.cacheState,
+      confidence: p.confidence,
+      reportedCurrency: p.reportedCurrency,
+      originalSymbol: p.originalSymbol,
+      providerExchange: p.providerExchange,
+    );
+  }
 }
 
 /// The provenance columns every cached record shares, ready for a companion.

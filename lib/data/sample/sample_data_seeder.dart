@@ -105,6 +105,24 @@ final class SampleDataSeeder {
       ]),
     );
 
+    _rethrowFailure(
+      await marketData.saveNews(<NewsItem>[
+        for (final SampleNews item in dataset.news)
+          NewsItem(
+            id:
+                'sample:news:${item.instrumentId}:${item.category.name}:'
+                '${item.offsetHours}',
+            headline: item.headline,
+            sourceName: item.sourceName,
+            publishedAt: now.add(Duration(hours: item.offsetHours)),
+            url: item.url,
+            category: item.category,
+            relatedInstrumentIds: <String>[item.instrumentId],
+            provenance: provenance,
+          ),
+      ]),
+    );
+
     if (includePortfolio) {
       for (final SampleHolding holding in dataset.portfolio) {
         _rethrowFailure(

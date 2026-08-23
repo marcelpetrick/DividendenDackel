@@ -310,6 +310,13 @@ void main() {
               .first,
           isNotEmpty,
         );
+        final List<NewsItem> news = await marketData
+            .watchRecentNews(instrumentIds: <String>{'isin:DE0008404005'})
+            .first;
+        expect(news, isNotEmpty);
+        expect(news.single.category, NewsCategory.dividends);
+        expect(news.single.provenance.source, Provenance.sampleSource);
+        expect(news.single.url.host, 'github.com');
         expect(
           await marketData
               .watchCorporateEventsInRange(
