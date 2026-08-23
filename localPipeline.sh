@@ -14,6 +14,12 @@ trap 'rm -rf "${PIPELINE_LOG_DIR}"' EXIT
 
 # Keep in sync with .github/workflows/ci.yml and CONTRIBUTING.md (Vision.md §70).
 readonly PINNED_FLUTTER_VERSION="3.47.1"
+# The JDK that *runs* Gradle and Android Lint. Distinct from the project's
+# sourceCompatibility, which is the bytecode target and stays at 17.
+# Android Lint is compiled against Java 21 APIs (java.util.List.removeLast),
+# so running it on 17 crashes with NoSuchMethodError. Keep in step with
+# .github/workflows/ci.yml and release.yml.
+readonly REQUIRED_JAVA_MAJOR="21"
 readonly REQUIRED_MIN_SDK="29"
 readonly GRADLE_FILE="android/app/build.gradle.kts"
 readonly ANDROID_MANIFEST="android/app/src/main/AndroidManifest.xml"
@@ -161,6 +167,24 @@ verify_toolchain() {
         # a developer may legitimately be testing an upgrade (Vision.md §72).
         warn "Flutter ${version} differs from the pinned ${PINNED_FLUTTER_VERSION}"
         TOOLCHAIN_DETAILS="Flutter ${version} (pinned: ${PINNED_FLUTTER_VERSION})"
+    fi
+
+    # The JDK matters as much as the Flutter version. A local build on 21 that
+    # passes while CI runs 17 is exactly how a green local gate shipped a
+    # broken release, so the mismatch is reported here rather than discovered
+    # eight minutes into a CI run.
+    local java_major=""
+    if command -v java >/dev/null 2>&1; then
+        java_major="$(java -version 2>&1 | grep -oE '(openjdk|java) version "[0-9]+' | grep -oE '[0-9]+$' | head -n 1)"
+    fi
+    if [[ -z "${java_major}" ]]; then
+        warn "could not determine the Java version; Android builds need JDK ${REQUIRED_JAVA_MAJOR}"
+        TOOLCHAIN_DETAILS="${TOOLCHAIN_DETAILS}, Java unknown"
+    elif [[ "${java_major}" != "${REQUIRED_JAVA_MAJOR}" ]]; then
+        warn "Java ${java_major} differs from the required ${REQUIRED_JAVA_MAJOR}; Android Lint needs ${REQUIRED_JAVA_MAJOR}"
+        TOOLCHAIN_DETAILS="${TOOLCHAIN_DETAILS}, Java ${java_major} (required: ${REQUIRED_JAVA_MAJOR})"
+    else
+        TOOLCHAIN_DETAILS="${TOOLCHAIN_DETAILS}, Java ${java_major}"
     fi
     return 0
 }
