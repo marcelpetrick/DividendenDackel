@@ -120,6 +120,8 @@ void main() {
       await tester.enterText(find.byType(TextField).first, 'BAS');
       await tester.tap(find.byTooltip('Search'));
       await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('BASF SE'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('BASF SE'));
       await tester.pumpAndSettle();
       await tester.enterText(
@@ -130,6 +132,13 @@ void main() {
         find.byKey(const ValueKey<String>('holding-average-price')),
         '45.20',
       );
+      // Dismiss the keyboard and scroll the button into view first: it sits
+      // inside the dialog's scroll view, and on a short screen the keyboard
+      // pushes it out of reach, so the tap lands on nothing.
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('Add holding'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Add holding'));
       await tester.pumpAndSettle();
 
@@ -182,10 +191,9 @@ void main() {
         maxScrolls: 20,
       );
       expect(find.text('24-month income forecast'), findsOneWidget);
-      expect(
-        find.textContaining('source failures; saved data remains visible'),
-        findsOneWidget,
-      );
+      // The banner says "1 source failed" or "N source failures", so assert
+      // on the part that does not depend on how many sources happened to fail.
+      expect(find.textContaining('saved data remains visible'), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );
