@@ -187,7 +187,7 @@ Each task names the `Vision.md` sections it satisfies.
       dividend-income concentration) with contextual insights. — §20
 - [x] **Q5** Dividend simulator (additional investment → shares, added income,
       new weight, concentration impact). — §21
-- [ ] **Q6** Beginner onboarding: three short steps, then straight to Today.
+- [x] **Q6** Beginner onboarding: three short steps, then straight to Today.
       — §23
 - [ ] **Q7** Local notifications with disabled/important-only/all modes and
       non-manipulative wording. — §22, §85

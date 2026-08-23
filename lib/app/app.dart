@@ -5,6 +5,8 @@ import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
 import 'package:dividendendackel/app/theme/theme_preference.dart';
 import 'package:dividendendackel/features/currency/fx_state.dart';
+import 'package:dividendendackel/features/onboarding/onboarding_screen.dart';
+import 'package:dividendendackel/features/onboarding/onboarding_state.dart';
 import 'package:dividendendackel/features/refresh/portfolio_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -74,6 +76,31 @@ class _DividendenDackelAppState extends ConsumerState<DividendenDackelApp>
     // first frame already has data on the way.
     ref.watch(sampleDataProvider);
     final ThemeMode themeMode = ref.watch(themePreferenceProvider).mode;
+    final AsyncValue<bool> onboarding = ref.watch(onboardingCompletedProvider);
+
+    if (onboarding.value != true) {
+      return MaterialApp(
+        title: 'DividendenDackel',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.light(),
+        darkTheme: AppTheme.dark(),
+        themeMode: themeMode,
+        home: onboarding.isLoading && !onboarding.hasError
+            ? const Scaffold(
+                body: Center(
+                  child: CircularProgressIndicator.adaptive(
+                    semanticsLabel: 'Loading first-run settings',
+                  ),
+                ),
+              )
+            : OnboardingScreen(
+                onComplete: () async {
+                  await ref.read(onboardingStoreProvider).complete();
+                  ref.invalidate(onboardingCompletedProvider);
+                },
+              ),
+      );
+    }
 
     return MaterialApp.router(
       title: 'DividendenDackel',
