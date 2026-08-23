@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ### Added
 
+- A local immutable activity ledger for purchases, sales, deposits,
+  withdrawals, dividends, taxes and fees. Holding projections update
+  transactionally, corrections append auditable reversals, and actual gross
+  dividends reconcile against dated expected payments without mixing
+  currencies.
 - Current official Parqet comparison and a reprioritized post-1.0 scope focused
   on local transaction truth, dividend reconciliation, private import/export,
   multiple portfolios and explainable performance.

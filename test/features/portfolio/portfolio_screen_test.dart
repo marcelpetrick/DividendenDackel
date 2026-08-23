@@ -31,6 +31,7 @@ void main() {
     List<WatchlistEntry> watchlist = const <WatchlistEntry>[],
     Map<String, Quote>? quotes,
     List<DividendEvent>? dividends,
+    List<PortfolioActivity> activities = const <PortfolioActivity>[],
     Currency displayCurrency = Currency.eur,
     List<FxRate> fxRates = const <FxRate>[],
   }) async {
@@ -57,6 +58,14 @@ void main() {
           ),
           watchlistProvider.overrideWith(
             (Ref ref) => Stream<List<WatchlistEntry>>.value(watchlist),
+          ),
+          portfolioActivitiesProvider.overrideWith(
+            (Ref ref) => Stream<List<PortfolioActivity>>.value(activities),
+          ),
+          dividendPaymentsForYearProvider.overrideWith(
+            (Ref ref, int year) => Stream<List<DividendEvent>>.value(
+              dividends ?? const <DividendEvent>[],
+            ),
           ),
           instrumentsByIdProvider.overrideWith(
             (Ref ref) => Stream<Map<String, Instrument>>.value(
@@ -264,6 +273,56 @@ void main() {
 
     expect(editor.addedWatchlist, instrument);
     expect(find.text('Allianz SE added to the watchlist.'), findsOneWidget);
+  });
+
+  testWidgets('shows immutable activities and dividend reconciliation', (
+    WidgetTester tester,
+  ) async {
+    final Holding holding = Holding(
+      instrumentId: instrument.internalId,
+      quantity: Decimal.fromInt(10),
+      provenance: provenance,
+    );
+    final PortfolioActivity purchase = PortfolioActivity(
+      id: 1,
+      portfolioId: InvestmentPortfolio.defaultId,
+      type: PortfolioActivityType.purchase,
+      occurredAt: DateTime.utc(2026, 1),
+      instrumentId: instrument.internalId,
+      quantity: Decimal.fromInt(10),
+      unitPrice: Money.parse('100', Currency.eur),
+      provenance: provenance,
+    );
+    final PortfolioActivity actual = PortfolioActivity(
+      id: 2,
+      portfolioId: InvestmentPortfolio.defaultId,
+      type: PortfolioActivityType.dividend,
+      occurredAt: DateTime.utc(2026, 5, 20),
+      instrumentId: instrument.internalId,
+      cashAmount: Money.parse('105', Currency.eur),
+      provenance: provenance,
+    );
+    final DividendEvent expected = DividendEvent(
+      instrumentId: instrument.internalId,
+      amountPerShare: Money.parse('10', Currency.eur),
+      status: DividendStatus.confirmed,
+      paymentDate: DateTime.utc(2026, 5, 20),
+      provenance: provenance,
+    );
+
+    await pumpPortfolio(
+      tester,
+      holdings: <Holding>[holding],
+      dividends: <DividendEvent>[expected],
+      activities: <PortfolioActivity>[actual, purchase],
+    );
+    await tester.scrollUntilVisible(find.text('Activity ledger'), 500);
+
+    expect(find.text('Activity ledger'), findsOneWidget);
+    expect(find.textContaining('Expected 100.00 EUR'), findsOneWidget);
+    expect(find.textContaining('Actual 105.00 EUR'), findsOneWidget);
+    expect(find.textContaining('Purchase · ALV'), findsOneWidget);
+    expect(find.byTooltip('Reverse activity'), findsNWidgets(2));
   });
 
   testWidgets('shows validation errors without closing the add flow', (

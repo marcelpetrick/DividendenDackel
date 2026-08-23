@@ -101,9 +101,9 @@ final class DividendIncomeForecastCalculator {
 
   /// Builds the required 24-month, quarterly, annual and TTM views.
   ///
-  /// Current holdings are applied to every event because the MVP deliberately
-  /// has no transaction ledger. Historical figures therefore describe what
-  /// today's quantities would have earned, and the UI discloses that basis.
+  /// Current holdings are applied to every event in this forward-looking view.
+  /// Historical actual cash is reconciled separately from the activity ledger;
+  /// it is never inferred from today's quantity.
   PortfolioDividendIncomeForecast calculate({
     required List<Holding> holdings,
     required List<DividendEvent> historicalEvents,

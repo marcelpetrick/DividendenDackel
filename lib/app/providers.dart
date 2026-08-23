@@ -334,6 +334,14 @@ final StreamProvider<List<WatchlistEntry>> watchlistProvider =
       (Ref ref) => ref.watch(portfolioRepositoryProvider).watchWatchlist(),
     );
 
+/// Immutable activities in the currently selected MVP portfolio.
+final StreamProvider<List<PortfolioActivity>> portfolioActivitiesProvider =
+    StreamProvider<List<PortfolioActivity>>(
+      (Ref ref) => ref
+          .watch(portfolioRepositoryProvider)
+          .watchActivities(InvestmentPortfolio.defaultId),
+    );
+
 /// Instrument ids the user holds or watches.
 final StreamProvider<Set<String>> followedInstrumentIdsProvider =
     StreamProvider<Set<String>>(
@@ -397,6 +405,21 @@ final upcomingDividendPaymentsProvider =
             DateRange.days(start, days),
             DividendDateMode.paymentDate,
             instrumentIds: followed,
+          );
+    });
+
+/// Dated dividend payments for one calendar year, used for reconciliation.
+final dividendPaymentsForYearProvider =
+    StreamProvider.family<List<DividendEvent>, int>((Ref ref, int year) async* {
+      final List<Holding> holdings = await ref.watch(holdingsProvider.future);
+      yield* ref
+          .watch(dividendRepositoryProvider)
+          .watchInRange(
+            DateRange(DateTime.utc(year), DateTime.utc(year + 1)),
+            DividendDateMode.paymentDate,
+            instrumentIds: <String>{
+              for (final Holding holding in holdings) holding.instrumentId,
+            },
           );
     });
 

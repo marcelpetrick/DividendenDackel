@@ -20,6 +20,8 @@ Implemented user capabilities:
 - first-run onboarding and persisted System/Light/Dark themes;
 - Today dashboard with ranked portfolio-relevant events and income windows;
 - holding/watchlist search and editing, allocation, yield and next dividend;
+- immutable purchase, sale and cash-flow activities with reversal-based
+  corrections and expected-versus-actual dividend reconciliation;
 - portfolio health by holding, sector, country, currency and dividend income;
 - additional-investment dividend simulator;
 - month/year/agenda dividend calendar with ex/payment date modes, scopes,
@@ -37,10 +39,10 @@ Implemented user capabilities:
 
 ## Engineering state
 
-The app uses Drift/SQLite schema 4 as its local source of truth. Provider
+The app uses Drift/SQLite schema 5 as its local source of truth. Provider
 responses are normalized and persisted before repository streams update the UI.
 All money and FX arithmetic is exact-decimal. Explicit additive migrations
-preserve portfolio data from schemas 1, 2 and 3.
+preserve portfolio data from schemas 1, 2, 3 and 4.
 
 The request coordinator enforces global and per-provider concurrency, pacing,
 priorities, deadlines, bounded exponential retries, deduplication and
@@ -80,9 +82,9 @@ versions with current stable upstream releases without blindly merging them.
 
 The required 0.1.0 backlog is complete and locally tagged. The official Parqet
 comparison in [`parqet-comparison.md`](parqet-comparison.md) reprioritized the
-post-1.0 queue around a local activity ledger, actual-versus-forecast dividend
-reconciliation, reviewable local imports, private calendar export, multiple
-portfolios and explainable cash-flow performance. Optional keyed providers,
+post-1.0 queue around reviewable local imports, private calendar export,
+multiple portfolios and explainable cash-flow performance. The activity ledger
+and actual-versus-forecast reconciliation are implemented. Optional keyed providers,
 broker credential sync, encrypted cross-device sync, widgets/tray mode,
 research history and localization remain candidates rather than MVP blockers.
 

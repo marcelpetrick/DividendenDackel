@@ -8,7 +8,8 @@ crash-reporting service.
 
 The app stores the following in its platform application-data directory:
 
-- portfolio holdings, watchlist entries and user preferences;
+- portfolio names, holdings, watchlist entries, immutable activities and user
+  preferences;
 - cached instruments, quotes, dividends, events, headlines, filings, research
   snapshots and daily FX rates;
 - cache metadata, provider health and privacy-safe synchronization logs;
@@ -35,8 +36,8 @@ Live refresh uses HTTPS and contacts only enabled data sources:
 | `sec.gov` / `data.sec.gov` | public ticker or CIK lookup, declared application/contact user agent, normal network metadata such as IP address | US instruments, company facts and filing metadata |
 | `api.frankfurter.dev` | currency pair, bounded dates, `providers=ECB`, normal network metadata | ECB daily reference rates |
 
-The portfolio quantity, purchase price, tax profile and calculated scores are
-not sent to these keyless providers. A ticker or CIK can reveal which company
+Portfolio names, quantities, purchase prices, activities, tax profiles and
+calculated scores are not sent to these keyless providers. A ticker or CIK can reveal which company
 the user requested. Those services process requests under their own privacy and
 access policies; links are recorded in [`data-providers.md`](data-providers.md).
 

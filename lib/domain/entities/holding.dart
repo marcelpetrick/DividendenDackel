@@ -1,4 +1,5 @@
 import 'package:decimal/decimal.dart';
+import 'package:dividendendackel/domain/entities/portfolio.dart';
 import 'package:dividendendackel/domain/entities/provenance.dart';
 import 'package:dividendendackel/domain/value_objects/money.dart';
 
@@ -10,6 +11,7 @@ import 'package:dividendendackel/domain/value_objects/money.dart';
 final class Holding implements HasProvenance {
   /// Creates a holding.
   Holding({
+    this.portfolioId = InvestmentPortfolio.defaultId,
     required this.instrumentId,
     required this.quantity,
     required this.provenance,
@@ -25,6 +27,9 @@ final class Holding implements HasProvenance {
       );
     }
   }
+
+  /// Portfolio that owns this position.
+  final String portfolioId;
 
   /// The instrument held, by its app-internal id.
   final String instrumentId;
@@ -67,6 +72,7 @@ final class Holding implements HasProvenance {
 
   /// Returns a copy with the given fields replaced.
   Holding copyWith({
+    String? portfolioId,
     String? instrumentId,
     Decimal? quantity,
     Money? averagePurchasePrice,
@@ -74,6 +80,7 @@ final class Holding implements HasProvenance {
     String? notes,
     Provenance? provenance,
   }) => Holding(
+    portfolioId: portfolioId ?? this.portfolioId,
     instrumentId: instrumentId ?? this.instrumentId,
     quantity: quantity ?? this.quantity,
     averagePurchasePrice: averagePurchasePrice ?? this.averagePurchasePrice,
@@ -89,6 +96,7 @@ final class Holding implements HasProvenance {
   @override
   bool operator ==(Object other) =>
       other is Holding &&
+      other.portfolioId == portfolioId &&
       other.instrumentId == instrumentId &&
       other.quantity == quantity &&
       other.averagePurchasePrice == averagePurchasePrice &&
@@ -98,6 +106,7 @@ final class Holding implements HasProvenance {
   @override
   int get hashCode => Object.hash(
     instrumentId,
+    portfolioId,
     quantity,
     averagePurchasePrice,
     purchaseDate,
@@ -109,11 +118,15 @@ final class Holding implements HasProvenance {
 final class WatchlistEntry implements HasProvenance {
   /// Creates a watchlist entry.
   const WatchlistEntry({
+    this.portfolioId = InvestmentPortfolio.defaultId,
     required this.instrumentId,
     required this.addedAt,
     required this.provenance,
     this.notes,
   });
+
+  /// Portfolio that owns this watchlist entry.
+  final String portfolioId;
 
   /// The instrument followed, by its app-internal id.
   final String instrumentId;
@@ -133,10 +146,11 @@ final class WatchlistEntry implements HasProvenance {
   @override
   bool operator ==(Object other) =>
       other is WatchlistEntry &&
+      other.portfolioId == portfolioId &&
       other.instrumentId == instrumentId &&
       other.addedAt == addedAt &&
       other.notes == notes;
 
   @override
-  int get hashCode => Object.hash(instrumentId, addedAt, notes);
+  int get hashCode => Object.hash(portfolioId, instrumentId, addedAt, notes);
 }

@@ -52,7 +52,7 @@ Retry delays do not hold a concurrency slot.
 ## Persistence and migrations
 
 `AppDatabase` is a Drift database stored in the platform application-data
-directory. The current schema is version 4 and contains portfolio ownership,
+directory. The current schema is version 5 and contains portfolio ownership,
 normalized market data, research snapshots, provider health and cache metadata.
 Money and rates are decimal text; timestamps are ISO-8601 text; enums persist by
 name.
@@ -64,11 +64,19 @@ Migrations are explicit and additive:
 | 1 → 2 | SEC dividend reporting-period boundaries |
 | 2 → 3 | exact daily FX rates |
 | 3 → 4 | corporate events |
+| 4 → 5 | portfolio identities and immutable activity ledger |
 
 Unknown or backward paths fail instead of resetting the database. Foreign keys
 are enabled for every connection, while user-owned holdings deliberately do not
 cascade-delete when provider data changes. Migration tests open historical
 schemas and verify user data after upgrade.
+
+Security activities are immutable ledger rows. Purchase, sale and opening or
+correction quantities rebuild the current holding projection inside the same
+SQLite transaction. A correction appends a reversal that points to the
+original row; it does not rewrite history. The v4 migration assigns every
+existing holding and watchlist entry to the default portfolio and creates an
+opening-balance activity with the preserved quantity, price and provenance.
 
 ## Data provenance and offline behavior
 
