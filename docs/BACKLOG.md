@@ -185,7 +185,7 @@ Each task names the `Vision.md` sections it satisfies.
       keyboard navigation on Linux, non-colour-only status indicators. — §27
 - [x] **Q4** Portfolio health (concentration, sector/country/currency exposure,
       dividend-income concentration) with contextual insights. — §20
-- [ ] **Q5** Dividend simulator (additional investment → shares, added income,
+- [x] **Q5** Dividend simulator (additional investment → shares, added income,
       new weight, concentration impact). — §21
 - [ ] **Q6** Beginner onboarding: three short steps, then straight to Today.
       — §23

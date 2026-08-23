@@ -165,6 +165,50 @@ void main() {
     expect(find.text('Allianz SE added to the portfolio.'), findsOneWidget);
   });
 
+  testWidgets('simulates added shares, income and concentration impact', (
+    WidgetTester tester,
+  ) async {
+    final Holding holding = Holding(
+      instrumentId: instrument.internalId,
+      quantity: Decimal.fromInt(10),
+      provenance: provenance,
+    );
+    final Quote quote = Quote(
+      instrumentId: instrument.internalId,
+      price: Money.parse('100', Currency.eur),
+      asOf: now,
+      provenance: provenance,
+    );
+    final DividendEvent dividend = DividendEvent(
+      instrumentId: instrument.internalId,
+      amountPerShare: Money.parse('10', Currency.eur),
+      status: DividendStatus.announced,
+      paymentDate: now.add(const Duration(days: 20)),
+      provenance: provenance,
+    );
+    await pumpPortfolio(
+      tester,
+      holdings: <Holding>[holding],
+      quotes: <String, Quote>{instrument.internalId: quote},
+      dividends: <DividendEvent>[dividend],
+    );
+
+    await tester.scrollUntilVisible(find.text('Simulate investment'), 250);
+    await tester.tap(find.text('Simulate investment'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey<String>('simulation-investment')),
+      '500',
+    );
+    await tester.pump();
+
+    expect(find.text('5.0000'), findsOneWidget);
+    expect(find.text('€50.00'), findsOneWidget);
+    expect(find.text('€4.17'), findsOneWidget);
+    expect(find.text('100.0% → 100.0% (0.0% points)'), findsOneWidget);
+    expect(find.textContaining('Scenario only'), findsOneWidget);
+  });
+
   testWidgets('shows a sourced converted total and currency exposure', (
     WidgetTester tester,
   ) async {
