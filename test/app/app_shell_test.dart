@@ -56,6 +56,15 @@ void main() {
             (Ref ref) =>
                 Stream<List<WatchlistEntry>>.value(const <WatchlistEntry>[]),
           ),
+          portfolioActivitiesProvider.overrideWith(
+            (Ref ref) => Stream<List<PortfolioActivity>>.value(
+              const <PortfolioActivity>[],
+            ),
+          ),
+          dividendPaymentsForYearProvider.overrideWith(
+            (Ref ref, int year) =>
+                Stream<List<DividendEvent>>.value(const <DividendEvent>[]),
+          ),
           instrumentsByIdProvider.overrideWith(
             (Ref ref) => Stream<Map<String, Instrument>>.value(
               const <String, Instrument>{},

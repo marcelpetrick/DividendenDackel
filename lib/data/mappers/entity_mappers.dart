@@ -105,6 +105,7 @@ extension InstrumentRowMapper on DbInstrument {
 extension HoldingRowMapper on DbHolding {
   /// Builds the domain holding.
   Holding toDomain() => Holding(
+    portfolioId: portfolioId,
     instrumentId: instrumentId,
     quantity: EntityMappers.parseDecimal(quantity, 'holding.quantity'),
     averagePurchasePrice: EntityMappers.parseOptionalMoney(
@@ -131,8 +132,60 @@ extension HoldingRowMapper on DbHolding {
 extension WatchlistRowMapper on DbWatchlistEntry {
   /// Builds the domain watchlist entry.
   WatchlistEntry toDomain() => WatchlistEntry(
+    portfolioId: portfolioId,
     instrumentId: instrumentId,
     addedAt: EntityMappers.utc(addedAt),
+    notes: notes,
+    provenance: ProvenanceRowMapper.fromColumns(
+      source: source,
+      fetchedAt: fetchedAt,
+      updatedAt: updatedAt,
+      cacheState: cacheState,
+      confidence: confidence,
+      reportedCurrency: reportedCurrency,
+      originalSymbol: originalSymbol,
+      providerExchange: providerExchange,
+    ),
+  );
+}
+
+/// Maps portfolio rows.
+extension InvestmentPortfolioRowMapper on DbInvestmentPortfolio {
+  /// Builds the domain portfolio.
+  InvestmentPortfolio toDomain() => InvestmentPortfolio(
+    id: id,
+    name: name,
+    createdAt: EntityMappers.utc(createdAt),
+    updatedAt: EntityMappers.utc(updatedAt),
+    isDemo: isDemo,
+  );
+}
+
+/// Maps activity rows.
+extension PortfolioActivityRowMapper on DbPortfolioActivity {
+  /// Builds the domain activity.
+  PortfolioActivity toDomain() => PortfolioActivity(
+    id: id,
+    portfolioId: portfolioId,
+    type: type,
+    occurredAt: EntityMappers.utc(occurredAt),
+    instrumentId: instrumentId,
+    quantity: quantity == null
+        ? null
+        : EntityMappers.parseDecimal(quantity!, 'activity.quantity'),
+    unitPrice: EntityMappers.parseOptionalMoney(
+      unitPriceAmount,
+      unitPriceCurrency,
+      'activity.unitPrice',
+    ),
+    cashAmount: EntityMappers.parseOptionalMoney(
+      cashAmount,
+      cashCurrency,
+      'activity.cashAmount',
+    ),
+    externalId: externalId,
+    importBatchId: importBatchId,
+    reversesActivityId: reversesActivityId,
     notes: notes,
     provenance: ProvenanceRowMapper.fromColumns(
       source: source,
@@ -391,6 +444,7 @@ abstract final class CompanionMappers {
     final _ProvenanceValues p = _provenanceValues(holding.provenance);
     return HoldingsCompanion.insert(
       id: id == null ? const Value<int>.absent() : Value<int>(id),
+      portfolioId: Value<String>(holding.portfolioId),
       instrumentId: holding.instrumentId,
       quantity: holding.quantity.toString(),
       averagePriceAmount: Value<String?>(
@@ -416,9 +470,54 @@ abstract final class CompanionMappers {
   static WatchlistEntriesCompanion watchlistEntry(WatchlistEntry entry) {
     final _ProvenanceValues p = _provenanceValues(entry.provenance);
     return WatchlistEntriesCompanion.insert(
+      portfolioId: Value<String>(entry.portfolioId),
       instrumentId: entry.instrumentId,
       addedAt: entry.addedAt.toUtc(),
       notes: Value<String?>(entry.notes),
+      source: p.source,
+      fetchedAt: p.fetchedAt,
+      updatedAt: p.updatedAt,
+      cacheState: p.cacheState,
+      confidence: p.confidence,
+      reportedCurrency: p.reportedCurrency,
+      originalSymbol: p.originalSymbol,
+      providerExchange: p.providerExchange,
+    );
+  }
+
+  /// Builds a portfolio row.
+  static InvestmentPortfoliosCompanion investmentPortfolio(
+    InvestmentPortfolio portfolio,
+  ) => InvestmentPortfoliosCompanion.insert(
+    id: portfolio.id,
+    name: portfolio.name,
+    createdAt: portfolio.createdAt.toUtc(),
+    updatedAt: portfolio.updatedAt.toUtc(),
+    isDemo: Value<bool>(portfolio.isDemo),
+  );
+
+  /// Builds an activity row.
+  static PortfolioActivitiesCompanion portfolioActivity(
+    PortfolioActivity activity,
+  ) {
+    final _ProvenanceValues p = _provenanceValues(activity.provenance);
+    return PortfolioActivitiesCompanion.insert(
+      id: activity.id == null
+          ? const Value<int>.absent()
+          : Value<int>(activity.id!),
+      portfolioId: activity.portfolioId,
+      type: activity.type,
+      occurredAt: activity.occurredAt.toUtc(),
+      instrumentId: Value<String?>(activity.instrumentId),
+      quantity: Value<String?>(activity.quantity?.toString()),
+      unitPriceAmount: Value<String?>(activity.unitPrice?.amount.toString()),
+      unitPriceCurrency: Value<String?>(activity.unitPrice?.currency.code),
+      cashAmount: Value<String?>(activity.cashAmount?.amount.toString()),
+      cashCurrency: Value<String?>(activity.cashAmount?.currency.code),
+      externalId: Value<String?>(activity.externalId),
+      importBatchId: Value<String?>(activity.importBatchId),
+      reversesActivityId: Value<int?>(activity.reversesActivityId),
+      notes: Value<String?>(activity.notes),
       source: p.source,
       fetchedAt: p.fetchedAt,
       updatedAt: p.updatedAt,

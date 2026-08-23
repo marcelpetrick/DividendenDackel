@@ -73,33 +73,68 @@ abstract interface class InstrumentRepository {
 /// These rows belong to the user. A provider refresh must never modify or
 /// delete them (Vision.md §76).
 abstract interface class PortfolioRepository {
-  /// Emits the current holdings.
-  Stream<List<Holding>> watchHoldings();
+  /// Emits all locally stored portfolios.
+  Stream<List<InvestmentPortfolio>> watchPortfolios();
+
+  /// Creates or updates portfolio metadata.
+  Future<Result<void>> savePortfolio(InvestmentPortfolio portfolio);
+
+  /// Emits holdings in [portfolioId]. `null` means a consolidated view.
+  Stream<List<Holding>> watchHoldings({
+    String? portfolioId = InvestmentPortfolio.defaultId,
+  });
 
   /// Emits the holding for [instrumentId], or `null` when none exists.
-  Stream<Holding?> watchHolding(String instrumentId);
+  Stream<Holding?> watchHolding(
+    String instrumentId, {
+    String portfolioId = InvestmentPortfolio.defaultId,
+  });
 
-  /// Emits the watchlist, most recently added first.
-  Stream<List<WatchlistEntry>> watchWatchlist();
+  /// Emits the watchlist in [portfolioId]. `null` means all portfolios.
+  Stream<List<WatchlistEntry>> watchWatchlist({
+    String? portfolioId = InvestmentPortfolio.defaultId,
+  });
 
   /// Adds or replaces the holding for its instrument.
   Future<Result<void>> saveHolding(Holding holding);
 
   /// Changes the quantity of an existing holding.
-  Future<Result<void>> updateQuantity(String instrumentId, Decimal quantity);
+  Future<Result<void>> updateQuantity(
+    String instrumentId,
+    Decimal quantity, {
+    String portfolioId = InvestmentPortfolio.defaultId,
+  });
 
   /// Removes the holding for [instrumentId], leaving the instrument itself.
-  Future<Result<void>> removeHolding(String instrumentId);
+  Future<Result<void>> removeHolding(
+    String instrumentId, {
+    String portfolioId = InvestmentPortfolio.defaultId,
+  });
 
   /// Adds [entry] to the watchlist, replacing any existing entry.
   Future<Result<void>> addToWatchlist(WatchlistEntry entry);
 
   /// Removes [instrumentId] from the watchlist.
-  Future<Result<void>> removeFromWatchlist(String instrumentId);
+  Future<Result<void>> removeFromWatchlist(
+    String instrumentId, {
+    String portfolioId = InvestmentPortfolio.defaultId,
+  });
+
+  /// Emits newest-first immutable activities for [portfolioId].
+  Stream<List<PortfolioActivity>> watchActivities(String portfolioId);
+
+  /// Records an activity atomically and applies its holding impact.
+  Future<Result<int>> recordActivity(PortfolioActivity activity);
+
+  /// Appends a reversal and atomically neutralizes [activityId].
+  Future<Result<int>> reverseActivity(
+    int activityId, {
+    required DateTime occurredAt,
+  });
 
   /// Instrument ids the user holds or watches, which drive refresh priority
   /// and news relevance (Vision.md §17, §40).
-  Stream<Set<String>> watchFollowedInstrumentIds();
+  Stream<Set<String>> watchFollowedInstrumentIds({String? portfolioId});
 }
 
 /// Reads and writes dividend events.

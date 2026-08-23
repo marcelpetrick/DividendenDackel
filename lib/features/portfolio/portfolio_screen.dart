@@ -7,6 +7,7 @@ import 'package:dividendendackel/app/widgets/value_labels.dart';
 import 'package:dividendendackel/domain/analytics/analytics.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/features/currency/fx_state.dart';
+import 'package:dividendendackel/features/portfolio/activity_dialog.dart';
 import 'package:dividendendackel/features/portfolio/add_instrument_dialog.dart';
 import 'package:dividendendackel/features/settings/currency_settings.dart';
 import 'package:dividendendackel/features/tax/tax_estimates.dart';
@@ -42,6 +43,21 @@ class PortfolioScreen extends ConsumerWidget {
     final List<DividendEvent> dividends =
         dividendData.value ?? const <DividendEvent>[];
     final DateTime now = ref.watch(clockProvider).now();
+    final AsyncValue<List<PortfolioActivity>> activitiesValue = ref.watch(
+      portfolioActivitiesProvider,
+    );
+    final List<PortfolioActivity> activities =
+        activitiesValue.value ?? const <PortfolioActivity>[];
+    final AsyncValue<List<DividendEvent>> yearPaymentsValue = ref.watch(
+      dividendPaymentsForYearProvider(now.year),
+    );
+    final List<DividendReconciliationLine> reconciliation =
+        DividendReconciliationCalculator.calculate(
+          activities: activities,
+          expectedEvents: yearPaymentsValue.value ?? const <DividendEvent>[],
+          start: DateTime.utc(now.year),
+          end: DateTime.utc(now.year + 1),
+        );
     final Currency displayCurrency = ref
         .watch(displayCurrencyProvider)
         .currency;
@@ -118,6 +134,10 @@ class PortfolioScreen extends ConsumerWidget {
             valueExposure: valueExposure,
             incomeExposure: incomeExposure,
             health: health,
+            activities: activities,
+            reconciliation: reconciliation,
+            onRecordActivity: () => _showActivity(context, ref, instruments),
+            onReverseActivity: (int id) => _reverseActivity(context, ref, id),
             fxRefreshing: fxRefresh.isRefreshing,
             fxError: fxRefresh.errorMessage,
             refreshFx: () => ref.read(fxRefreshProvider.notifier).refresh(),
@@ -132,6 +152,10 @@ class PortfolioScreen extends ConsumerWidget {
                 'Cached prices could not be read; values are unavailable.',
               if (dividendData.hasError)
                 'Dividend income could not be read; it is unavailable.',
+              if (activitiesValue.hasError)
+                'Portfolio activities could not be read.',
+              if (yearPaymentsValue.hasError)
+                'Expected payments could not be reconciled.',
               if (fxRatesValue?.hasError ?? false) 'Exchange rates could not be read; converted totals are unavailable.',
             ],
           );
@@ -156,6 +180,62 @@ class PortfolioScreen extends ConsumerWidget {
           .showSnackBar(SnackBar(content: Text(message)));
     }
   }
+
+  Future<void> _showActivity(
+    BuildContext context,
+    WidgetRef ref,
+    Map<String, Instrument> instruments,
+  ) async {
+    final String? message = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => PortfolioActivityDialog(
+        portfolioId: InvestmentPortfolio.defaultId,
+        instruments: instruments,
+      ),
+    );
+    if (message != null && context.mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
+    }
+  }
+
+  Future<void> _reverseActivity(
+    BuildContext context,
+    WidgetRef ref,
+    int activityId,
+  ) async {
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('Reverse activity?'),
+        content: const Text(
+          'The original row remains in the audit trail. A reversal will be '
+          'added and its economic effect removed.',
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Reverse'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+    final result = await ref
+        .read(portfolioRepositoryProvider)
+        .reverseActivity(activityId, occurredAt: ref.read(clockProvider).now());
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.failureOrNull?.message ?? 'Activity reversed.'),
+        ),
+      );
+    }
+  }
 }
 
 class _PortfolioBody extends StatelessWidget {
@@ -168,6 +248,10 @@ class _PortfolioBody extends StatelessWidget {
     required this.valueExposure,
     required this.incomeExposure,
     required this.health,
+    required this.activities,
+    required this.reconciliation,
+    required this.onRecordActivity,
+    required this.onReverseActivity,
     required this.fxRefreshing,
     required this.fxError,
     required this.refreshFx,
@@ -183,6 +267,10 @@ class _PortfolioBody extends StatelessWidget {
   final PortfolioCurrencyExposure valueExposure;
   final PortfolioCurrencyExposure incomeExposure;
   final PortfolioHealth health;
+  final List<PortfolioActivity> activities;
+  final List<DividendReconciliationLine> reconciliation;
+  final VoidCallback onRecordActivity;
+  final ValueChanged<int> onReverseActivity;
   final bool fxRefreshing;
   final String? fxError;
   final VoidCallback refreshFx;
@@ -285,8 +373,163 @@ class _PortfolioBody extends StatelessWidget {
             ],
           ),
         ),
+      const SizedBox(height: AppTheme.space * 2),
+      _ActivityLedgerCard(
+        activities: activities,
+        instruments: instruments,
+        reconciliation: reconciliation,
+        onRecord: onRecordActivity,
+        onReverse: onReverseActivity,
+      ),
     ],
   );
+}
+
+class _ActivityLedgerCard extends StatelessWidget {
+  const _ActivityLedgerCard({
+    required this.activities,
+    required this.instruments,
+    required this.reconciliation,
+    required this.onRecord,
+    required this.onReverse,
+  });
+
+  final List<PortfolioActivity> activities;
+  final Map<String, Instrument> instruments;
+  final List<DividendReconciliationLine> reconciliation;
+  final VoidCallback onRecord;
+  final ValueChanged<int> onReverse;
+
+  @override
+  Widget build(BuildContext context) {
+    final Set<int> reversed = activities
+        .where(
+          (PortfolioActivity item) =>
+              item.type == PortfolioActivityType.reversal,
+        )
+        .map((PortfolioActivity item) => item.reversesActivityId!)
+        .toSet();
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppTheme.space * 2),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Row(
+              children: <Widget>[
+                const Icon(Icons.receipt_long_outlined),
+                const SizedBox(width: AppTheme.space),
+                Expanded(
+                  child: Text(
+                    'Activity ledger',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ),
+                FilledButton.tonalIcon(
+                  onPressed: onRecord,
+                  icon: const Icon(Icons.add),
+                  label: const Text('Record'),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppTheme.space / 2),
+            const Text(
+              'Purchases, sales and actual cash flows stay on this device. '
+              'Corrections append reversals; history is never silently rewritten.',
+            ),
+            if (reconciliation.isNotEmpty) ...<Widget>[
+              const Divider(height: AppTheme.space * 3),
+              Text(
+                'Expected vs actually recorded this year',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: AppTheme.space / 2),
+              const Text(
+                'Expected is gross provider data using the shares held on each '
+                'payment date. Actual is gross dividend cash entered or imported.',
+              ),
+              for (final DividendReconciliationLine line in reconciliation)
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(line.currency.code),
+                  subtitle: Text(
+                    'Expected ${line.expectedGross.format()} · '
+                    'Actual ${line.actualGross.format()}',
+                  ),
+                  trailing: Text(
+                    line.variance.amount.sign >= 0
+                        ? '+${line.variance.format()}'
+                        : line.variance.format(),
+                  ),
+                ),
+            ],
+            const Divider(height: AppTheme.space * 3),
+            if (activities.isEmpty)
+              const Text('No activities recorded yet.')
+            else
+              for (final PortfolioActivity activity in activities.take(12))
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(_activityIcon(activity.type)),
+                  title: Text(_activityTitle(activity, instruments)),
+                  subtitle: Text(
+                    MaterialLocalizations.of(context)
+                        .formatMediumDate(activity.occurredAt),
+                  ),
+                  trailing:
+                      activity.id != null &&
+                          activity.type != PortfolioActivityType.reversal &&
+                          !reversed.contains(activity.id)
+                      ? IconButton(
+                          tooltip: 'Reverse activity',
+                          onPressed: () => onReverse(activity.id!),
+                          icon: const Icon(Icons.undo),
+                        )
+                      : null,
+                ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  static String _activityTitle(
+    PortfolioActivity activity,
+    Map<String, Instrument> instruments,
+  ) {
+    final String label = switch (activity.type) {
+      PortfolioActivityType.openingBalance => 'Opening balance',
+      PortfolioActivityType.purchase => 'Purchase',
+      PortfolioActivityType.sale => 'Sale',
+      PortfolioActivityType.deposit => 'Deposit',
+      PortfolioActivityType.withdrawal => 'Withdrawal',
+      PortfolioActivityType.dividend => 'Dividend received',
+      PortfolioActivityType.tax => 'Tax',
+      PortfolioActivityType.fee => 'Fee',
+      PortfolioActivityType.holdingAdjustment => 'Holding adjustment',
+      PortfolioActivityType.reversal => 'Reversal',
+    };
+    final String? symbol = activity.instrumentId == null
+        ? null
+        : instruments[activity.instrumentId]?.displaySymbol;
+    final String value =
+        activity.cashAmount?.format() ??
+        (activity.quantity == null ? '' : '${activity.quantity} shares');
+    return <String>[label, ?symbol, if (value.isNotEmpty) value].join(' · ');
+  }
+
+  static IconData _activityIcon(PortfolioActivityType type) => switch (type) {
+    PortfolioActivityType.purchase ||
+    PortfolioActivityType.openingBalance => Icons.add_chart,
+    PortfolioActivityType.sale => Icons.sell_outlined,
+    PortfolioActivityType.deposit => Icons.south_west,
+    PortfolioActivityType.withdrawal => Icons.north_east,
+    PortfolioActivityType.dividend => Icons.payments_outlined,
+    PortfolioActivityType.tax ||
+    PortfolioActivityType.fee => Icons.remove_circle_outline,
+    PortfolioActivityType.holdingAdjustment => Icons.tune,
+    PortfolioActivityType.reversal => Icons.undo,
+  };
 }
 
 class _PortfolioHealthCard extends StatelessWidget {

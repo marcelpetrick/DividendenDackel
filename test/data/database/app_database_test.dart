@@ -1,5 +1,6 @@
 import 'package:dividendendackel/data/database/app_database.dart';
 import 'package:dividendendackel/domain/entities/dividend_event.dart';
+import 'package:dividendendackel/domain/entities/portfolio.dart';
 // drift exports query-builder helpers that collide with the matcher names.
 import 'package:drift/drift.dart' hide isNotNull, isNull;
 import 'package:drift/native.dart';
@@ -29,8 +30,8 @@ void main() {
       );
 
   group('AppDatabase', () {
-    test('opens at schema version 4 with every table created', () async {
-      expect(db.schemaVersion, 4);
+    test('opens at schema version 5 with every table created', () async {
+      expect(db.schemaVersion, 5);
 
       final List<String> tables =
           await db
@@ -56,6 +57,8 @@ void main() {
           'holdings',
           'instruments',
           'news_items',
+          'investment_portfolios',
+          'portfolio_activities',
           'provider_states',
           'quotes',
           'research_snapshots',
@@ -260,7 +263,101 @@ void main() {
       expect(row.exDate, isNotNull);
     });
 
-    test('migrates schema 1 through 4 without losing dividend rows', () async {
+    test(
+      'migrates v4 ownership into the default portfolio and ledger',
+      () async {
+        await db.close();
+        final AppDatabase migrated = AppDatabase.withExecutor(
+          NativeDatabase.memory(
+            setup: (database) {
+              database
+                ..execute('''
+                CREATE TABLE instruments (
+                  internal_id TEXT NOT NULL PRIMARY KEY,
+                  symbol TEXT NOT NULL,
+                  name TEXT NOT NULL,
+                  currency_code TEXT NOT NULL,
+                  exchange TEXT, mic TEXT, isin TEXT, country TEXT, sector TEXT
+                )
+              ''')
+                ..execute('''
+                CREATE TABLE holdings (
+                  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                  instrument_id TEXT NOT NULL,
+                  quantity TEXT NOT NULL,
+                  average_price_amount TEXT,
+                  average_price_currency TEXT,
+                  purchase_date TEXT,
+                  notes TEXT,
+                  source TEXT NOT NULL,
+                  fetched_at TEXT NOT NULL,
+                  updated_at TEXT,
+                  cache_state TEXT NOT NULL DEFAULT 'fresh',
+                  confidence TEXT NOT NULL DEFAULT 'high',
+                  reported_currency TEXT,
+                  original_symbol TEXT,
+                  provider_exchange TEXT
+                )
+              ''')
+                ..execute('''
+                CREATE TABLE watchlist_entries (
+                  instrument_id TEXT NOT NULL PRIMARY KEY,
+                  added_at TEXT NOT NULL,
+                  notes TEXT,
+                  source TEXT NOT NULL,
+                  fetched_at TEXT NOT NULL,
+                  updated_at TEXT,
+                  cache_state TEXT NOT NULL DEFAULT 'fresh',
+                  confidence TEXT NOT NULL DEFAULT 'high',
+                  reported_currency TEXT,
+                  original_symbol TEXT,
+                  provider_exchange TEXT
+                )
+              ''')
+                ..execute(
+                  'INSERT INTO instruments (internal_id, symbol, name, currency_code) '
+                  "VALUES ('asset', 'AAA', 'Asset AG', 'EUR')",
+                )
+                ..execute(
+                  'INSERT INTO holdings (instrument_id, quantity, '
+                  'average_price_amount, average_price_currency, source, fetched_at) '
+                  "VALUES ('asset', '12.5', '80', 'EUR', 'user', "
+                  "'2026-08-22T12:00:00.000Z')",
+                )
+                ..execute(
+                  'INSERT INTO watchlist_entries (instrument_id, added_at, source, fetched_at) '
+                  "VALUES ('asset', '2026-08-22T12:00:00.000Z', 'user', "
+                  "'2026-08-22T12:00:00.000Z')",
+                )
+                ..execute('PRAGMA user_version = 4');
+            },
+          ),
+        );
+        db = migrated;
+
+        final DbHolding holding = await migrated
+            .select(migrated.holdings)
+            .getSingle();
+        final DbWatchlistEntry watched = await migrated
+            .select(migrated.watchlistEntries)
+            .getSingle();
+        final DbPortfolioActivity opening = await migrated
+            .select(migrated.portfolioActivities)
+            .getSingle();
+
+        expect(holding.portfolioId, 'default');
+        expect(holding.quantity, '12.5');
+        expect(watched.portfolioId, 'default');
+        expect(opening.type, PortfolioActivityType.openingBalance);
+        expect(opening.quantity, '12.5');
+        expect(
+          await migrated.select(migrated.investmentPortfolios).get(),
+          hasLength(1),
+        );
+      },
+    );
+
+    test('migrates schema 1 through 5 without losing dividend rows', () async {
       await db.close();
       final AppDatabase migrated = AppDatabase.withExecutor(
         NativeDatabase.memory(
@@ -299,6 +396,8 @@ void main() {
           .get();
       expect(tables, contains('fx_rates'));
       expect(tables, contains('corporate_events'));
+      expect(tables, contains('investment_portfolios'));
+      expect(tables, contains('portfolio_activities'));
     });
 
     test('migrates schema 2 by adding the FX table', () async {

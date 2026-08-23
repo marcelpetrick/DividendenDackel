@@ -10,6 +10,7 @@ export 'package:dividendendackel/domain/entities/fx_rate.dart';
 export 'package:dividendendackel/domain/entities/holding.dart';
 export 'package:dividendendackel/domain/entities/instrument.dart';
 export 'package:dividendendackel/domain/entities/news_item.dart';
+export 'package:dividendendackel/domain/entities/portfolio.dart';
 export 'package:dividendendackel/domain/entities/provenance.dart';
 export 'package:dividendendackel/domain/entities/provider_status.dart';
 export 'package:dividendendackel/domain/entities/quote.dart';

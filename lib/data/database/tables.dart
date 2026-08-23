@@ -5,6 +5,7 @@ import 'package:dividendendackel/domain/entities/corporate_event.dart';
 import 'package:dividendendackel/domain/entities/dividend_event.dart';
 import 'package:dividendendackel/domain/entities/earnings_event.dart';
 import 'package:dividendendackel/domain/entities/news_item.dart';
+import 'package:dividendendackel/domain/entities/portfolio.dart';
 import 'package:dividendendackel/domain/entities/provenance.dart';
 import 'package:drift/drift.dart';
 
@@ -100,6 +101,28 @@ class ProviderMappings extends Table {
   };
 }
 
+/// User-owned portfolio containers.
+@DataClassName('DbInvestmentPortfolio')
+class InvestmentPortfolios extends Table {
+  /// Stable local identity.
+  TextColumn get id => text()();
+
+  /// User-visible name.
+  TextColumn get name => text().withLength(min: 1, max: 120)();
+
+  /// Creation time.
+  DateTimeColumn get createdAt => dateTime()();
+
+  /// Last metadata change.
+  DateTimeColumn get updatedAt => dateTime()();
+
+  /// Explicitly created demonstration portfolio.
+  BoolColumn get isDemo => boolean().withDefault(const Constant(false))();
+
+  @override
+  Set<Column<Object>> get primaryKey => <Column<Object>>{id};
+}
+
 /// Positions the user owns (Vision.md §8).
 ///
 /// User-owned rows: a provider refresh must never delete or overwrite these
@@ -108,6 +131,11 @@ class ProviderMappings extends Table {
 class Holdings extends Table with ProvenanceColumns {
   /// Surrogate key, so the same instrument could later hold several lots.
   IntColumn get id => integer().autoIncrement()();
+
+  /// Portfolio that owns this position.
+  TextColumn get portfolioId => text()
+      .withDefault(const Constant(InvestmentPortfolio.defaultId))
+      .references(InvestmentPortfolios, #id, onDelete: KeyAction.cascade)();
 
   /// The instrument held.
   TextColumn get instrumentId => text().references(Instruments, #internalId)();
@@ -126,11 +154,21 @@ class Holdings extends Table with ProvenanceColumns {
 
   /// Free-form user note.
   TextColumn get notes => text().nullable()();
+
+  @override
+  List<Set<Column<Object>>> get uniqueKeys => <Set<Column<Object>>>[
+    <Column<Object>>{portfolioId, instrumentId},
+  ];
 }
 
 /// Instruments the user follows without owning (Vision.md §8.1).
 @DataClassName('DbWatchlistEntry')
 class WatchlistEntries extends Table with ProvenanceColumns {
+  /// Portfolio that owns this watchlist entry.
+  TextColumn get portfolioId => text()
+      .withDefault(const Constant(InvestmentPortfolio.defaultId))
+      .references(InvestmentPortfolios, #id, onDelete: KeyAction.cascade)();
+
   /// The instrument followed.
   TextColumn get instrumentId => text().references(Instruments, #internalId)();
 
@@ -141,7 +179,65 @@ class WatchlistEntries extends Table with ProvenanceColumns {
   TextColumn get notes => text().nullable()();
 
   @override
-  Set<Column<Object>> get primaryKey => <Column<Object>>{instrumentId};
+  Set<Column<Object>> get primaryKey => <Column<Object>>{
+    portfolioId,
+    instrumentId,
+  };
+}
+
+/// Immutable local activity ledger.
+@TableIndex(
+  name: 'idx_portfolio_activity_time',
+  columns: <Symbol>{#portfolioId, #occurredAt},
+)
+@DataClassName('DbPortfolioActivity')
+class PortfolioActivities extends Table with ProvenanceColumns {
+  /// Local activity identity.
+  IntColumn get id => integer().autoIncrement()();
+
+  /// Owning portfolio.
+  TextColumn get portfolioId => text().references(
+    InvestmentPortfolios,
+    #id,
+    onDelete: KeyAction.cascade,
+  )();
+
+  /// Economic meaning.
+  TextColumn get type => textEnum<PortfolioActivityType>()();
+
+  /// Effective time.
+  DateTimeColumn get occurredAt => dateTime()();
+
+  /// Related instrument, when applicable.
+  TextColumn get instrumentId =>
+      text().nullable().references(Instruments, #internalId)();
+
+  /// Exact share quantity.
+  TextColumn get quantity => text().nullable()();
+
+  /// Exact price per share.
+  TextColumn get unitPriceAmount => text().nullable()();
+
+  /// Currency of [unitPriceAmount].
+  TextColumn get unitPriceCurrency => text().nullable()();
+
+  /// Exact absolute cash amount.
+  TextColumn get cashAmount => text().nullable()();
+
+  /// Currency of [cashAmount].
+  TextColumn get cashCurrency => text().nullable()();
+
+  /// Stable provider or broker-side identity.
+  TextColumn get externalId => text().nullable()();
+
+  /// Import batch identity for atomic undo.
+  TextColumn get importBatchId => text().nullable()();
+
+  /// Existing activity neutralized by this row.
+  IntColumn get reversesActivityId => integer().nullable()();
+
+  /// Free-form user note.
+  TextColumn get notes => text().nullable()();
 }
 
 /// Most recent price per instrument (Vision.md §37).

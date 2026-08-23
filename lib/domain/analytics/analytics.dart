@@ -6,6 +6,7 @@ export 'package:dividendendackel/domain/analytics/dividend_forecast.dart';
 export 'package:dividendendackel/domain/analytics/dividend_growth.dart';
 export 'package:dividendendackel/domain/analytics/dividend_income_forecast.dart';
 export 'package:dividendendackel/domain/analytics/dividend_quality.dart';
+export 'package:dividendendackel/domain/analytics/dividend_reconciliation.dart';
 export 'package:dividendendackel/domain/analytics/dividend_simulator.dart';
 export 'package:dividendendackel/domain/analytics/dividend_tax.dart';
 export 'package:dividendendackel/domain/analytics/portfolio_health.dart';

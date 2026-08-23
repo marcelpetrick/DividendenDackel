@@ -223,7 +223,7 @@ Not part of MVP 1. Reprioritized after the 2026-08-23 official Parqet review in
 [`parqet-comparison.md`](parqet-comparison.md). The order protects the
 local-first model and improves the dividend workflow before broadening the app.
 
-- [ ] **P1** Local activity ledger for purchases, sales, deposits, withdrawals,
+- [x] **P1** Local activity ledger for purchases, sales, deposits, withdrawals,
       dividends, taxes and fees, including corrections/reversals and
       forecast-versus-paid dividend reconciliation.
 - [ ] **P2** Local import with preview, validation, idempotent duplicate

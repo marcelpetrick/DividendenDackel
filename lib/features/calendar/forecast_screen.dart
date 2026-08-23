@@ -174,7 +174,8 @@ class _ForecastBody extends StatelessWidget {
           'Gross and estimated-net income using today’s holding quantities. '
           'Estimates are '
           'rule-based, not guaranteed. “Paid” means the confirmed payment date '
-          'has passed; it is not broker reconciliation.',
+          'has passed; actual cash entered or imported in the activity ledger '
+          'is reconciled separately on Portfolio.',
           style: Theme.of(context).textTheme.bodySmall,
         ),
         const SizedBox(height: AppTheme.space * 2),

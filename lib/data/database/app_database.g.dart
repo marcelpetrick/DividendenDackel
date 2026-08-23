@@ -937,6 +937,380 @@ class ProviderMappingsCompanion extends UpdateCompanion<DbProviderMapping> {
   }
 }
 
+class $InvestmentPortfoliosTable extends InvestmentPortfolios
+    with TableInfo<$InvestmentPortfoliosTable, DbInvestmentPortfolio> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $InvestmentPortfoliosTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 120,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _isDemoMeta = const VerificationMeta('isDemo');
+  @override
+  late final GeneratedColumn<bool> isDemo = GeneratedColumn<bool>(
+    'is_demo',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_demo" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    createdAt,
+    updatedAt,
+    isDemo,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'investment_portfolios';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DbInvestmentPortfolio> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('is_demo')) {
+      context.handle(
+        _isDemoMeta,
+        isDemo.isAcceptableOrUnknown(data['is_demo']!, _isDemoMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DbInvestmentPortfolio map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DbInvestmentPortfolio(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      isDemo: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_demo'],
+      )!,
+    );
+  }
+
+  @override
+  $InvestmentPortfoliosTable createAlias(String alias) {
+    return $InvestmentPortfoliosTable(attachedDatabase, alias);
+  }
+}
+
+class DbInvestmentPortfolio extends DataClass
+    implements Insertable<DbInvestmentPortfolio> {
+  /// Stable local identity.
+  final String id;
+
+  /// User-visible name.
+  final String name;
+
+  /// Creation time.
+  final DateTime createdAt;
+
+  /// Last metadata change.
+  final DateTime updatedAt;
+
+  /// Explicitly created demonstration portfolio.
+  final bool isDemo;
+  const DbInvestmentPortfolio({
+    required this.id,
+    required this.name,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.isDemo,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    map['is_demo'] = Variable<bool>(isDemo);
+    return map;
+  }
+
+  InvestmentPortfoliosCompanion toCompanion(bool nullToAbsent) {
+    return InvestmentPortfoliosCompanion(
+      id: Value(id),
+      name: Value(name),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      isDemo: Value(isDemo),
+    );
+  }
+
+  factory DbInvestmentPortfolio.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DbInvestmentPortfolio(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      isDemo: serializer.fromJson<bool>(json['isDemo']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'isDemo': serializer.toJson<bool>(isDemo),
+    };
+  }
+
+  DbInvestmentPortfolio copyWith({
+    String? id,
+    String? name,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    bool? isDemo,
+  }) => DbInvestmentPortfolio(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    isDemo: isDemo ?? this.isDemo,
+  );
+  DbInvestmentPortfolio copyWithCompanion(InvestmentPortfoliosCompanion data) {
+    return DbInvestmentPortfolio(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      isDemo: data.isDemo.present ? data.isDemo.value : this.isDemo,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DbInvestmentPortfolio(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('isDemo: $isDemo')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, createdAt, updatedAt, isDemo);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DbInvestmentPortfolio &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.isDemo == this.isDemo);
+}
+
+class InvestmentPortfoliosCompanion
+    extends UpdateCompanion<DbInvestmentPortfolio> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<bool> isDemo;
+  final Value<int> rowid;
+  const InvestmentPortfoliosCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.isDemo = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  InvestmentPortfoliosCompanion.insert({
+    required String id,
+    required String name,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.isDemo = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       name = Value(name),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<DbInvestmentPortfolio> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<bool>? isDemo,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (isDemo != null) 'is_demo': isDemo,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  InvestmentPortfoliosCompanion copyWith({
+    Value<String>? id,
+    Value<String>? name,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<bool>? isDemo,
+    Value<int>? rowid,
+  }) {
+    return InvestmentPortfoliosCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      isDemo: isDemo ?? this.isDemo,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (isDemo.present) {
+      map['is_demo'] = Variable<bool>(isDemo.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('InvestmentPortfoliosCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('isDemo: $isDemo, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $HoldingsTable extends Holdings
     with TableInfo<$HoldingsTable, DbHolding> {
   @override
@@ -1044,6 +1418,21 @@ class $HoldingsTable extends Holdings
       'PRIMARY KEY AUTOINCREMENT',
     ),
   );
+  static const VerificationMeta _portfolioIdMeta = const VerificationMeta(
+    'portfolioId',
+  );
+  @override
+  late final GeneratedColumn<String> portfolioId = GeneratedColumn<String>(
+    'portfolio_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES investment_portfolios (id) ON DELETE CASCADE',
+    ),
+    defaultValue: const Constant(InvestmentPortfolio.defaultId),
+  );
   static const VerificationMeta _instrumentIdMeta = const VerificationMeta(
     'instrumentId',
   );
@@ -1122,6 +1511,7 @@ class $HoldingsTable extends Holdings
     originalSymbol,
     providerExchange,
     id,
+    portfolioId,
     instrumentId,
     quantity,
     averagePriceAmount,
@@ -1193,6 +1583,15 @@ class $HoldingsTable extends Holdings
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
+    if (data.containsKey('portfolio_id')) {
+      context.handle(
+        _portfolioIdMeta,
+        portfolioId.isAcceptableOrUnknown(
+          data['portfolio_id']!,
+          _portfolioIdMeta,
+        ),
+      );
+    }
     if (data.containsKey('instrument_id')) {
       context.handle(
         _instrumentIdMeta,
@@ -1251,6 +1650,10 @@ class $HoldingsTable extends Holdings
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {portfolioId, instrumentId},
+  ];
+  @override
   DbHolding map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return DbHolding(
@@ -1293,6 +1696,10 @@ class $HoldingsTable extends Holdings
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}id'],
+      )!,
+      portfolioId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}portfolio_id'],
       )!,
       instrumentId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -1360,6 +1767,9 @@ class DbHolding extends DataClass implements Insertable<DbHolding> {
   /// Surrogate key, so the same instrument could later hold several lots.
   final int id;
 
+  /// Portfolio that owns this position.
+  final String portfolioId;
+
   /// The instrument held.
   final String instrumentId;
 
@@ -1387,6 +1797,7 @@ class DbHolding extends DataClass implements Insertable<DbHolding> {
     this.originalSymbol,
     this.providerExchange,
     required this.id,
+    required this.portfolioId,
     required this.instrumentId,
     required this.quantity,
     this.averagePriceAmount,
@@ -1422,6 +1833,7 @@ class DbHolding extends DataClass implements Insertable<DbHolding> {
       map['provider_exchange'] = Variable<String>(providerExchange);
     }
     map['id'] = Variable<int>(id);
+    map['portfolio_id'] = Variable<String>(portfolioId);
     map['instrument_id'] = Variable<String>(instrumentId);
     map['quantity'] = Variable<String>(quantity);
     if (!nullToAbsent || averagePriceAmount != null) {
@@ -1458,6 +1870,7 @@ class DbHolding extends DataClass implements Insertable<DbHolding> {
           ? const Value.absent()
           : Value(providerExchange),
       id: Value(id),
+      portfolioId: Value(portfolioId),
       instrumentId: Value(instrumentId),
       quantity: Value(quantity),
       averagePriceAmount: averagePriceAmount == null && nullToAbsent
@@ -1494,6 +1907,7 @@ class DbHolding extends DataClass implements Insertable<DbHolding> {
       originalSymbol: serializer.fromJson<String?>(json['originalSymbol']),
       providerExchange: serializer.fromJson<String?>(json['providerExchange']),
       id: serializer.fromJson<int>(json['id']),
+      portfolioId: serializer.fromJson<String>(json['portfolioId']),
       instrumentId: serializer.fromJson<String>(json['instrumentId']),
       quantity: serializer.fromJson<String>(json['quantity']),
       averagePriceAmount: serializer.fromJson<String?>(
@@ -1523,6 +1937,7 @@ class DbHolding extends DataClass implements Insertable<DbHolding> {
       'originalSymbol': serializer.toJson<String?>(originalSymbol),
       'providerExchange': serializer.toJson<String?>(providerExchange),
       'id': serializer.toJson<int>(id),
+      'portfolioId': serializer.toJson<String>(portfolioId),
       'instrumentId': serializer.toJson<String>(instrumentId),
       'quantity': serializer.toJson<String>(quantity),
       'averagePriceAmount': serializer.toJson<String?>(averagePriceAmount),
@@ -1542,6 +1957,7 @@ class DbHolding extends DataClass implements Insertable<DbHolding> {
     Value<String?> originalSymbol = const Value.absent(),
     Value<String?> providerExchange = const Value.absent(),
     int? id,
+    String? portfolioId,
     String? instrumentId,
     String? quantity,
     Value<String?> averagePriceAmount = const Value.absent(),
@@ -1564,6 +1980,7 @@ class DbHolding extends DataClass implements Insertable<DbHolding> {
         ? providerExchange.value
         : this.providerExchange,
     id: id ?? this.id,
+    portfolioId: portfolioId ?? this.portfolioId,
     instrumentId: instrumentId ?? this.instrumentId,
     quantity: quantity ?? this.quantity,
     averagePriceAmount: averagePriceAmount.present
@@ -1596,6 +2013,9 @@ class DbHolding extends DataClass implements Insertable<DbHolding> {
           ? data.providerExchange.value
           : this.providerExchange,
       id: data.id.present ? data.id.value : this.id,
+      portfolioId: data.portfolioId.present
+          ? data.portfolioId.value
+          : this.portfolioId,
       instrumentId: data.instrumentId.present
           ? data.instrumentId.value
           : this.instrumentId,
@@ -1625,6 +2045,7 @@ class DbHolding extends DataClass implements Insertable<DbHolding> {
           ..write('originalSymbol: $originalSymbol, ')
           ..write('providerExchange: $providerExchange, ')
           ..write('id: $id, ')
+          ..write('portfolioId: $portfolioId, ')
           ..write('instrumentId: $instrumentId, ')
           ..write('quantity: $quantity, ')
           ..write('averagePriceAmount: $averagePriceAmount, ')
@@ -1646,6 +2067,7 @@ class DbHolding extends DataClass implements Insertable<DbHolding> {
     originalSymbol,
     providerExchange,
     id,
+    portfolioId,
     instrumentId,
     quantity,
     averagePriceAmount,
@@ -1666,6 +2088,7 @@ class DbHolding extends DataClass implements Insertable<DbHolding> {
           other.originalSymbol == this.originalSymbol &&
           other.providerExchange == this.providerExchange &&
           other.id == this.id &&
+          other.portfolioId == this.portfolioId &&
           other.instrumentId == this.instrumentId &&
           other.quantity == this.quantity &&
           other.averagePriceAmount == this.averagePriceAmount &&
@@ -1684,6 +2107,7 @@ class HoldingsCompanion extends UpdateCompanion<DbHolding> {
   final Value<String?> originalSymbol;
   final Value<String?> providerExchange;
   final Value<int> id;
+  final Value<String> portfolioId;
   final Value<String> instrumentId;
   final Value<String> quantity;
   final Value<String?> averagePriceAmount;
@@ -1700,6 +2124,7 @@ class HoldingsCompanion extends UpdateCompanion<DbHolding> {
     this.originalSymbol = const Value.absent(),
     this.providerExchange = const Value.absent(),
     this.id = const Value.absent(),
+    this.portfolioId = const Value.absent(),
     this.instrumentId = const Value.absent(),
     this.quantity = const Value.absent(),
     this.averagePriceAmount = const Value.absent(),
@@ -1717,6 +2142,7 @@ class HoldingsCompanion extends UpdateCompanion<DbHolding> {
     this.originalSymbol = const Value.absent(),
     this.providerExchange = const Value.absent(),
     this.id = const Value.absent(),
+    this.portfolioId = const Value.absent(),
     required String instrumentId,
     required String quantity,
     this.averagePriceAmount = const Value.absent(),
@@ -1737,6 +2163,7 @@ class HoldingsCompanion extends UpdateCompanion<DbHolding> {
     Expression<String>? originalSymbol,
     Expression<String>? providerExchange,
     Expression<int>? id,
+    Expression<String>? portfolioId,
     Expression<String>? instrumentId,
     Expression<String>? quantity,
     Expression<String>? averagePriceAmount,
@@ -1754,6 +2181,7 @@ class HoldingsCompanion extends UpdateCompanion<DbHolding> {
       if (originalSymbol != null) 'original_symbol': originalSymbol,
       if (providerExchange != null) 'provider_exchange': providerExchange,
       if (id != null) 'id': id,
+      if (portfolioId != null) 'portfolio_id': portfolioId,
       if (instrumentId != null) 'instrument_id': instrumentId,
       if (quantity != null) 'quantity': quantity,
       if (averagePriceAmount != null)
@@ -1775,6 +2203,7 @@ class HoldingsCompanion extends UpdateCompanion<DbHolding> {
     Value<String?>? originalSymbol,
     Value<String?>? providerExchange,
     Value<int>? id,
+    Value<String>? portfolioId,
     Value<String>? instrumentId,
     Value<String>? quantity,
     Value<String?>? averagePriceAmount,
@@ -1792,6 +2221,7 @@ class HoldingsCompanion extends UpdateCompanion<DbHolding> {
       originalSymbol: originalSymbol ?? this.originalSymbol,
       providerExchange: providerExchange ?? this.providerExchange,
       id: id ?? this.id,
+      portfolioId: portfolioId ?? this.portfolioId,
       instrumentId: instrumentId ?? this.instrumentId,
       quantity: quantity ?? this.quantity,
       averagePriceAmount: averagePriceAmount ?? this.averagePriceAmount,
@@ -1835,6 +2265,9 @@ class HoldingsCompanion extends UpdateCompanion<DbHolding> {
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
+    if (portfolioId.present) {
+      map['portfolio_id'] = Variable<String>(portfolioId.value);
+    }
     if (instrumentId.present) {
       map['instrument_id'] = Variable<String>(instrumentId.value);
     }
@@ -1870,6 +2303,7 @@ class HoldingsCompanion extends UpdateCompanion<DbHolding> {
           ..write('originalSymbol: $originalSymbol, ')
           ..write('providerExchange: $providerExchange, ')
           ..write('id: $id, ')
+          ..write('portfolioId: $portfolioId, ')
           ..write('instrumentId: $instrumentId, ')
           ..write('quantity: $quantity, ')
           ..write('averagePriceAmount: $averagePriceAmount, ')
@@ -1975,6 +2409,21 @@ class $WatchlistEntriesTable extends WatchlistEntries
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _portfolioIdMeta = const VerificationMeta(
+    'portfolioId',
+  );
+  @override
+  late final GeneratedColumn<String> portfolioId = GeneratedColumn<String>(
+    'portfolio_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES investment_portfolios (id) ON DELETE CASCADE',
+    ),
+    defaultValue: const Constant(InvestmentPortfolio.defaultId),
+  );
   static const VerificationMeta _instrumentIdMeta = const VerificationMeta(
     'instrumentId',
   );
@@ -2019,6 +2468,7 @@ class $WatchlistEntriesTable extends WatchlistEntries
     reportedCurrency,
     originalSymbol,
     providerExchange,
+    portfolioId,
     instrumentId,
     addedAt,
     notes,
@@ -2084,6 +2534,15 @@ class $WatchlistEntriesTable extends WatchlistEntries
         ),
       );
     }
+    if (data.containsKey('portfolio_id')) {
+      context.handle(
+        _portfolioIdMeta,
+        portfolioId.isAcceptableOrUnknown(
+          data['portfolio_id']!,
+          _portfolioIdMeta,
+        ),
+      );
+    }
     if (data.containsKey('instrument_id')) {
       context.handle(
         _instrumentIdMeta,
@@ -2113,7 +2572,7 @@ class $WatchlistEntriesTable extends WatchlistEntries
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {instrumentId};
+  Set<GeneratedColumn> get $primaryKey => {portfolioId, instrumentId};
   @override
   DbWatchlistEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -2154,6 +2613,10 @@ class $WatchlistEntriesTable extends WatchlistEntries
         DriftSqlType.string,
         data['${effectivePrefix}provider_exchange'],
       ),
+      portfolioId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}portfolio_id'],
+      )!,
       instrumentId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}instrument_id'],
@@ -2206,6 +2669,9 @@ class DbWatchlistEntry extends DataClass
   /// Exchange the provider attributed the row to.
   final String? providerExchange;
 
+  /// Portfolio that owns this watchlist entry.
+  final String portfolioId;
+
   /// The instrument followed.
   final String instrumentId;
 
@@ -2223,6 +2689,7 @@ class DbWatchlistEntry extends DataClass
     this.reportedCurrency,
     this.originalSymbol,
     this.providerExchange,
+    required this.portfolioId,
     required this.instrumentId,
     required this.addedAt,
     this.notes,
@@ -2254,6 +2721,7 @@ class DbWatchlistEntry extends DataClass
     if (!nullToAbsent || providerExchange != null) {
       map['provider_exchange'] = Variable<String>(providerExchange);
     }
+    map['portfolio_id'] = Variable<String>(portfolioId);
     map['instrument_id'] = Variable<String>(instrumentId);
     map['added_at'] = Variable<DateTime>(addedAt);
     if (!nullToAbsent || notes != null) {
@@ -2280,6 +2748,7 @@ class DbWatchlistEntry extends DataClass
       providerExchange: providerExchange == null && nullToAbsent
           ? const Value.absent()
           : Value(providerExchange),
+      portfolioId: Value(portfolioId),
       instrumentId: Value(instrumentId),
       addedAt: Value(addedAt),
       notes: notes == null && nullToAbsent
@@ -2306,6 +2775,7 @@ class DbWatchlistEntry extends DataClass
       reportedCurrency: serializer.fromJson<String?>(json['reportedCurrency']),
       originalSymbol: serializer.fromJson<String?>(json['originalSymbol']),
       providerExchange: serializer.fromJson<String?>(json['providerExchange']),
+      portfolioId: serializer.fromJson<String>(json['portfolioId']),
       instrumentId: serializer.fromJson<String>(json['instrumentId']),
       addedAt: serializer.fromJson<DateTime>(json['addedAt']),
       notes: serializer.fromJson<String?>(json['notes']),
@@ -2327,6 +2797,7 @@ class DbWatchlistEntry extends DataClass
       'reportedCurrency': serializer.toJson<String?>(reportedCurrency),
       'originalSymbol': serializer.toJson<String?>(originalSymbol),
       'providerExchange': serializer.toJson<String?>(providerExchange),
+      'portfolioId': serializer.toJson<String>(portfolioId),
       'instrumentId': serializer.toJson<String>(instrumentId),
       'addedAt': serializer.toJson<DateTime>(addedAt),
       'notes': serializer.toJson<String?>(notes),
@@ -2342,6 +2813,7 @@ class DbWatchlistEntry extends DataClass
     Value<String?> reportedCurrency = const Value.absent(),
     Value<String?> originalSymbol = const Value.absent(),
     Value<String?> providerExchange = const Value.absent(),
+    String? portfolioId,
     String? instrumentId,
     DateTime? addedAt,
     Value<String?> notes = const Value.absent(),
@@ -2360,6 +2832,7 @@ class DbWatchlistEntry extends DataClass
     providerExchange: providerExchange.present
         ? providerExchange.value
         : this.providerExchange,
+    portfolioId: portfolioId ?? this.portfolioId,
     instrumentId: instrumentId ?? this.instrumentId,
     addedAt: addedAt ?? this.addedAt,
     notes: notes.present ? notes.value : this.notes,
@@ -2384,6 +2857,9 @@ class DbWatchlistEntry extends DataClass
       providerExchange: data.providerExchange.present
           ? data.providerExchange.value
           : this.providerExchange,
+      portfolioId: data.portfolioId.present
+          ? data.portfolioId.value
+          : this.portfolioId,
       instrumentId: data.instrumentId.present
           ? data.instrumentId.value
           : this.instrumentId,
@@ -2403,6 +2879,7 @@ class DbWatchlistEntry extends DataClass
           ..write('reportedCurrency: $reportedCurrency, ')
           ..write('originalSymbol: $originalSymbol, ')
           ..write('providerExchange: $providerExchange, ')
+          ..write('portfolioId: $portfolioId, ')
           ..write('instrumentId: $instrumentId, ')
           ..write('addedAt: $addedAt, ')
           ..write('notes: $notes')
@@ -2420,6 +2897,7 @@ class DbWatchlistEntry extends DataClass
     reportedCurrency,
     originalSymbol,
     providerExchange,
+    portfolioId,
     instrumentId,
     addedAt,
     notes,
@@ -2436,6 +2914,7 @@ class DbWatchlistEntry extends DataClass
           other.reportedCurrency == this.reportedCurrency &&
           other.originalSymbol == this.originalSymbol &&
           other.providerExchange == this.providerExchange &&
+          other.portfolioId == this.portfolioId &&
           other.instrumentId == this.instrumentId &&
           other.addedAt == this.addedAt &&
           other.notes == this.notes);
@@ -2450,6 +2929,7 @@ class WatchlistEntriesCompanion extends UpdateCompanion<DbWatchlistEntry> {
   final Value<String?> reportedCurrency;
   final Value<String?> originalSymbol;
   final Value<String?> providerExchange;
+  final Value<String> portfolioId;
   final Value<String> instrumentId;
   final Value<DateTime> addedAt;
   final Value<String?> notes;
@@ -2463,6 +2943,7 @@ class WatchlistEntriesCompanion extends UpdateCompanion<DbWatchlistEntry> {
     this.reportedCurrency = const Value.absent(),
     this.originalSymbol = const Value.absent(),
     this.providerExchange = const Value.absent(),
+    this.portfolioId = const Value.absent(),
     this.instrumentId = const Value.absent(),
     this.addedAt = const Value.absent(),
     this.notes = const Value.absent(),
@@ -2477,6 +2958,7 @@ class WatchlistEntriesCompanion extends UpdateCompanion<DbWatchlistEntry> {
     this.reportedCurrency = const Value.absent(),
     this.originalSymbol = const Value.absent(),
     this.providerExchange = const Value.absent(),
+    this.portfolioId = const Value.absent(),
     required String instrumentId,
     required DateTime addedAt,
     this.notes = const Value.absent(),
@@ -2494,6 +2976,7 @@ class WatchlistEntriesCompanion extends UpdateCompanion<DbWatchlistEntry> {
     Expression<String>? reportedCurrency,
     Expression<String>? originalSymbol,
     Expression<String>? providerExchange,
+    Expression<String>? portfolioId,
     Expression<String>? instrumentId,
     Expression<DateTime>? addedAt,
     Expression<String>? notes,
@@ -2508,6 +2991,7 @@ class WatchlistEntriesCompanion extends UpdateCompanion<DbWatchlistEntry> {
       if (reportedCurrency != null) 'reported_currency': reportedCurrency,
       if (originalSymbol != null) 'original_symbol': originalSymbol,
       if (providerExchange != null) 'provider_exchange': providerExchange,
+      if (portfolioId != null) 'portfolio_id': portfolioId,
       if (instrumentId != null) 'instrument_id': instrumentId,
       if (addedAt != null) 'added_at': addedAt,
       if (notes != null) 'notes': notes,
@@ -2524,6 +3008,7 @@ class WatchlistEntriesCompanion extends UpdateCompanion<DbWatchlistEntry> {
     Value<String?>? reportedCurrency,
     Value<String?>? originalSymbol,
     Value<String?>? providerExchange,
+    Value<String>? portfolioId,
     Value<String>? instrumentId,
     Value<DateTime>? addedAt,
     Value<String?>? notes,
@@ -2538,6 +3023,7 @@ class WatchlistEntriesCompanion extends UpdateCompanion<DbWatchlistEntry> {
       reportedCurrency: reportedCurrency ?? this.reportedCurrency,
       originalSymbol: originalSymbol ?? this.originalSymbol,
       providerExchange: providerExchange ?? this.providerExchange,
+      portfolioId: portfolioId ?? this.portfolioId,
       instrumentId: instrumentId ?? this.instrumentId,
       addedAt: addedAt ?? this.addedAt,
       notes: notes ?? this.notes,
@@ -2576,6 +3062,9 @@ class WatchlistEntriesCompanion extends UpdateCompanion<DbWatchlistEntry> {
     if (providerExchange.present) {
       map['provider_exchange'] = Variable<String>(providerExchange.value);
     }
+    if (portfolioId.present) {
+      map['portfolio_id'] = Variable<String>(portfolioId.value);
+    }
     if (instrumentId.present) {
       map['instrument_id'] = Variable<String>(instrumentId.value);
     }
@@ -2602,10 +3091,1349 @@ class WatchlistEntriesCompanion extends UpdateCompanion<DbWatchlistEntry> {
           ..write('reportedCurrency: $reportedCurrency, ')
           ..write('originalSymbol: $originalSymbol, ')
           ..write('providerExchange: $providerExchange, ')
+          ..write('portfolioId: $portfolioId, ')
           ..write('instrumentId: $instrumentId, ')
           ..write('addedAt: $addedAt, ')
           ..write('notes: $notes, ')
           ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $PortfolioActivitiesTable extends PortfolioActivities
+    with TableInfo<$PortfolioActivitiesTable, DbPortfolioActivity> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PortfolioActivitiesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 64,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fetchedAtMeta = const VerificationMeta(
+    'fetchedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> fetchedAt = GeneratedColumn<DateTime>(
+    'fetched_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<CacheState, String> cacheState =
+      GeneratedColumn<String>(
+        'cache_state',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('fresh'),
+      ).withConverter<CacheState>(
+        $PortfolioActivitiesTable.$convertercacheState,
+      );
+  @override
+  late final GeneratedColumnWithTypeConverter<Confidence, String> confidence =
+      GeneratedColumn<String>(
+        'confidence',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('high'),
+      ).withConverter<Confidence>(
+        $PortfolioActivitiesTable.$converterconfidence,
+      );
+  static const VerificationMeta _reportedCurrencyMeta = const VerificationMeta(
+    'reportedCurrency',
+  );
+  @override
+  late final GeneratedColumn<String> reportedCurrency = GeneratedColumn<String>(
+    'reported_currency',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _originalSymbolMeta = const VerificationMeta(
+    'originalSymbol',
+  );
+  @override
+  late final GeneratedColumn<String> originalSymbol = GeneratedColumn<String>(
+    'original_symbol',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _providerExchangeMeta = const VerificationMeta(
+    'providerExchange',
+  );
+  @override
+  late final GeneratedColumn<String> providerExchange = GeneratedColumn<String>(
+    'provider_exchange',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _portfolioIdMeta = const VerificationMeta(
+    'portfolioId',
+  );
+  @override
+  late final GeneratedColumn<String> portfolioId = GeneratedColumn<String>(
+    'portfolio_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES investment_portfolios (id) ON DELETE CASCADE',
+    ),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<PortfolioActivityType, String>
+  type =
+      GeneratedColumn<String>(
+        'type',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<PortfolioActivityType>(
+        $PortfolioActivitiesTable.$convertertype,
+      );
+  static const VerificationMeta _occurredAtMeta = const VerificationMeta(
+    'occurredAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> occurredAt = GeneratedColumn<DateTime>(
+    'occurred_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _instrumentIdMeta = const VerificationMeta(
+    'instrumentId',
+  );
+  @override
+  late final GeneratedColumn<String> instrumentId = GeneratedColumn<String>(
+    'instrument_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES instruments (internal_id)',
+    ),
+  );
+  static const VerificationMeta _quantityMeta = const VerificationMeta(
+    'quantity',
+  );
+  @override
+  late final GeneratedColumn<String> quantity = GeneratedColumn<String>(
+    'quantity',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _unitPriceAmountMeta = const VerificationMeta(
+    'unitPriceAmount',
+  );
+  @override
+  late final GeneratedColumn<String> unitPriceAmount = GeneratedColumn<String>(
+    'unit_price_amount',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _unitPriceCurrencyMeta = const VerificationMeta(
+    'unitPriceCurrency',
+  );
+  @override
+  late final GeneratedColumn<String> unitPriceCurrency =
+      GeneratedColumn<String>(
+        'unit_price_currency',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _cashAmountMeta = const VerificationMeta(
+    'cashAmount',
+  );
+  @override
+  late final GeneratedColumn<String> cashAmount = GeneratedColumn<String>(
+    'cash_amount',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _cashCurrencyMeta = const VerificationMeta(
+    'cashCurrency',
+  );
+  @override
+  late final GeneratedColumn<String> cashCurrency = GeneratedColumn<String>(
+    'cash_currency',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _externalIdMeta = const VerificationMeta(
+    'externalId',
+  );
+  @override
+  late final GeneratedColumn<String> externalId = GeneratedColumn<String>(
+    'external_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _importBatchIdMeta = const VerificationMeta(
+    'importBatchId',
+  );
+  @override
+  late final GeneratedColumn<String> importBatchId = GeneratedColumn<String>(
+    'import_batch_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _reversesActivityIdMeta =
+      const VerificationMeta('reversesActivityId');
+  @override
+  late final GeneratedColumn<int> reversesActivityId = GeneratedColumn<int>(
+    'reverses_activity_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    source,
+    fetchedAt,
+    updatedAt,
+    cacheState,
+    confidence,
+    reportedCurrency,
+    originalSymbol,
+    providerExchange,
+    id,
+    portfolioId,
+    type,
+    occurredAt,
+    instrumentId,
+    quantity,
+    unitPriceAmount,
+    unitPriceCurrency,
+    cashAmount,
+    cashCurrency,
+    externalId,
+    importBatchId,
+    reversesActivityId,
+    notes,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'portfolio_activities';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DbPortfolioActivity> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('source')) {
+      context.handle(
+        _sourceMeta,
+        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceMeta);
+    }
+    if (data.containsKey('fetched_at')) {
+      context.handle(
+        _fetchedAtMeta,
+        fetchedAt.isAcceptableOrUnknown(data['fetched_at']!, _fetchedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_fetchedAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('reported_currency')) {
+      context.handle(
+        _reportedCurrencyMeta,
+        reportedCurrency.isAcceptableOrUnknown(
+          data['reported_currency']!,
+          _reportedCurrencyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('original_symbol')) {
+      context.handle(
+        _originalSymbolMeta,
+        originalSymbol.isAcceptableOrUnknown(
+          data['original_symbol']!,
+          _originalSymbolMeta,
+        ),
+      );
+    }
+    if (data.containsKey('provider_exchange')) {
+      context.handle(
+        _providerExchangeMeta,
+        providerExchange.isAcceptableOrUnknown(
+          data['provider_exchange']!,
+          _providerExchangeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('portfolio_id')) {
+      context.handle(
+        _portfolioIdMeta,
+        portfolioId.isAcceptableOrUnknown(
+          data['portfolio_id']!,
+          _portfolioIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_portfolioIdMeta);
+    }
+    if (data.containsKey('occurred_at')) {
+      context.handle(
+        _occurredAtMeta,
+        occurredAt.isAcceptableOrUnknown(data['occurred_at']!, _occurredAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_occurredAtMeta);
+    }
+    if (data.containsKey('instrument_id')) {
+      context.handle(
+        _instrumentIdMeta,
+        instrumentId.isAcceptableOrUnknown(
+          data['instrument_id']!,
+          _instrumentIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('quantity')) {
+      context.handle(
+        _quantityMeta,
+        quantity.isAcceptableOrUnknown(data['quantity']!, _quantityMeta),
+      );
+    }
+    if (data.containsKey('unit_price_amount')) {
+      context.handle(
+        _unitPriceAmountMeta,
+        unitPriceAmount.isAcceptableOrUnknown(
+          data['unit_price_amount']!,
+          _unitPriceAmountMeta,
+        ),
+      );
+    }
+    if (data.containsKey('unit_price_currency')) {
+      context.handle(
+        _unitPriceCurrencyMeta,
+        unitPriceCurrency.isAcceptableOrUnknown(
+          data['unit_price_currency']!,
+          _unitPriceCurrencyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('cash_amount')) {
+      context.handle(
+        _cashAmountMeta,
+        cashAmount.isAcceptableOrUnknown(data['cash_amount']!, _cashAmountMeta),
+      );
+    }
+    if (data.containsKey('cash_currency')) {
+      context.handle(
+        _cashCurrencyMeta,
+        cashCurrency.isAcceptableOrUnknown(
+          data['cash_currency']!,
+          _cashCurrencyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('external_id')) {
+      context.handle(
+        _externalIdMeta,
+        externalId.isAcceptableOrUnknown(data['external_id']!, _externalIdMeta),
+      );
+    }
+    if (data.containsKey('import_batch_id')) {
+      context.handle(
+        _importBatchIdMeta,
+        importBatchId.isAcceptableOrUnknown(
+          data['import_batch_id']!,
+          _importBatchIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('reverses_activity_id')) {
+      context.handle(
+        _reversesActivityIdMeta,
+        reversesActivityId.isAcceptableOrUnknown(
+          data['reverses_activity_id']!,
+          _reversesActivityIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DbPortfolioActivity map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DbPortfolioActivity(
+      source: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source'],
+      )!,
+      fetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}fetched_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      ),
+      cacheState: $PortfolioActivitiesTable.$convertercacheState.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}cache_state'],
+        )!,
+      ),
+      confidence: $PortfolioActivitiesTable.$converterconfidence.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}confidence'],
+        )!,
+      ),
+      reportedCurrency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reported_currency'],
+      ),
+      originalSymbol: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}original_symbol'],
+      ),
+      providerExchange: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}provider_exchange'],
+      ),
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      portfolioId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}portfolio_id'],
+      )!,
+      type: $PortfolioActivitiesTable.$convertertype.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}type'],
+        )!,
+      ),
+      occurredAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}occurred_at'],
+      )!,
+      instrumentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}instrument_id'],
+      ),
+      quantity: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}quantity'],
+      ),
+      unitPriceAmount: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}unit_price_amount'],
+      ),
+      unitPriceCurrency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}unit_price_currency'],
+      ),
+      cashAmount: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cash_amount'],
+      ),
+      cashCurrency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cash_currency'],
+      ),
+      externalId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}external_id'],
+      ),
+      importBatchId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}import_batch_id'],
+      ),
+      reversesActivityId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reverses_activity_id'],
+      ),
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+    );
+  }
+
+  @override
+  $PortfolioActivitiesTable createAlias(String alias) {
+    return $PortfolioActivitiesTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<CacheState, String, String> $convertercacheState =
+      const EnumNameConverter<CacheState>(CacheState.values);
+  static JsonTypeConverter2<Confidence, String, String> $converterconfidence =
+      const EnumNameConverter<Confidence>(Confidence.values);
+  static JsonTypeConverter2<PortfolioActivityType, String, String>
+  $convertertype = const EnumNameConverter<PortfolioActivityType>(
+    PortfolioActivityType.values,
+  );
+}
+
+class DbPortfolioActivity extends DataClass
+    implements Insertable<DbPortfolioActivity> {
+  /// Provider that supplied the row, e.g. `fmp`, `user`, `sample`.
+  final String source;
+
+  /// When the row was retrieved.
+  final DateTime fetchedAt;
+
+  /// When the content last changed, if the provider reports it.
+  final DateTime? updatedAt;
+
+  /// Freshness relative to the configured cache lifetime.
+  final CacheState cacheState;
+
+  /// How much trust the value deserves.
+  final Confidence confidence;
+
+  /// Currency the provider reported, before normalization.
+  final String? reportedCurrency;
+
+  /// Symbol the provider used.
+  final String? originalSymbol;
+
+  /// Exchange the provider attributed the row to.
+  final String? providerExchange;
+
+  /// Local activity identity.
+  final int id;
+
+  /// Owning portfolio.
+  final String portfolioId;
+
+  /// Economic meaning.
+  final PortfolioActivityType type;
+
+  /// Effective time.
+  final DateTime occurredAt;
+
+  /// Related instrument, when applicable.
+  final String? instrumentId;
+
+  /// Exact share quantity.
+  final String? quantity;
+
+  /// Exact price per share.
+  final String? unitPriceAmount;
+
+  /// Currency of [unitPriceAmount].
+  final String? unitPriceCurrency;
+
+  /// Exact absolute cash amount.
+  final String? cashAmount;
+
+  /// Currency of [cashAmount].
+  final String? cashCurrency;
+
+  /// Stable provider or broker-side identity.
+  final String? externalId;
+
+  /// Import batch identity for atomic undo.
+  final String? importBatchId;
+
+  /// Existing activity neutralized by this row.
+  final int? reversesActivityId;
+
+  /// Free-form user note.
+  final String? notes;
+  const DbPortfolioActivity({
+    required this.source,
+    required this.fetchedAt,
+    this.updatedAt,
+    required this.cacheState,
+    required this.confidence,
+    this.reportedCurrency,
+    this.originalSymbol,
+    this.providerExchange,
+    required this.id,
+    required this.portfolioId,
+    required this.type,
+    required this.occurredAt,
+    this.instrumentId,
+    this.quantity,
+    this.unitPriceAmount,
+    this.unitPriceCurrency,
+    this.cashAmount,
+    this.cashCurrency,
+    this.externalId,
+    this.importBatchId,
+    this.reversesActivityId,
+    this.notes,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['source'] = Variable<String>(source);
+    map['fetched_at'] = Variable<DateTime>(fetchedAt);
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    {
+      map['cache_state'] = Variable<String>(
+        $PortfolioActivitiesTable.$convertercacheState.toSql(cacheState),
+      );
+    }
+    {
+      map['confidence'] = Variable<String>(
+        $PortfolioActivitiesTable.$converterconfidence.toSql(confidence),
+      );
+    }
+    if (!nullToAbsent || reportedCurrency != null) {
+      map['reported_currency'] = Variable<String>(reportedCurrency);
+    }
+    if (!nullToAbsent || originalSymbol != null) {
+      map['original_symbol'] = Variable<String>(originalSymbol);
+    }
+    if (!nullToAbsent || providerExchange != null) {
+      map['provider_exchange'] = Variable<String>(providerExchange);
+    }
+    map['id'] = Variable<int>(id);
+    map['portfolio_id'] = Variable<String>(portfolioId);
+    {
+      map['type'] = Variable<String>(
+        $PortfolioActivitiesTable.$convertertype.toSql(type),
+      );
+    }
+    map['occurred_at'] = Variable<DateTime>(occurredAt);
+    if (!nullToAbsent || instrumentId != null) {
+      map['instrument_id'] = Variable<String>(instrumentId);
+    }
+    if (!nullToAbsent || quantity != null) {
+      map['quantity'] = Variable<String>(quantity);
+    }
+    if (!nullToAbsent || unitPriceAmount != null) {
+      map['unit_price_amount'] = Variable<String>(unitPriceAmount);
+    }
+    if (!nullToAbsent || unitPriceCurrency != null) {
+      map['unit_price_currency'] = Variable<String>(unitPriceCurrency);
+    }
+    if (!nullToAbsent || cashAmount != null) {
+      map['cash_amount'] = Variable<String>(cashAmount);
+    }
+    if (!nullToAbsent || cashCurrency != null) {
+      map['cash_currency'] = Variable<String>(cashCurrency);
+    }
+    if (!nullToAbsent || externalId != null) {
+      map['external_id'] = Variable<String>(externalId);
+    }
+    if (!nullToAbsent || importBatchId != null) {
+      map['import_batch_id'] = Variable<String>(importBatchId);
+    }
+    if (!nullToAbsent || reversesActivityId != null) {
+      map['reverses_activity_id'] = Variable<int>(reversesActivityId);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    return map;
+  }
+
+  PortfolioActivitiesCompanion toCompanion(bool nullToAbsent) {
+    return PortfolioActivitiesCompanion(
+      source: Value(source),
+      fetchedAt: Value(fetchedAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+      cacheState: Value(cacheState),
+      confidence: Value(confidence),
+      reportedCurrency: reportedCurrency == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reportedCurrency),
+      originalSymbol: originalSymbol == null && nullToAbsent
+          ? const Value.absent()
+          : Value(originalSymbol),
+      providerExchange: providerExchange == null && nullToAbsent
+          ? const Value.absent()
+          : Value(providerExchange),
+      id: Value(id),
+      portfolioId: Value(portfolioId),
+      type: Value(type),
+      occurredAt: Value(occurredAt),
+      instrumentId: instrumentId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(instrumentId),
+      quantity: quantity == null && nullToAbsent
+          ? const Value.absent()
+          : Value(quantity),
+      unitPriceAmount: unitPriceAmount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(unitPriceAmount),
+      unitPriceCurrency: unitPriceCurrency == null && nullToAbsent
+          ? const Value.absent()
+          : Value(unitPriceCurrency),
+      cashAmount: cashAmount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(cashAmount),
+      cashCurrency: cashCurrency == null && nullToAbsent
+          ? const Value.absent()
+          : Value(cashCurrency),
+      externalId: externalId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(externalId),
+      importBatchId: importBatchId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(importBatchId),
+      reversesActivityId: reversesActivityId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reversesActivityId),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+    );
+  }
+
+  factory DbPortfolioActivity.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DbPortfolioActivity(
+      source: serializer.fromJson<String>(json['source']),
+      fetchedAt: serializer.fromJson<DateTime>(json['fetchedAt']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+      cacheState: $PortfolioActivitiesTable.$convertercacheState.fromJson(
+        serializer.fromJson<String>(json['cacheState']),
+      ),
+      confidence: $PortfolioActivitiesTable.$converterconfidence.fromJson(
+        serializer.fromJson<String>(json['confidence']),
+      ),
+      reportedCurrency: serializer.fromJson<String?>(json['reportedCurrency']),
+      originalSymbol: serializer.fromJson<String?>(json['originalSymbol']),
+      providerExchange: serializer.fromJson<String?>(json['providerExchange']),
+      id: serializer.fromJson<int>(json['id']),
+      portfolioId: serializer.fromJson<String>(json['portfolioId']),
+      type: $PortfolioActivitiesTable.$convertertype.fromJson(
+        serializer.fromJson<String>(json['type']),
+      ),
+      occurredAt: serializer.fromJson<DateTime>(json['occurredAt']),
+      instrumentId: serializer.fromJson<String?>(json['instrumentId']),
+      quantity: serializer.fromJson<String?>(json['quantity']),
+      unitPriceAmount: serializer.fromJson<String?>(json['unitPriceAmount']),
+      unitPriceCurrency: serializer.fromJson<String?>(
+        json['unitPriceCurrency'],
+      ),
+      cashAmount: serializer.fromJson<String?>(json['cashAmount']),
+      cashCurrency: serializer.fromJson<String?>(json['cashCurrency']),
+      externalId: serializer.fromJson<String?>(json['externalId']),
+      importBatchId: serializer.fromJson<String?>(json['importBatchId']),
+      reversesActivityId: serializer.fromJson<int?>(json['reversesActivityId']),
+      notes: serializer.fromJson<String?>(json['notes']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'source': serializer.toJson<String>(source),
+      'fetchedAt': serializer.toJson<DateTime>(fetchedAt),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+      'cacheState': serializer.toJson<String>(
+        $PortfolioActivitiesTable.$convertercacheState.toJson(cacheState),
+      ),
+      'confidence': serializer.toJson<String>(
+        $PortfolioActivitiesTable.$converterconfidence.toJson(confidence),
+      ),
+      'reportedCurrency': serializer.toJson<String?>(reportedCurrency),
+      'originalSymbol': serializer.toJson<String?>(originalSymbol),
+      'providerExchange': serializer.toJson<String?>(providerExchange),
+      'id': serializer.toJson<int>(id),
+      'portfolioId': serializer.toJson<String>(portfolioId),
+      'type': serializer.toJson<String>(
+        $PortfolioActivitiesTable.$convertertype.toJson(type),
+      ),
+      'occurredAt': serializer.toJson<DateTime>(occurredAt),
+      'instrumentId': serializer.toJson<String?>(instrumentId),
+      'quantity': serializer.toJson<String?>(quantity),
+      'unitPriceAmount': serializer.toJson<String?>(unitPriceAmount),
+      'unitPriceCurrency': serializer.toJson<String?>(unitPriceCurrency),
+      'cashAmount': serializer.toJson<String?>(cashAmount),
+      'cashCurrency': serializer.toJson<String?>(cashCurrency),
+      'externalId': serializer.toJson<String?>(externalId),
+      'importBatchId': serializer.toJson<String?>(importBatchId),
+      'reversesActivityId': serializer.toJson<int?>(reversesActivityId),
+      'notes': serializer.toJson<String?>(notes),
+    };
+  }
+
+  DbPortfolioActivity copyWith({
+    String? source,
+    DateTime? fetchedAt,
+    Value<DateTime?> updatedAt = const Value.absent(),
+    CacheState? cacheState,
+    Confidence? confidence,
+    Value<String?> reportedCurrency = const Value.absent(),
+    Value<String?> originalSymbol = const Value.absent(),
+    Value<String?> providerExchange = const Value.absent(),
+    int? id,
+    String? portfolioId,
+    PortfolioActivityType? type,
+    DateTime? occurredAt,
+    Value<String?> instrumentId = const Value.absent(),
+    Value<String?> quantity = const Value.absent(),
+    Value<String?> unitPriceAmount = const Value.absent(),
+    Value<String?> unitPriceCurrency = const Value.absent(),
+    Value<String?> cashAmount = const Value.absent(),
+    Value<String?> cashCurrency = const Value.absent(),
+    Value<String?> externalId = const Value.absent(),
+    Value<String?> importBatchId = const Value.absent(),
+    Value<int?> reversesActivityId = const Value.absent(),
+    Value<String?> notes = const Value.absent(),
+  }) => DbPortfolioActivity(
+    source: source ?? this.source,
+    fetchedAt: fetchedAt ?? this.fetchedAt,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+    cacheState: cacheState ?? this.cacheState,
+    confidence: confidence ?? this.confidence,
+    reportedCurrency: reportedCurrency.present
+        ? reportedCurrency.value
+        : this.reportedCurrency,
+    originalSymbol: originalSymbol.present
+        ? originalSymbol.value
+        : this.originalSymbol,
+    providerExchange: providerExchange.present
+        ? providerExchange.value
+        : this.providerExchange,
+    id: id ?? this.id,
+    portfolioId: portfolioId ?? this.portfolioId,
+    type: type ?? this.type,
+    occurredAt: occurredAt ?? this.occurredAt,
+    instrumentId: instrumentId.present ? instrumentId.value : this.instrumentId,
+    quantity: quantity.present ? quantity.value : this.quantity,
+    unitPriceAmount: unitPriceAmount.present
+        ? unitPriceAmount.value
+        : this.unitPriceAmount,
+    unitPriceCurrency: unitPriceCurrency.present
+        ? unitPriceCurrency.value
+        : this.unitPriceCurrency,
+    cashAmount: cashAmount.present ? cashAmount.value : this.cashAmount,
+    cashCurrency: cashCurrency.present ? cashCurrency.value : this.cashCurrency,
+    externalId: externalId.present ? externalId.value : this.externalId,
+    importBatchId: importBatchId.present
+        ? importBatchId.value
+        : this.importBatchId,
+    reversesActivityId: reversesActivityId.present
+        ? reversesActivityId.value
+        : this.reversesActivityId,
+    notes: notes.present ? notes.value : this.notes,
+  );
+  DbPortfolioActivity copyWithCompanion(PortfolioActivitiesCompanion data) {
+    return DbPortfolioActivity(
+      source: data.source.present ? data.source.value : this.source,
+      fetchedAt: data.fetchedAt.present ? data.fetchedAt.value : this.fetchedAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      cacheState: data.cacheState.present
+          ? data.cacheState.value
+          : this.cacheState,
+      confidence: data.confidence.present
+          ? data.confidence.value
+          : this.confidence,
+      reportedCurrency: data.reportedCurrency.present
+          ? data.reportedCurrency.value
+          : this.reportedCurrency,
+      originalSymbol: data.originalSymbol.present
+          ? data.originalSymbol.value
+          : this.originalSymbol,
+      providerExchange: data.providerExchange.present
+          ? data.providerExchange.value
+          : this.providerExchange,
+      id: data.id.present ? data.id.value : this.id,
+      portfolioId: data.portfolioId.present
+          ? data.portfolioId.value
+          : this.portfolioId,
+      type: data.type.present ? data.type.value : this.type,
+      occurredAt: data.occurredAt.present
+          ? data.occurredAt.value
+          : this.occurredAt,
+      instrumentId: data.instrumentId.present
+          ? data.instrumentId.value
+          : this.instrumentId,
+      quantity: data.quantity.present ? data.quantity.value : this.quantity,
+      unitPriceAmount: data.unitPriceAmount.present
+          ? data.unitPriceAmount.value
+          : this.unitPriceAmount,
+      unitPriceCurrency: data.unitPriceCurrency.present
+          ? data.unitPriceCurrency.value
+          : this.unitPriceCurrency,
+      cashAmount: data.cashAmount.present
+          ? data.cashAmount.value
+          : this.cashAmount,
+      cashCurrency: data.cashCurrency.present
+          ? data.cashCurrency.value
+          : this.cashCurrency,
+      externalId: data.externalId.present
+          ? data.externalId.value
+          : this.externalId,
+      importBatchId: data.importBatchId.present
+          ? data.importBatchId.value
+          : this.importBatchId,
+      reversesActivityId: data.reversesActivityId.present
+          ? data.reversesActivityId.value
+          : this.reversesActivityId,
+      notes: data.notes.present ? data.notes.value : this.notes,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DbPortfolioActivity(')
+          ..write('source: $source, ')
+          ..write('fetchedAt: $fetchedAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('cacheState: $cacheState, ')
+          ..write('confidence: $confidence, ')
+          ..write('reportedCurrency: $reportedCurrency, ')
+          ..write('originalSymbol: $originalSymbol, ')
+          ..write('providerExchange: $providerExchange, ')
+          ..write('id: $id, ')
+          ..write('portfolioId: $portfolioId, ')
+          ..write('type: $type, ')
+          ..write('occurredAt: $occurredAt, ')
+          ..write('instrumentId: $instrumentId, ')
+          ..write('quantity: $quantity, ')
+          ..write('unitPriceAmount: $unitPriceAmount, ')
+          ..write('unitPriceCurrency: $unitPriceCurrency, ')
+          ..write('cashAmount: $cashAmount, ')
+          ..write('cashCurrency: $cashCurrency, ')
+          ..write('externalId: $externalId, ')
+          ..write('importBatchId: $importBatchId, ')
+          ..write('reversesActivityId: $reversesActivityId, ')
+          ..write('notes: $notes')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+    source,
+    fetchedAt,
+    updatedAt,
+    cacheState,
+    confidence,
+    reportedCurrency,
+    originalSymbol,
+    providerExchange,
+    id,
+    portfolioId,
+    type,
+    occurredAt,
+    instrumentId,
+    quantity,
+    unitPriceAmount,
+    unitPriceCurrency,
+    cashAmount,
+    cashCurrency,
+    externalId,
+    importBatchId,
+    reversesActivityId,
+    notes,
+  ]);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DbPortfolioActivity &&
+          other.source == this.source &&
+          other.fetchedAt == this.fetchedAt &&
+          other.updatedAt == this.updatedAt &&
+          other.cacheState == this.cacheState &&
+          other.confidence == this.confidence &&
+          other.reportedCurrency == this.reportedCurrency &&
+          other.originalSymbol == this.originalSymbol &&
+          other.providerExchange == this.providerExchange &&
+          other.id == this.id &&
+          other.portfolioId == this.portfolioId &&
+          other.type == this.type &&
+          other.occurredAt == this.occurredAt &&
+          other.instrumentId == this.instrumentId &&
+          other.quantity == this.quantity &&
+          other.unitPriceAmount == this.unitPriceAmount &&
+          other.unitPriceCurrency == this.unitPriceCurrency &&
+          other.cashAmount == this.cashAmount &&
+          other.cashCurrency == this.cashCurrency &&
+          other.externalId == this.externalId &&
+          other.importBatchId == this.importBatchId &&
+          other.reversesActivityId == this.reversesActivityId &&
+          other.notes == this.notes);
+}
+
+class PortfolioActivitiesCompanion
+    extends UpdateCompanion<DbPortfolioActivity> {
+  final Value<String> source;
+  final Value<DateTime> fetchedAt;
+  final Value<DateTime?> updatedAt;
+  final Value<CacheState> cacheState;
+  final Value<Confidence> confidence;
+  final Value<String?> reportedCurrency;
+  final Value<String?> originalSymbol;
+  final Value<String?> providerExchange;
+  final Value<int> id;
+  final Value<String> portfolioId;
+  final Value<PortfolioActivityType> type;
+  final Value<DateTime> occurredAt;
+  final Value<String?> instrumentId;
+  final Value<String?> quantity;
+  final Value<String?> unitPriceAmount;
+  final Value<String?> unitPriceCurrency;
+  final Value<String?> cashAmount;
+  final Value<String?> cashCurrency;
+  final Value<String?> externalId;
+  final Value<String?> importBatchId;
+  final Value<int?> reversesActivityId;
+  final Value<String?> notes;
+  const PortfolioActivitiesCompanion({
+    this.source = const Value.absent(),
+    this.fetchedAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.cacheState = const Value.absent(),
+    this.confidence = const Value.absent(),
+    this.reportedCurrency = const Value.absent(),
+    this.originalSymbol = const Value.absent(),
+    this.providerExchange = const Value.absent(),
+    this.id = const Value.absent(),
+    this.portfolioId = const Value.absent(),
+    this.type = const Value.absent(),
+    this.occurredAt = const Value.absent(),
+    this.instrumentId = const Value.absent(),
+    this.quantity = const Value.absent(),
+    this.unitPriceAmount = const Value.absent(),
+    this.unitPriceCurrency = const Value.absent(),
+    this.cashAmount = const Value.absent(),
+    this.cashCurrency = const Value.absent(),
+    this.externalId = const Value.absent(),
+    this.importBatchId = const Value.absent(),
+    this.reversesActivityId = const Value.absent(),
+    this.notes = const Value.absent(),
+  });
+  PortfolioActivitiesCompanion.insert({
+    required String source,
+    required DateTime fetchedAt,
+    this.updatedAt = const Value.absent(),
+    this.cacheState = const Value.absent(),
+    this.confidence = const Value.absent(),
+    this.reportedCurrency = const Value.absent(),
+    this.originalSymbol = const Value.absent(),
+    this.providerExchange = const Value.absent(),
+    this.id = const Value.absent(),
+    required String portfolioId,
+    required PortfolioActivityType type,
+    required DateTime occurredAt,
+    this.instrumentId = const Value.absent(),
+    this.quantity = const Value.absent(),
+    this.unitPriceAmount = const Value.absent(),
+    this.unitPriceCurrency = const Value.absent(),
+    this.cashAmount = const Value.absent(),
+    this.cashCurrency = const Value.absent(),
+    this.externalId = const Value.absent(),
+    this.importBatchId = const Value.absent(),
+    this.reversesActivityId = const Value.absent(),
+    this.notes = const Value.absent(),
+  }) : source = Value(source),
+       fetchedAt = Value(fetchedAt),
+       portfolioId = Value(portfolioId),
+       type = Value(type),
+       occurredAt = Value(occurredAt);
+  static Insertable<DbPortfolioActivity> custom({
+    Expression<String>? source,
+    Expression<DateTime>? fetchedAt,
+    Expression<DateTime>? updatedAt,
+    Expression<String>? cacheState,
+    Expression<String>? confidence,
+    Expression<String>? reportedCurrency,
+    Expression<String>? originalSymbol,
+    Expression<String>? providerExchange,
+    Expression<int>? id,
+    Expression<String>? portfolioId,
+    Expression<String>? type,
+    Expression<DateTime>? occurredAt,
+    Expression<String>? instrumentId,
+    Expression<String>? quantity,
+    Expression<String>? unitPriceAmount,
+    Expression<String>? unitPriceCurrency,
+    Expression<String>? cashAmount,
+    Expression<String>? cashCurrency,
+    Expression<String>? externalId,
+    Expression<String>? importBatchId,
+    Expression<int>? reversesActivityId,
+    Expression<String>? notes,
+  }) {
+    return RawValuesInsertable({
+      if (source != null) 'source': source,
+      if (fetchedAt != null) 'fetched_at': fetchedAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (cacheState != null) 'cache_state': cacheState,
+      if (confidence != null) 'confidence': confidence,
+      if (reportedCurrency != null) 'reported_currency': reportedCurrency,
+      if (originalSymbol != null) 'original_symbol': originalSymbol,
+      if (providerExchange != null) 'provider_exchange': providerExchange,
+      if (id != null) 'id': id,
+      if (portfolioId != null) 'portfolio_id': portfolioId,
+      if (type != null) 'type': type,
+      if (occurredAt != null) 'occurred_at': occurredAt,
+      if (instrumentId != null) 'instrument_id': instrumentId,
+      if (quantity != null) 'quantity': quantity,
+      if (unitPriceAmount != null) 'unit_price_amount': unitPriceAmount,
+      if (unitPriceCurrency != null) 'unit_price_currency': unitPriceCurrency,
+      if (cashAmount != null) 'cash_amount': cashAmount,
+      if (cashCurrency != null) 'cash_currency': cashCurrency,
+      if (externalId != null) 'external_id': externalId,
+      if (importBatchId != null) 'import_batch_id': importBatchId,
+      if (reversesActivityId != null)
+        'reverses_activity_id': reversesActivityId,
+      if (notes != null) 'notes': notes,
+    });
+  }
+
+  PortfolioActivitiesCompanion copyWith({
+    Value<String>? source,
+    Value<DateTime>? fetchedAt,
+    Value<DateTime?>? updatedAt,
+    Value<CacheState>? cacheState,
+    Value<Confidence>? confidence,
+    Value<String?>? reportedCurrency,
+    Value<String?>? originalSymbol,
+    Value<String?>? providerExchange,
+    Value<int>? id,
+    Value<String>? portfolioId,
+    Value<PortfolioActivityType>? type,
+    Value<DateTime>? occurredAt,
+    Value<String?>? instrumentId,
+    Value<String?>? quantity,
+    Value<String?>? unitPriceAmount,
+    Value<String?>? unitPriceCurrency,
+    Value<String?>? cashAmount,
+    Value<String?>? cashCurrency,
+    Value<String?>? externalId,
+    Value<String?>? importBatchId,
+    Value<int?>? reversesActivityId,
+    Value<String?>? notes,
+  }) {
+    return PortfolioActivitiesCompanion(
+      source: source ?? this.source,
+      fetchedAt: fetchedAt ?? this.fetchedAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      cacheState: cacheState ?? this.cacheState,
+      confidence: confidence ?? this.confidence,
+      reportedCurrency: reportedCurrency ?? this.reportedCurrency,
+      originalSymbol: originalSymbol ?? this.originalSymbol,
+      providerExchange: providerExchange ?? this.providerExchange,
+      id: id ?? this.id,
+      portfolioId: portfolioId ?? this.portfolioId,
+      type: type ?? this.type,
+      occurredAt: occurredAt ?? this.occurredAt,
+      instrumentId: instrumentId ?? this.instrumentId,
+      quantity: quantity ?? this.quantity,
+      unitPriceAmount: unitPriceAmount ?? this.unitPriceAmount,
+      unitPriceCurrency: unitPriceCurrency ?? this.unitPriceCurrency,
+      cashAmount: cashAmount ?? this.cashAmount,
+      cashCurrency: cashCurrency ?? this.cashCurrency,
+      externalId: externalId ?? this.externalId,
+      importBatchId: importBatchId ?? this.importBatchId,
+      reversesActivityId: reversesActivityId ?? this.reversesActivityId,
+      notes: notes ?? this.notes,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (fetchedAt.present) {
+      map['fetched_at'] = Variable<DateTime>(fetchedAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (cacheState.present) {
+      map['cache_state'] = Variable<String>(
+        $PortfolioActivitiesTable.$convertercacheState.toSql(cacheState.value),
+      );
+    }
+    if (confidence.present) {
+      map['confidence'] = Variable<String>(
+        $PortfolioActivitiesTable.$converterconfidence.toSql(confidence.value),
+      );
+    }
+    if (reportedCurrency.present) {
+      map['reported_currency'] = Variable<String>(reportedCurrency.value);
+    }
+    if (originalSymbol.present) {
+      map['original_symbol'] = Variable<String>(originalSymbol.value);
+    }
+    if (providerExchange.present) {
+      map['provider_exchange'] = Variable<String>(providerExchange.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (portfolioId.present) {
+      map['portfolio_id'] = Variable<String>(portfolioId.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(
+        $PortfolioActivitiesTable.$convertertype.toSql(type.value),
+      );
+    }
+    if (occurredAt.present) {
+      map['occurred_at'] = Variable<DateTime>(occurredAt.value);
+    }
+    if (instrumentId.present) {
+      map['instrument_id'] = Variable<String>(instrumentId.value);
+    }
+    if (quantity.present) {
+      map['quantity'] = Variable<String>(quantity.value);
+    }
+    if (unitPriceAmount.present) {
+      map['unit_price_amount'] = Variable<String>(unitPriceAmount.value);
+    }
+    if (unitPriceCurrency.present) {
+      map['unit_price_currency'] = Variable<String>(unitPriceCurrency.value);
+    }
+    if (cashAmount.present) {
+      map['cash_amount'] = Variable<String>(cashAmount.value);
+    }
+    if (cashCurrency.present) {
+      map['cash_currency'] = Variable<String>(cashCurrency.value);
+    }
+    if (externalId.present) {
+      map['external_id'] = Variable<String>(externalId.value);
+    }
+    if (importBatchId.present) {
+      map['import_batch_id'] = Variable<String>(importBatchId.value);
+    }
+    if (reversesActivityId.present) {
+      map['reverses_activity_id'] = Variable<int>(reversesActivityId.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PortfolioActivitiesCompanion(')
+          ..write('source: $source, ')
+          ..write('fetchedAt: $fetchedAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('cacheState: $cacheState, ')
+          ..write('confidence: $confidence, ')
+          ..write('reportedCurrency: $reportedCurrency, ')
+          ..write('originalSymbol: $originalSymbol, ')
+          ..write('providerExchange: $providerExchange, ')
+          ..write('id: $id, ')
+          ..write('portfolioId: $portfolioId, ')
+          ..write('type: $type, ')
+          ..write('occurredAt: $occurredAt, ')
+          ..write('instrumentId: $instrumentId, ')
+          ..write('quantity: $quantity, ')
+          ..write('unitPriceAmount: $unitPriceAmount, ')
+          ..write('unitPriceCurrency: $unitPriceCurrency, ')
+          ..write('cashAmount: $cashAmount, ')
+          ..write('cashCurrency: $cashCurrency, ')
+          ..write('externalId: $externalId, ')
+          ..write('importBatchId: $importBatchId, ')
+          ..write('reversesActivityId: $reversesActivityId, ')
+          ..write('notes: $notes')
           ..write(')'))
         .toString();
   }
@@ -13266,10 +15094,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ProviderMappingsTable providerMappings = $ProviderMappingsTable(
     this,
   );
+  late final $InvestmentPortfoliosTable investmentPortfolios =
+      $InvestmentPortfoliosTable(this);
   late final $HoldingsTable holdings = $HoldingsTable(this);
   late final $WatchlistEntriesTable watchlistEntries = $WatchlistEntriesTable(
     this,
   );
+  late final $PortfolioActivitiesTable portfolioActivities =
+      $PortfolioActivitiesTable(this);
   late final $QuotesTable quotes = $QuotesTable(this);
   late final $FxRatesTable fxRates = $FxRatesTable(this);
   late final $DividendEventsTable dividendEvents = $DividendEventsTable(this);
@@ -13288,6 +15120,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $SyncJobsTable syncJobs = $SyncJobsTable(this);
   late final $SyncLogsTable syncLogs = $SyncLogsTable(this);
   late final $CacheMetadataTable cacheMetadata = $CacheMetadataTable(this);
+  late final Index idxPortfolioActivityTime = Index(
+    'idx_portfolio_activity_time',
+    'CREATE INDEX idx_portfolio_activity_time ON portfolio_activities (portfolio_id, occurred_at)',
+  );
   late final Index idxFxRateObservedAt = Index(
     'idx_fx_rate_observed_at',
     'CREATE INDEX idx_fx_rate_observed_at ON fx_rates (observed_at)',
@@ -13335,8 +15171,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     instruments,
     providerMappings,
+    investmentPortfolios,
     holdings,
     watchlistEntries,
+    portfolioActivities,
     quotes,
     fxRates,
     dividendEvents,
@@ -13351,6 +15189,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     syncJobs,
     syncLogs,
     cacheMetadata,
+    idxPortfolioActivityTime,
     idxFxRateObservedAt,
     idxDividendExDate,
     idxDividendPaymentDate,
@@ -13370,6 +15209,27 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('provider_mappings', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'investment_portfolios',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('holdings', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'investment_portfolios',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('watchlist_entries', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'investment_portfolios',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('portfolio_activities', kind: UpdateKind.delete)],
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
@@ -13528,6 +15388,36 @@ final class $$InstrumentsTableReferences
 
     final cache = $_typedResult.readTableOrNull(
       _watchlistEntriesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $PortfolioActivitiesTable,
+    List<DbPortfolioActivity>
+  >
+  _portfolioActivitiesRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.portfolioActivities,
+        aliasName:
+            'instruments__internal_id__portfolio_activities__instrument_id',
+      );
+
+  $$PortfolioActivitiesTableProcessedTableManager get portfolioActivitiesRefs {
+    final manager =
+        $$PortfolioActivitiesTableTableManager(
+          $_db,
+          $_db.portfolioActivities,
+        ).filter(
+          (f) => f.instrumentId.internalId.sqlEquals(
+            $_itemColumn<String>('internal_id')!,
+          ),
+        );
+
+    final cache = $_typedResult.readTableOrNull(
+      _portfolioActivitiesRefsTable($_db),
     );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
@@ -13833,6 +15723,31 @@ class $$InstrumentsTableFilterComposer
           }) => $$WatchlistEntriesTableFilterComposer(
             $db: $db,
             $table: $db.watchlistEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> portfolioActivitiesRefs(
+    Expression<bool> Function($$PortfolioActivitiesTableFilterComposer f) f,
+  ) {
+    final $$PortfolioActivitiesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.internalId,
+      referencedTable: $db.portfolioActivities,
+      getReferencedColumn: (t) => t.instrumentId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PortfolioActivitiesTableFilterComposer(
+            $db: $db,
+            $table: $db.portfolioActivities,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -14213,6 +16128,32 @@ class $$InstrumentsTableAnnotationComposer
     return f(composer);
   }
 
+  Expression<T> portfolioActivitiesRefs<T extends Object>(
+    Expression<T> Function($$PortfolioActivitiesTableAnnotationComposer a) f,
+  ) {
+    final $$PortfolioActivitiesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.internalId,
+          referencedTable: $db.portfolioActivities,
+          getReferencedColumn: (t) => t.instrumentId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PortfolioActivitiesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.portfolioActivities,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
   Expression<T> quotesRefs<T extends Object>(
     Expression<T> Function($$QuotesTableAnnotationComposer a) f,
   ) {
@@ -14433,6 +16374,7 @@ class $$InstrumentsTableTableManager
             bool providerMappingsRefs,
             bool holdingsRefs,
             bool watchlistEntriesRefs,
+            bool portfolioActivitiesRefs,
             bool quotesRefs,
             bool dividendEventsRefs,
             bool earningsEventsRefs,
@@ -14515,6 +16457,7 @@ class $$InstrumentsTableTableManager
                 providerMappingsRefs = false,
                 holdingsRefs = false,
                 watchlistEntriesRefs = false,
+                portfolioActivitiesRefs = false,
                 quotesRefs = false,
                 dividendEventsRefs = false,
                 earningsEventsRefs = false,
@@ -14530,6 +16473,7 @@ class $$InstrumentsTableTableManager
                     if (providerMappingsRefs) db.providerMappings,
                     if (holdingsRefs) db.holdings,
                     if (watchlistEntriesRefs) db.watchlistEntries,
+                    if (portfolioActivitiesRefs) db.portfolioActivities,
                     if (quotesRefs) db.quotes,
                     if (dividendEventsRefs) db.dividendEvents,
                     if (earningsEventsRefs) db.earningsEvents,
@@ -14599,6 +16543,27 @@ class $$InstrumentsTableTableManager
                                 table,
                                 p0,
                               ).watchlistEntriesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.instrumentId == item.internalId,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (portfolioActivitiesRefs)
+                        await $_getPrefetchedData<
+                          DbInstrument,
+                          $InstrumentsTable,
+                          DbPortfolioActivity
+                        >(
+                          currentTable: table,
+                          referencedTable: $$InstrumentsTableReferences
+                              ._portfolioActivitiesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$InstrumentsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).portfolioActivitiesRefs,
                           referencedItemsForCurrentItem:
                               (item, referencedItems) => referencedItems.where(
                                 (e) => e.instrumentId == item.internalId,
@@ -14797,6 +16762,7 @@ typedef $$InstrumentsTableProcessedTableManager =
         bool providerMappingsRefs,
         bool holdingsRefs,
         bool watchlistEntriesRefs,
+        bool portfolioActivitiesRefs,
         bool quotesRefs,
         bool dividendEventsRefs,
         bool earningsEventsRefs,
@@ -15120,6 +17086,531 @@ typedef $$ProviderMappingsTableProcessedTableManager =
       DbProviderMapping,
       PrefetchHooks Function({bool instrumentId})
     >;
+typedef $$InvestmentPortfoliosTableCreateCompanionBuilder =
+    InvestmentPortfoliosCompanion Function({
+      required String id,
+      required String name,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<bool> isDemo,
+      Value<int> rowid,
+    });
+typedef $$InvestmentPortfoliosTableUpdateCompanionBuilder =
+    InvestmentPortfoliosCompanion Function({
+      Value<String> id,
+      Value<String> name,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<bool> isDemo,
+      Value<int> rowid,
+    });
+
+final class $$InvestmentPortfoliosTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $InvestmentPortfoliosTable,
+          DbInvestmentPortfolio
+        > {
+  $$InvestmentPortfoliosTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static MultiTypedResultKey<$HoldingsTable, List<DbHolding>>
+  _holdingsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.holdings,
+    aliasName: 'investment_portfolios__id__holdings__portfolio_id',
+  );
+
+  $$HoldingsTableProcessedTableManager get holdingsRefs {
+    final manager = $$HoldingsTableTableManager(
+      $_db,
+      $_db.holdings,
+    ).filter((f) => f.portfolioId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_holdingsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$WatchlistEntriesTable, List<DbWatchlistEntry>>
+  _watchlistEntriesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.watchlistEntries,
+    aliasName: 'investment_portfolios__id__watchlist_entries__portfolio_id',
+  );
+
+  $$WatchlistEntriesTableProcessedTableManager get watchlistEntriesRefs {
+    final manager = $$WatchlistEntriesTableTableManager(
+      $_db,
+      $_db.watchlistEntries,
+    ).filter((f) => f.portfolioId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _watchlistEntriesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $PortfolioActivitiesTable,
+    List<DbPortfolioActivity>
+  >
+  _portfolioActivitiesRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.portfolioActivities,
+        aliasName:
+            'investment_portfolios__id__portfolio_activities__portfolio_id',
+      );
+
+  $$PortfolioActivitiesTableProcessedTableManager get portfolioActivitiesRefs {
+    final manager = $$PortfolioActivitiesTableTableManager(
+      $_db,
+      $_db.portfolioActivities,
+    ).filter((f) => f.portfolioId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _portfolioActivitiesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$InvestmentPortfoliosTableFilterComposer
+    extends Composer<_$AppDatabase, $InvestmentPortfoliosTable> {
+  $$InvestmentPortfoliosTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDemo => $composableBuilder(
+    column: $table.isDemo,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> holdingsRefs(
+    Expression<bool> Function($$HoldingsTableFilterComposer f) f,
+  ) {
+    final $$HoldingsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.holdings,
+      getReferencedColumn: (t) => t.portfolioId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$HoldingsTableFilterComposer(
+            $db: $db,
+            $table: $db.holdings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> watchlistEntriesRefs(
+    Expression<bool> Function($$WatchlistEntriesTableFilterComposer f) f,
+  ) {
+    final $$WatchlistEntriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.watchlistEntries,
+      getReferencedColumn: (t) => t.portfolioId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WatchlistEntriesTableFilterComposer(
+            $db: $db,
+            $table: $db.watchlistEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> portfolioActivitiesRefs(
+    Expression<bool> Function($$PortfolioActivitiesTableFilterComposer f) f,
+  ) {
+    final $$PortfolioActivitiesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.portfolioActivities,
+      getReferencedColumn: (t) => t.portfolioId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PortfolioActivitiesTableFilterComposer(
+            $db: $db,
+            $table: $db.portfolioActivities,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$InvestmentPortfoliosTableOrderingComposer
+    extends Composer<_$AppDatabase, $InvestmentPortfoliosTable> {
+  $$InvestmentPortfoliosTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isDemo => $composableBuilder(
+    column: $table.isDemo,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$InvestmentPortfoliosTableAnnotationComposer
+    extends Composer<_$AppDatabase, $InvestmentPortfoliosTable> {
+  $$InvestmentPortfoliosTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDemo =>
+      $composableBuilder(column: $table.isDemo, builder: (column) => column);
+
+  Expression<T> holdingsRefs<T extends Object>(
+    Expression<T> Function($$HoldingsTableAnnotationComposer a) f,
+  ) {
+    final $$HoldingsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.holdings,
+      getReferencedColumn: (t) => t.portfolioId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$HoldingsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.holdings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> watchlistEntriesRefs<T extends Object>(
+    Expression<T> Function($$WatchlistEntriesTableAnnotationComposer a) f,
+  ) {
+    final $$WatchlistEntriesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.watchlistEntries,
+      getReferencedColumn: (t) => t.portfolioId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WatchlistEntriesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.watchlistEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> portfolioActivitiesRefs<T extends Object>(
+    Expression<T> Function($$PortfolioActivitiesTableAnnotationComposer a) f,
+  ) {
+    final $$PortfolioActivitiesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.portfolioActivities,
+          getReferencedColumn: (t) => t.portfolioId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PortfolioActivitiesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.portfolioActivities,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+}
+
+class $$InvestmentPortfoliosTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $InvestmentPortfoliosTable,
+          DbInvestmentPortfolio,
+          $$InvestmentPortfoliosTableFilterComposer,
+          $$InvestmentPortfoliosTableOrderingComposer,
+          $$InvestmentPortfoliosTableAnnotationComposer,
+          $$InvestmentPortfoliosTableCreateCompanionBuilder,
+          $$InvestmentPortfoliosTableUpdateCompanionBuilder,
+          (DbInvestmentPortfolio, $$InvestmentPortfoliosTableReferences),
+          DbInvestmentPortfolio,
+          PrefetchHooks Function({
+            bool holdingsRefs,
+            bool watchlistEntriesRefs,
+            bool portfolioActivitiesRefs,
+          })
+        > {
+  $$InvestmentPortfoliosTableTableManager(
+    _$AppDatabase db,
+    $InvestmentPortfoliosTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$InvestmentPortfoliosTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$InvestmentPortfoliosTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$InvestmentPortfoliosTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<bool> isDemo = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => InvestmentPortfoliosCompanion(
+                id: id,
+                name: name,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                isDemo: isDemo,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String name,
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<bool> isDemo = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => InvestmentPortfoliosCompanion.insert(
+                id: id,
+                name: name,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                isDemo: isDemo,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$InvestmentPortfoliosTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({
+                holdingsRefs = false,
+                watchlistEntriesRefs = false,
+                portfolioActivitiesRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (holdingsRefs) db.holdings,
+                    if (watchlistEntriesRefs) db.watchlistEntries,
+                    if (portfolioActivitiesRefs) db.portfolioActivities,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (holdingsRefs)
+                        await $_getPrefetchedData<
+                          DbInvestmentPortfolio,
+                          $InvestmentPortfoliosTable,
+                          DbHolding
+                        >(
+                          currentTable: table,
+                          referencedTable: $$InvestmentPortfoliosTableReferences
+                              ._holdingsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$InvestmentPortfoliosTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).holdingsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.portfolioId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (watchlistEntriesRefs)
+                        await $_getPrefetchedData<
+                          DbInvestmentPortfolio,
+                          $InvestmentPortfoliosTable,
+                          DbWatchlistEntry
+                        >(
+                          currentTable: table,
+                          referencedTable: $$InvestmentPortfoliosTableReferences
+                              ._watchlistEntriesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$InvestmentPortfoliosTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).watchlistEntriesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.portfolioId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (portfolioActivitiesRefs)
+                        await $_getPrefetchedData<
+                          DbInvestmentPortfolio,
+                          $InvestmentPortfoliosTable,
+                          DbPortfolioActivity
+                        >(
+                          currentTable: table,
+                          referencedTable: $$InvestmentPortfoliosTableReferences
+                              ._portfolioActivitiesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$InvestmentPortfoliosTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).portfolioActivitiesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.portfolioId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$InvestmentPortfoliosTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $InvestmentPortfoliosTable,
+      DbInvestmentPortfolio,
+      $$InvestmentPortfoliosTableFilterComposer,
+      $$InvestmentPortfoliosTableOrderingComposer,
+      $$InvestmentPortfoliosTableAnnotationComposer,
+      $$InvestmentPortfoliosTableCreateCompanionBuilder,
+      $$InvestmentPortfoliosTableUpdateCompanionBuilder,
+      (DbInvestmentPortfolio, $$InvestmentPortfoliosTableReferences),
+      DbInvestmentPortfolio,
+      PrefetchHooks Function({
+        bool holdingsRefs,
+        bool watchlistEntriesRefs,
+        bool portfolioActivitiesRefs,
+      })
+    >;
 typedef $$HoldingsTableCreateCompanionBuilder = HoldingsCompanion Function({
   required String source,
   required DateTime fetchedAt,
@@ -15130,6 +17621,7 @@ typedef $$HoldingsTableCreateCompanionBuilder = HoldingsCompanion Function({
   Value<String?> originalSymbol,
   Value<String?> providerExchange,
   Value<int> id,
+  Value<String> portfolioId,
   required String instrumentId,
   required String quantity,
   Value<String?> averagePriceAmount,
@@ -15147,6 +17639,7 @@ typedef $$HoldingsTableUpdateCompanionBuilder = HoldingsCompanion Function({
   Value<String?> originalSymbol,
   Value<String?> providerExchange,
   Value<int> id,
+  Value<String> portfolioId,
   Value<String> instrumentId,
   Value<String> quantity,
   Value<String?> averagePriceAmount,
@@ -15158,6 +17651,24 @@ typedef $$HoldingsTableUpdateCompanionBuilder = HoldingsCompanion Function({
 final class $$HoldingsTableReferences
     extends BaseReferences<_$AppDatabase, $HoldingsTable, DbHolding> {
   $$HoldingsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $InvestmentPortfoliosTable _portfolioIdTable(_$AppDatabase db) => db
+      .investmentPortfolios
+      .createAlias('holdings__portfolio_id__investment_portfolios__id');
+
+  $$InvestmentPortfoliosTableProcessedTableManager get portfolioId {
+    final $_column = $_itemColumn<String>('portfolio_id')!;
+
+    final manager = $$InvestmentPortfoliosTableTableManager(
+      $_db,
+      $_db.investmentPortfolios,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_portfolioIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
 
   static $InstrumentsTable _instrumentIdTable(_$AppDatabase db) => db
       .instruments
@@ -15258,6 +17769,29 @@ class $$HoldingsTableFilterComposer
     column: $table.notes,
     builder: (column) => ColumnFilters(column),
   );
+
+  $$InvestmentPortfoliosTableFilterComposer get portfolioId {
+    final $$InvestmentPortfoliosTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.portfolioId,
+      referencedTable: $db.investmentPortfolios,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$InvestmentPortfoliosTableFilterComposer(
+            $db: $db,
+            $table: $db.investmentPortfolios,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 
   $$InstrumentsTableFilterComposer get instrumentId {
     final $$InstrumentsTableFilterComposer composer = $composerBuilder(
@@ -15362,6 +17896,30 @@ class $$HoldingsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  $$InvestmentPortfoliosTableOrderingComposer get portfolioId {
+    final $$InvestmentPortfoliosTableOrderingComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.portfolioId,
+          referencedTable: $db.investmentPortfolios,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$InvestmentPortfoliosTableOrderingComposer(
+                $db: $db,
+                $table: $db.investmentPortfolios,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+
   $$InstrumentsTableOrderingComposer get instrumentId {
     final $$InstrumentsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -15455,6 +18013,30 @@ class $$HoldingsTableAnnotationComposer
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
 
+  $$InvestmentPortfoliosTableAnnotationComposer get portfolioId {
+    final $$InvestmentPortfoliosTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.portfolioId,
+          referencedTable: $db.investmentPortfolios,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$InvestmentPortfoliosTableAnnotationComposer(
+                $db: $db,
+                $table: $db.investmentPortfolios,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+
   $$InstrumentsTableAnnotationComposer get instrumentId {
     final $$InstrumentsTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -15492,7 +18074,7 @@ class $$HoldingsTableTableManager
           $$HoldingsTableUpdateCompanionBuilder,
           (DbHolding, $$HoldingsTableReferences),
           DbHolding,
-          PrefetchHooks Function({bool instrumentId})
+          PrefetchHooks Function({bool portfolioId, bool instrumentId})
         > {
   $$HoldingsTableTableManager(_$AppDatabase db, $HoldingsTable table)
     : super(
@@ -15516,6 +18098,7 @@ class $$HoldingsTableTableManager
                 Value<String?> originalSymbol = const Value.absent(),
                 Value<String?> providerExchange = const Value.absent(),
                 Value<int> id = const Value.absent(),
+                Value<String> portfolioId = const Value.absent(),
                 Value<String> instrumentId = const Value.absent(),
                 Value<String> quantity = const Value.absent(),
                 Value<String?> averagePriceAmount = const Value.absent(),
@@ -15532,6 +18115,7 @@ class $$HoldingsTableTableManager
                 originalSymbol: originalSymbol,
                 providerExchange: providerExchange,
                 id: id,
+                portfolioId: portfolioId,
                 instrumentId: instrumentId,
                 quantity: quantity,
                 averagePriceAmount: averagePriceAmount,
@@ -15550,6 +18134,7 @@ class $$HoldingsTableTableManager
                 Value<String?> originalSymbol = const Value.absent(),
                 Value<String?> providerExchange = const Value.absent(),
                 Value<int> id = const Value.absent(),
+                Value<String> portfolioId = const Value.absent(),
                 required String instrumentId,
                 required String quantity,
                 Value<String?> averagePriceAmount = const Value.absent(),
@@ -15566,6 +18151,7 @@ class $$HoldingsTableTableManager
                 originalSymbol: originalSymbol,
                 providerExchange: providerExchange,
                 id: id,
+                portfolioId: portfolioId,
                 instrumentId: instrumentId,
                 quantity: quantity,
                 averagePriceAmount: averagePriceAmount,
@@ -15581,7 +18167,7 @@ class $$HoldingsTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({instrumentId = false}) {
+          prefetchHooksCallback: ({portfolioId = false, instrumentId = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
@@ -15601,6 +18187,17 @@ class $$HoldingsTableTableManager
                       dynamic
                     >
                   >(state) {
+                    if (portfolioId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.portfolioId,
+                        referencedTable: $$HoldingsTableReferences
+                            ._portfolioIdTable(db),
+                        referencedColumn: $$HoldingsTableReferences
+                            ._portfolioIdTable(db)
+                            .id,
+                      ) as T;
+                    }
                     if (instrumentId) {
                       state = state.withJoin(
                         currentTable: table,
@@ -15636,7 +18233,7 @@ typedef $$HoldingsTableProcessedTableManager =
       $$HoldingsTableUpdateCompanionBuilder,
       (DbHolding, $$HoldingsTableReferences),
       DbHolding,
-      PrefetchHooks Function({bool instrumentId})
+      PrefetchHooks Function({bool portfolioId, bool instrumentId})
     >;
 typedef $$WatchlistEntriesTableCreateCompanionBuilder =
     WatchlistEntriesCompanion Function({
@@ -15648,6 +18245,7 @@ typedef $$WatchlistEntriesTableCreateCompanionBuilder =
       Value<String?> reportedCurrency,
       Value<String?> originalSymbol,
       Value<String?> providerExchange,
+      Value<String> portfolioId,
       required String instrumentId,
       required DateTime addedAt,
       Value<String?> notes,
@@ -15663,6 +18261,7 @@ typedef $$WatchlistEntriesTableUpdateCompanionBuilder =
       Value<String?> reportedCurrency,
       Value<String?> originalSymbol,
       Value<String?> providerExchange,
+      Value<String> portfolioId,
       Value<String> instrumentId,
       Value<DateTime> addedAt,
       Value<String?> notes,
@@ -15681,6 +18280,25 @@ final class $$WatchlistEntriesTableReferences
     super.$_table,
     super.$_typedResult,
   );
+
+  static $InvestmentPortfoliosTable _portfolioIdTable(_$AppDatabase db) =>
+      db.investmentPortfolios.createAlias(
+        'watchlist_entries__portfolio_id__investment_portfolios__id',
+      );
+
+  $$InvestmentPortfoliosTableProcessedTableManager get portfolioId {
+    final $_column = $_itemColumn<String>('portfolio_id')!;
+
+    final manager = $$InvestmentPortfoliosTableTableManager(
+      $_db,
+      $_db.investmentPortfolios,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_portfolioIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
 
   static $InstrumentsTable _instrumentIdTable(_$AppDatabase db) =>
       db.instruments.createAlias(
@@ -15762,6 +18380,29 @@ class $$WatchlistEntriesTableFilterComposer
     column: $table.notes,
     builder: (column) => ColumnFilters(column),
   );
+
+  $$InvestmentPortfoliosTableFilterComposer get portfolioId {
+    final $$InvestmentPortfoliosTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.portfolioId,
+      referencedTable: $db.investmentPortfolios,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$InvestmentPortfoliosTableFilterComposer(
+            $db: $db,
+            $table: $db.investmentPortfolios,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 
   $$InstrumentsTableFilterComposer get instrumentId {
     final $$InstrumentsTableFilterComposer composer = $composerBuilder(
@@ -15846,6 +18487,30 @@ class $$WatchlistEntriesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  $$InvestmentPortfoliosTableOrderingComposer get portfolioId {
+    final $$InvestmentPortfoliosTableOrderingComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.portfolioId,
+          referencedTable: $db.investmentPortfolios,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$InvestmentPortfoliosTableOrderingComposer(
+                $db: $db,
+                $table: $db.investmentPortfolios,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+
   $$InstrumentsTableOrderingComposer get instrumentId {
     final $$InstrumentsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -15921,6 +18586,30 @@ class $$WatchlistEntriesTableAnnotationComposer
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
 
+  $$InvestmentPortfoliosTableAnnotationComposer get portfolioId {
+    final $$InvestmentPortfoliosTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.portfolioId,
+          referencedTable: $db.investmentPortfolios,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$InvestmentPortfoliosTableAnnotationComposer(
+                $db: $db,
+                $table: $db.investmentPortfolios,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+
   $$InstrumentsTableAnnotationComposer get instrumentId {
     final $$InstrumentsTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -15958,7 +18647,7 @@ class $$WatchlistEntriesTableTableManager
           $$WatchlistEntriesTableUpdateCompanionBuilder,
           (DbWatchlistEntry, $$WatchlistEntriesTableReferences),
           DbWatchlistEntry,
-          PrefetchHooks Function({bool instrumentId})
+          PrefetchHooks Function({bool portfolioId, bool instrumentId})
         > {
   $$WatchlistEntriesTableTableManager(
     _$AppDatabase db,
@@ -15983,6 +18672,7 @@ class $$WatchlistEntriesTableTableManager
                 Value<String?> reportedCurrency = const Value.absent(),
                 Value<String?> originalSymbol = const Value.absent(),
                 Value<String?> providerExchange = const Value.absent(),
+                Value<String> portfolioId = const Value.absent(),
                 Value<String> instrumentId = const Value.absent(),
                 Value<DateTime> addedAt = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
@@ -15996,6 +18686,7 @@ class $$WatchlistEntriesTableTableManager
                 reportedCurrency: reportedCurrency,
                 originalSymbol: originalSymbol,
                 providerExchange: providerExchange,
+                portfolioId: portfolioId,
                 instrumentId: instrumentId,
                 addedAt: addedAt,
                 notes: notes,
@@ -16011,6 +18702,7 @@ class $$WatchlistEntriesTableTableManager
                 Value<String?> reportedCurrency = const Value.absent(),
                 Value<String?> originalSymbol = const Value.absent(),
                 Value<String?> providerExchange = const Value.absent(),
+                Value<String> portfolioId = const Value.absent(),
                 required String instrumentId,
                 required DateTime addedAt,
                 Value<String?> notes = const Value.absent(),
@@ -16024,6 +18716,7 @@ class $$WatchlistEntriesTableTableManager
                 reportedCurrency: reportedCurrency,
                 originalSymbol: originalSymbol,
                 providerExchange: providerExchange,
+                portfolioId: portfolioId,
                 instrumentId: instrumentId,
                 addedAt: addedAt,
                 notes: notes,
@@ -16037,7 +18730,7 @@ class $$WatchlistEntriesTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({instrumentId = false}) {
+          prefetchHooksCallback: ({portfolioId = false, instrumentId = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
@@ -16057,6 +18750,17 @@ class $$WatchlistEntriesTableTableManager
                       dynamic
                     >
                   >(state) {
+                    if (portfolioId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.portfolioId,
+                        referencedTable: $$WatchlistEntriesTableReferences
+                            ._portfolioIdTable(db),
+                        referencedColumn: $$WatchlistEntriesTableReferences
+                            ._portfolioIdTable(db)
+                            .id,
+                      ) as T;
+                    }
                     if (instrumentId) {
                       state = state.withJoin(
                         currentTable: table,
@@ -16092,7 +18796,781 @@ typedef $$WatchlistEntriesTableProcessedTableManager =
       $$WatchlistEntriesTableUpdateCompanionBuilder,
       (DbWatchlistEntry, $$WatchlistEntriesTableReferences),
       DbWatchlistEntry,
-      PrefetchHooks Function({bool instrumentId})
+      PrefetchHooks Function({bool portfolioId, bool instrumentId})
+    >;
+typedef $$PortfolioActivitiesTableCreateCompanionBuilder =
+    PortfolioActivitiesCompanion Function({
+      required String source,
+      required DateTime fetchedAt,
+      Value<DateTime?> updatedAt,
+      Value<CacheState> cacheState,
+      Value<Confidence> confidence,
+      Value<String?> reportedCurrency,
+      Value<String?> originalSymbol,
+      Value<String?> providerExchange,
+      Value<int> id,
+      required String portfolioId,
+      required PortfolioActivityType type,
+      required DateTime occurredAt,
+      Value<String?> instrumentId,
+      Value<String?> quantity,
+      Value<String?> unitPriceAmount,
+      Value<String?> unitPriceCurrency,
+      Value<String?> cashAmount,
+      Value<String?> cashCurrency,
+      Value<String?> externalId,
+      Value<String?> importBatchId,
+      Value<int?> reversesActivityId,
+      Value<String?> notes,
+    });
+typedef $$PortfolioActivitiesTableUpdateCompanionBuilder =
+    PortfolioActivitiesCompanion Function({
+      Value<String> source,
+      Value<DateTime> fetchedAt,
+      Value<DateTime?> updatedAt,
+      Value<CacheState> cacheState,
+      Value<Confidence> confidence,
+      Value<String?> reportedCurrency,
+      Value<String?> originalSymbol,
+      Value<String?> providerExchange,
+      Value<int> id,
+      Value<String> portfolioId,
+      Value<PortfolioActivityType> type,
+      Value<DateTime> occurredAt,
+      Value<String?> instrumentId,
+      Value<String?> quantity,
+      Value<String?> unitPriceAmount,
+      Value<String?> unitPriceCurrency,
+      Value<String?> cashAmount,
+      Value<String?> cashCurrency,
+      Value<String?> externalId,
+      Value<String?> importBatchId,
+      Value<int?> reversesActivityId,
+      Value<String?> notes,
+    });
+
+final class $$PortfolioActivitiesTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $PortfolioActivitiesTable,
+          DbPortfolioActivity
+        > {
+  $$PortfolioActivitiesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $InvestmentPortfoliosTable _portfolioIdTable(_$AppDatabase db) =>
+      db.investmentPortfolios.createAlias(
+        'portfolio_activities__portfolio_id__investment_portfolios__id',
+      );
+
+  $$InvestmentPortfoliosTableProcessedTableManager get portfolioId {
+    final $_column = $_itemColumn<String>('portfolio_id')!;
+
+    final manager = $$InvestmentPortfoliosTableTableManager(
+      $_db,
+      $_db.investmentPortfolios,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_portfolioIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $InstrumentsTable _instrumentIdTable(_$AppDatabase db) =>
+      db.instruments.createAlias(
+        'portfolio_activities__instrument_id__instruments__internal_id',
+      );
+
+  $$InstrumentsTableProcessedTableManager? get instrumentId {
+    final $_column = $_itemColumn<String>('instrument_id');
+    if ($_column == null) return null;
+    final manager = $$InstrumentsTableTableManager(
+      $_db,
+      $_db.instruments,
+    ).filter((f) => f.internalId.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_instrumentIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$PortfolioActivitiesTableFilterComposer
+    extends Composer<_$AppDatabase, $PortfolioActivitiesTable> {
+  $$PortfolioActivitiesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<CacheState, CacheState, String>
+  get cacheState => $composableBuilder(
+    column: $table.cacheState,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<Confidence, Confidence, String>
+  get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get reportedCurrency => $composableBuilder(
+    column: $table.reportedCurrency,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get originalSymbol => $composableBuilder(
+    column: $table.originalSymbol,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get providerExchange => $composableBuilder(
+    column: $table.providerExchange,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<
+    PortfolioActivityType,
+    PortfolioActivityType,
+    String
+  >
+  get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<DateTime> get occurredAt => $composableBuilder(
+    column: $table.occurredAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get quantity => $composableBuilder(
+    column: $table.quantity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get unitPriceAmount => $composableBuilder(
+    column: $table.unitPriceAmount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get unitPriceCurrency => $composableBuilder(
+    column: $table.unitPriceCurrency,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get cashAmount => $composableBuilder(
+    column: $table.cashAmount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get cashCurrency => $composableBuilder(
+    column: $table.cashCurrency,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get externalId => $composableBuilder(
+    column: $table.externalId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get importBatchId => $composableBuilder(
+    column: $table.importBatchId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get reversesActivityId => $composableBuilder(
+    column: $table.reversesActivityId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$InvestmentPortfoliosTableFilterComposer get portfolioId {
+    final $$InvestmentPortfoliosTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.portfolioId,
+      referencedTable: $db.investmentPortfolios,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$InvestmentPortfoliosTableFilterComposer(
+            $db: $db,
+            $table: $db.investmentPortfolios,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$InstrumentsTableFilterComposer get instrumentId {
+    final $$InstrumentsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.instrumentId,
+      referencedTable: $db.instruments,
+      getReferencedColumn: (t) => t.internalId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$InstrumentsTableFilterComposer(
+            $db: $db,
+            $table: $db.instruments,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PortfolioActivitiesTableOrderingComposer
+    extends Composer<_$AppDatabase, $PortfolioActivitiesTable> {
+  $$PortfolioActivitiesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get cacheState => $composableBuilder(
+    column: $table.cacheState,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get reportedCurrency => $composableBuilder(
+    column: $table.reportedCurrency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get originalSymbol => $composableBuilder(
+    column: $table.originalSymbol,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get providerExchange => $composableBuilder(
+    column: $table.providerExchange,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get occurredAt => $composableBuilder(
+    column: $table.occurredAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get quantity => $composableBuilder(
+    column: $table.quantity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get unitPriceAmount => $composableBuilder(
+    column: $table.unitPriceAmount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get unitPriceCurrency => $composableBuilder(
+    column: $table.unitPriceCurrency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get cashAmount => $composableBuilder(
+    column: $table.cashAmount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get cashCurrency => $composableBuilder(
+    column: $table.cashCurrency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get externalId => $composableBuilder(
+    column: $table.externalId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get importBatchId => $composableBuilder(
+    column: $table.importBatchId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get reversesActivityId => $composableBuilder(
+    column: $table.reversesActivityId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$InvestmentPortfoliosTableOrderingComposer get portfolioId {
+    final $$InvestmentPortfoliosTableOrderingComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.portfolioId,
+          referencedTable: $db.investmentPortfolios,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$InvestmentPortfoliosTableOrderingComposer(
+                $db: $db,
+                $table: $db.investmentPortfolios,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+
+  $$InstrumentsTableOrderingComposer get instrumentId {
+    final $$InstrumentsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.instrumentId,
+      referencedTable: $db.instruments,
+      getReferencedColumn: (t) => t.internalId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$InstrumentsTableOrderingComposer(
+            $db: $db,
+            $table: $db.instruments,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PortfolioActivitiesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PortfolioActivitiesTable> {
+  $$PortfolioActivitiesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get fetchedAt =>
+      $composableBuilder(column: $table.fetchedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<CacheState, String> get cacheState =>
+      $composableBuilder(
+        column: $table.cacheState,
+        builder: (column) => column,
+      );
+
+  GeneratedColumnWithTypeConverter<Confidence, String> get confidence =>
+      $composableBuilder(
+        column: $table.confidence,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<String> get reportedCurrency => $composableBuilder(
+    column: $table.reportedCurrency,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get originalSymbol => $composableBuilder(
+    column: $table.originalSymbol,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get providerExchange => $composableBuilder(
+    column: $table.providerExchange,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<PortfolioActivityType, String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get occurredAt => $composableBuilder(
+    column: $table.occurredAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get quantity =>
+      $composableBuilder(column: $table.quantity, builder: (column) => column);
+
+  GeneratedColumn<String> get unitPriceAmount => $composableBuilder(
+    column: $table.unitPriceAmount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get unitPriceCurrency => $composableBuilder(
+    column: $table.unitPriceCurrency,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get cashAmount => $composableBuilder(
+    column: $table.cashAmount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get cashCurrency => $composableBuilder(
+    column: $table.cashCurrency,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get externalId => $composableBuilder(
+    column: $table.externalId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get importBatchId => $composableBuilder(
+    column: $table.importBatchId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get reversesActivityId => $composableBuilder(
+    column: $table.reversesActivityId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  $$InvestmentPortfoliosTableAnnotationComposer get portfolioId {
+    final $$InvestmentPortfoliosTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.portfolioId,
+          referencedTable: $db.investmentPortfolios,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$InvestmentPortfoliosTableAnnotationComposer(
+                $db: $db,
+                $table: $db.investmentPortfolios,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+
+  $$InstrumentsTableAnnotationComposer get instrumentId {
+    final $$InstrumentsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.instrumentId,
+      referencedTable: $db.instruments,
+      getReferencedColumn: (t) => t.internalId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$InstrumentsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.instruments,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PortfolioActivitiesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PortfolioActivitiesTable,
+          DbPortfolioActivity,
+          $$PortfolioActivitiesTableFilterComposer,
+          $$PortfolioActivitiesTableOrderingComposer,
+          $$PortfolioActivitiesTableAnnotationComposer,
+          $$PortfolioActivitiesTableCreateCompanionBuilder,
+          $$PortfolioActivitiesTableUpdateCompanionBuilder,
+          (DbPortfolioActivity, $$PortfolioActivitiesTableReferences),
+          DbPortfolioActivity,
+          PrefetchHooks Function({bool portfolioId, bool instrumentId})
+        > {
+  $$PortfolioActivitiesTableTableManager(
+    _$AppDatabase db,
+    $PortfolioActivitiesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PortfolioActivitiesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PortfolioActivitiesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$PortfolioActivitiesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> source = const Value.absent(),
+                Value<DateTime> fetchedAt = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<CacheState> cacheState = const Value.absent(),
+                Value<Confidence> confidence = const Value.absent(),
+                Value<String?> reportedCurrency = const Value.absent(),
+                Value<String?> originalSymbol = const Value.absent(),
+                Value<String?> providerExchange = const Value.absent(),
+                Value<int> id = const Value.absent(),
+                Value<String> portfolioId = const Value.absent(),
+                Value<PortfolioActivityType> type = const Value.absent(),
+                Value<DateTime> occurredAt = const Value.absent(),
+                Value<String?> instrumentId = const Value.absent(),
+                Value<String?> quantity = const Value.absent(),
+                Value<String?> unitPriceAmount = const Value.absent(),
+                Value<String?> unitPriceCurrency = const Value.absent(),
+                Value<String?> cashAmount = const Value.absent(),
+                Value<String?> cashCurrency = const Value.absent(),
+                Value<String?> externalId = const Value.absent(),
+                Value<String?> importBatchId = const Value.absent(),
+                Value<int?> reversesActivityId = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+              }) => PortfolioActivitiesCompanion(
+                source: source,
+                fetchedAt: fetchedAt,
+                updatedAt: updatedAt,
+                cacheState: cacheState,
+                confidence: confidence,
+                reportedCurrency: reportedCurrency,
+                originalSymbol: originalSymbol,
+                providerExchange: providerExchange,
+                id: id,
+                portfolioId: portfolioId,
+                type: type,
+                occurredAt: occurredAt,
+                instrumentId: instrumentId,
+                quantity: quantity,
+                unitPriceAmount: unitPriceAmount,
+                unitPriceCurrency: unitPriceCurrency,
+                cashAmount: cashAmount,
+                cashCurrency: cashCurrency,
+                externalId: externalId,
+                importBatchId: importBatchId,
+                reversesActivityId: reversesActivityId,
+                notes: notes,
+              ),
+          createCompanionCallback:
+              ({
+                required String source,
+                required DateTime fetchedAt,
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<CacheState> cacheState = const Value.absent(),
+                Value<Confidence> confidence = const Value.absent(),
+                Value<String?> reportedCurrency = const Value.absent(),
+                Value<String?> originalSymbol = const Value.absent(),
+                Value<String?> providerExchange = const Value.absent(),
+                Value<int> id = const Value.absent(),
+                required String portfolioId,
+                required PortfolioActivityType type,
+                required DateTime occurredAt,
+                Value<String?> instrumentId = const Value.absent(),
+                Value<String?> quantity = const Value.absent(),
+                Value<String?> unitPriceAmount = const Value.absent(),
+                Value<String?> unitPriceCurrency = const Value.absent(),
+                Value<String?> cashAmount = const Value.absent(),
+                Value<String?> cashCurrency = const Value.absent(),
+                Value<String?> externalId = const Value.absent(),
+                Value<String?> importBatchId = const Value.absent(),
+                Value<int?> reversesActivityId = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+              }) => PortfolioActivitiesCompanion.insert(
+                source: source,
+                fetchedAt: fetchedAt,
+                updatedAt: updatedAt,
+                cacheState: cacheState,
+                confidence: confidence,
+                reportedCurrency: reportedCurrency,
+                originalSymbol: originalSymbol,
+                providerExchange: providerExchange,
+                id: id,
+                portfolioId: portfolioId,
+                type: type,
+                occurredAt: occurredAt,
+                instrumentId: instrumentId,
+                quantity: quantity,
+                unitPriceAmount: unitPriceAmount,
+                unitPriceCurrency: unitPriceCurrency,
+                cashAmount: cashAmount,
+                cashCurrency: cashCurrency,
+                externalId: externalId,
+                importBatchId: importBatchId,
+                reversesActivityId: reversesActivityId,
+                notes: notes,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$PortfolioActivitiesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({portfolioId = false, instrumentId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (portfolioId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.portfolioId,
+                        referencedTable: $$PortfolioActivitiesTableReferences
+                            ._portfolioIdTable(db),
+                        referencedColumn: $$PortfolioActivitiesTableReferences
+                            ._portfolioIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+                    if (instrumentId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.instrumentId,
+                        referencedTable: $$PortfolioActivitiesTableReferences
+                            ._instrumentIdTable(db),
+                        referencedColumn: $$PortfolioActivitiesTableReferences
+                            ._instrumentIdTable(db)
+                            .internalId,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$PortfolioActivitiesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PortfolioActivitiesTable,
+      DbPortfolioActivity,
+      $$PortfolioActivitiesTableFilterComposer,
+      $$PortfolioActivitiesTableOrderingComposer,
+      $$PortfolioActivitiesTableAnnotationComposer,
+      $$PortfolioActivitiesTableCreateCompanionBuilder,
+      $$PortfolioActivitiesTableUpdateCompanionBuilder,
+      (DbPortfolioActivity, $$PortfolioActivitiesTableReferences),
+      DbPortfolioActivity,
+      PrefetchHooks Function({bool portfolioId, bool instrumentId})
     >;
 typedef $$QuotesTableCreateCompanionBuilder = QuotesCompanion Function({
   required String source,
@@ -22034,10 +25512,14 @@ class $AppDatabaseManager {
       $$InstrumentsTableTableManager(_db, _db.instruments);
   $$ProviderMappingsTableTableManager get providerMappings =>
       $$ProviderMappingsTableTableManager(_db, _db.providerMappings);
+  $$InvestmentPortfoliosTableTableManager get investmentPortfolios =>
+      $$InvestmentPortfoliosTableTableManager(_db, _db.investmentPortfolios);
   $$HoldingsTableTableManager get holdings =>
       $$HoldingsTableTableManager(_db, _db.holdings);
   $$WatchlistEntriesTableTableManager get watchlistEntries =>
       $$WatchlistEntriesTableTableManager(_db, _db.watchlistEntries);
+  $$PortfolioActivitiesTableTableManager get portfolioActivities =>
+      $$PortfolioActivitiesTableTableManager(_db, _db.portfolioActivities);
   $$QuotesTableTableManager get quotes =>
       $$QuotesTableTableManager(_db, _db.quotes);
   $$FxRatesTableTableManager get fxRates =>

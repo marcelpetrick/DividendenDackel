@@ -190,6 +190,41 @@ void main() {
   });
 
   group('DriftPortfolioRepository', () {
+    test('creates isolated portfolios for the same instrument', () async {
+      await portfolio.savePortfolio(
+        InvestmentPortfolio(
+          id: 'retirement',
+          name: 'Retirement',
+          createdAt: now,
+          updatedAt: now,
+        ),
+      );
+      await portfolio.saveHolding(holdingOf('20'));
+      await portfolio.saveHolding(
+        Holding(
+          portfolioId: 'retirement',
+          instrumentId: allianz.internalId,
+          quantity: Decimal.parse('5'),
+          provenance: user,
+        ),
+      );
+
+      expect(
+        (await portfolio.watchHoldings().first).single.quantity,
+        Decimal.parse('20'),
+      );
+      expect(
+        (await portfolio.watchHoldings(portfolioId: 'retirement').first)
+            .single
+            .quantity,
+        Decimal.parse('5'),
+      );
+      expect(
+        await portfolio.watchHoldings(portfolioId: null).first,
+        hasLength(2),
+      );
+    });
+
     test('saves and streams a holding, preserving exact quantities', () async {
       await portfolio.saveHolding(holdingOf('20.5', averagePrice: '210.00'));
 
@@ -315,6 +350,115 @@ void main() {
         expect(await portfolio.watchFollowedInstrumentIds().first, isEmpty);
       },
     );
+
+    test('records purchases and calculates exact weighted cost', () async {
+      final Result<int> first = await portfolio.recordActivity(
+        PortfolioActivity(
+          portfolioId: InvestmentPortfolio.defaultId,
+          type: PortfolioActivityType.purchase,
+          occurredAt: now,
+          instrumentId: allianz.internalId,
+          quantity: Decimal.parse('2'),
+          unitPrice: Money.parse('100', Currency.eur),
+          provenance: user,
+        ),
+      );
+      final Result<int> second = await portfolio.recordActivity(
+        PortfolioActivity(
+          portfolioId: InvestmentPortfolio.defaultId,
+          type: PortfolioActivityType.purchase,
+          occurredAt: now.add(const Duration(days: 1)),
+          instrumentId: allianz.internalId,
+          quantity: Decimal.one,
+          unitPrice: Money.parse('130', Currency.eur),
+          provenance: user,
+        ),
+      );
+
+      expect(first.isSuccess, isTrue);
+      expect(second.isSuccess, isTrue);
+      final Holding holding = (await portfolio.watchHoldings().first).single;
+      expect(holding.quantity, Decimal.parse('3'));
+      expect(holding.averagePurchasePrice, Money.parse('110', Currency.eur));
+      expect(
+        await portfolio.watchActivities(InvestmentPortfolio.defaultId).first,
+        hasLength(2),
+      );
+    });
+
+    test('rejects an oversale atomically', () async {
+      final Result<int> result = await portfolio.recordActivity(
+        PortfolioActivity(
+          portfolioId: InvestmentPortfolio.defaultId,
+          type: PortfolioActivityType.sale,
+          occurredAt: now,
+          instrumentId: allianz.internalId,
+          quantity: Decimal.one,
+          unitPrice: Money.parse('100', Currency.eur),
+          provenance: user,
+        ),
+      );
+
+      expect(result.failureOrNull, isA<InvalidInstrumentFailure>());
+      expect(
+        await portfolio.watchActivities(InvestmentPortfolio.defaultId).first,
+        isEmpty,
+      );
+      expect(await portfolio.watchHoldings().first, isEmpty);
+    });
+
+    test('reversal removes the original economic effect once', () async {
+      final int purchaseId = (await portfolio.recordActivity(
+        PortfolioActivity(
+          portfolioId: InvestmentPortfolio.defaultId,
+          type: PortfolioActivityType.purchase,
+          occurredAt: now,
+          instrumentId: allianz.internalId,
+          quantity: Decimal.parse('4'),
+          unitPrice: Money.parse('100', Currency.eur),
+          provenance: user,
+        ),
+      )).valueOrNull!;
+
+      final Result<int> reversed = await portfolio.reverseActivity(
+        purchaseId,
+        occurredAt: now.add(const Duration(days: 1)),
+      );
+      final Result<int> repeated = await portfolio.reverseActivity(
+        purchaseId,
+        occurredAt: now.add(const Duration(days: 2)),
+      );
+
+      expect(reversed.isSuccess, isTrue);
+      expect(repeated.failureOrNull, isA<InvalidInstrumentFailure>());
+      expect(await portfolio.watchHoldings().first, isEmpty);
+      expect(
+        await portfolio.watchActivities(InvestmentPortfolio.defaultId).first,
+        hasLength(2),
+      );
+    });
+
+    test('stores actual cash flows without changing holdings', () async {
+      final Result<int> result = await portfolio.recordActivity(
+        PortfolioActivity(
+          portfolioId: InvestmentPortfolio.defaultId,
+          type: PortfolioActivityType.dividend,
+          occurredAt: now,
+          instrumentId: allianz.internalId,
+          cashAmount: Money.parse('27.60', Currency.eur),
+          provenance: user,
+        ),
+      );
+
+      expect(result.isSuccess, isTrue);
+      expect(await portfolio.watchHoldings().first, isEmpty);
+      expect(
+        (await portfolio.watchActivities(InvestmentPortfolio.defaultId).first)
+            .single
+            .cashAmount,
+        Money.parse('27.60', Currency.eur),
+      );
+    });
   });
 
   group('DriftDividendRepository', () {
