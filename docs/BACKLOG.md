@@ -179,7 +179,7 @@ Each task names the `Vision.md` sections it satisfies.
 
 - [x] **Q1** Stale-while-revalidate everywhere + full offline behaviour with
       "Last updated …" instead of empty screens. — §38, §44
-- [ ] **Q2** Loading, empty and error states for every screen; failure copy from
+- [x] **Q2** Loading, empty and error states for every screen; failure copy from
       the vision; never fabricate missing values. — §79, §87
 - [ ] **Q3** Accessibility pass: scalable text, semantic labels, focus states,
       keyboard navigation on Linux, non-colour-only status indicators. — §27

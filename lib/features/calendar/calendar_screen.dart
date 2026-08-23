@@ -35,13 +35,18 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Holding> holdings =
-        ref.watch(holdingsProvider).value ?? const <Holding>[];
+    final AsyncValue<List<Holding>> holdingsValue = ref.watch(holdingsProvider);
+    final List<Holding> holdings = holdingsValue.value ?? const <Holding>[];
+    final AsyncValue<List<WatchlistEntry>> watchlistValue = ref.watch(
+      watchlistProvider,
+    );
     final List<WatchlistEntry> watchlist =
-        ref.watch(watchlistProvider).value ?? const <WatchlistEntry>[];
+        watchlistValue.value ?? const <WatchlistEntry>[];
+    final AsyncValue<Map<String, Instrument>> instrumentsValue = ref.watch(
+      instrumentsByIdProvider,
+    );
     final Map<String, Instrument> instruments =
-        ref.watch(instrumentsByIdProvider).value ??
-        const <String, Instrument>{};
+        instrumentsValue.value ?? const <String, Instrument>{};
     final Set<String>? ids = switch (_scope) {
       DividendCalendarScope.portfolio => <String>{
         for (final Holding holding in holdings) holding.instrumentId,
@@ -95,9 +100,21 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         ),
         if (_displayCurrency != null)
           _ConversionNotice(currency: _displayCurrency!),
+        if (holdingsValue.hasError ||
+            watchlistValue.hasError ||
+            instrumentsValue.hasError)
+          const MaterialBanner(
+            leading: Icon(Icons.warning_amber_outlined),
+            content: Text(
+              'Some saved portfolio details are unavailable. Calendar events '
+              'that could be read remain visible.',
+            ),
+            actions: <Widget>[SizedBox.shrink()],
+          ),
         Expanded(
           child: AsyncValueView<List<DividendEvent>>(
             value: events,
+            onRetry: () => ref.invalidate(calendarEventsProvider(query)),
             isEmpty: (List<DividendEvent> data) => data.isEmpty,
             emptyTitle: 'No dividend events',
             emptyMessage: _emptyMessage,

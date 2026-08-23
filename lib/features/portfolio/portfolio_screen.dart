@@ -20,13 +20,21 @@ class PortfolioScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AsyncValue<List<Holding>> holdings = ref.watch(holdingsProvider);
+    final AsyncValue<List<WatchlistEntry>> watchlistValue = ref.watch(
+      watchlistProvider,
+    );
     final List<WatchlistEntry> watchlist =
-        ref.watch(watchlistProvider).value ?? const <WatchlistEntry>[];
+        watchlistValue.value ?? const <WatchlistEntry>[];
+    final AsyncValue<Map<String, Instrument>> instrumentsValue = ref.watch(
+      instrumentsByIdProvider,
+    );
     final Map<String, Instrument> instruments =
-        ref.watch(instrumentsByIdProvider).value ??
-        const <String, Instrument>{};
+        instrumentsValue.value ?? const <String, Instrument>{};
+    final AsyncValue<Map<String, Quote>> quotesValue = ref.watch(
+      quotesProvider,
+    );
     final Map<String, Quote> quotes =
-        ref.watch(quotesProvider).value ?? const <String, Quote>{};
+        quotesValue.value ?? const <String, Quote>{};
     final AsyncValue<List<DividendEvent>> dividendData = ref.watch(
       upcomingDividendsProvider(365),
     );
@@ -47,6 +55,7 @@ class PortfolioScreen extends ConsumerWidget {
     return Scaffold(
       body: AsyncValueView<List<Holding>>(
         value: holdings,
+        onRetry: () => ref.invalidate(holdingsProvider),
         builder: (BuildContext context, List<Holding> data) {
           final PortfolioOverview overview = const PortfolioOverviewCalculator()
               .calculate(
@@ -59,8 +68,11 @@ class PortfolioScreen extends ConsumerWidget {
           final bool needsFx = overview.byCurrency.keys.any(
             (Currency currency) => currency != displayCurrency,
           );
+          final AsyncValue<List<FxRate>>? fxRatesValue = needsFx
+              ? ref.watch(cachedFxRatesProvider)
+              : null;
           final List<FxRate> fxRates = needsFx
-              ? ref.watch(cachedFxRatesProvider).value ?? const <FxRate>[]
+              ? fxRatesValue?.value ?? const <FxRate>[]
               : const <FxRate>[];
           final _TaxWindow taxWindow = _taxWindow(
             dividends,
@@ -104,6 +116,17 @@ class PortfolioScreen extends ConsumerWidget {
             pricesComplete: overview.byCurrency.values.every(
               (PortfolioCurrencySummary summary) => summary.isComplete,
             ),
+            partialFailures: <String>[
+              if (watchlistValue.hasError) 'Watchlist unavailable.',
+              if (instrumentsValue.hasError)
+                'Some instrument names are unavailable.',
+              if (quotesValue.hasError)
+                'Cached prices could not be read; values are unavailable.',
+              if (dividendData.hasError)
+                'Dividend income could not be read; it is unavailable.',
+              if (fxRatesValue?.hasError ?? false)
+                'Exchange rates could not be read; converted totals are unavailable.',
+            ],
           );
         },
       ),
@@ -142,6 +165,7 @@ class _PortfolioBody extends StatelessWidget {
     required this.fxError,
     required this.refreshFx,
     required this.pricesComplete,
+    required this.partialFailures,
   });
 
   final PortfolioOverview overview;
@@ -155,6 +179,7 @@ class _PortfolioBody extends StatelessWidget {
   final String? fxError;
   final VoidCallback refreshFx;
   final bool pricesComplete;
+  final List<String> partialFailures;
 
   @override
   Widget build(BuildContext context) => ListView(
@@ -165,6 +190,16 @@ class _PortfolioBody extends StatelessWidget {
       AppTheme.space * 10,
     ),
     children: <Widget>[
+      if (partialFailures.isNotEmpty) ...<Widget>[
+        Card(
+          child: ListTile(
+            leading: const Icon(Icons.warning_amber_outlined),
+            title: const Text('Some saved data is unavailable'),
+            subtitle: Text(partialFailures.join(' ')),
+          ),
+        ),
+        const SizedBox(height: AppTheme.space),
+      ],
       Text('Overview', style: Theme.of(context).textTheme.titleLarge),
       const SizedBox(height: AppTheme.space),
       if (overview.byCurrency.isEmpty)

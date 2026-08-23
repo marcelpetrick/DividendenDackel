@@ -68,7 +68,10 @@ class AboutScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: AppTheme.space * 2),
-          _VersionBlock(ref.watch(appVersionProvider)),
+          _VersionBlock(
+            ref.watch(appVersionProvider),
+            onRetry: () => ref.invalidate(appVersionProvider),
+          ),
           const SizedBox(height: AppTheme.space * 3),
           Text('Data sources', style: theme.textTheme.titleSmall),
           const SizedBox(height: AppTheme.space),
@@ -88,9 +91,10 @@ class AboutScreen extends ConsumerWidget {
 }
 
 class _VersionBlock extends StatelessWidget {
-  const _VersionBlock(this.info);
+  const _VersionBlock(this.info, {required this.onRetry});
 
   final AsyncValue<AppVersionInfo> info;
+  final VoidCallback onRetry;
 
   @override
   Widget build(BuildContext context) {
@@ -98,6 +102,7 @@ class _VersionBlock extends StatelessWidget {
 
     return AsyncValueView<AppVersionInfo>(
       value: info,
+      onRetry: onRetry,
       builder: (BuildContext context, AppVersionInfo data) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[

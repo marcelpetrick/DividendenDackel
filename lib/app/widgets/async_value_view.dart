@@ -43,35 +43,122 @@ class AsyncValueView<T> extends StatelessWidget {
   final VoidCallback? onRetry;
 
   @override
-  Widget build(BuildContext context) => value.when(
-    loading: () => const Center(
-      child: Padding(
-        padding: EdgeInsets.all(32),
-        child: CircularProgressIndicator.adaptive(),
-      ),
-    ),
-    error: (Object error, StackTrace stackTrace) => _MessageState(
-      icon: Icons.error_outline,
-      title: 'Could not load this',
-      message: error is Failure ? error.message : 'Something went wrong.',
-      action: onRetry == null
-          ? null
-          : FilledButton.tonal(
-              onPressed: onRetry,
-              child: const Text('Try again'),
-            ),
-    ),
-    data: (T data) {
-      if (isEmpty?.call(data) ?? false) {
-        return _MessageState(
-          icon: emptyIcon,
-          title: emptyTitle,
-          message: emptyMessage,
+  Widget build(BuildContext context) {
+    if (value.hasValue) {
+      final T data = value.requireValue;
+      final Widget content = (isEmpty?.call(data) ?? false)
+          ? _MessageState(
+              icon: emptyIcon,
+              title: emptyTitle,
+              message: emptyMessage,
+            )
+          : builder(context, data);
+      if (value.hasError) {
+        return _ContentWithNotice(
+          message: _safeFailureMessage(value.error),
+          icon: Icons.cloud_off_outlined,
+          content: content,
+          onRetry: onRetry,
         );
       }
-      return builder(context, data);
-    },
-  );
+      if (value.isLoading) {
+        return _ContentWithNotice(
+          message: 'Updating saved data…',
+          icon: Icons.sync,
+          showProgress: true,
+          content: content,
+        );
+      }
+      return content;
+    }
+    if (value.hasError) {
+      return _MessageState(
+        icon: Icons.error_outline,
+        title: 'Data unavailable',
+        message: _safeFailureMessage(value.error),
+        action: onRetry == null
+            ? null
+            : FilledButton.tonal(
+                onPressed: onRetry,
+                child: const Text('Try again'),
+              ),
+      );
+    }
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.all(32),
+        child: CircularProgressIndicator.adaptive(
+          semanticsLabel: 'Loading saved data',
+        ),
+      ),
+    );
+  }
+}
+
+String _safeFailureMessage(Object? error) =>
+    error is Failure ? error.message : 'Something went wrong.';
+
+class _ContentWithNotice extends StatelessWidget {
+  const _ContentWithNotice({
+    required this.message,
+    required this.icon,
+    required this.content,
+    this.showProgress = false,
+    this.onRetry,
+  });
+
+  final String message;
+  final IconData icon;
+  final Widget content;
+  final bool showProgress;
+  final VoidCallback? onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final Widget notice = Material(
+      color: theme.colorScheme.surfaceContainerHighest,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Row(
+          children: <Widget>[
+            if (showProgress)
+              const Padding(
+                padding: EdgeInsets.only(right: 8),
+                child: SizedBox.square(
+                  dimension: 14,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              )
+            else
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: Icon(icon, size: 18),
+              ),
+            Expanded(child: Text(message, style: theme.textTheme.bodySmall)),
+            if (onRetry != null)
+              TextButton(onPressed: onRetry, child: const Text('Try again')),
+          ],
+        ),
+      ),
+    );
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        if (constraints.hasBoundedHeight) {
+          return Column(
+            children: <Widget>[
+              notice,
+              Expanded(child: content),
+            ],
+          );
+        }
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[notice, content],
+        );
+      },
+    );
+  }
 }
 
 class _MessageState extends StatelessWidget {

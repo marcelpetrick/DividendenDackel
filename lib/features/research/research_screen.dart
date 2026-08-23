@@ -20,6 +20,7 @@ class ResearchScreen extends ConsumerWidget {
 
     return AsyncValueView<Map<String, Instrument>>(
       value: instruments,
+      onRetry: () => ref.invalidate(instrumentsByIdProvider),
       isEmpty: (Map<String, Instrument> data) => data.isEmpty,
       emptyTitle: 'No instruments yet',
       emptyMessage: 'Add a holding or a watchlist entry to research it.',

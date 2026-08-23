@@ -87,6 +87,16 @@ class TodayScreen extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(AppTheme.space * 2),
       children: <Widget>[
+        if (holdings.hasError ||
+            watchlist.hasError ||
+            instrumentValue.hasError ||
+            quoteValue.hasError) ...<Widget>[
+          const _PartialDataNotice(
+            'Some saved portfolio details could not be read. Available '
+            'events and values remain visible; missing values are unavailable.',
+          ),
+          const SizedBox(height: AppTheme.space),
+        ],
         _SummaryCard(
           holdingCount: holdings.value?.length,
           relevantCount:
@@ -101,6 +111,12 @@ class TodayScreen extends ConsumerWidget {
               : null,
           overview: overview,
           quoteDataAvailable: quoteValue.hasValue,
+          holdingsFailed: holdings.hasError,
+          eventsFailed:
+              next3Ex.hasError ||
+              next3Payments.hasError ||
+              next3Earnings.hasError ||
+              next3Corporate.hasError,
         ),
         const SizedBox(height: AppTheme.space * 2),
         _TodayMattersCard(
@@ -148,18 +164,45 @@ class TodayScreen extends ConsumerWidget {
   }
 }
 
+class _PartialDataNotice extends StatelessWidget {
+  const _PartialDataNotice(this.message);
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) => Material(
+    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+    borderRadius: BorderRadius.circular(AppTheme.cardRadius),
+    child: Padding(
+      padding: const EdgeInsets.all(AppTheme.space),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          const Icon(Icons.warning_amber_outlined, size: 20),
+          const SizedBox(width: AppTheme.space),
+          Expanded(child: Text(message)),
+        ],
+      ),
+    ),
+  );
+}
+
 class _SummaryCard extends StatelessWidget {
   const _SummaryCard({
     required this.holdingCount,
     required this.relevantCount,
     required this.overview,
     required this.quoteDataAvailable,
+    required this.holdingsFailed,
+    required this.eventsFailed,
   });
 
   final int? holdingCount;
   final int? relevantCount;
   final PortfolioOverview? overview;
   final bool quoteDataAvailable;
+  final bool holdingsFailed;
+  final bool eventsFailed;
 
   @override
   Widget build(BuildContext context) {
@@ -174,13 +217,17 @@ class _SummaryCard extends StatelessWidget {
             const SizedBox(height: AppTheme.space),
             Text(
               holdingCount == null
-                  ? 'Loading your holdings…'
+                  ? holdingsFailed
+                        ? 'Holdings unavailable'
+                        : 'Loading your holdings…'
                   : '$holdingCount holdings',
               style: theme.textTheme.bodyLarge,
             ),
             Text(
               relevantCount == null
-                  ? 'Loading the next 3 days…'
+                  ? eventsFailed
+                        ? 'Next-three-days summary unavailable'
+                        : 'Loading the next 3 days…'
                   : '$relevantCount relevant event(s) in the next 3 days',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,

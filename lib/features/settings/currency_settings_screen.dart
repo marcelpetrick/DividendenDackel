@@ -15,11 +15,15 @@ class CurrencySettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final DisplayCurrencyState preference = ref.watch(displayCurrencyProvider);
     final FxRefreshState refresh = ref.watch(fxRefreshProvider);
-    final List<FxRate> rates =
-        ref.watch(cachedFxRatesProvider).value ?? const <FxRate>[];
+    final AsyncValue<List<FxRate>> ratesValue = ref.watch(
+      cachedFxRatesProvider,
+    );
+    final List<FxRate> rates = ratesValue.value ?? const <FxRate>[];
+    final AsyncValue<Set<Currency>> trackedValue = ref.watch(
+      trackedCurrenciesProvider,
+    );
     final Set<Currency> tracked =
-        ref.watch(trackedCurrenciesProvider).value ??
-        <Currency>{preference.currency};
+        trackedValue.value ?? <Currency>{preference.currency};
     final DateTime now = ref.watch(clockProvider).now().toUtc();
     final Map<Currency, FxRate> latest = <Currency, FxRate>{};
     for (final FxRate rate in rates) {
@@ -97,6 +101,14 @@ class CurrencySettingsScreen extends ConsumerWidget {
             'One EUR equals the shown amount. Conversion uses the newest rate '
             'on or before the valuation date; rates older than 7 days are stale.',
           ),
+          if (ratesValue.hasError || trackedValue.hasError)
+            const Padding(
+              padding: EdgeInsets.only(top: AppTheme.space),
+              child: Text(
+                'Saved exchange-rate data could not be read. Native amounts '
+                'remain available; converted values are unavailable.',
+              ),
+            ),
           if (refresh.errorMessage case final String message)
             Padding(
               padding: const EdgeInsets.only(top: AppTheme.space),
