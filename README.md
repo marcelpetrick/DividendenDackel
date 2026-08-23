@@ -84,6 +84,7 @@ The same script runs locally and in CI, so the two cannot drift apart:
 
 ```sh
 ./localPipeline.sh --noRun              # everything, no app launch
+./localPipeline.sh                      # everything plus rendered Linux smoke test
 ./localPipeline.sh --noRun --stage quality   # format, analyze, test
 ./localPipeline.sh --stage linux        # Linux bundle only
 ```

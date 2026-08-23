@@ -202,7 +202,7 @@ Each task names the `Vision.md` sections it satisfies.
       holding, see it in the portfolio, open the calendar, see a dividend
       event and the monthly forecast, go offline and still see data. Runs on
       Linux locally and is wired into the pipeline. — §57
-- [ ] **E2** Release artifact verification: build the release APK and the Linux
+- [x] **E2** Release artifact verification: build the release APK and the Linux
       bundle, launch the Linux bundle and assert it starts and renders, and
       record the artifact sizes. Wired into `localPipeline.sh`. — §59, §88
 

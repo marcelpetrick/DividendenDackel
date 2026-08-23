@@ -59,8 +59,8 @@ Local project pipeline:
  11. Print a final stage-by-stage summary
 
 Options:
-  --noRun          Skip the application launch stage. Always use this in CI and
-                   on headless machines.
+  --noRun          Skip rendered-release verification. Headless CI installs
+                   Xvfb and leaves this enabled for Linux/release jobs.
   --selfTest       Verify that the pipeline reports failing commands as failures,
                    then exit.
   --stage <name>   Run a subset of stages. One of:
@@ -259,7 +259,9 @@ build_linux() {
         BUILD_LINUX_DETAILS="executable missing from ${bundle}"
         return 1
     fi
-    BUILD_LINUX_DETAILS="$(du -sh "${bundle}" 2>/dev/null | awk '{print $1}') bundle"
+    local bytes
+    bytes="$(du -sb "${bundle}" 2>/dev/null | awk '{print $1}')"
+    BUILD_LINUX_DETAILS="$(du -sh "${bundle}" 2>/dev/null | awk '{print $1}') bundle (${bytes} bytes)"
     return 0
 }
 
@@ -275,30 +277,21 @@ build_android() {
         BUILD_ANDROID_DETAILS="APK missing from ${apk}"
         return 1
     fi
-    BUILD_ANDROID_DETAILS="$(du -h "${apk}" 2>/dev/null | awk '{print $1}') APK"
+    if ! unzip -tq "${apk}" >/dev/null 2>&1; then
+        BUILD_ANDROID_DETAILS="APK archive verification failed"
+        return 1
+    fi
+    local bytes
+    bytes="$(stat -c '%s' "${apk}")"
+    BUILD_ANDROID_DETAILS="$(du -h "${apk}" 2>/dev/null | awk '{print $1}') APK (${bytes} bytes)"
     return 0
 }
 
-# Smoke test: start the freshly built Linux bundle and confirm it stays up.
-# Requires a display, so CI and headless machines pass --noRun.
+# Smoke test: require the freshly built release to deliver its first frame.
 smoke_test_linux_app() {
     local bundle="build/linux/x64/release/bundle/dividendendackel"
-    if [[ ! -x "${bundle}" ]]; then
-        return 1
-    fi
-    if [[ -z "${DISPLAY:-}" && -z "${WAYLAND_DISPLAY:-}" ]]; then
-        return 2
-    fi
-
-    "${bundle}" >/dev/null 2>&1 &
-    local pid=$!
-    sleep 5
-    if kill -0 "${pid}" 2>/dev/null; then
-        kill "${pid}" 2>/dev/null
-        wait "${pid}" 2>/dev/null
-        return 0
-    fi
-    return 1
+    run_with_log "${PIPELINE_LOG_DIR}/smoke-linux.log" \
+        ./tool/smoke-linux.sh "${bundle}"
 }
 
 # Verifies that the pipeline's own plumbing reports failure as failure.
@@ -501,19 +494,21 @@ main() {
         mark_result "Build Android" "SKIP" "Not part of stage ${STAGE}"
     fi
 
-    if [[ "${RUN_APP}" -eq 1 ]]; then
+    if [[ "${RUN_APP}" -eq 1 ]] && stage_enabled linux; then
         if [[ "${BUILD_LINUX_OK}" -eq 1 ]]; then
-            smoke_test_linux_app
-            case $? in
-                0) mark_result "App smoke test" "PASS" "Linux bundle stayed up for 5s" ;;
-                2) mark_result "App smoke test" "SKIP" "No display available" ;;
-                *) mark_result "App smoke test" "FAIL" "Linux bundle exited early" ;;
-            esac
+            if smoke_test_linux_app; then
+                mark_result "App smoke test" "PASS" "Release rendered first frame"
+            else
+                mark_result "App smoke test" "FAIL" "Release did not render"
+                BUILD_LINUX_OK=0
+            fi
         else
             mark_result "App smoke test" "SKIP" "Skipped because the Linux build failed"
         fi
-    else
+    elif [[ "${RUN_APP}" -eq 0 ]]; then
         mark_result "App smoke test" "SKIP" "Disabled with --noRun"
+    else
+        mark_result "App smoke test" "SKIP" "Not part of stage ${STAGE}"
     fi
 
     local exit_code=1
