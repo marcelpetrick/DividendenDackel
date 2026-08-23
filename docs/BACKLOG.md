@@ -210,7 +210,7 @@ Each task names the `Vision.md` sections it satisfies.
 
 ## Continuous — self-review
 
-- [ ] **S1** Recurring engineering self-review recorded in `worst_findings.md`,
+- [x] **S1** Recurring engineering self-review recorded in `worst_findings.md`,
       ordered by impact, each finding either fixed or explicitly justified.
       Re-run after every phase. Adopted from the author's CuteLingoExpress
       convention. — §66
