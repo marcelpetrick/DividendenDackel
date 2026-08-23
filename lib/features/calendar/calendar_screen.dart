@@ -147,8 +147,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 ),
                 DividendCalendarView.year => _YearView(
                   focus: _focus,
-                  events: data,
-                  dateMode: _dateMode,
+                  eventsByMonth: DividendCalendarMath.groupByMonth(
+                    data,
+                    _dateMode,
+                    _focus.year,
+                  ),
                   holdings: holdingsById,
                   onMonthSelected: (int month) => setState(() {
                     _focus = DateTime(_focus.year, month);
@@ -661,15 +664,13 @@ class _CompactEvent extends StatelessWidget {
 class _YearView extends StatelessWidget {
   const _YearView({
     required this.focus,
-    required this.events,
-    required this.dateMode,
+    required this.eventsByMonth,
     required this.holdings,
     required this.onMonthSelected,
   });
 
   final DateTime focus;
-  final List<DividendEvent> events;
-  final DividendDateMode dateMode;
+  final Map<int, List<DividendEvent>> eventsByMonth;
   final Map<String, Holding> holdings;
   final ValueChanged<int> onMonthSelected;
 
@@ -689,10 +690,8 @@ class _YearView extends StatelessWidget {
       itemCount: 12,
       itemBuilder: (BuildContext context, int index) {
         final int month = index + 1;
-        final List<DividendEvent> monthEvents = events.where((DividendEvent e) {
-          final DateTime? date = e.dateFor(dateMode);
-          return date?.year == focus.year && date?.month == month;
-        }).toList();
+        final List<DividendEvent> monthEvents =
+            eventsByMonth[month] ?? const <DividendEvent>[];
         final Map<Currency, Money> totals = _heldTotalsByCurrency(
           monthEvents,
           holdings,

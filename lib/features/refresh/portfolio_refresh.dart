@@ -72,12 +72,9 @@ final class PortfolioRefreshRunner {
         failures: const <Failure>[],
       );
     }
-    final List<Instrument> known = await instruments.watchAll().first;
-    final List<Instrument> targets = known
-        .where(
-          (Instrument instrument) => followed.contains(instrument.internalId),
-        )
-        .toList(growable: false);
+    final List<Instrument> targets = await instruments
+        .watchByIds(followed)
+        .first;
 
     int refreshed = 0;
     int skipped = 0;
@@ -131,7 +128,7 @@ final class PortfolioRefreshRunner {
 
       if (_supports(ProviderDataType.dividends)) {
         final List<DividendEvent> cached = await dividends
-            .watchForInstrument(instrument.internalId)
+            .watchForInstrument(instrument.internalId, limit: 1)
             .first;
         await record<List<DividendEvent>>(
           revalidator.run<List<DividendEvent>>(

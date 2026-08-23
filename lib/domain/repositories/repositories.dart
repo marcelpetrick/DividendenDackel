@@ -43,11 +43,17 @@ final class DateRange {
 /// rather than provider responses (Vision.md §35): a background refresh writes
 /// here and the screens update themselves.
 abstract interface class InstrumentRepository {
+  /// Whether at least one instrument is stored, without loading the catalogue.
+  Future<Result<bool>> hasAny();
+
   /// Emits the instrument with [internalId], or `null` while it is unknown.
   Stream<Instrument?> watchInstrument(String internalId);
 
   /// Emits every known instrument, ordered by name.
   Stream<List<Instrument>> watchAll();
+
+  /// Emits only [internalIds], avoiding a full catalogue read for portfolio UI.
+  Stream<List<Instrument>> watchByIds(Set<String> internalIds);
 
   /// Reads a single instrument.
   Future<Result<Instrument?>> findById(String internalId);
@@ -98,8 +104,14 @@ abstract interface class PortfolioRepository {
 
 /// Reads and writes dividend events.
 abstract interface class DividendRepository {
-  /// Emits every dividend known for [instrumentId], newest first.
-  Stream<List<DividendEvent>> watchForInstrument(String instrumentId);
+  /// Emits dividends known for [instrumentId], newest first.
+  ///
+  /// [limit] bounds cache-freshness reads; `null` retains the complete history
+  /// for a deliberately opened deep-research view.
+  Stream<List<DividendEvent>> watchForInstrument(
+    String instrumentId, {
+    int? limit,
+  });
 
   /// Emits dividends falling inside [range], organised by [mode].
   ///

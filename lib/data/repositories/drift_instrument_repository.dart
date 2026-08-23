@@ -14,6 +14,14 @@ final class DriftInstrumentRepository implements InstrumentRepository {
   final AppDatabase db;
 
   @override
+  Future<Result<bool>> hasAny() => Result.guardAsync<bool>(() async {
+    final DbInstrument? row = await (db.select(
+      db.instruments,
+    )..limit(1)).getSingleOrNull();
+    return row != null;
+  });
+
+  @override
   Stream<Instrument?> watchInstrument(String internalId) {
     final Stream<DbInstrument?> rows =
         (db.select(db.instruments)
@@ -37,6 +45,21 @@ final class DriftInstrumentRepository implements InstrumentRepository {
               ]))
             .watch();
 
+    return rows.asyncMap(_attachMappings);
+  }
+
+  @override
+  Stream<List<Instrument>> watchByIds(Set<String> internalIds) {
+    if (internalIds.isEmpty) {
+      return Stream<List<Instrument>>.value(const <Instrument>[]);
+    }
+    final Stream<List<DbInstrument>> rows =
+        (db.select(db.instruments)
+              ..where(($InstrumentsTable t) => t.internalId.isIn(internalIds))
+              ..orderBy(<OrderClauseGenerator<$InstrumentsTable>>[
+                ($InstrumentsTable t) => OrderingTerm.asc(t.name),
+              ]))
+            .watch();
     return rows.asyncMap(_attachMappings);
   }
 

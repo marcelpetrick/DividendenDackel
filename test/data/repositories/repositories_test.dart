@@ -79,6 +79,7 @@ void main() {
     DateTime? reportedPeriodEnd,
     DividendStatus status = DividendStatus.confirmed,
     String instrumentId = 'isin:DE0008404005',
+    Provenance? provenance,
   }) => DividendEvent(
     instrumentId: instrumentId,
     amountPerShare: Money.parse(amount, Currency.eur),
@@ -87,10 +88,37 @@ void main() {
     paymentDate: paymentDate,
     reportedPeriodStart: reportedPeriodStart,
     reportedPeriodEnd: reportedPeriodEnd,
-    provenance: fmp,
+    provenance: provenance ?? fmp,
   );
 
   group('DriftInstrumentRepository', () {
+    test('checks catalogue existence without loading mapped rows', () async {
+      expect((await instruments.hasAny()).valueOrNull, isTrue);
+
+      await db.delete(db.instruments).go();
+
+      expect((await instruments.hasAny()).valueOrNull, isFalse);
+    });
+
+    test('watches only requested instrument identities', () async {
+      await instruments.save(
+        allianz.copyWith(
+          internalId: 'sym:OTHER@XETR',
+          symbol: 'OTHER',
+          name: 'Other AG',
+        ),
+      );
+
+      final List<Instrument> selected = await instruments.watchByIds(<String>{
+        allianz.internalId,
+      }).first;
+
+      expect(selected.map((Instrument item) => item.internalId), <String>[
+        allianz.internalId,
+      ]);
+      expect(await instruments.watchByIds(const <String>{}).first, isEmpty);
+    });
+
     test('round-trips an instrument with its provider mappings', () async {
       final Result<Instrument?> result = await instruments.findById(
         allianz.internalId,
@@ -291,6 +319,35 @@ void main() {
   });
 
   group('DriftDividendRepository', () {
+    test('bounds cache-freshness reads to the newest fetched row', () async {
+      await dividends.saveAll(<DividendEvent>[
+        dividendOf(
+          amount: '1',
+          exDate: DateTime.utc(2027),
+          provenance: Provenance(
+            source: 'older',
+            fetchedAt: now.subtract(const Duration(days: 1)),
+          ),
+        ),
+        dividendOf(
+          amount: '2',
+          exDate: DateTime.utc(2025),
+          provenance: Provenance(source: 'newer', fetchedAt: now),
+        ),
+      ], idOf: (DividendEvent event) => event.provenance.source);
+
+      final List<DividendEvent> recent = await dividends
+          .watchForInstrument(allianz.internalId, limit: 1)
+          .first;
+
+      expect(recent, hasLength(1));
+      expect(recent.single.provenance.source, 'newer');
+      expect(
+        () => dividends.watchForInstrument(allianz.internalId, limit: 0),
+        throwsRangeError,
+      );
+    });
+
     test('preserves the exact dividend amount through a round trip', () async {
       await dividends.saveAll(<DividendEvent>[
         dividendOf(amount: '13.8000', exDate: DateTime.utc(2026, 5, 8)),

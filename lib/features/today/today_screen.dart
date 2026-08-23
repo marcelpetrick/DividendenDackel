@@ -21,32 +21,48 @@ class TodayScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final DateTime now = ref.watch(clockProvider).now();
     final AsyncValue<List<DividendEvent>> next3Ex = ref.watch(
       upcomingDividendsProvider(3),
-    );
-    final AsyncValue<List<DividendEvent>> next3Payments = ref.watch(
-      upcomingDividendPaymentsProvider(3),
-    );
-    final AsyncValue<List<DividendEvent>> next7 = ref.watch(
-      upcomingDividendPaymentsProvider(7),
-    );
-    final AsyncValue<List<DividendEvent>> next30 = ref.watch(
-      upcomingDividendPaymentsProvider(30),
     );
     final AsyncValue<List<DividendEvent>> next365 = ref.watch(
       upcomingDividendPaymentsProvider(365),
     );
-    final AsyncValue<List<EarningsEvent>> next3Earnings = ref.watch(
-      upcomingEarningsProvider(3),
+    final AsyncValue<List<DividendEvent>> next3Payments = upcomingWindow(
+      source: next365,
+      now: now,
+      days: 3,
+      dateOf: (DividendEvent event) => event.paymentDate,
     );
-    final AsyncValue<List<CorporateEvent>> next3Corporate = ref.watch(
-      upcomingCorporateEventsProvider(3),
+    final AsyncValue<List<DividendEvent>> next7 = upcomingWindow(
+      source: next365,
+      now: now,
+      days: 7,
+      dateOf: (DividendEvent event) => event.paymentDate,
+    );
+    final AsyncValue<List<DividendEvent>> next30 = upcomingWindow(
+      source: next365,
+      now: now,
+      days: 30,
+      dateOf: (DividendEvent event) => event.paymentDate,
     );
     final AsyncValue<List<EarningsEvent>> next30Earnings = ref.watch(
       upcomingEarningsProvider(30),
     );
     final AsyncValue<List<CorporateEvent>> next30Corporate = ref.watch(
       upcomingCorporateEventsProvider(30),
+    );
+    final AsyncValue<List<EarningsEvent>> next3Earnings = upcomingWindow(
+      source: next30Earnings,
+      now: now,
+      days: 3,
+      dateOf: (EarningsEvent event) => event.scheduledFor,
+    );
+    final AsyncValue<List<CorporateEvent>> next3Corporate = upcomingWindow(
+      source: next30Corporate,
+      now: now,
+      days: 3,
+      dateOf: (CorporateEvent event) => event.scheduledFor,
     );
     final AsyncValue<List<NewsItem>> news = ref.watch(
       recentPortfolioNewsProvider,
@@ -67,7 +83,6 @@ class TodayScreen extends ConsumerWidget {
       for (final Holding holding in holdings.value ?? const <Holding>[])
         holding.instrumentId: holding,
     };
-    final DateTime now = ref.watch(clockProvider).now();
     final PortfolioOverview? overview = holdings.value == null
         ? null
         : const PortfolioOverviewCalculator().calculate(

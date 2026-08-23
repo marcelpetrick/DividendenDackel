@@ -5,6 +5,28 @@ import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// Derives a smaller upcoming window from one wider cached query.
+///
+/// Today uses this to avoid several overlapping reactive SQL queries for the
+/// same event type while preserving loading, refresh and error state.
+AsyncValue<List<T>> upcomingWindow<T>({
+  required AsyncValue<List<T>> source,
+  required DateTime now,
+  required int days,
+  required DateTime? Function(T item) dateOf,
+}) {
+  final DateTime start = DateTime.utc(now.year, now.month, now.day);
+  final DateTime end = start.add(Duration(days: days));
+  return source.whenData(
+    (List<T> items) => List<T>.unmodifiable(
+      items.where((T item) {
+        final DateTime? date = dateOf(item)?.toUtc();
+        return date != null && !date.isBefore(start) && date.isBefore(end);
+      }),
+    ),
+  );
+}
+
 /// Locally persisted, privacy-safe baseline for “since last refresh”.
 final class TodaySnapshot {
   /// Creates a snapshot.
