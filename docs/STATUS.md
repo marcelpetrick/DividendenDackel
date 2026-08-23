@@ -55,6 +55,9 @@ research methodology, privacy and releases are documented in
 [`research-score.md`](research-score.md), [`privacy.md`](privacy.md) and
 [`releases.md`](releases.md).
 
+The real portfolio integration journey runs on both Linux and an Android
+10/API 29 emulator in CI and in the tag-triggered release workflow.
+
 ## Delivery automation
 
 `./localPipeline.sh` is the single local/CI/release gate. It validates the

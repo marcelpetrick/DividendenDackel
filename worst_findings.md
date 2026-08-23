@@ -28,3 +28,32 @@ dividend fields and covering same-day payments in a regression test.
 Mergeable after the fixes above and a green full local release pipeline. No
 remaining correctness or architecture finding was confirmed in the reviewed
 diff.
+
+---
+
+## Phase 5 release review
+
+Base: `0c388a5`<br>
+Head reviewed: `afeda06` plus the R6 working tree<br>
+Review date: 2026-08-23
+
+### Findings
+
+#1 MEDIUM Architecture `.github/workflows/ci.yml:83`
+
+Android 10 support was asserted only through `minSdk 29` and an APK build, so a
+phone-layout or API-29 runtime regression could still merge. Fixed by running
+the real portfolio journey on an API 29 emulator in both CI and the release
+workflow, with the new third-party action pinned to its immutable release SHA.
+
+#2 MEDIUM Code `integration_test/portfolio_journey_test.dart:140`
+
+The cross-platform journey assumed desktop-sized viewports and failed to reach
+lazy portfolio/forecast content on Android. Fixed with bounded
+scroll-until-visible interactions and verified on both API 29 and Linux.
+
+### Verdict
+
+Release-ready after the fixes above: full rendered pipeline green, API 29
+journey and release APK cold launch green, migrations verified, and workflow
+syntax clean.

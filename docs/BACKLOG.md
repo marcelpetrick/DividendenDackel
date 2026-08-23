@@ -253,5 +253,5 @@ Not part of MVP 1. Listed so the plan is complete.
       licensing entry in `docs/data-providers.md`. No adapter merges without
       that documentation. The keyless SEC EDGAR and FX adapters are F8a/F8b and
       ship enabled. — §46, §47, §77
-- [ ] **R6** Release readiness: smoke-test Android 10 and Linux builds, verify
+- [x] **R6** Release readiness: smoke-test Android 10 and Linux builds, verify
       migration path, tag `v0.1.0`. — §59, §88
