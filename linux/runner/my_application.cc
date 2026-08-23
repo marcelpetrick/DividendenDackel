@@ -1,6 +1,7 @@
 #include "my_application.h"
 
 #include <flutter_linux/flutter_linux.h>
+#include <stdio.h>
 #ifdef GDK_WINDOWING_X11
 #include <gdk/gdkx.h>
 #endif
@@ -17,6 +18,11 @@ G_DEFINE_TYPE(MyApplication, my_application, GTK_TYPE_APPLICATION)
 // Called when first Flutter frame received.
 static void first_frame_cb(MyApplication* self, FlView* view) {
   gtk_widget_show(gtk_widget_get_toplevel(GTK_WIDGET(view)));
+  // Release smoke tests wait for this signal. It is emitted by Flutter only
+  // after the engine has delivered its first frame, so it proves more than a
+  // process-liveness check without adding test-only behavior to Dart code.
+  g_print("DIVIDENDENDACKEL_FIRST_FRAME\n");
+  fflush(stdout);
 }
 
 // Sets the window icon from the bundled asset.

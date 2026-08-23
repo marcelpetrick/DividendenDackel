@@ -84,12 +84,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev \
-            libsecret-1-dev libjsoncpp-dev xvfb
+            libsecret-1-dev libjsoncpp-dev xauth xvfb
 
       # The same gate developers run locally: format, analyze, test, the
       # Android 10 assertion, and both release builds.
       - name: Run the full local pipeline
-        run: ./localPipeline.sh --noRun
+        run: ./localPipeline.sh
 
       - name: Collect artifacts
         id: artifacts

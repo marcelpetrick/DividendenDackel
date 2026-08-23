@@ -24,7 +24,7 @@ flutter pub get
 Linux desktop builds additionally need:
 
 ```sh
-clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libsecret-1-dev libjsoncpp-dev xvfb
+clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libsecret-1-dev libjsoncpp-dev xauth xvfb
 ```
 
 ## The quality gate
@@ -33,6 +33,7 @@ Run the same script CI runs:
 
 ```sh
 ./localPipeline.sh --noRun            # full gate, no app launch
+./localPipeline.sh                    # full gate plus rendered-release smoke test
 ./localPipeline.sh --noRun --stage quality
 ./localPipeline.sh --noRun --stage integration
 ```
