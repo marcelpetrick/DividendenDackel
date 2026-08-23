@@ -92,7 +92,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev \
-            libsecret-1-dev libjsoncpp-dev
+            libsecret-1-dev libjsoncpp-dev xvfb
 
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
@@ -102,6 +102,9 @@ jobs:
 
       - name: Run local pipeline (linux stage)
         run: ./localPipeline.sh --noRun --stage linux
+
+      - name: Run real Linux portfolio journey
+        run: xvfb-run -a ./localPipeline.sh --noRun --stage integration
 
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:

@@ -24,7 +24,7 @@ flutter pub get
 Linux desktop builds additionally need:
 
 ```sh
-clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libsecret-1-dev libjsoncpp-dev
+clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libsecret-1-dev libjsoncpp-dev xvfb
 ```
 
 ## The quality gate
@@ -34,6 +34,7 @@ Run the same script CI runs:
 ```sh
 ./localPipeline.sh --noRun            # full gate, no app launch
 ./localPipeline.sh --noRun --stage quality
+./localPipeline.sh --noRun --stage integration
 ```
 
 It must end with every mandatory stage `PASS`. The individual commands are:
@@ -42,7 +43,13 @@ It must end with every mandatory stage `PASS`. The individual commands are:
 dart format --output=none --set-exit-if-changed .
 flutter analyze
 flutter test
+flutter test integration_test/portfolio_journey_test.dart -d linux
 ```
+
+The integration journey launches the real Linux desktop application. It uses
+the current desktop display when available and falls back to `xvfb-run` in
+headless environments and CI. Its database and provider failures are hermetic;
+it never modifies an installed app profile or requires internet access.
 
 Static analysis is strict on purpose. Do not silence a warning with an
 `ignore:` comment unless the diff explains why the rule is wrong here.
