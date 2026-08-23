@@ -5,6 +5,7 @@ import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
 import 'package:dividendendackel/app/theme/theme_preference.dart';
 import 'package:dividendendackel/features/currency/fx_state.dart';
+import 'package:dividendendackel/features/notifications/notification_state.dart';
 import 'package:dividendendackel/features/onboarding/onboarding_screen.dart';
 import 'package:dividendendackel/features/onboarding/onboarding_state.dart';
 import 'package:dividendendackel/features/refresh/portfolio_refresh.dart';
@@ -47,6 +48,7 @@ class _DividendenDackelAppState extends ConsumerState<DividendenDackelApp>
       if (mounted) {
         await ref.read(portfolioRefreshProvider.notifier).refresh();
         await ref.read(fxRefreshProvider.notifier).refresh();
+        await ref.read(notificationSettingsProvider.notifier).sync();
       }
     } on Object {
       // The local-data provider records its own failure. The app remains usable
@@ -60,6 +62,7 @@ class _DividendenDackelAppState extends ConsumerState<DividendenDackelApp>
         ref.read(automaticPortfolioRefreshEnabledProvider)) {
       unawaited(ref.read(portfolioRefreshProvider.notifier).refresh());
       unawaited(ref.read(fxRefreshProvider.notifier).refresh());
+      unawaited(ref.read(notificationSettingsProvider.notifier).sync());
     }
   }
 

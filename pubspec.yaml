@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 0.41.0+61
+version: 0.42.0+62
 
 environment:
   sdk: ^3.12.2
@@ -41,6 +41,9 @@ dependencies:
   drift_flutter: 0.3.1
   flutter:
     sdk: flutter
+  # Cross-platform OS notifications. Linux supports immediate delivery but
+  # not background scheduling, so due events are reconciled on app activity.
+  flutter_local_notifications: 22.3.0
   # One state-management approach across the app (Vision.md §54).
   flutter_riverpod: 3.4.2
   # User-supplied provider credentials live in Android Keystore-backed or

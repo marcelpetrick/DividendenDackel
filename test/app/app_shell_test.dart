@@ -304,6 +304,8 @@ void main() {
       await tester.tap(find.byTooltip('Settings'));
       await tester.pumpAndSettle();
 
+      await tester.drag(find.byType(ListView), const Offset(0, -500));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Dark'));
       await tester.pumpAndSettle();
 

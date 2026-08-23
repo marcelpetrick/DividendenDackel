@@ -38,6 +38,15 @@ class SettingsScreen extends ConsumerWidget {
             onTap: () => context.push('/settings/data-sources'),
           ),
           ListTile(
+            leading: const Icon(Icons.notifications_outlined),
+            title: const Text('Notifications'),
+            subtitle: const Text(
+              'Disabled, important-only or all factual portfolio events',
+            ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/settings/notifications'),
+          ),
+          ListTile(
             leading: const Icon(Icons.receipt_long_outlined),
             title: const Text('Dividend tax estimate'),
             subtitle: const Text(
