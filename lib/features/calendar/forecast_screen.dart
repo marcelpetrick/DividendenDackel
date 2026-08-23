@@ -586,31 +586,39 @@ class _CumulativeCharts extends StatelessWidget {
                         : 'Gross; net needs dated EUR FX',
                     style: Theme.of(context).textTheme.labelSmall,
                   ),
-                  SizedBox(
-                    height: 130,
-                    width: double.infinity,
-                    child: CustomPaint(
-                      painter: _CurvePainter(
-                        <Money>[
-                          for (final DividendIncomePeriod month in months.where(
-                            (month) => month.start.year == item.$1,
-                          ))
-                            month.cumulativeByCurrency[item.$2] ??
-                                Money.zero(item.$2),
-                        ],
-                        item.$2 == Currency.eur
-                            ? <Money>[
-                                for (final DividendIncomePeriod month
-                                    in months.where(
-                                      (month) => month.start.year == item.$1,
-                                    ))
-                                  taxes
-                                      .forPeriod(DateTime(item.$1), month.end)
-                                      .netEur,
-                              ]
-                            : null,
-                        Theme.of(context).colorScheme.primary,
-                        Theme.of(context).colorScheme.secondary,
+                  Semantics(
+                    image: true,
+                    label:
+                        'Cumulative income chart for ${item.$1} in '
+                        '${item.$2.code}. Exact monthly values are in the '
+                        'payout table below.',
+                    child: SizedBox(
+                      height: 130,
+                      width: double.infinity,
+                      child: CustomPaint(
+                        painter: _CurvePainter(
+                          <Money>[
+                            for (final DividendIncomePeriod month
+                                in months.where(
+                                  (month) => month.start.year == item.$1,
+                                ))
+                              month.cumulativeByCurrency[item.$2] ??
+                                  Money.zero(item.$2),
+                          ],
+                          item.$2 == Currency.eur
+                              ? <Money>[
+                                  for (final DividendIncomePeriod month
+                                      in months.where(
+                                        (month) => month.start.year == item.$1,
+                                      ))
+                                    taxes
+                                        .forPeriod(DateTime(item.$1), month.end)
+                                        .netEur,
+                                ]
+                              : null,
+                          Theme.of(context).colorScheme.primary,
+                          Theme.of(context).colorScheme.secondary,
+                        ),
                       ),
                     ),
                   ),

@@ -45,6 +45,7 @@ void main() {
   Future<List<CalendarEventsQuery>> pumpCalendar(
     WidgetTester tester, {
     Size size = const Size(1100, 1000),
+    double textScale = 1,
   }) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
@@ -92,6 +93,12 @@ void main() {
         ],
         child: MaterialApp(
           theme: AppTheme.light(),
+          builder: (BuildContext context, Widget? child) => MediaQuery(
+            data: MediaQuery.of(
+              context,
+            ).copyWith(textScaler: TextScaler.linear(textScale)),
+            child: child!,
+          ),
           home: const Scaffold(body: CalendarScreen()),
         ),
       ),
@@ -175,4 +182,28 @@ void main() {
     expect(find.text('Sun'), findsNothing);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets(
+    'supports large text without clipping interactive calendar rows',
+    (WidgetTester tester) async {
+      await pumpCalendar(tester, size: const Size(412, 915), textScale: 2);
+
+      expect(
+        find.byKey(
+          const ValueKey<String>('calendar-day-2026-08-25T00:00:00.000'),
+        ),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+
+      await tester.tap(find.text('Year'));
+      await tester.pump();
+      await tester.pump();
+      expect(
+        find.bySemanticsLabel(RegExp(r'January 2026, \d+ payments')),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
 }

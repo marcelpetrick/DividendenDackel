@@ -1,5 +1,6 @@
 import 'package:dividendendackel/app/navigation/destinations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// Width at or above which the layout uses a navigation rail.
 ///
@@ -43,15 +44,36 @@ class AppShell extends StatelessWidget {
     final double width = MediaQuery.sizeOf(context).width;
     final bool useRail = width >= kRailBreakpoint;
 
-    return Scaffold(
-      appBar: AppBar(title: Text(currentDestination.label), actions: actions),
-      body: Column(
-        children: <Widget>[
-          if (banner case final Widget value) value,
-          Expanded(child: useRail ? _railLayout(context, width) : child),
-        ],
+    return FocusTraversalGroup(
+      policy: ReadingOrderTraversalPolicy(),
+      child: Focus(
+        autofocus: true,
+        child: CallbackShortcuts(
+          bindings: <ShortcutActivator, VoidCallback>{
+            const SingleActivator(LogicalKeyboardKey.digit1, alt: true): () =>
+                onDestinationSelected(AppDestination.today),
+            const SingleActivator(LogicalKeyboardKey.digit2, alt: true): () =>
+                onDestinationSelected(AppDestination.calendar),
+            const SingleActivator(LogicalKeyboardKey.digit3, alt: true): () =>
+                onDestinationSelected(AppDestination.portfolio),
+            const SingleActivator(LogicalKeyboardKey.digit4, alt: true): () =>
+                onDestinationSelected(AppDestination.research),
+          },
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text(currentDestination.label),
+              actions: actions,
+            ),
+            body: Column(
+              children: <Widget>[
+                if (banner case final Widget value) value,
+                Expanded(child: useRail ? _railLayout(context, width) : child),
+              ],
+            ),
+            bottomNavigationBar: useRail ? null : _bottomBar(context),
+          ),
+        ),
       ),
-      bottomNavigationBar: useRail ? null : _bottomBar(context),
     );
   }
 
@@ -67,7 +89,10 @@ class AppShell extends StatelessWidget {
             NavigationRailDestination(
               icon: Icon(destination.icon),
               selectedIcon: Icon(destination.selectedIcon),
-              label: Text(destination.label),
+              label: Tooltip(
+                message: '${destination.label} (Alt+${destination.index + 1})',
+                child: Text(destination.label),
+              ),
             ),
         ],
       ),
@@ -86,6 +111,7 @@ class AppShell extends StatelessWidget {
           icon: Icon(destination.icon),
           selectedIcon: Icon(destination.selectedIcon),
           label: destination.label,
+          tooltip: '${destination.label} (Alt+${destination.index + 1})',
         ),
     ],
   );

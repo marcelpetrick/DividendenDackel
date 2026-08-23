@@ -70,33 +70,43 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
     return Column(
       children: <Widget>[
-        _Controls(
-          focus: _focus,
-          view: _view,
-          scope: _scope,
-          dateMode: _dateMode,
-          weekends: _weekends,
-          displayCurrency: _displayCurrency,
-          onPrevious: () => _move(-1),
-          onNext: () => _move(1),
-          onToday: () => setState(() {
-            _focus = DividendCalendarMath.day(ref.read(clockProvider).now());
-            _expandedDay = null;
-          }),
-          onViewChanged: (DividendCalendarView view) => setState(() {
-            _view = view;
-            _expandedDay = null;
-          }),
-          onScopeChanged: (DividendCalendarScope scope) =>
-              setState(() => _scope = scope),
-          onDateModeChanged: (DividendDateMode mode) => setState(() {
-            _dateMode = mode;
-            _expandedDay = null;
-          }),
-          onWeekendsChanged: (bool value) => setState(() => _weekends = value),
-          onCurrencyChanged: (Currency? currency) =>
-              setState(() => _displayCurrency = currency),
-          onForecast: () => context.push('/calendar/forecast'),
+        ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.sizeOf(context).height * 0.42,
+          ),
+          child: SingleChildScrollView(
+            child: _Controls(
+              focus: _focus,
+              view: _view,
+              scope: _scope,
+              dateMode: _dateMode,
+              weekends: _weekends,
+              displayCurrency: _displayCurrency,
+              onPrevious: () => _move(-1),
+              onNext: () => _move(1),
+              onToday: () => setState(() {
+                _focus = DividendCalendarMath.day(
+                  ref.read(clockProvider).now(),
+                );
+                _expandedDay = null;
+              }),
+              onViewChanged: (DividendCalendarView view) => setState(() {
+                _view = view;
+                _expandedDay = null;
+              }),
+              onScopeChanged: (DividendCalendarScope scope) =>
+                  setState(() => _scope = scope),
+              onDateModeChanged: (DividendDateMode mode) => setState(() {
+                _dateMode = mode;
+                _expandedDay = null;
+              }),
+              onWeekendsChanged: (bool value) =>
+                  setState(() => _weekends = value),
+              onCurrencyChanged: (Currency? currency) =>
+                  setState(() => _displayCurrency = currency),
+              onForecast: () => context.push('/calendar/forecast'),
+            ),
+          ),
         ),
         if (_displayCurrency != null)
           _ConversionNotice(currency: _displayCurrency!),
@@ -445,6 +455,8 @@ class _MonthView extends StatelessWidget {
         ? const <String>['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
         : const <String>['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
     final DateTime? selected = expandedDay;
+    final TextScaler textScaler = MediaQuery.textScalerOf(context);
+    final double rowHeight = textScaler.scale(104).clamp(104, 180).toDouble();
     final List<DividendEvent> selectedEvents = selected == null
         ? const <DividendEvent>[]
         : grouped[selected] ?? const <DividendEvent>[];
@@ -480,7 +492,7 @@ class _MonthView extends StatelessWidget {
                     ),
                     for (int row = 0; row < cells.length; row += columns)
                       SizedBox(
-                        height: 104,
+                        height: rowHeight,
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: <Widget>[
@@ -559,7 +571,9 @@ class _DayCell extends StatelessWidget {
       },
       child: Semantics(
         button: true,
+        selected: selected,
         label: '${_longDate(day)}, ${events.length} dividend events',
+        hint: events.isEmpty ? 'Select day' : 'Select to show dividend details',
         child: InkWell(
           key: ValueKey<String>('calendar-day-${day.toIso8601String()}'),
           onTap: onSelected,
@@ -660,66 +674,85 @@ class _YearView extends StatelessWidget {
   final ValueChanged<int> onMonthSelected;
 
   @override
-  Widget build(BuildContext context) => GridView.builder(
-    padding: const EdgeInsets.all(16),
-    gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-      maxCrossAxisExtent: 290,
-      mainAxisExtent: 150,
-      crossAxisSpacing: AppTheme.space,
-      mainAxisSpacing: AppTheme.space,
-    ),
-    itemCount: 12,
-    itemBuilder: (BuildContext context, int index) {
-      final int month = index + 1;
-      final List<DividendEvent> monthEvents = events.where((DividendEvent e) {
-        final DateTime? date = e.dateFor(dateMode);
-        return date?.year == focus.year && date?.month == month;
-      }).toList();
-      final Map<Currency, Money> totals = _heldTotalsByCurrency(
-        monthEvents,
-        holdings,
-      );
-      return Card(
-        child: InkWell(
-          key: ValueKey<String>('year-month-$month'),
-          onTap: () => onMonthSelected(month),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  _monthNames[index],
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '${monthEvents.length} payment${monthEvents.length == 1 ? '' : 's'}',
-                ),
-                const Spacer(),
-                if (totals.isEmpty)
-                  Text(
-                    'No held payments',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  )
-                else ...<Widget>[
-                  Text(
-                    'Held gross',
-                    style: Theme.of(context).textTheme.labelSmall,
+  Widget build(BuildContext context) {
+    final double extent = MediaQuery.textScalerOf(
+      context,
+    ).scale(190).clamp(190, 400).toDouble();
+    return GridView.builder(
+      padding: const EdgeInsets.all(16),
+      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: 290,
+        mainAxisExtent: extent,
+        crossAxisSpacing: AppTheme.space,
+        mainAxisSpacing: AppTheme.space,
+      ),
+      itemCount: 12,
+      itemBuilder: (BuildContext context, int index) {
+        final int month = index + 1;
+        final List<DividendEvent> monthEvents = events.where((DividendEvent e) {
+          final DateTime? date = e.dateFor(dateMode);
+          return date?.year == focus.year && date?.month == month;
+        }).toList();
+        final Map<Currency, Money> totals = _heldTotalsByCurrency(
+          monthEvents,
+          holdings,
+        );
+        final String totalsLabel = totals.isEmpty
+            ? 'no held payments'
+            : totals.values
+                  .map((Money total) => total.format(withSymbol: true))
+                  .join(', ');
+        return Semantics(
+          button: true,
+          label:
+              '${_monthNames[index]} ${focus.year}, ${monthEvents.length} '
+              'payments, $totalsLabel',
+          hint: 'Open month',
+          child: ExcludeSemantics(
+            child: Card(
+              child: InkWell(
+                key: ValueKey<String>('year-month-$month'),
+                onTap: () => onMonthSelected(month),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        _monthNames[index],
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '${monthEvents.length} payment${monthEvents.length == 1 ? '' : 's'}',
+                      ),
+                      const Spacer(),
+                      if (totals.isEmpty)
+                        Text(
+                          'No held payments',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        )
+                      else ...<Widget>[
+                        Text(
+                          'Held gross',
+                          style: Theme.of(context).textTheme.labelSmall,
+                        ),
+                        for (final Money total in totals.values)
+                          MoneyText(
+                            total,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                      ],
+                    ],
                   ),
-                  for (final Money total in totals.values)
-                    MoneyText(
-                      total,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                ],
-              ],
+                ),
+              ),
             ),
           ),
-        ),
-      );
-    },
-  );
+        );
+      },
+    );
+  }
 }
 
 class _AgendaView extends StatelessWidget {

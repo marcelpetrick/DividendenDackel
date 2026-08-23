@@ -175,18 +175,21 @@ class _TaxSettingsBody extends StatelessWidget {
                     onPressed: () => _editRule(context, rule),
                     icon: const Icon(Icons.edit_outlined),
                   ),
-                  Switch(
-                    value: profile.formsFiledFor(rule.country),
-                    onChanged: (bool value) {
-                      updateProfile(
-                        profile.copyWith(
-                          treatyFormsFiled: <String, bool>{
-                            ...profile.treatyFormsFiled,
-                            rule.country: value,
-                          },
-                        ),
-                      );
-                    },
+                  Semantics(
+                    label: 'Treaty forms filed for ${rule.country}',
+                    child: Switch(
+                      value: profile.formsFiledFor(rule.country),
+                      onChanged: (bool value) {
+                        updateProfile(
+                          profile.copyWith(
+                            treatyFormsFiled: <String, bool>{
+                              ...profile.treatyFormsFiled,
+                              rule.country: value,
+                            },
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ],
               ),
