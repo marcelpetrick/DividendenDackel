@@ -231,13 +231,20 @@ run_integration_tests() {
     local -a command=(flutter test integration_test/portfolio_journey_test.dart -d linux)
     local status=0
 
-    if [[ -n "${DISPLAY:-}" || -n "${WAYLAND_DISPLAY:-}" ]]; then
-        run_with_log "${log_path}" "${command[@]}" || status=1
-    elif command -v xvfb-run >/dev/null 2>&1; then
+    # Prefer a virtual display even when a real one exists. A desktop
+    # compositor throttles frame callbacks for a window that is unfocused or
+    # occluded, and the Flutter test binding then waits for frames that never
+    # arrive, so pumpAndSettle times out with nothing wrong in the app. Under
+    # xvfb the window is always "visible", which is also what CI does — so the
+    # local run and CI agree.
+    if command -v xvfb-run >/dev/null 2>&1; then
         run_with_log "${log_path}" xvfb-run -a "${command[@]}" || status=1
+    elif [[ -n "${DISPLAY:-}" || -n "${WAYLAND_DISPLAY:-}" ]]; then
+        warn "xvfb-run not found; using the real display, which can time out if the window loses focus"
+        run_with_log "${log_path}" "${command[@]}" || status=1
     else
-        error "Linux integration tests need a display or xvfb-run"
-        INTEGRATION_DETAILS="no display; install xvfb"
+        error "Linux integration tests need xvfb-run or a display"
+        INTEGRATION_DETAILS="no display; install xvfb (Debian: xvfb, Arch: xorg-server-xvfb)"
         return 1
     fi
 
