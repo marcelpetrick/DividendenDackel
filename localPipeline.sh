@@ -29,12 +29,14 @@ DEPS_OK=0
 FORMAT_OK=0
 ANALYZE_OK=0
 TESTS_OK=0
+INTEGRATION_OK=0
 ANDROID_COMPAT_OK=0
 BUILD_LINUX_OK=0
 BUILD_ANDROID_OK=0
 
 TOOLCHAIN_DETAILS=""
 TESTS_DETAILS=""
+INTEGRATION_DETAILS=""
 ANALYZE_DETAILS=""
 BUILD_LINUX_DETAILS=""
 BUILD_ANDROID_DETAILS=""
@@ -49,11 +51,12 @@ Local project pipeline:
   3. Check formatting (dart format --set-exit-if-changed)
   4. Run static analysis (flutter analyze)
   5. Run the test suite (flutter test)
-  6. Assert Android 10 compatibility (minSdk stays ${REQUIRED_MIN_SDK})
-  7. Build the Linux x86_64 release bundle
-  8. Build the Android release APK
-  9. Launch the Linux app briefly as a smoke test (skipped with --noRun)
- 10. Print a final stage-by-stage summary
+  6. Run the real Linux desktop integration journey
+  7. Assert Android 10 compatibility (minSdk stays ${REQUIRED_MIN_SDK})
+  8. Build the Linux x86_64 release bundle
+  9. Build the Android release APK
+ 10. Launch the Linux app briefly as a smoke test (skipped with --noRun)
+ 11. Print a final stage-by-stage summary
 
 Options:
   --noRun          Skip the application launch stage. Always use this in CI and
@@ -63,6 +66,7 @@ Options:
   --stage <name>   Run a subset of stages. One of:
                      all       every stage (default)
                      quality   toolchain, deps, format, analyze, tests
+                     integration  toolchain, deps, Linux integration journey
                      android   toolchain, deps, compatibility check, APK build
                      linux     toolchain, deps, Linux bundle build
   --help           Show this help.
@@ -122,6 +126,10 @@ stage_enabled() {
         quality)
             [[ "${stage}" == "toolchain" || "${stage}" == "deps" || "${stage}" == "format" \
                 || "${stage}" == "analyze" || "${stage}" == "tests" ]]
+            ;;
+        integration)
+            [[ "${stage}" == "toolchain" || "${stage}" == "deps" \
+                || "${stage}" == "integration" ]]
             ;;
         android)
             [[ "${stage}" == "toolchain" || "${stage}" == "deps" || "${stage}" == "compat" \
@@ -189,6 +197,29 @@ run_tests() {
         TESTS_DETAILS="${counts:+${counts} }${summary}"
     else
         TESTS_DETAILS="see flutter test output above"
+    fi
+    return "${status}"
+}
+
+run_integration_tests() {
+    local log_path="${PIPELINE_LOG_DIR}/integration-test.log"
+    local -a command=(flutter test integration_test/portfolio_journey_test.dart -d linux)
+    local status=0
+
+    if [[ -n "${DISPLAY:-}" || -n "${WAYLAND_DISPLAY:-}" ]]; then
+        run_with_log "${log_path}" "${command[@]}" || status=1
+    elif command -v xvfb-run >/dev/null 2>&1; then
+        run_with_log "${log_path}" xvfb-run -a "${command[@]}" || status=1
+    else
+        error "Linux integration tests need a display or xvfb-run"
+        INTEGRATION_DETAILS="no display; install xvfb"
+        return 1
+    fi
+
+    if [[ "${status}" -eq 0 ]]; then
+        INTEGRATION_DETAILS="portfolio journey passed on Linux"
+    else
+        INTEGRATION_DETAILS="Linux portfolio journey failed"
     fi
     return "${status}"
 }
@@ -341,7 +372,7 @@ parse_arguments() {
     done
 
     case "${STAGE}" in
-        all | quality | android | linux) ;;
+        all | quality | integration | android | linux) ;;
         *)
             error "Unknown stage: ${STAGE}"
             print_usage >&2
@@ -418,6 +449,18 @@ main() {
         mark_result "Tests" "SKIP" "Not part of stage ${STAGE}"
     fi
 
+    if stage_enabled integration; then
+        if run_integration_tests; then
+            INTEGRATION_OK=1
+            mark_result "Integration Linux" "PASS" "${INTEGRATION_DETAILS}"
+        else
+            mark_result "Integration Linux" "FAIL" "${INTEGRATION_DETAILS}"
+        fi
+    else
+        INTEGRATION_OK=1
+        mark_result "Integration Linux" "SKIP" "Not part of stage ${STAGE}"
+    fi
+
     if stage_enabled compat; then
         if assert_android_compatibility; then
             ANDROID_COMPAT_OK=1
@@ -475,7 +518,8 @@ main() {
 
     local exit_code=1
     if [[ "${TOOLCHAIN_OK}" -eq 1 && "${DEPS_OK}" -eq 1 && "${FORMAT_OK}" -eq 1 \
-        && "${ANALYZE_OK}" -eq 1 && "${TESTS_OK}" -eq 1 && "${ANDROID_COMPAT_OK}" -eq 1 \
+        && "${ANALYZE_OK}" -eq 1 && "${TESTS_OK}" -eq 1 && "${INTEGRATION_OK}" -eq 1 \
+        && "${ANDROID_COMPAT_OK}" -eq 1 \
         && "${BUILD_LINUX_OK}" -eq 1 && "${BUILD_ANDROID_OK}" -eq 1 ]]; then
         exit_code=0
     fi

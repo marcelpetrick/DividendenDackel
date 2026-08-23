@@ -198,7 +198,7 @@ Each task names the `Vision.md` sections it satisfies.
 
 ## Delivery verification
 
-- [ ] **E1** `integration_test` end-to-end coverage of the real flows: add a
+- [x] **E1** `integration_test` end-to-end coverage of the real flows: add a
       holding, see it in the portfolio, open the calendar, see a dividend
       event and the monthly forecast, go offline and still see data. Runs on
       Linux locally and is wired into the pipeline. — §57
