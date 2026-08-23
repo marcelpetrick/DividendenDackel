@@ -5,6 +5,8 @@ import 'package:dividendendackel/app/widgets/value_labels.dart';
 import 'package:dividendendackel/features/calendar/calendar_screen.dart';
 import 'package:dividendendackel/features/calendar/forecast_screen.dart';
 import 'package:dividendendackel/features/currency/fx_state.dart';
+import 'package:dividendendackel/features/notifications/notification_settings_screen.dart';
+import 'package:dividendendackel/features/notifications/notification_state.dart';
 import 'package:dividendendackel/features/portfolio/portfolio_screen.dart';
 import 'package:dividendendackel/features/refresh/portfolio_refresh.dart';
 import 'package:dividendendackel/features/research/research_detail_screen.dart';
@@ -51,11 +53,16 @@ GoRouter buildRouter({String initialLocation = '/today'}) => GoRouter(
                         : 'Refresh data',
                     onPressed: refresh.isRefreshing
                         ? null
-                        : () {
-                            ref
+                        : () async {
+                            await ref
                                 .read(portfolioRefreshProvider.notifier)
                                 .refresh(force: true);
-                            ref.read(fxRefreshProvider.notifier).refresh();
+                            await ref
+                                .read(fxRefreshProvider.notifier)
+                                .refresh();
+                            await ref
+                                .read(notificationSettingsProvider.notifier)
+                                .sync();
                           },
                   ),
                   IconButton(
@@ -121,6 +128,11 @@ GoRouter buildRouter({String initialLocation = '/today'}) => GoRouter(
       path: '/settings',
       builder: (BuildContext context, GoRouterState state) =>
           const SettingsScreen(),
+    ),
+    GoRoute(
+      path: '/settings/notifications',
+      builder: (BuildContext context, GoRouterState state) =>
+          const NotificationSettingsScreen(),
     ),
     GoRoute(
       path: '/settings/data-sources',
