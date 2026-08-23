@@ -21,6 +21,8 @@ void main() {
     name: 'Allianz SE',
     currency: Currency.eur,
     mic: 'XETR',
+    sector: 'Financials',
+    country: 'DE',
   );
 
   Future<_FakePortfolioEditor> pumpPortfolio(
@@ -118,6 +120,19 @@ void main() {
     expect(find.textContaining('Gross €100.00'), findsOneWidget);
     expect(find.textContaining('Net (estimated)'), findsWidgets);
     expect(find.text('Announced'), findsOneWidget);
+
+    await tester.scrollUntilVisible(find.text('Portfolio health'), 300);
+    expect(find.text('Portfolio health'), findsOneWidget);
+    expect(
+      find.text('Allianz SE is the largest priced position at 100.0%.'),
+      findsOneWidget,
+    );
+    expect(find.text('Financials'), findsOneWidget);
+    expect(find.text('DE'), findsOneWidget);
+    expect(
+      find.text('100.0% of expected dividend income comes from 1 company.'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('searches and adds a fractional holding', (
