@@ -162,7 +162,7 @@ Each task names the `Vision.md` sections it satisfies.
 
 ## Phase 3 — Daily insight
 
-- [ ] **T1** Today screen: portfolio summary, "Today matters", "Next 3 days",
+- [x] **T1** Today screen: portfolio summary, "Today matters", "Next 3 days",
       expected dividends (7/30/365 days), changes since last refresh. Useful
       without live quotes. Widget tests. — §7, §83, §84
 - [ ] **T2** Earnings events + upcoming corporate events. — §7, §51

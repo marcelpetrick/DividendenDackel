@@ -12,6 +12,7 @@ import 'package:dividendendackel/features/calendar/calendar_state.dart';
 import 'package:dividendendackel/features/calendar/forecast_state.dart';
 import 'package:dividendendackel/features/settings/about_screen.dart';
 import 'package:dividendendackel/features/settings/data_source_settings.dart';
+import 'package:dividendendackel/features/today/today_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -64,6 +65,18 @@ void main() {
           upcomingDividendsProvider.overrideWith(
             (Ref ref, int days) =>
                 Stream<List<DividendEvent>>.value(const <DividendEvent>[]),
+          ),
+          upcomingDividendPaymentsProvider.overrideWith(
+            (Ref ref, int days) =>
+                Stream<List<DividendEvent>>.value(const <DividendEvent>[]),
+          ),
+          todayChangesProvider.overrideWith(
+            (Ref ref) async => const TodayChanges(
+              previousAt: null,
+              holdingChanges: 0,
+              dividendChanges: 0,
+              quoteChanges: 0,
+            ),
           ),
           calendarEventsProvider.overrideWith(
             (Ref ref, CalendarEventsQuery query) =>
