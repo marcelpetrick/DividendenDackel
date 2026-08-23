@@ -58,7 +58,12 @@ mkdir -p "${ROOT_DIR}/${OUT_DIR}"
 OUTPUT="${ROOT_DIR}/${OUT_DIR}/DividendenDackel-${VERSION}-x86_64.AppImage"
 
 APPIMAGETOOL="${APPIMAGETOOL:-appimagetool}"
-ARCH=x86_64 "${APPIMAGETOOL}" --no-appstream "${APP_DIR}" "${OUTPUT}"
+
+# appimagetool is itself an AppImage and would normally self-mount via FUSE.
+# CI runners do not ship libfuse2, so it is told to unpack itself instead.
+# Harmless where FUSE is available.
+ARCH=x86_64 APPIMAGE_EXTRACT_AND_RUN=1 \
+    "${APPIMAGETOOL}" --no-appstream "${APP_DIR}" "${OUTPUT}"
 chmod +x "${OUTPUT}"
 
 echo "built ${OUTPUT}"
