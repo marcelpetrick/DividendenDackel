@@ -28,7 +28,7 @@ question it answers is:
 
 ## Status
 
-**0.46.0.** The Android 10+ and Linux desktop applications are
+**0.47.0.** The Android 10+ and Linux desktop applications are
 implemented and build as release artifacts. They include the Today dashboard,
 portfolio editor and health insights, dividend calendar and 24-month income
 forecast, gross/net tax estimates, multi-currency conversion, explainable
@@ -36,8 +36,9 @@ research, offline sample data, provider health, onboarding and opt-in local
 notifications.
 
 Portfolio changes can be recorded in an immutable local activity ledger or
-imported from a reviewable DividendenDackel/Portfolio Performance CSV. Imports
-are duplicate-safe, atomic and undoable without deleting their audit history.
+imported from a reviewable DividendenDackel, Portfolio Performance or
+Interactive Brokers Flex CSV. Imports are duplicate-safe, atomic and undoable
+without deleting their audit history.
 Users start with an empty personal portfolio, can create and rename additional
 portfolios, edit or remove positions and watchlist entries, clear or delete a
 portfolio with confirmation, and use an explicit read-only consolidated view.

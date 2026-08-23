@@ -1,5 +1,43 @@
 # Engineering self-review
 
+## Phase 6 P6 broker-import review
+
+Base: P4 (`ca8beea`)<br>
+Review date: 2026-08-23
+
+### Findings
+
+#1 HIGH Code `lib/domain/use_cases/portfolio_import.dart`
+
+Interactive Brokers permits both month-first and day-first slash dates in Flex
+configuration, so accepting a value such as `03/04/2026` would silently assign
+the wrong economic date. Fixed by accepting only the broker's default
+`yyyyMMdd` or unambiguous ISO format and reporting every other row in preview.
+
+#2 MEDIUM Code `lib/domain/use_cases/portfolio_import.dart`
+
+Custom Flex exports can contain canceled trades, derivative asset classes and
+summary/order detail alongside executions. Importing those as ordinary stock
+trades would duplicate or misrepresent positions. Fixed by refusing the `Ca`
+code, every non-stock security activity and every non-execution trade detail.
+
+#3 MEDIUM Code `lib/domain/use_cases/portfolio_import.dart`
+
+Broker trade/transaction ids may repeat across accounts in a multi-account
+file, while persisting the account id itself would retain unnecessary sensitive
+metadata. Fixed by hashing account id or alias into the duplicate identity;
+tests prove equal ids remain distinct and raw account values are absent.
+
+### Verdict
+
+P6 is complete for the documented Interactive Brokers Flex CSV extension. It
+reuses local preview, partial row rejection, source-scoped deduplication, atomic
+apply and reversal-based undo; no broker credentials, source files or raw
+account identifiers are retained. Unsupported assets and ambiguous evidence are
+refused rather than approximated.
+
+---
+
 ## Phase 6 P4 multiple-portfolio review
 
 Base: P2 (`0c025c5`) plus release fixes through `4002254`<br>

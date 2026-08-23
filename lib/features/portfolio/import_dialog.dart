@@ -184,7 +184,8 @@ class _PortfolioImportDialogState extends ConsumerState<PortfolioImportDialog> {
                 const Text(
                   'Native columns: Date, Type, Symbol or ISIN, Quantity, '
                   'Unit Price, Amount, Currency, Fees, Taxes, External ID, Notes. '
-                  'Portfolio Performance transaction exports are detected automatically.',
+                  'Portfolio Performance transactions and Interactive Brokers '
+                  'Flex exports are detected automatically.',
                 ),
               ],
             ],
@@ -213,5 +214,7 @@ class _PortfolioImportDialogState extends ConsumerState<PortfolioImportDialog> {
   static String _formatName(PortfolioImportFormat format) => switch (format) {
     PortfolioImportFormat.dividendendackel => 'DividendenDackel CSV',
     PortfolioImportFormat.portfolioPerformance => 'Portfolio Performance CSV',
+    PortfolioImportFormat.interactiveBrokersFlex =>
+      'Interactive Brokers Flex CSV',
   };
 }

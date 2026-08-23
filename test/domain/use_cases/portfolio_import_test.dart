@@ -151,6 +151,123 @@ Date;Type;Value;Transaction Currency;Gross Amount;Currency Gross Amount;Fees;Sha
     },
   );
 
+  test('imports Interactive Brokers Flex stock trades exactly', () async {
+    const String csv = '''
+TradeDate,Buy/Sell,AssetClass,Currency,Symbol,ISIN,Quantity,TradePrice,TradeMoney,Taxes,IBCommission,IBCommissionCurrency,TradeID,Notes/Codes
+20260102,BUY,STK,EUR,ALV,DE0008404005,10,100,-1000,-0.50,-1.00,EUR,ib-trade-1,
+20260103,SELL,STK,EUR,ALV,DE0008404005,-2,110,220,0,-1.00,EUR,ib-trade-2,Co
+''';
+
+    final PortfolioImportPreview preview = (await service.preview(
+      portfolioId: InvestmentPortfolio.defaultId,
+      contents: csv,
+    )).valueOrNull!;
+
+    expect(preview.format, PortfolioImportFormat.interactiveBrokersFlex);
+    expect(preview.issues, isEmpty);
+    expect(preview.activities, hasLength(5));
+    expect(preview.activities.first.type, PortfolioActivityType.purchase);
+    expect(preview.activities.first.quantity, Decimal.parse('10'));
+    expect(
+      preview.activities.first.unitPrice,
+      Money.parse('100', Currency.eur),
+    );
+    expect(
+      preview.activities
+          .where(
+            (PortfolioActivity item) => item.type == PortfolioActivityType.sale,
+          )
+          .single
+          .quantity,
+      Decimal.parse('2'),
+    );
+    expect((await service.apply(preview)).valueOrNull, 5);
+    expect(
+      (await portfolios.watchHoldings().first).single.quantity,
+      Decimal.parse('8'),
+    );
+  });
+
+  test('imports Interactive Brokers statement-of-funds cash rows', () async {
+    const String csv = '''
+Date,ActivityCode,Amount,Currency,Symbol,ISIN,TransactionID,AssetClass,ActivityDescription
+20260510,DIV,27.60,EUR,ALV,DE0008404005,ib-cash-1,STK,Cash dividend
+20260510,FRTAX,-4.14,EUR,ALV,DE0008404005,ib-cash-2,STK,Withholding tax
+20260511,DEP,500,EUR,,,ib-cash-3,CASH,Deposit of funds
+''';
+
+    final PortfolioImportPreview preview = (await service.preview(
+      portfolioId: InvestmentPortfolio.defaultId,
+      contents: csv,
+    )).valueOrNull!;
+
+    expect(preview.format, PortfolioImportFormat.interactiveBrokersFlex);
+    expect(preview.issues, isEmpty);
+    expect(
+      preview.activities.map((PortfolioActivity item) => item.type),
+      <PortfolioActivityType>[
+        PortfolioActivityType.dividend,
+        PortfolioActivityType.tax,
+        PortfolioActivityType.deposit,
+      ],
+    );
+    expect(preview.activities[1].cashAmount, Money.parse('4.14', Currency.eur));
+  });
+
+  test('rejects canceled, derivative and ambiguous-date broker rows', () async {
+    const String csv = '''
+TradeDate,Buy/Sell,AssetClass,Currency,Symbol,ISIN,Quantity,TradePrice,TradeMoney,TradeID,Notes/Codes
+20260102,BUY,STK,EUR,ALV,DE0008404005,1,100,-100,ib-cancel,Ca
+20260102,BUY,OPT,EUR,ALV,DE0008404005,1,100,-100,ib-option,
+20260102,FRTAX,OPT,EUR,ALV,DE0008404005,,,10,ib-option-tax,
+03/04/2026,BUY,STK,EUR,ALV,DE0008404005,1,100,-100,ib-date,
+''';
+
+    final PortfolioImportPreview preview = (await service.preview(
+      portfolioId: InvestmentPortfolio.defaultId,
+      contents: csv,
+    )).valueOrNull!;
+
+    expect(preview.format, PortfolioImportFormat.interactiveBrokersFlex);
+    expect(preview.activities, isEmpty);
+    expect(preview.issues, hasLength(4));
+    expect(preview.issues[0].message, contains('Canceled'));
+    expect(preview.issues[1].message, contains('not a stock'));
+    expect(preview.issues[2].message, contains('not a stock'));
+    expect(preview.issues[3].message, contains('yyyyMMdd'));
+  });
+
+  test(
+    'scopes broker identities by account without retaining account ids',
+    () async {
+      const String csv = '''
+Date,ActivityCode,Amount,Currency,TransactionID,AccountID
+20260511,DEP,100,EUR,reused-id,U1234567
+20260511,DEP,200,EUR,reused-id,U7654321
+''';
+
+      final PortfolioImportPreview preview = (await service.preview(
+        portfolioId: InvestmentPortfolio.defaultId,
+        contents: csv,
+      )).valueOrNull!;
+
+      expect(preview.issues, isEmpty);
+      expect(preview.activities, hasLength(2));
+      expect(
+        preview.activities
+            .map((PortfolioActivity item) => item.externalId)
+            .toSet(),
+        hasLength(2),
+      );
+      expect(
+        preview.activities.any(
+          (PortfolioActivity item) => item.externalId!.contains('U1234567'),
+        ),
+        isFalse,
+      );
+    },
+  );
+
   test('rejects bad rows but retains valid rows in the preview', () async {
     const String csv = '''
 Date,Type,Symbol,Quantity,Unit Price,Amount,Currency

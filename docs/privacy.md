@@ -21,6 +21,8 @@ CSV files selected for portfolio import are read locally for a review preview.
 The source file and filename are not copied into the database or sent over the
 network. Only validated activities, a stable duplicate-detection identity and
 an import-batch identifier are retained. Undo appends local reversal records.
+Interactive Brokers account ids or aliases are used only to hash a
+collision-safe duplicate identity; the raw account value is not retained.
 
 Optional third-party API keys are stored separately through Android secure
 storage backed by the Keystore or Linux Secret Service. The application never
