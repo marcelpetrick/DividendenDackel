@@ -56,9 +56,8 @@ abstract final class PortfolioTaxEstimator {
       FxConversion? fxConversion;
       Money grossEur = gross;
       if (gross.currency != Currency.eur) {
-        fxConversion = FxRateBook(
-          fxRates,
-        ).convert(gross, Currency.eur, asOf: event.paymentDate!);
+        fxConversion = FxRateBook(fxRates)
+            .convert(gross, Currency.eur, asOf: event.paymentDate!);
         if (fxConversion != null) grossEur = fxConversion.converted;
       }
       if (gross.currency != Currency.eur && fxConversion == null) {
@@ -99,9 +98,8 @@ abstract final class PortfolioTaxEstimator {
       );
       return byInstrument != 0
           ? byInstrument
-          : dividendTaxEventKey(
-              left.$1,
-            ).compareTo(dividendTaxEventKey(right.$1));
+          : dividendTaxEventKey(left.$1)
+                .compareTo(dividendTaxEventKey(right.$1));
     });
     final AnnualDividendTaxResult calculated =
         DividendTaxCalculator(settings.table).calculateYear(

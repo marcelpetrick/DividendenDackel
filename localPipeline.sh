@@ -13,7 +13,7 @@ PIPELINE_LOG_DIR="${TMPDIR:-/tmp}/DividendenDackel-pipeline-$$"
 trap 'rm -rf "${PIPELINE_LOG_DIR}"' EXIT
 
 # Keep in sync with .github/workflows/ci.yml and CONTRIBUTING.md (Vision.md §70).
-readonly PINNED_FLUTTER_VERSION="3.44.7"
+readonly PINNED_FLUTTER_VERSION="3.47.1"
 readonly REQUIRED_MIN_SDK="29"
 readonly GRADLE_FILE="android/app/build.gradle.kts"
 readonly ANDROID_MANIFEST="android/app/src/main/AndroidManifest.xml"

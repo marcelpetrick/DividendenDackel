@@ -171,9 +171,8 @@ void main() {
         ),
       );
 
-      final Instrument stored = (await instruments.findById(
-        allianz.internalId,
-      )).valueOrNull!;
+      final Instrument stored = (await instruments.findById(allianz.internalId))
+          .valueOrNull!;
       expect(stored.providerMappings, hasLength(1));
       expect(stored.symbolFor('fmp'), isNull);
       expect(stored.symbolFor('finnhub'), 'ALV.XETRA');

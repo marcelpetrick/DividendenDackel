@@ -24,6 +24,13 @@ analyzer:
   exclude:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**
 
 linter:
   rules:
@@ -44,7 +51,6 @@ linter:
     - test_types_in_equals
     - throw_in_finally
     - unawaited_futures
-    - unnecessary_await_in_return
     - unnecessary_lambdas
     - unnecessary_parenthesis
     - unnecessary_statements

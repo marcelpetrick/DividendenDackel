@@ -132,8 +132,7 @@ class PortfolioScreen extends ConsumerWidget {
                 'Cached prices could not be read; values are unavailable.',
               if (dividendData.hasError)
                 'Dividend income could not be read; it is unavailable.',
-              if (fxRatesValue?.hasError ?? false)
-                'Exchange rates could not be read; converted totals are unavailable.',
+              if (fxRatesValue?.hasError ?? false) 'Exchange rates could not be read; converted totals are unavailable.',
             ],
           );
         },
@@ -153,9 +152,8 @@ class PortfolioScreen extends ConsumerWidget {
       builder: (BuildContext context) => const AddInstrumentDialog(),
     );
     if (message != null && context.mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
     }
   }
 }

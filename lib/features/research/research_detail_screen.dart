@@ -488,8 +488,7 @@ class _DividendHistoryCard extends StatelessWidget {
                 leading: const Icon(Icons.payments_outlined),
                 title: MoneyText(event.amountPerShare),
                 subtitle: Text(
-                  _dividendDate(context, event) ??
-                      'Event date unavailable; provider reported a period only.',
+                  _dividendDate(context, event) ?? 'Event date unavailable; provider reported a period only.',
                 ),
                 trailing: DividendStatusChip(event.status),
               ),
@@ -672,8 +671,7 @@ class _ChangeAssessmentCard extends StatelessWidget {
           ),
           const _EvidenceLine(
             icon: Icons.remove_circle_outline,
-            text:
-                'Guidance changes, abnormal volatility or material filings raise event risk.',
+            text: 'Guidance changes, abnormal volatility or material filings raise event risk.',
           ),
           if (available.length < ResearchDimension.values.length) ...<Widget>[
             const Divider(),

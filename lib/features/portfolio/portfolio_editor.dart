@@ -34,8 +34,9 @@ abstract interface class PortfolioEditor {
 }
 
 /// Injectable live-search boundary used alongside the local repository.
-typedef LiveInstrumentSearch =
-    Future<Result<List<Instrument>>> Function(String query);
+typedef LiveInstrumentSearch = Future<Result<List<Instrument>>> Function(
+  String query,
+);
 
 /// Repository/provider-backed [PortfolioEditor].
 final class DefaultPortfolioEditor implements PortfolioEditor {

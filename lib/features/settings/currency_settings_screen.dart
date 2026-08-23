@@ -47,8 +47,7 @@ class CurrencySettingsScreen extends ConsumerWidget {
             initialValue: preference.currency,
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
-              helperText:
-                  'Native amounts stay visible; this controls converted totals.',
+              helperText: 'Native amounts stay visible; this controls converted totals.',
             ),
             items: <DropdownMenuItem<Currency>>[
               for (final Currency currency in Currency.known.values)

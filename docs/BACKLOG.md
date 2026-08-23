@@ -236,7 +236,7 @@ Not part of MVP 1. Listed so the plan is complete.
 ## Phase 5 — Delivery
 
 - [x] **R1** *Done early — see Phase 0.*
-- [ ] **R2** Dependency + toolchain freshness workflows and `dependabot.yml`.
+- [x] **R2** Dependency + toolchain freshness workflows and `dependabot.yml`.
       — §71, §72
 - [x] **R3** Release workflow on `v*` tags: version/tag match, full pipeline,
       raw APK, Linux tarball, checksums, generated release notes with build

@@ -24,7 +24,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  FLUTTER_VERSION: 3.44.7
+  FLUTTER_VERSION: 3.47.1
   FLUTTER_CHANNEL: stable
   APP_COMMIT: ${{ github.sha }}
 

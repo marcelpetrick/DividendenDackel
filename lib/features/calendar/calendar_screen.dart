@@ -676,9 +676,10 @@ class _YearView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double extent = MediaQuery.textScalerOf(
-      context,
-    ).scale(190).clamp(190, 400).toDouble();
+    final double extent = MediaQuery.textScalerOf(context)
+        .scale(190)
+        .clamp(190, 400)
+        .toDouble();
     return GridView.builder(
       padding: const EdgeInsets.all(16),
       gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(

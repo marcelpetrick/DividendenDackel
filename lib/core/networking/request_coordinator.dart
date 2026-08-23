@@ -128,8 +128,9 @@ final class CancellationToken {
 }
 
 /// Provider action coordinated under limits and deadlines.
-typedef CoordinatorAction<T> =
-    Future<Result<T>> Function(CancellationToken cancellationToken);
+typedef CoordinatorAction<T> = Future<Result<T>> Function(
+  CancellationToken cancellationToken,
+);
 
 /// One logical provider request.
 final class CoordinatorRequest<T> {

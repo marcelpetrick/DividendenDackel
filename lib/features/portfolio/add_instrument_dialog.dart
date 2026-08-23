@@ -165,9 +165,8 @@ class _AddInstrumentDialogState extends ConsumerState<AddInstrumentDialog> {
         const SizedBox(height: AppTheme.space),
         Text(
           message,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
+          style: Theme.of(context).textTheme.bodySmall
+              ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
       ],
       const SizedBox(height: AppTheme.space),

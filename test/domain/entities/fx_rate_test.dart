@@ -18,9 +18,8 @@ void main() {
   );
 
   test('converts without binary floating-point or intermediate rounding', () {
-    final Money converted = rateOf(
-      '1.1567',
-    ).convert(Money.parse('123.45', Currency.eur));
+    final Money converted = rateOf('1.1567')
+        .convert(Money.parse('123.45', Currency.eur));
 
     expect(converted, Money.parse('142.794615', Currency.usd));
   });
