@@ -30,8 +30,8 @@ void main() {
       );
 
   group('AppDatabase', () {
-    test('opens at schema version 5 with every table created', () async {
-      expect(db.schemaVersion, 5);
+    test('opens at schema version 6 with every table created', () async {
+      expect(db.schemaVersion, 6);
 
       final List<String> tables =
           await db
@@ -66,6 +66,56 @@ void main() {
           'sync_logs',
           'watchlist_entries',
         ]),
+      );
+    });
+
+    test(
+      'enforces unique imported identities per portfolio and source',
+      () async {
+        final List<QueryRow> indexes = await db
+            .customSelect('PRAGMA index_list(portfolio_activities)')
+            .get();
+
+        expect(
+          indexes.any(
+            (QueryRow row) =>
+                row.read<String>('name') == 'idx_portfolio_activity_external' &&
+                row.read<int>('unique') == 1,
+          ),
+          isTrue,
+        );
+      },
+    );
+
+    test('migrates schema 5 by adding the import identity index', () async {
+      await db.close();
+      final AppDatabase migrated = AppDatabase.withExecutor(
+        NativeDatabase.memory(
+          setup: (database) {
+            database
+              ..execute('''
+                CREATE TABLE portfolio_activities (
+                  portfolio_id TEXT NOT NULL,
+                  source TEXT NOT NULL,
+                  external_id TEXT
+                )
+              ''')
+              ..execute('PRAGMA user_version = 5');
+          },
+        ),
+      );
+      db = migrated;
+
+      final List<QueryRow> indexes = await migrated
+          .customSelect('PRAGMA index_list(portfolio_activities)')
+          .get();
+      expect(
+        indexes.any(
+          (QueryRow row) =>
+              row.read<String>('name') == 'idx_portfolio_activity_external' &&
+              row.read<int>('unique') == 1,
+        ),
+        isTrue,
       );
     });
 
@@ -357,7 +407,7 @@ void main() {
       },
     );
 
-    test('migrates schema 1 through 5 without losing dividend rows', () async {
+    test('migrates schema 1 through 6 without losing dividend rows', () async {
       await db.close();
       final AppDatabase migrated = AppDatabase.withExecutor(
         NativeDatabase.memory(

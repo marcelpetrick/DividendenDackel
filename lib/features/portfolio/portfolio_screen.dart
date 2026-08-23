@@ -9,6 +9,7 @@ import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/features/currency/fx_state.dart';
 import 'package:dividendendackel/features/portfolio/activity_dialog.dart';
 import 'package:dividendendackel/features/portfolio/add_instrument_dialog.dart';
+import 'package:dividendendackel/features/portfolio/import_dialog.dart';
 import 'package:dividendendackel/features/settings/currency_settings.dart';
 import 'package:dividendendackel/features/tax/tax_estimates.dart';
 import 'package:flutter/material.dart';
@@ -48,6 +49,11 @@ class PortfolioScreen extends ConsumerWidget {
     );
     final List<PortfolioActivity> activities =
         activitiesValue.value ?? const <PortfolioActivity>[];
+    final AsyncValue<List<PortfolioImportBatch>> importBatchesValue = ref.watch(
+      portfolioImportBatchesProvider,
+    );
+    final List<PortfolioImportBatch> importBatches =
+        importBatchesValue.value ?? const <PortfolioImportBatch>[];
     final AsyncValue<List<DividendEvent>> yearPaymentsValue = ref.watch(
       dividendPaymentsForYearProvider(now.year),
     );
@@ -135,9 +141,13 @@ class PortfolioScreen extends ConsumerWidget {
             incomeExposure: incomeExposure,
             health: health,
             activities: activities,
+            importBatches: importBatches,
             reconciliation: reconciliation,
             onRecordActivity: () => _showActivity(context, ref, instruments),
             onReverseActivity: (int id) => _reverseActivity(context, ref, id),
+            onImport: () => _showImport(context),
+            onUndoImport: (String batchId) =>
+                _undoImport(context, ref, batchId),
             fxRefreshing: fxRefresh.isRefreshing,
             fxError: fxRefresh.errorMessage,
             refreshFx: () => ref.read(fxRefreshProvider.notifier).refresh(),
@@ -154,6 +164,8 @@ class PortfolioScreen extends ConsumerWidget {
                 'Dividend income could not be read; it is unavailable.',
               if (activitiesValue.hasError)
                 'Portfolio activities could not be read.',
+              if (importBatchesValue.hasError)
+                'Import history could not be read.',
               if (yearPaymentsValue.hasError)
                 'Expected payments could not be reconciled.',
               if (fxRatesValue?.hasError ?? false) 'Exchange rates could not be read; converted totals are unavailable.',
@@ -196,6 +208,64 @@ class PortfolioScreen extends ConsumerWidget {
     if (message != null && context.mounted) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(message)));
+    }
+  }
+
+  Future<void> _showImport(BuildContext context) async {
+    final String? message = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => const PortfolioImportDialog(
+        portfolioId: InvestmentPortfolio.defaultId,
+      ),
+    );
+    if (message != null && context.mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
+    }
+  }
+
+  Future<void> _undoImport(
+    BuildContext context,
+    WidgetRef ref,
+    String batchId,
+  ) async {
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('Undo this import?'),
+        content: const Text(
+          'Reversal rows will be appended for every activity in the batch. '
+          'The audit trail remains intact.',
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Undo import'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+    final result = await ref
+        .read(portfolioRepositoryProvider)
+        .undoImportBatch(
+          InvestmentPortfolio.defaultId,
+          batchId,
+          occurredAt: ref.read(clockProvider).now().toUtc(),
+        );
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            result.failureOrNull?.message ??
+                '${result.valueOrNull ?? 0} activities reversed.',
+          ),
+        ),
+      );
     }
   }
 
@@ -249,9 +319,12 @@ class _PortfolioBody extends StatelessWidget {
     required this.incomeExposure,
     required this.health,
     required this.activities,
+    required this.importBatches,
     required this.reconciliation,
     required this.onRecordActivity,
     required this.onReverseActivity,
+    required this.onImport,
+    required this.onUndoImport,
     required this.fxRefreshing,
     required this.fxError,
     required this.refreshFx,
@@ -268,9 +341,12 @@ class _PortfolioBody extends StatelessWidget {
   final PortfolioCurrencyExposure incomeExposure;
   final PortfolioHealth health;
   final List<PortfolioActivity> activities;
+  final List<PortfolioImportBatch> importBatches;
   final List<DividendReconciliationLine> reconciliation;
   final VoidCallback onRecordActivity;
   final ValueChanged<int> onReverseActivity;
+  final VoidCallback onImport;
+  final ValueChanged<String> onUndoImport;
   final bool fxRefreshing;
   final String? fxError;
   final VoidCallback refreshFx;
@@ -376,10 +452,13 @@ class _PortfolioBody extends StatelessWidget {
       const SizedBox(height: AppTheme.space * 2),
       _ActivityLedgerCard(
         activities: activities,
+        importBatches: importBatches,
         instruments: instruments,
         reconciliation: reconciliation,
         onRecord: onRecordActivity,
         onReverse: onReverseActivity,
+        onImport: onImport,
+        onUndoImport: onUndoImport,
       ),
     ],
   );
@@ -388,17 +467,23 @@ class _PortfolioBody extends StatelessWidget {
 class _ActivityLedgerCard extends StatelessWidget {
   const _ActivityLedgerCard({
     required this.activities,
+    required this.importBatches,
     required this.instruments,
     required this.reconciliation,
     required this.onRecord,
     required this.onReverse,
+    required this.onImport,
+    required this.onUndoImport,
   });
 
   final List<PortfolioActivity> activities;
+  final List<PortfolioImportBatch> importBatches;
   final Map<String, Instrument> instruments;
   final List<DividendReconciliationLine> reconciliation;
   final VoidCallback onRecord;
   final ValueChanged<int> onReverse;
+  final VoidCallback onImport;
+  final ValueChanged<String> onUndoImport;
 
   @override
   Widget build(BuildContext context) {
@@ -425,6 +510,19 @@ class _ActivityLedgerCard extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                 ),
+              ],
+            ),
+            const SizedBox(height: AppTheme.space),
+            Wrap(
+              spacing: AppTheme.space / 2,
+              runSpacing: AppTheme.space / 2,
+              children: <Widget>[
+                OutlinedButton.icon(
+                  key: const ValueKey<String>('import-activities'),
+                  onPressed: onImport,
+                  icon: const Icon(Icons.upload_file_outlined),
+                  label: const Text('Import CSV'),
+                ),
                 FilledButton.tonalIcon(
                   onPressed: onRecord,
                   icon: const Icon(Icons.add),
@@ -437,6 +535,34 @@ class _ActivityLedgerCard extends StatelessWidget {
               'Purchases, sales and actual cash flows stay on this device. '
               'Corrections append reversals; history is never silently rewritten.',
             ),
+            if (importBatches.isNotEmpty) ...<Widget>[
+              const Divider(height: AppTheme.space * 3),
+              Text(
+                'Import history',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              for (final PortfolioImportBatch batch in importBatches.take(5))
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(
+                    batch.isUndone
+                        ? Icons.history_toggle_off
+                        : Icons.file_download_done_outlined,
+                  ),
+                  title: Text('${batch.activityCount} activities'),
+                  subtitle: Text(
+                    '${_importSource(batch.source)} · '
+                    '${MaterialLocalizations.of(context).formatMediumDate(batch.importedAt)}'
+                    '${batch.isUndone ? ' · Undone' : ''}',
+                  ),
+                  trailing: batch.isUndone
+                      ? null
+                      : TextButton(
+                          onPressed: () => onUndoImport(batch.id),
+                          child: const Text('Undo'),
+                        ),
+                ),
+            ],
             if (reconciliation.isNotEmpty) ...<Widget>[
               const Divider(height: AppTheme.space * 3),
               Text(
@@ -529,6 +655,12 @@ class _ActivityLedgerCard extends StatelessWidget {
     PortfolioActivityType.fee => Icons.remove_circle_outline,
     PortfolioActivityType.holdingAdjustment => Icons.tune,
     PortfolioActivityType.reversal => Icons.undo,
+  };
+
+  static String _importSource(String source) => switch (source) {
+    'import:portfolio-performance-csv' => 'Portfolio Performance CSV',
+    'import:dividendendackel-csv' => 'DividendenDackel CSV',
+    _ => 'Local CSV',
   };
 }
 

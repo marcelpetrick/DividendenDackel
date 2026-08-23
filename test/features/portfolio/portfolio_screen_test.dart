@@ -62,6 +62,11 @@ void main() {
           portfolioActivitiesProvider.overrideWith(
             (Ref ref) => Stream<List<PortfolioActivity>>.value(activities),
           ),
+          portfolioImportBatchesProvider.overrideWith(
+            (Ref ref) => Stream<List<PortfolioImportBatch>>.value(
+              const <PortfolioImportBatch>[],
+            ),
+          ),
           dividendPaymentsForYearProvider.overrideWith(
             (Ref ref, int year) => Stream<List<DividendEvent>>.value(
               dividends ?? const <DividendEvent>[],
@@ -90,6 +95,34 @@ void main() {
     await tester.pump();
     return editor;
   }
+
+  testWidgets('opens a review-first local CSV import dialog', (
+    WidgetTester tester,
+  ) async {
+    await pumpPortfolio(tester);
+
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey<String>('import-activities')),
+      300,
+    );
+    await tester.tap(find.byKey(const ValueKey<String>('import-activities')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Import activities'), findsOneWidget);
+    expect(find.textContaining('never uploaded or retained'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey<String>('choose-import-file')),
+      findsOneWidget,
+    );
+    expect(
+      tester
+          .widget<FilledButton>(
+            find.byKey(const ValueKey<String>('apply-import')),
+          )
+          .onPressed,
+      isNull,
+    );
+  });
 
   testWidgets('shows value, change, allocation, yield and next dividend', (
     WidgetTester tester,

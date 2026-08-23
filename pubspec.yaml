@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 0.44.0+72
+version: 0.45.0+73
 
 environment:
   sdk: 3.13.1
@@ -28,6 +28,10 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  # Stable SHA-256 row fingerprints make repeated imports idempotent.
+  crypto: 3.0.7
+  # RFC 4180-compatible parsing for local, previewed portfolio imports.
+  csv: 8.0.0
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: 1.0.9
@@ -39,6 +43,9 @@ dependencies:
   # and Linux.
   drift: 2.34.3
   drift_flutter: 0.3.1
+  # Native read-only file selection on Android and Linux. Imported bytes never
+  # leave the device and the selected source document is not retained.
+  file_selector: 1.1.0
   flutter:
     sdk: flutter
   # Cross-platform OS notifications. Linux supports immediate delivery but

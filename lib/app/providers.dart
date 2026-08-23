@@ -23,6 +23,7 @@ import 'package:dividendendackel/data/sample/sample_data_seeder.dart';
 import 'package:dividendendackel/data/sample/sample_dataset.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/domain/repositories/repositories.dart';
+import 'package:dividendendackel/domain/use_cases/portfolio_import.dart';
 import 'package:dividendendackel/features/portfolio/portfolio_editor.dart';
 import 'package:dividendendackel/features/settings/data_source_settings.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -241,6 +242,16 @@ final Provider<PortfolioEditor> portfolioEditorProvider =
       ),
     );
 
+/// Local CSV preview/apply workflow. Selected file bytes never leave the app.
+final Provider<PortfolioImportService> portfolioImportServiceProvider =
+    Provider<PortfolioImportService>(
+      (Ref ref) => PortfolioImportService(
+        portfolios: ref.watch(portfolioRepositoryProvider),
+        instruments: ref.watch(instrumentRepositoryProvider),
+        clock: ref.watch(clockProvider),
+      ),
+    );
+
 /// Seeds the bundled sample dataset on first run.
 ///
 /// Without this the app would open onto empty screens and no API key would
@@ -341,6 +352,14 @@ final StreamProvider<List<PortfolioActivity>> portfolioActivitiesProvider =
           .watch(portfolioRepositoryProvider)
           .watchActivities(InvestmentPortfolio.defaultId),
     );
+
+/// Applied local import batches available for precise undo.
+final StreamProvider<List<PortfolioImportBatch>>
+portfolioImportBatchesProvider = StreamProvider<List<PortfolioImportBatch>>(
+  (Ref ref) => ref
+      .watch(portfolioRepositoryProvider)
+      .watchImportBatches(InvestmentPortfolio.defaultId),
+);
 
 /// Instrument ids the user holds or watches.
 final StreamProvider<Set<String>> followedInstrumentIdsProvider =

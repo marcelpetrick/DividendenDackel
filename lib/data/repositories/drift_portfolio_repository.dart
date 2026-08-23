@@ -287,6 +287,184 @@ final class DriftPortfolioRepository implements PortfolioRepository {
   });
 
   @override
+  Future<Result<Set<String>>> findImportedExternalIds({
+    required String portfolioId,
+    required String source,
+    required Set<String> externalIds,
+  }) => Result.guardAsync<Set<String>>(() async {
+    return _findImportedExternalIds(portfolioId, source, externalIds);
+  });
+
+  @override
+  Future<Result<int>> applyImportBatch(
+    String batchId,
+    List<PortfolioActivity> activities,
+  ) => Result.guardAsync<int>(() async {
+    if (batchId.trim().isEmpty) {
+      throw ArgumentError.value(batchId, 'batchId', 'cannot be empty');
+    }
+    if (activities.isEmpty) return 0;
+    final String portfolioId = activities.first.portfolioId;
+    final String source = activities.first.provenance.source;
+    if (activities.any(
+      (PortfolioActivity item) =>
+          item.portfolioId != portfolioId ||
+          item.provenance.source != source ||
+          item.importBatchId != batchId ||
+          item.externalId == null ||
+          item.type == PortfolioActivityType.reversal,
+    )) {
+      throw ArgumentError(
+        'An import batch must have one portfolio, one source, stable row '
+        'identities and no reversal rows.',
+      );
+    }
+
+    return db.transaction<int>(() async {
+      await _requirePortfolio(portfolioId);
+      final Set<String> candidates = <String>{
+        for (final PortfolioActivity item in activities) item.externalId!,
+      };
+      final Set<String> existing = await _findImportedExternalIds(
+        portfolioId,
+        source,
+        candidates,
+      );
+      final Set<String> affected = <String>{};
+      int inserted = 0;
+      final List<PortfolioActivity> ordered = activities.toList()
+        ..sort(
+          (PortfolioActivity left, PortfolioActivity right) =>
+              left.occurredAt.compareTo(right.occurredAt),
+        );
+      for (final PortfolioActivity activity in ordered) {
+        if (existing.contains(activity.externalId)) continue;
+        await _insertActivity(activity);
+        existing.add(activity.externalId!);
+        inserted++;
+        if (activity.shareDelta != null) {
+          affected.add(activity.instrumentId!);
+        }
+      }
+      for (final String instrumentId in affected) {
+        await _rebuildHolding(portfolioId, instrumentId);
+      }
+      return inserted;
+    });
+  });
+
+  @override
+  Stream<List<PortfolioImportBatch>> watchImportBatches(String portfolioId) =>
+      (db.select(db.portfolioActivities)..where(
+            ($PortfolioActivitiesTable table) =>
+                table.portfolioId.equals(portfolioId),
+          ))
+          .watch()
+          .map((List<DbPortfolioActivity> rows) {
+            final List<PortfolioActivity> activities = rows
+                .map((DbPortfolioActivity row) => row.toDomain())
+                .toList(growable: false);
+            final Set<int> reversed = <int>{
+              for (final PortfolioActivity item in activities)
+                if (item.type == PortfolioActivityType.reversal)
+                  item.reversesActivityId!,
+            };
+            final Map<String, List<PortfolioActivity>> grouped =
+                <String, List<PortfolioActivity>>{};
+            for (final PortfolioActivity activity in activities) {
+              if (activity.type == PortfolioActivityType.reversal ||
+                  activity.importBatchId == null ||
+                  activity.importBatchId!.startsWith('undo:')) {
+                continue;
+              }
+              grouped
+                  .putIfAbsent(
+                    activity.importBatchId!,
+                    () => <PortfolioActivity>[],
+                  )
+                  .add(activity);
+            }
+            final List<PortfolioImportBatch> batches =
+                <PortfolioImportBatch>[
+                  for (final MapEntry<String, List<PortfolioActivity>> entry
+                      in grouped.entries)
+                    PortfolioImportBatch(
+                      id: entry.key,
+                      portfolioId: portfolioId,
+                      source: entry.value.first.provenance.source,
+                      importedAt: entry.value
+                          .map(
+                            (PortfolioActivity item) =>
+                                item.provenance.fetchedAt,
+                          )
+                          .reduce(
+                            (DateTime left, DateTime right) =>
+                                left.isBefore(right) ? left : right,
+                          ),
+                      activityCount: entry.value.length,
+                      isUndone: entry.value.every(
+                        (PortfolioActivity item) => reversed.contains(item.id),
+                      ),
+                    ),
+                ]..sort(
+                  (PortfolioImportBatch left, PortfolioImportBatch right) =>
+                      right.importedAt.compareTo(left.importedAt),
+                );
+            return List<PortfolioImportBatch>.unmodifiable(batches);
+          });
+
+  @override
+  Future<Result<int>> undoImportBatch(
+    String portfolioId,
+    String batchId, {
+    required DateTime occurredAt,
+  }) => Result.guardAsync<int>(() async {
+    return db.transaction<int>(() async {
+      final List<DbPortfolioActivity> all =
+          await (db.select(db.portfolioActivities)..where(
+                ($PortfolioActivitiesTable table) =>
+                    table.portfolioId.equals(portfolioId),
+              ))
+              .get();
+      final Set<int> reversed = <int>{
+        for (final DbPortfolioActivity row in all)
+          if (row.type == PortfolioActivityType.reversal)
+            row.reversesActivityId!,
+      };
+      final List<DbPortfolioActivity> targets = all
+          .where(
+            (DbPortfolioActivity row) =>
+                row.portfolioId == portfolioId &&
+                row.importBatchId == batchId &&
+                row.type != PortfolioActivityType.reversal &&
+                !reversed.contains(row.id),
+          )
+          .toList(growable: false);
+      final Set<(String, String)> affected = <(String, String)>{};
+      for (final DbPortfolioActivity target in targets) {
+        await _insertActivity(
+          PortfolioActivity(
+            portfolioId: target.portfolioId,
+            type: PortfolioActivityType.reversal,
+            occurredAt: occurredAt,
+            instrumentId: target.instrumentId,
+            importBatchId: 'undo:$batchId',
+            reversesActivityId: target.id,
+            provenance: Provenance.user(occurredAt),
+          ),
+        );
+        if (target.instrumentId != null && target.quantity != null) {
+          affected.add((target.portfolioId, target.instrumentId!));
+        }
+      }
+      for (final (String portfolioId, String instrumentId) in affected) {
+        await _rebuildHolding(portfolioId, instrumentId);
+      }
+      return targets.length;
+    });
+  });
+
+  @override
   Stream<Set<String>> watchFollowedInstrumentIds({String? portfolioId}) {
     final String filter = portfolioId == null ? '' : ' WHERE portfolio_id = ?';
     final List<Variable<Object>> variables = portfolioId == null
@@ -316,6 +494,32 @@ final class DriftPortfolioRepository implements PortfolioRepository {
                 table.instrumentId.equals(instrumentId),
           ))
           .getSingleOrNull();
+
+  Future<Set<String>> _findImportedExternalIds(
+    String portfolioId,
+    String source,
+    Set<String> externalIds,
+  ) async {
+    if (externalIds.isEmpty) return <String>{};
+    const int queryChunkSize = 500;
+    final List<String> values = externalIds.toList(growable: false);
+    final Set<String> found = <String>{};
+    for (int offset = 0; offset < values.length; offset += queryChunkSize) {
+      final int end = offset + queryChunkSize < values.length
+          ? offset + queryChunkSize
+          : values.length;
+      final List<DbPortfolioActivity> rows =
+          await (db.select(db.portfolioActivities)..where(
+                ($PortfolioActivitiesTable table) =>
+                    table.portfolioId.equals(portfolioId) &
+                    table.source.equals(source) &
+                    table.externalId.isIn(values.sublist(offset, end)),
+              ))
+              .get();
+      found.addAll(rows.map((DbPortfolioActivity row) => row.externalId!));
+    }
+    return found;
+  }
 
   Future<void> _writeHolding(Holding holding, int? id) => db
       .into(db.holdings)
@@ -355,6 +559,7 @@ final class DriftPortfolioRepository implements PortfolioRepository {
       type: PortfolioActivityType.reversal,
       occurredAt: reversal.occurredAt,
       instrumentId: target.instrumentId,
+      importBatchId: reversal.importBatchId,
       reversesActivityId: targetId,
       notes: reversal.notes,
       provenance: reversal.provenance,

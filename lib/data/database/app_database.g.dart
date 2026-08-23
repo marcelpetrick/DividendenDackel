@@ -15124,6 +15124,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'idx_portfolio_activity_time',
     'CREATE INDEX idx_portfolio_activity_time ON portfolio_activities (portfolio_id, occurred_at)',
   );
+  late final Index idxPortfolioActivityExternal = Index(
+    'idx_portfolio_activity_external',
+    'CREATE UNIQUE INDEX idx_portfolio_activity_external ON portfolio_activities (portfolio_id, source, external_id)',
+  );
   late final Index idxFxRateObservedAt = Index(
     'idx_fx_rate_observed_at',
     'CREATE INDEX idx_fx_rate_observed_at ON fx_rates (observed_at)',
@@ -15190,6 +15194,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     syncLogs,
     cacheMetadata,
     idxPortfolioActivityTime,
+    idxPortfolioActivityExternal,
     idxFxRateObservedAt,
     idxDividendExDate,
     idxDividendPaymentDate,

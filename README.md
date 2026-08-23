@@ -28,12 +28,16 @@ question it answers is:
 
 ## Status
 
-**0.1.0 release candidate.** The Android 10+ and Linux desktop applications are
+**0.43.0.** The Android 10+ and Linux desktop applications are
 implemented and build as release artifacts. They include the Today dashboard,
 portfolio editor and health insights, dividend calendar and 24-month income
 forecast, gross/net tax estimates, multi-currency conversion, explainable
 research, offline sample data, provider health, onboarding and opt-in local
 notifications.
+
+Portfolio changes can be recorded in an immutable local activity ledger or
+imported from a reviewable DividendenDackel/Portfolio Performance CSV. Imports
+are duplicate-safe, atomic and undoable without deleting their audit history.
 
 The full specification lives in [`Vision.md`](Vision.md); current delivery
 work is tracked in [`docs/BACKLOG.md`](docs/BACKLOG.md).
@@ -140,6 +144,7 @@ merged.
 ## Documentation
 
 - [Architecture and data flow](docs/architecture.md)
+- [Portfolio CSV import](docs/portfolio-import.md)
 - [Provider policy and licensing](docs/data-providers.md)
 - [Research score](docs/research-score.md)
 - [Current Parqet comparison and scope decisions](docs/parqet-comparison.md)
