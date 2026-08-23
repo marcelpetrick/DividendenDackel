@@ -3,6 +3,7 @@ import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/domain/analytics/analytics.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/features/calendar/calendar_state.dart';
+import 'package:dividendendackel/features/news/news_link_launcher.dart';
 import 'package:dividendendackel/features/settings/tax_settings.dart';
 import 'package:dividendendackel/features/today/today_screen.dart';
 import 'package:dividendendackel/features/today/today_state.dart';
@@ -54,6 +55,18 @@ void main() {
       title: 'Capital markets day',
       provenance: provenance,
     );
+    final NewsItem news = NewsItem(
+      id: 'news-1',
+      headline: 'Dividend policy updated',
+      sourceName: 'Original Publisher',
+      publishedAt: now.subtract(const Duration(hours: 2)),
+      url: Uri.parse('https://publisher.example/story'),
+      category: NewsCategory.dividends,
+      summary: 'This provider summary must not be republished.',
+      relatedInstrumentIds: const <String>['de'],
+      provenance: provenance,
+    );
+    final _NewsLauncher launcher = _NewsLauncher();
 
     await tester.pumpWidget(
       ProviderScope(
@@ -96,6 +109,10 @@ void main() {
               <CorporateEvent>[companyEvent],
             ),
           ),
+          recentPortfolioNewsProvider.overrideWith(
+            (Ref ref) => Stream<List<NewsItem>>.value(<NewsItem>[news]),
+          ),
+          newsLinkLauncherProvider.overrideWithValue(launcher),
           todaySnapshotStoreProvider.overrideWithValue(_SnapshotStore()),
           calendarEventsProvider.overrideWith(
             (Ref ref, CalendarEventsQuery query) =>
@@ -125,6 +142,19 @@ void main() {
       300,
     );
     expect(find.text('Upcoming company events · 30 days'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Portfolio news'), 300);
+    expect(find.text('Dividend policy updated'), findsOneWidget);
+    expect(find.textContaining('Original Publisher ·'), findsOneWidget);
+    expect(find.text('Dividends'), findsOneWidget);
+    expect(
+      find.text('This provider summary must not be republished.'),
+      findsNothing,
+    );
+    await tester.tap(find.text('Open original'));
+    await tester.pump();
+    expect(launcher.opened, <Uri>[
+      Uri.parse('https://publisher.example/story'),
+    ]);
     await tester.scrollUntilVisible(find.text('Next 365 days'), 300);
     expect(find.text('Next 365 days'), findsOneWidget);
     await tester.scrollUntilVisible(
@@ -192,6 +222,10 @@ void main() {
               quoteChanges: 0,
             ),
           ),
+          recentPortfolioNewsProvider.overrideWith(
+            (Ref ref) => Stream<List<NewsItem>>.value(const <NewsItem>[]),
+          ),
+          newsLinkLauncherProvider.overrideWithValue(_NewsLauncher()),
         ],
         child: const MaterialApp(home: Scaffold(body: TodayScreen())),
       ),
@@ -213,6 +247,16 @@ void main() {
     expect(find.text('2 dividend-outlook change(s)'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+}
+
+final class _NewsLauncher implements NewsLinkLauncher {
+  final List<Uri> opened = <Uri>[];
+
+  @override
+  Future<bool> open(Uri uri) async {
+    opened.add(uri);
+    return true;
+  }
 }
 
 final class _SnapshotStore implements TodaySnapshotStore {

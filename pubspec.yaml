@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 0.31.0+51
+version: 0.32.0+52
 
 environment:
   sdk: ^3.12.2
@@ -57,6 +57,9 @@ dependencies:
   # Small, non-sensitive app preferences shared by Android and Linux. Secrets
   # use platform-secure storage in F11 instead.
   shared_preferences: 2.5.5
+  # Opens publisher pages in the platform browser; article bodies are never
+  # copied into the app (Vision.md §18). Supports Android and Linux.
+  url_launcher: 6.3.2
 
 dev_dependencies:
   # 2.16.0 conflicts with the constraints of the pinned Flutter SDK.

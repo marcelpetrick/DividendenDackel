@@ -383,6 +383,7 @@ final class SampleNews {
     required this.instrumentId,
     required this.headline,
     required this.sourceName,
+    required this.url,
     required this.category,
     required this.offsetHours,
   });
@@ -391,6 +392,7 @@ final class SampleNews {
     instrumentId: json['instrumentId'] as String,
     headline: json['headline'] as String,
     sourceName: json['source'] as String,
+    url: Uri.parse(json['url'] as String),
     category: _category(json['category'] as String),
     offsetHours: json['offsetHours'] as int,
   );
@@ -408,6 +410,9 @@ final class SampleNews {
 
   /// Publication name.
   final String sourceName;
+
+  /// Original publisher page, or the reserved sample page for sample rows.
+  final Uri url;
 
   /// Category of the item.
   final NewsCategory category;

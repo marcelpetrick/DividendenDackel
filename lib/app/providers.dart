@@ -407,6 +407,7 @@ final upcomingCorporateEventsProvider =
       final Set<String> followed = await ref.watch(
         followedInstrumentIdsProvider.future,
       );
+
       final DateTime now = ref.watch(clockProvider).now();
       final DateTime start = DateTime.utc(now.year, now.month, now.day);
       yield* ref
@@ -416,3 +417,15 @@ final upcomingCorporateEventsProvider =
             instrumentIds: followed,
           );
     });
+
+/// Recent headline metadata concerning held or watched instruments.
+final recentPortfolioNewsProvider = StreamProvider<List<NewsItem>>((
+  Ref ref,
+) async* {
+  final Set<String> followed = await ref.watch(
+    followedInstrumentIdsProvider.future,
+  );
+  yield* ref
+      .watch(marketDataRepositoryProvider)
+      .watchRecentNews(instrumentIds: followed, limit: 20);
+});

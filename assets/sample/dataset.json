@@ -180,11 +180,11 @@
     {"instrumentId": "isin:GB00B10RZP78", "addedOffsetDays": -12}
   ],
   "news": [
-    {"instrumentId": "isin:DE0008404005", "headline": "Allianz proposes higher dividend after record operating profit", "source": "Sample Newswire", "category": "dividends", "offsetHours": -6},
-    {"instrumentId": "isin:US0378331005", "headline": "Apple schedules quarterly results for after the close", "source": "Sample Newswire", "category": "earnings", "offsetHours": -14},
-    {"instrumentId": "isin:DE0007236101", "headline": "Siemens raises full-year guidance on industrial demand", "source": "Sample Newswire", "category": "guidance", "offsetHours": -30},
-    {"instrumentId": "isin:US7561091049", "headline": "Realty Income declares next monthly dividend", "source": "Sample Newswire", "category": "dividends", "offsetHours": -50},
-    {"instrumentId": "isin:DE000BASF111", "headline": "BASF outlines cost programme for chemicals division", "source": "Sample Newswire", "category": "general", "offsetHours": -72},
-    {"instrumentId": "isin:US4781601046", "headline": "Johnson & Johnson completes previously announced acquisition", "source": "Sample Newswire", "category": "mergersAndAcquisitions", "offsetHours": -96}
+    {"instrumentId": "isin:DE0008404005", "headline": "Allianz proposes higher dividend after record operating profit", "source": "Sample Newswire", "url": "https://github.com/marcelpetrick/DividendenDackel/blob/master/assets/sample/dataset.json", "category": "dividends", "offsetHours": -6},
+    {"instrumentId": "isin:US0378331005", "headline": "Apple schedules quarterly results for after the close", "source": "Sample Newswire", "url": "https://github.com/marcelpetrick/DividendenDackel/blob/master/assets/sample/dataset.json", "category": "earnings", "offsetHours": -14},
+    {"instrumentId": "isin:DE0007236101", "headline": "Siemens raises full-year guidance on industrial demand", "source": "Sample Newswire", "url": "https://github.com/marcelpetrick/DividendenDackel/blob/master/assets/sample/dataset.json", "category": "guidance", "offsetHours": -30},
+    {"instrumentId": "isin:US7561091049", "headline": "Realty Income declares next monthly dividend", "source": "Sample Newswire", "url": "https://github.com/marcelpetrick/DividendenDackel/blob/master/assets/sample/dataset.json", "category": "dividends", "offsetHours": -50},
+    {"instrumentId": "isin:DE000BASF111", "headline": "BASF outlines cost programme for chemicals division", "source": "Sample Newswire", "url": "https://github.com/marcelpetrick/DividendenDackel/blob/master/assets/sample/dataset.json", "category": "general", "offsetHours": -72},
+    {"instrumentId": "isin:US4781601046", "headline": "Johnson & Johnson completes previously announced acquisition", "source": "Sample Newswire", "url": "https://github.com/marcelpetrick/DividendenDackel/blob/master/assets/sample/dataset.json", "category": "mergersAndAcquisitions", "offsetHours": -96}
   ]
 }

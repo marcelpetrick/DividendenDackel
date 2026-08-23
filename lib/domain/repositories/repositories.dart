@@ -162,6 +162,9 @@ abstract interface class MarketDataRepository {
 
   /// Inserts or updates normalized company events.
   Future<Result<void>> saveCorporateEvents(List<CorporateEvent> events);
+
+  /// Inserts or updates headline metadata and replaces instrument links.
+  Future<Result<void>> saveNews(List<NewsItem> items);
 }
 
 /// Reads and writes daily foreign-exchange reference rates.

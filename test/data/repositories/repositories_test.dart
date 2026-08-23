@@ -548,6 +548,96 @@ void main() {
         Uri.parse('https://example.test/events/inside'),
       );
     });
+
+    test('upserts news metadata and replaces instrument links', () async {
+      NewsItem item(List<String> links, NewsCategory category) => NewsItem(
+        id: 'story-1',
+        headline: 'Company update',
+        sourceName: 'Publisher',
+        publishedAt: now,
+        url: Uri.parse('https://publisher.example/story-1'),
+        category: category,
+        summary: 'Provider-supplied short summary',
+        relatedInstrumentIds: links,
+        provenance: fmp,
+      );
+
+      await marketData.saveNews(<NewsItem>[
+        item(<String>[
+          allianz.internalId,
+          apple.internalId,
+        ], NewsCategory.general),
+      ]);
+      final Result<void> updated = await marketData.saveNews(<NewsItem>[
+        item(<String>[
+          apple.internalId,
+          apple.internalId,
+        ], NewsCategory.guidance),
+      ]);
+
+      expect(updated.isSuccess, isTrue);
+      expect(
+        await marketData
+            .watchRecentNews(instrumentIds: <String>{allianz.internalId})
+            .first,
+        isEmpty,
+      );
+      final List<NewsItem> appleNews = await marketData
+          .watchRecentNews(instrumentIds: <String>{apple.internalId})
+          .first;
+      expect(appleNews, hasLength(1));
+      expect(appleNews.single.category, NewsCategory.guidance);
+      expect(appleNews.single.relatedInstrumentIds, <String>[apple.internalId]);
+      expect(
+        appleNews.single.url,
+        Uri.parse('https://publisher.example/story-1'),
+      );
+    });
+
+    test('filters portfolio news before applying the result limit', () async {
+      NewsItem item(String id, String instrumentId, int minutesAgo) => NewsItem(
+        id: id,
+        headline: id,
+        sourceName: 'Publisher',
+        publishedAt: now.subtract(Duration(minutes: minutesAgo)),
+        url: Uri.parse('https://publisher.example/$id'),
+        relatedInstrumentIds: <String>[instrumentId],
+        provenance: fmp,
+      );
+      await marketData.saveNews(<NewsItem>[
+        item('new-unrelated-1', apple.internalId, 1),
+        item('new-unrelated-2', apple.internalId, 2),
+        item('older-relevant', allianz.internalId, 3),
+      ]);
+
+      final List<NewsItem> result = await marketData
+          .watchRecentNews(
+            instrumentIds: <String>{allianz.internalId},
+            limit: 1,
+          )
+          .first;
+
+      expect(result.map((NewsItem item) => item.id), <String>[
+        'older-relevant',
+      ]);
+    });
+
+    test('rejects a non-web news source link', () async {
+      final Result<void> result = await marketData.saveNews(<NewsItem>[
+        NewsItem(
+          id: 'unsafe',
+          headline: 'Headline',
+          sourceName: 'Publisher',
+          publishedAt: now,
+          url: Uri.parse('file:///private/article'),
+          relatedInstrumentIds: <String>[allianz.internalId],
+          provenance: fmp,
+        ),
+      ]);
+
+      expect(result.failureOrNull, isA<ParsingFailure>());
+      expect(await db.select(db.newsItems).get(), isEmpty);
+    });
   });
 
   group('DriftFxRateRepository', () {

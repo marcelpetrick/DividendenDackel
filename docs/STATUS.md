@@ -6,7 +6,7 @@ including a future session — can pick up without re-reading the whole history.
 - **Last updated:** 2026-08-23
 - **Version:** 0.1.0+1 (pre-release, `0.x.y`)
 - **Branch:** `master` (local work ahead of `origin`)
-- **Quality gate:** green — 430 tests, analyzer clean, both platforms build
+- **Quality gate:** green — 434 tests, analyzer clean, both platforms build
 
 ---
 
@@ -65,6 +65,7 @@ local cache; relevance-ranked news is the next product slice.
 | Gross and estimated-net income UI | D9 | done |
 | Offline-capable Today dashboard | T1 | done |
 | Earnings and corporate events | T2 | done |
+| News metadata, categories and publisher links | T3 | done |
 
 ### What is left
 
@@ -72,7 +73,7 @@ Ordered by what unblocks a usable app soonest.
 
 | Next | Task | Why it matters |
 | --- | --- | --- |
-| 1 | **T3/T4** news + relevance | Put attributable, ranked portfolio news on Today. |
+| 1 | **T4** relevance | Rank portfolio events and news by disclosed factors. |
 | 2 | **T5/T6** research | Complete the explainable research experience. |
 | 3 | **Q1–Q9** quality | Harden offline behavior, accessibility and performance. |
 
@@ -226,8 +227,8 @@ dart format .
 
 ## 6. Known issues and follow-ups
 
-- News ingestion and portfolio relevance ranking are not implemented yet, so
-  Today orders dated events chronologically until T3/T4 land.
+- Portfolio relevance ranking is not implemented yet, so Today orders dated
+  events chronologically and recent headlines by publication time until T4.
 - Widget tests run without a database on purpose: drift's stream machinery
   outlives the widget tree and the test binding reports it as a pending timer.
   The data layer is covered by its own tests.
