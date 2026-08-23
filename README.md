@@ -28,19 +28,15 @@ question it answers is:
 
 ## Status
 
-**Early development — foundation phase.** The full specification lives in
-[`Vision.md`](Vision.md); the ordered task queue lives in
-[`docs/BACKLOG.md`](docs/BACKLOG.md).
+**0.1.0 release candidate.** The Android 10+ and Linux desktop applications are
+implemented and build as release artifacts. They include the Today dashboard,
+portfolio editor and health insights, dividend calendar and 24-month income
+forecast, gross/net tax estimates, multi-currency conversion, explainable
+research, offline sample data, provider health, onboarding and opt-in local
+notifications.
 
-What exists today is the engineering foundation, not yet the product UI:
-
-- Flutter application targeting Android 10+ and Linux x86_64
-- typed error model and `Result` type
-- structured logging with credential and portfolio-content redaction
-- strict static analysis, local pipeline script and CI
-
-The Today screen, dividend calendar and portfolio are still ahead — see the
-backlog for exactly what is done and what is not.
+The full specification lives in [`Vision.md`](Vision.md); current delivery
+work is tracked in [`docs/BACKLOG.md`](docs/BACKLOG.md).
 
 ## Principles
 
@@ -58,7 +54,7 @@ backlog for exactly what is done and what is not.
 
 | Target | Requirement |
 | --- | --- |
-| Android | 10 (API 29) or newer, built against API 36 |
+| Android | 10 (API 29) or newer, compiled against API 37 and targeting API 36 |
 | Linux | x86_64 desktop, no Android runtime required |
 
 ## Build
@@ -124,9 +120,10 @@ the app falls back to a **bundled sample dataset** so every screen is still
 populated and explorable. Sample-derived values are labelled as such and are
 never presented as market data.
 
-Optionally, you can add your own key for a richer provider (Financial Modeling
-Prep, Finnhub, Alpha Vantage) in Settings. That is an upgrade, not a
-requirement.
+Settings reserve secure credential entries for richer providers such as
+Financial Modeling Prep, Finnhub and Alpha Vantage. Their adapters are not part
+of 0.1.0 yet, so enabling real requests remains future optional work rather than
+a hidden requirement.
 
 ### Why the app cannot provision keyed providers for you
 
@@ -139,6 +136,14 @@ keys as opt-in.
 Provider licensing terms are documented per provider in
 [`docs/data-providers.md`](docs/data-providers.md) before any adapter is
 merged.
+
+## Documentation
+
+- [Architecture and data flow](docs/architecture.md)
+- [Provider policy and licensing](docs/data-providers.md)
+- [Research score](docs/research-score.md)
+- [Privacy and local data](docs/privacy.md)
+- [Release process](docs/releases.md)
 
 ## Not goals
 
