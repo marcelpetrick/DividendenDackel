@@ -85,11 +85,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
   Kapitalertragsteuer, solidarity surcharge, optional church tax, gross and
   estimated net. A dated, versioned starter table covers DE/US/CH/GB/NL and
   supports country or instrument overrides; unsupported cases are refused.
+- Gross and estimated-net amounts are shown together across Today, portfolio,
+  calendar and forecast views, with editable tax-profile assumptions and clear
+  “estimate, not tax advice” labels.
+- Exact multi-currency totals, exposure and display-currency conversion backed
+  by dated ECB rates; missing or stale conversion evidence stays visible.
+- Today combines portfolio value, relevant dividends, earnings, corporate
+  events, filings and publisher-linked news into an explainable ranked view.
+- Six-dimension research scoring and per-instrument detail with dividend
+  history, evidence coverage, bull/bear cases, change conditions and bounded
+  score history.
+- Portfolio health insights for position, sector, country, currency and dividend
+  income concentration, plus an additional-investment dividend simulator.
+- Three-step onboarding, complete loading/empty/error/offline states,
+  accessibility and keyboard passes, and opt-in conservative local
+  notifications.
+- A real Linux integration journey covering holding creation, portfolio,
+  calendar, income forecast and offline persistence.
+- Release artifact checks for Android and Linux, including APK inspection,
+  exact sizes and a rendered Linux first-frame smoke test.
+- Weekly Dependabot checks and a non-mutating toolchain freshness report for
+  Dart packages, Flutter, AGP, Gradle, Kotlin and GitHub Actions.
+- Architecture, provider-policy, research methodology, privacy and release
+  documentation.
 
 ### Changed
 
 - Android release builds now explicitly request internet access, and the local
   and CI pipeline asserts the permission alongside Android 10 compatibility.
-
 - Product renamed to **DividendenDackel** across the Dart package, Android
   application ID, Linux binary, window titles and documentation.
+- The reproducible toolchain is updated to Flutter 3.47.1 / Dart 3.13.1, Android
+  Gradle Plugin 9.3.1, Gradle 9.7.1 and Kotlin 2.4.10; direct dependencies are
+  pinned to their latest stable compatible releases.
+
+### Fixed
+
+- Notification reconciliation is single-flight across startup, resume and
+  settings changes, and distinct same-company dividends on one day no longer
+  collide in delivered-event tracking.

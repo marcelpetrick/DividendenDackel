@@ -4,6 +4,12 @@ Every adapter must have an entry here before it is merged. This is an
 engineering record, not legal advice. Terms can change; release readiness must
 recheck the linked primary sources and update the review date.
 
+Version 0.1.0 ships only the SEC EDGAR and Frankfurter/ECB adapters below.
+Settings reserve secure credential slots for Financial Modeling Prep, Finnhub
+and Alpha Vantage, but those entries are configuration boundaries rather than
+working adapters; they make no network request until an adapter, contract test
+and licensing review are implemented.
+
 ## SEC EDGAR
 
 | Question | Review |

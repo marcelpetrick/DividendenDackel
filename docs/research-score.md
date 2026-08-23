@@ -4,6 +4,12 @@ The research score is an explainable snapshot of the evidence currently
 available for one instrument. It is not a BUY/SELL signal and does not predict
 returns.
 
+Snapshots are calculated locally and persist only when the complete assessment
+changes, not whenever a screen is opened. The detail screen shows current
+factors, evidence coverage, history, bull/bear cases and the observations that
+would change the assessment. Source freshness remains attached to the evidence;
+a stale input is not silently presented as current.
+
 ## Dimensions and weights
 
 | Dimension | Overall weight | Evidence |
@@ -37,3 +43,7 @@ analyst figures are labelled as estimates. Non-positive valuation multiples
 are treated as adverse rather than as unusually cheap. Thresholds are
 heuristics for comparison, not financial advice, and can be revised without
 rewriting historical source data.
+
+The deterministic implementation lives in
+`lib/domain/analytics/research_score.dart`; focused unit tests cover missing
+dimensions, thresholds, normalization and explanations.

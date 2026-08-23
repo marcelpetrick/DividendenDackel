@@ -243,8 +243,8 @@ Not part of MVP 1. Listed so the plan is complete.
       metadata, public GitHub Release with no drafts or pre-releases. Pinned
       action SHAs, minimal permissions. *Pulled forward from Phase 5 on
       request.* — §69, §70, §73
-- [ ] **R4b** Remaining documentation set: `docs/architecture.md`, `docs/data-providers.md`, `docs/research-score.md`,
-      `docs/data-providers.md`, `docs/research-score.md`, `docs/privacy.md`,
+- [x] **R4b** Remaining documentation set: `docs/architecture.md`,
+      `docs/data-providers.md`, `docs/research-score.md`, `docs/privacy.md` and
       `docs/releases.md`. (`README.md`, `LICENSE`, `CONTRIBUTING.md` and
       `CHANGELOG.md` are done — see R4a.) — §47, §75, §81, §82
 - [ ] **R5** *Optional* keyed provider adapters (Financial Modeling Prep,
