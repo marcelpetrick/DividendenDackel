@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
 import 'package:dividendendackel/app/widgets/async_value_view.dart';
@@ -252,6 +253,9 @@ class _PortfolioBody extends StatelessWidget {
           _PositionCard(
             position: position,
             dividendDataAvailable: dividendDataAvailable,
+            portfolioValue: position.value == null
+                ? null
+                : overview.byCurrency[position.value!.currency]?.totalValue,
           ),
       if (overview.positions.isNotEmpty) ...<Widget>[
         const SizedBox(height: AppTheme.space * 2),
@@ -757,10 +761,12 @@ class _PositionCard extends StatelessWidget {
   const _PositionCard({
     required this.position,
     required this.dividendDataAvailable,
+    required this.portfolioValue,
   });
 
   final PortfolioPositionSummary position;
   final bool dividendDataAvailable;
+  final Money? portfolioValue;
 
   @override
   Widget build(BuildContext context) {
@@ -825,6 +831,20 @@ class _PositionCard extends StatelessWidget {
                 ),
               ],
             ),
+            if (_canSimulate) ...<Widget>[
+              const SizedBox(height: AppTheme.space),
+              OutlinedButton.icon(
+                onPressed: () => showDialog<void>(
+                  context: context,
+                  builder: (BuildContext context) => _SimulationDialog(
+                    position: position,
+                    portfolioValue: portfolioValue!,
+                  ),
+                ),
+                icon: const Icon(Icons.calculate_outlined),
+                label: const Text('Simulate investment'),
+              ),
+            ],
             const Divider(height: AppTheme.space * 2),
             if (!dividendDataAvailable)
               Text('Loading dividend data…', style: theme.textTheme.bodySmall)
@@ -863,10 +883,170 @@ class _PositionCard extends StatelessWidget {
     );
   }
 
+  bool get _canSimulate =>
+      dividendDataAvailable &&
+      position.quote?.price.isPositive == true &&
+      position.value != null &&
+      portfolioValue != null &&
+      position.forecastAnnualDividend != null &&
+      position.holding.quantity > Decimal.zero;
+
   static String _date(BuildContext context, DividendEvent event) {
     final DateTime date = event.paymentDate ?? event.exDate!;
     return MaterialLocalizations.of(context).formatMediumDate(date);
   }
+}
+
+class _SimulationDialog extends StatefulWidget {
+  const _SimulationDialog({
+    required this.position,
+    required this.portfolioValue,
+  });
+
+  final PortfolioPositionSummary position;
+  final Money portfolioValue;
+
+  @override
+  State<_SimulationDialog> createState() => _SimulationDialogState();
+}
+
+class _SimulationDialogState extends State<_SimulationDialog> {
+  late final TextEditingController _investment = TextEditingController(
+    text: '1000',
+  );
+
+  @override
+  void dispose() {
+    _investment.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final PortfolioPositionSummary position = widget.position;
+    final Money price = position.quote!.price;
+    final Money annualPerShare = position.forecastAnnualDividend!.dividedBy(
+      position.holding.quantity,
+    );
+    final Decimal? amount = Decimal.tryParse(_investment.text.trim());
+    DividendSimulation? simulation;
+    if (amount != null && amount > Decimal.zero) {
+      simulation = DividendSimulator.calculate(
+        additionalInvestment: Money(amount, price.currency),
+        sharePrice: price,
+        existingQuantity: position.holding.quantity,
+        existingPositionValue: position.value!,
+        portfolioValue: widget.portfolioValue,
+        annualDividendPerShare: annualPerShare,
+      );
+    }
+    final Instrument? instrument = position.instrument;
+    return AlertDialog(
+      title: Text('Simulate ${instrument?.name ?? 'investment'}'),
+      content: SizedBox(
+        width: 520,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              TextFormField(
+                key: const ValueKey<String>('simulation-investment'),
+                controller: _investment,
+                autofocus: true,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: InputDecoration(
+                  labelText: 'Additional investment (${price.currency.code})',
+                  border: const OutlineInputBorder(),
+                  errorText: amount == null || amount <= Decimal.zero
+                      ? 'Enter an amount greater than zero.'
+                      : null,
+                ),
+                onChanged: (String value) => setState(() {}),
+              ),
+              const SizedBox(height: AppTheme.space * 2),
+              Text(
+                'Basis: cached price ${price.format(withSymbol: true)} and '
+                'next-365-day gross dividends of '
+                '${annualPerShare.format(withSymbol: true)} per current share.',
+              ),
+              const SizedBox(height: AppTheme.space * 2),
+              if (simulation case final DividendSimulation value) ...<Widget>[
+                _SimulationRow(
+                  label: 'Additional fractional shares',
+                  value: value.additionalShares
+                      .round(scale: 4)
+                      .toStringAsFixed(4),
+                ),
+                _SimulationRow(
+                  label: 'Added annual gross dividend',
+                  value: value.additionalAnnualDividend.format(
+                    withSymbol: true,
+                  ),
+                ),
+                _SimulationRow(
+                  label: 'Average added gross per month',
+                  value: value.averageMonthlyDividend.format(withSymbol: true),
+                ),
+                _SimulationRow(
+                  label: 'New weight in ${price.currency.code} holdings',
+                  value:
+                      '${value.previousWeight.format()} → '
+                      '${value.newWeight.format()} '
+                      '(${value.weightChange.format(withSign: true)} points)',
+                ),
+                _SimulationRow(
+                  label: 'New forward gross yield',
+                  value: value.newForwardYield.format(),
+                ),
+              ],
+              const SizedBox(height: AppTheme.space),
+              Text(
+                'Scenario only—not a recommendation. Fractional shares are '
+                'shown; broker rules, fees, taxes, price movement and dividend '
+                'changes are not modelled.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Close'),
+        ),
+      ],
+    );
+  }
+}
+
+class _SimulationRow extends StatelessWidget {
+  const _SimulationRow({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(bottom: AppTheme.space),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Expanded(child: Text(label)),
+        const SizedBox(width: AppTheme.space),
+        Flexible(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 final class _TaxWindow {
