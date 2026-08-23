@@ -73,6 +73,20 @@ two commits.
 Types in use: `feat`, `fix`, `refactor`, `test`, `docs`, `ci`, `build`, `chore`,
 `perf`. Breaking changes are marked per the specification.
 
+### Every commit bumps the version
+
+`feat` and breaking changes bump the minor; everything else bumps the patch.
+The build number increases by one per commit. Apply it before committing:
+
+```sh
+./tool/bump-version.sh feat
+```
+
+This is enforced by `./tool/check-version.sh`, which runs both in
+`localPipeline.sh` and as a required CI job — a commit that skips or
+mis-sizes its bump fails the build. See
+[`docs/releases.md`](docs/releases.md).
+
 ## Definition of Done
 
 A feature is not done because it renders (Vision.md §87):

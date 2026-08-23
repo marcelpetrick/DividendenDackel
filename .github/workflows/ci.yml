@@ -27,6 +27,34 @@ env:
   APP_COMMIT: ${{ github.sha }}
 
 jobs:
+  version-scheme:
+    name: Version scheme
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The check compares each new commit against its parent, so it needs
+          # more than a shallow clone.
+          fetch-depth: 0
+
+      # Every commit must move the version exactly one step, per
+      # docs/releases.md. This was a convention until it drifted and two
+      # feature commits shipped under one version.
+      - name: Check the version bump of each new commit
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            base="origin/${{ github.base_ref }}"
+          else
+            base="${{ github.event.before }}"
+          fi
+          # A new branch reports an all-zero before-SHA; nothing to compare to.
+          if [[ -z "${base}" || "${base}" =~ ^0+$ ]] || ! git rev-parse --verify --quiet "${base}" >/dev/null; then
+            echo "No comparable base ref; skipping."
+            exit 0
+          fi
+          ./tool/check-version.sh "${base}" "${GITHUB_SHA}"
+
   quality:
     name: Format, analyze, test
     runs-on: ubuntu-latest

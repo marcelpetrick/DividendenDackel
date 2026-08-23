@@ -178,6 +178,37 @@ run locally to preview:
 ## Versioning
 
 `pubspec.yaml` is the single source of truth: `version: <semver>+<build>`.
-The history follows Semantic Versioning from `0.0.0`, with a minor bump per
-feature or breaking change and a patch bump for everything else. Pre-1.0, the
-major stays at `0`.
+The history follows Semantic Versioning from `0.0.0`:
+
+| Commit | Bump |
+| --- | --- |
+| `feat:`, or any type marked breaking with `!` | minor, patch reset to 0 |
+| everything else (`fix`, `docs`, `test`, `ci`, `build`, `chore`, `refactor`, `perf`) | patch |
+
+The build number increases by one per commit. Pre-1.0 the major stays at `0`.
+
+### It is enforced, not trusted
+
+This started as a convention and drifted: two feature commits once shipped
+under the same version. It is now checked mechanically, so the rule and the
+repository cannot disagree.
+
+Before committing, apply the bump:
+
+```sh
+./tool/bump-version.sh feat        # minor
+./tool/bump-version.sh fix         # patch
+./tool/bump-version.sh refactor --breaking   # minor
+```
+
+To verify what a branch adds:
+
+```sh
+./tool/check-version.sh            # origin/master..HEAD
+./tool/check-version.sh <base> <head>
+```
+
+`localPipeline.sh` runs the check as its **Version scheme** stage, and CI runs
+it as a required `Version scheme` job over the commits each push adds. A commit
+whose version does not move exactly one step fails the build and names the
+version it should have had.

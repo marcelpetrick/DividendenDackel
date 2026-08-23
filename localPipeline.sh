@@ -36,6 +36,7 @@ FORMAT_OK=0
 ANALYZE_OK=0
 TESTS_OK=0
 INTEGRATION_OK=0
+VERSION_OK=0
 ANDROID_COMPAT_OK=0
 BUILD_LINUX_OK=0
 BUILD_ANDROID_OK=0
@@ -246,6 +247,15 @@ run_integration_tests() {
         INTEGRATION_DETAILS="Linux portfolio journey failed"
     fi
     return "${status}"
+}
+
+# Checks that every commit this branch adds moved the version one step, per
+# docs/releases.md. Mechanical, because as a convention it drifted.
+check_version_scheme() {
+    if [[ ! -x "${ROOT_DIR}/tool/check-version.sh" ]]; then
+        return 0
+    fi
+    "${ROOT_DIR}/tool/check-version.sh" origin/master HEAD
 }
 
 # Vision.md §58: Android 10 support is a product requirement, so it is asserted
@@ -476,6 +486,18 @@ main() {
     else
         INTEGRATION_OK=1
         mark_result "Integration Linux" "SKIP" "Not part of stage ${STAGE}"
+    fi
+
+    if stage_enabled format; then
+        if run_with_log "${PIPELINE_LOG_DIR}/version.log" check_version_scheme; then
+            VERSION_OK=1
+            mark_result "Version scheme" "PASS" "each commit bumps once"
+        else
+            mark_result "Version scheme" "FAIL" "see ./tool/check-version.sh"
+        fi
+    else
+        VERSION_OK=1
+        mark_result "Version scheme" "SKIP" "Not part of stage ${STAGE}"
     fi
 
     if stage_enabled compat; then
