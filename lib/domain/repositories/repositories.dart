@@ -186,6 +186,18 @@ abstract interface class FxRateRepository {
   Future<Result<void>> saveAll(List<FxRate> rates);
 }
 
+/// Reads and retains explainable research-score history.
+abstract interface class ResearchRepository {
+  /// Emits newest-first snapshots for [instrumentId].
+  Stream<List<ResearchSnapshot>> watchHistory(
+    String instrumentId, {
+    int limit = 50,
+  });
+
+  /// Stores [snapshot] unless it is identical to the newest persisted result.
+  Future<Result<void>> saveIfChanged(ResearchSnapshot snapshot);
+}
+
 /// Reads and writes cache-expiry bookkeeping used by the coordinator.
 abstract interface class CacheMetadataRepository {
   /// Reads metadata for [cacheKey], or `null` on a cache miss.
