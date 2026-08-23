@@ -1,5 +1,6 @@
 import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
+import 'package:dividendendackel/app/widgets/async_value_view.dart';
 import 'package:dividendendackel/app/widgets/value_labels.dart';
 import 'package:dividendendackel/domain/analytics/analytics.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
@@ -21,21 +22,15 @@ class ResearchDetailScreen extends ConsumerWidget {
     );
     return Scaffold(
       appBar: AppBar(title: Text(instrument.value?.name ?? 'Research')),
-      body: instrument.when(
-        loading: () =>
-            const Center(child: CircularProgressIndicator.adaptive()),
-        error: (Object error, StackTrace stack) => const _FullPageMessage(
-          icon: Icons.error_outline,
-          title: 'Could not load this instrument',
-          message: 'Cached research data is currently unavailable.',
-        ),
-        data: (Instrument? value) => value == null
-            ? const _FullPageMessage(
-                icon: Icons.search_off_outlined,
-                title: 'Instrument not found',
-                message: 'It may have been removed from the local database.',
-              )
-            : _ResearchDetailBody(instrument: value),
+      body: AsyncValueView<Instrument?>(
+        value: instrument,
+        isEmpty: (Instrument? value) => value == null,
+        emptyTitle: 'Instrument not found',
+        emptyMessage: 'It may have been removed from the local database.',
+        emptyIcon: Icons.search_off_outlined,
+        onRetry: () => ref.invalidate(researchInstrumentProvider(instrumentId)),
+        builder: (BuildContext context, Instrument? value) =>
+            _ResearchDetailBody(instrument: value!),
       ),
     );
   }
@@ -157,16 +152,25 @@ class _PriceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Widget child;
-    if (quote.hasError) {
+    if (quote.value case final Quote cached) {
+      child = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          if (quote.hasError)
+            const _InlineMessage(
+              'The price could not be refreshed. Showing the cached price.',
+            ),
+          _PriceContent(quote: cached, now: now),
+        ],
+      );
+    } else if (quote.hasError) {
       child = const _InlineMessage('The cached price could not be read.');
     } else if (quote.isLoading && quote.value == null) {
       child = const LinearProgressIndicator(semanticsLabel: 'Loading price');
-    } else if (quote.value == null) {
+    } else {
       child = const _InlineMessage(
         'No cached quote is available. Research remains usable without it.',
       );
-    } else {
-      child = _PriceContent(quote: quote.requireValue!, now: now);
     }
     return _SectionCard(title: 'Price overview', child: child);
   }
@@ -207,7 +211,18 @@ class _ScoreCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Widget child;
-    if (snapshot.hasError) {
+    if (snapshot.value case final ResearchSnapshot cached) {
+      child = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          if (snapshot.hasError)
+            const _InlineMessage(
+              'The assessment could not be refreshed. Showing saved evidence.',
+            ),
+          _ScoreContent(snapshot: cached),
+        ],
+      );
+    } else if (snapshot.hasError) {
       child = const _InlineMessage(
         'The assessment could not be computed from cached evidence.',
       );
@@ -215,12 +230,10 @@ class _ScoreCard extends StatelessWidget {
       child = const LinearProgressIndicator(
         semanticsLabel: 'Computing research score',
       );
-    } else if (snapshot.value == null) {
+    } else {
       child = const _InlineMessage(
         'Not enough cached evidence to compute an assessment.',
       );
-    } else {
-      child = _ScoreContent(snapshot: snapshot.requireValue!);
     }
     return _SectionCard(title: 'Research score', child: child);
   }
@@ -774,35 +787,6 @@ class _InlineMessage extends StatelessWidget {
   );
 }
 
-class _FullPageMessage extends StatelessWidget {
-  const _FullPageMessage({
-    required this.icon,
-    required this.title,
-    required this.message,
-  });
-
-  final IconData icon;
-  final String title;
-  final String message;
-
-  @override
-  Widget build(BuildContext context) => Center(
-    child: SingleChildScrollView(
-      padding: const EdgeInsets.all(AppTheme.space * 3),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Icon(icon, size: 48),
-          const SizedBox(height: AppTheme.space),
-          Text(title, style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: AppTheme.space / 2),
-          Text(message, textAlign: TextAlign.center),
-        ],
-      ),
-    ),
-  );
-}
-
 IconData _factorIcon(FactorImpact impact) => switch (impact) {
   FactorImpact.positive => Icons.add_circle_outline,
   FactorImpact.negative => Icons.remove_circle_outline,
@@ -843,7 +827,8 @@ String? _dividendDate(BuildContext context, DividendEvent event) {
     return 'Payment ${_date(context, value)}';
   }
   if (event.exDate case final DateTime value) {
-    return 'Ex-dividend ${_date(context, value)} · payment date unavailable';
+    return 'Ex-dividend ${_date(context, value)} · '
+        'Payment date not yet confirmed.';
   }
   if (event.reportedPeriodEnd case final DateTime value) {
     return 'Reported period ended ${_date(context, value)}';

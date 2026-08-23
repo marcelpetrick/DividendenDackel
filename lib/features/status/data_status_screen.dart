@@ -19,10 +19,16 @@ class DataStatusScreen extends ConsumerWidget {
     final DataSourceSettingsState settings = ref.watch(
       dataSourceSettingsProvider,
     );
+    final AsyncValue<List<ProviderStatus>> statusesValue = ref.watch(
+      providerStatusesProvider,
+    );
     final List<ProviderStatus> statuses =
-        ref.watch(providerStatusesProvider).value ?? const <ProviderStatus>[];
+        statusesValue.value ?? const <ProviderStatus>[];
+    final AsyncValue<List<RequestStatus>> operationsValue = ref.watch(
+      activeOperationsProvider,
+    );
     final List<RequestStatus> operations =
-        ref.watch(activeOperationsProvider).value ?? const <RequestStatus>[];
+        operationsValue.value ?? const <RequestStatus>[];
     final InMemoryLogSink sink = ref.watch(logSinkProvider);
     final DateTime now = ref.watch(clockProvider).now();
     final Map<String, ProviderStatus> byProvider = <String, ProviderStatus>{
@@ -40,6 +46,16 @@ class DataStatusScreen extends ConsumerWidget {
           return ListView(
             padding: const EdgeInsets.all(AppTheme.space * 2),
             children: <Widget>[
+              if (statusesValue.hasError ||
+                  operationsValue.hasError) ...<Widget>[
+                const _QuietState(
+                  icon: Icons.warning_amber_outlined,
+                  text:
+                      'Some provider diagnostics could not be read. Saved '
+                      'status entries remain visible.',
+                ),
+                const SizedBox(height: AppTheme.space),
+              ],
               Text(
                 'Data sources',
                 style: Theme.of(context).textTheme.titleLarge,

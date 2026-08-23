@@ -32,6 +32,7 @@ class _ForecastScreenState extends ConsumerState<ForecastScreen> {
     final AsyncValue<List<Holding>> holdingsValue = ref.watch(holdingsProvider);
     return AsyncValueView<List<Holding>>(
       value: holdingsValue,
+      onRetry: () => ref.invalidate(holdingsProvider),
       isEmpty: (List<Holding> holdings) => holdings.isEmpty,
       emptyTitle: 'No holdings to forecast',
       emptyMessage: 'Add a holding before projecting portfolio income.',
@@ -54,12 +55,24 @@ class _ForecastScreenState extends ConsumerState<ForecastScreen> {
         );
         return AsyncValueView<Map<String, Instrument>>(
           value: ref.watch(instrumentsByIdProvider),
+          onRetry: () => ref.invalidate(instrumentsByIdProvider),
           builder:
               (
                 BuildContext context,
                 Map<String, Instrument> instruments,
               ) => AsyncValueView<List<DividendEvent>>(
                 value: source,
+                onRetry: () => ref.invalidate(
+                  forecastSourceEventsProvider(
+                    ForecastEventsQuery(
+                      range: DateRange(
+                        DateTime(now.year - 12),
+                        DateTime(now.year, now.month + 24),
+                      ),
+                      instrumentIds: ids,
+                    ),
+                  ),
+                ),
                 isEmpty: (List<DividendEvent> events) => events.isEmpty,
                 emptyTitle: 'No dividend history',
                 emptyMessage:
@@ -80,6 +93,7 @@ class _ForecastScreenState extends ConsumerState<ForecastScreen> {
                   ];
                   return AsyncValueView<TaxSettings>(
                     value: ref.watch(taxSettingsProvider),
+                    onRetry: () => ref.invalidate(taxSettingsProvider),
                     builder: (BuildContext context, TaxSettings settings) {
                       final bool needsFx = forecasts.any(
                         (DividendForecast forecast) =>

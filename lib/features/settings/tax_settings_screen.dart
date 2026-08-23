@@ -17,6 +17,7 @@ class TaxSettingsScreen extends ConsumerWidget {
       appBar: AppBar(title: const Text('Dividend tax estimate')),
       body: AsyncValueView<TaxSettings>(
         value: settings,
+        onRetry: () => ref.invalidate(taxSettingsProvider),
         builder: (BuildContext context, TaxSettings data) => _TaxSettingsBody(
           settings: data,
           updateProfile: (DividendTaxProfile profile) =>
