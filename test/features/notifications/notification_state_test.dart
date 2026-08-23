@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/features/notifications/notification_settings_screen.dart';
 import 'package:dividendendackel/features/notifications/notification_state.dart';
@@ -101,6 +103,65 @@ void main() {
     expect(copy, isNot(contains('urgent')));
   });
 
+  test('same-day dividend payments retain distinct delivery identities', () {
+    final List<PortfolioNotification> notifications =
+        PortfolioNotificationPlanner.plan(
+          mode: NotificationMode.all,
+          now: now,
+          instruments: const <String, Instrument>{'asset': instrument},
+          dividends: <DividendEvent>[
+            for (final String amount in <String>['1', '2'])
+              DividendEvent(
+                instrumentId: 'asset',
+                amountPerShare: Money.parse(amount, Currency.eur),
+                status: DividendStatus.confirmed,
+                paymentDate: now,
+                provenance: provenance,
+              ),
+          ],
+          earnings: const <EarningsEvent>[],
+          corporateEvents: const <CorporateEvent>[],
+          filings: const <Filing>[],
+        );
+
+    expect(notifications, hasLength(2));
+    expect(notifications.map((item) => item.key).toSet(), hasLength(2));
+    expect(notifications.map((item) => item.platformId).toSet(), hasLength(2));
+  });
+
+  test('overlapping sync requests share one reconciliation', () async {
+    final _BlockingStore store = _BlockingStore();
+    final _Gateway gateway = _Gateway(permission: true);
+    final NotificationReconciler reconciler = NotificationReconciler(
+      store: store,
+      gateway: gateway,
+    );
+    int planLoads = 0;
+    Future<List<PortfolioNotification>> loadPlan() async {
+      planLoads += 1;
+      return const <PortfolioNotification>[
+        PortfolioNotification(
+          key: 'payment:asset:today',
+          title: 'Dividend payment expected today',
+          body: 'Example AG has a confirmed payment today.',
+          importance: PortfolioNotificationImportance.important,
+        ),
+      ];
+    }
+
+    final Future<void> first = reconciler.reconcile(loadPlan);
+    final Future<void> second = reconciler.reconcile(loadPlan);
+    await Future<void>.delayed(Duration.zero);
+
+    expect(planLoads, 1);
+    expect(store.deliveredLoads, 1);
+    store.release.complete();
+    await Future.wait(<Future<void>>[first, second]);
+
+    expect(store.deliveredLoads, 1);
+    expect(gateway.shown, hasLength(1));
+  });
+
   test('permission denial keeps notifications disabled', () async {
     final _Store store = _Store();
     final _Gateway gateway = _Gateway(permission: false);
@@ -187,4 +248,26 @@ final class _Gateway implements LocalNotificationGateway {
   @override
   Future<void> show(PortfolioNotification notification) async =>
       shown.add(notification);
+}
+
+final class _BlockingStore implements NotificationPreferenceStore {
+  final Completer<void> release = Completer<void>();
+  final Set<String> delivered = <String>{};
+  int deliveredLoads = 0;
+
+  @override
+  Future<Set<String>> loadDelivered() async {
+    deliveredLoads += 1;
+    await release.future;
+    return delivered;
+  }
+
+  @override
+  Future<NotificationMode> loadMode() async => NotificationMode.importantOnly;
+
+  @override
+  Future<void> markDelivered(String key) async => delivered.add(key);
+
+  @override
+  Future<void> saveMode(NotificationMode mode) async {}
 }

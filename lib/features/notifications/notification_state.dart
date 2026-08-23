@@ -58,7 +58,7 @@ abstract final class PortfolioNotificationPlanner {
       if (_dayOrNull(event.paymentDate) == today) {
         result.add(
           PortfolioNotification(
-            key: 'payment:${event.instrumentId}:${today.toIso8601String()}',
+            key: _dividendKey('payment', event, today),
             title: 'Dividend payment expected today',
             body:
                 '${name(event.instrumentId)} has a ${event.status.name} '
@@ -71,7 +71,7 @@ abstract final class PortfolioNotificationPlanner {
       if (_dayOrNull(event.exDate) == tomorrow) {
         result.add(
           PortfolioNotification(
-            key: 'ex-date:${event.instrumentId}:${tomorrow.toIso8601String()}',
+            key: _dividendKey('ex-date', event, tomorrow),
             title: 'Ex-dividend date tomorrow',
             body:
                 '${name(event.instrumentId)} has a ${event.status.name} '
@@ -142,6 +142,20 @@ abstract final class PortfolioNotificationPlanner {
       DateTime.utc(value.year, value.month, value.day);
   static DateTime? _dayOrNull(DateTime? value) =>
       value == null ? null : _day(value);
+  static String _dividendKey(String kind, DividendEvent event, DateTime day) =>
+      <Object?>[
+        kind,
+        event.instrumentId,
+        day.toIso8601String(),
+        event.amountPerShare.currency.code,
+        event.amountPerShare.amount,
+        event.exDate?.toUtc().toIso8601String(),
+        event.paymentDate?.toUtc().toIso8601String(),
+        event.declarationDate?.toUtc().toIso8601String(),
+        event.recordDate?.toUtc().toIso8601String(),
+        event.reportedPeriodStart?.toUtc().toIso8601String(),
+        event.reportedPeriodEnd?.toUtc().toIso8601String(),
+      ].join(':');
   static String _earningsTiming(EarningsTiming timing) => switch (timing) {
     EarningsTiming.beforeMarketOpen => 'before market open',
     EarningsTiming.afterMarketClose => 'after market close',
@@ -207,6 +221,43 @@ abstract interface class LocalNotificationGateway {
   Future<void> initialize();
   Future<bool> requestPermission();
   Future<void> show(PortfolioNotification notification);
+}
+
+/// Serializes notification reconciliation so simultaneous startup, resume and
+/// settings changes cannot deliver the same event more than once.
+final class NotificationReconciler {
+  NotificationReconciler({required this.store, required this.gateway});
+
+  final NotificationPreferenceStore store;
+  final LocalNotificationGateway gateway;
+  Future<void>? _inFlight;
+
+  Future<void> reconcile(
+    Future<List<PortfolioNotification>> Function() loadPlanned,
+  ) async {
+    final Future<void>? existing = _inFlight;
+    if (existing != null) return existing;
+    final Future<void> current = _reconcile(loadPlanned);
+    _inFlight = current;
+    try {
+      await current;
+    } finally {
+      if (identical(_inFlight, current)) _inFlight = null;
+    }
+  }
+
+  Future<void> _reconcile(
+    Future<List<PortfolioNotification>> Function() loadPlanned,
+  ) async {
+    final List<PortfolioNotification> planned = await loadPlanned();
+    final Set<String> delivered = await store.loadDelivered();
+    for (final PortfolioNotification notification in planned) {
+      if (delivered.contains(notification.key)) continue;
+      await gateway.show(notification);
+      await store.markDelivered(notification.key);
+      delivered.add(notification.key);
+    }
+  }
 }
 
 final class PluginLocalNotificationGateway implements LocalNotificationGateway {
@@ -280,6 +331,13 @@ notificationPreferenceStoreProvider = Provider(
 );
 final Provider<LocalNotificationGateway> localNotificationGatewayProvider =
     Provider((Ref ref) => PluginLocalNotificationGateway());
+final Provider<NotificationReconciler> notificationReconcilerProvider =
+    Provider(
+      (Ref ref) => NotificationReconciler(
+        store: ref.watch(notificationPreferenceStoreProvider),
+        gateway: ref.watch(localNotificationGatewayProvider),
+      ),
+    );
 
 final class NotificationSettingsController
     extends Notifier<NotificationSettingsState> {
@@ -343,37 +401,29 @@ final class NotificationSettingsController
     final NotificationMode mode = state.mode;
     if (mode == NotificationMode.disabled || state.isLoading) return;
     try {
-      final DateTime now = ref.read(clockProvider).now().toUtc();
-      final Set<String> followed = await ref.read(
-        followedInstrumentIdsProvider.future,
-      );
-      final List<PortfolioNotification> planned =
-          PortfolioNotificationPlanner.plan(
-            mode: mode,
-            now: now,
-            instruments: await ref.read(instrumentsByIdProvider.future),
-            dividends: <DividendEvent>{
-              ...await ref.read(upcomingDividendsProvider(2).future),
-              ...await ref.read(upcomingDividendPaymentsProvider(2).future),
-            }.toList(growable: false),
-            earnings: await ref.read(upcomingEarningsProvider(2).future),
-            corporateEvents: await ref.read(
-              upcomingCorporateEventsProvider(2).future,
-            ),
-            filings: await ref
-                .read(marketDataRepositoryProvider)
-                .watchRecentFilings(instrumentIds: followed, limit: 50)
-                .first,
-          );
-      final NotificationPreferenceStore store = ref.read(
-        notificationPreferenceStoreProvider,
-      );
-      final Set<String> delivered = await store.loadDelivered();
-      for (final PortfolioNotification notification in planned) {
-        if (delivered.contains(notification.key)) continue;
-        await ref.read(localNotificationGatewayProvider).show(notification);
-        await store.markDelivered(notification.key);
-      }
+      await ref.read(notificationReconcilerProvider).reconcile(() async {
+        final DateTime now = ref.read(clockProvider).now().toUtc();
+        final Set<String> followed = await ref.read(
+          followedInstrumentIdsProvider.future,
+        );
+        return PortfolioNotificationPlanner.plan(
+          mode: mode,
+          now: now,
+          instruments: await ref.read(instrumentsByIdProvider.future),
+          dividends: <DividendEvent>{
+            ...await ref.read(upcomingDividendsProvider(2).future),
+            ...await ref.read(upcomingDividendPaymentsProvider(2).future),
+          }.toList(growable: false),
+          earnings: await ref.read(upcomingEarningsProvider(2).future),
+          corporateEvents: await ref.read(
+            upcomingCorporateEventsProvider(2).future,
+          ),
+          filings: await ref
+              .read(marketDataRepositoryProvider)
+              .watchRecentFilings(instrumentIds: followed, limit: 50)
+              .first,
+        );
+      });
     } on Object {
       if (!_disposed) {
         state = NotificationSettingsState(

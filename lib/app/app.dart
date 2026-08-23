@@ -28,6 +28,7 @@ class DividendenDackelApp extends ConsumerStatefulWidget {
 
 class _DividendenDackelAppState extends ConsumerState<DividendenDackelApp>
     with WidgetsBindingObserver {
+  Future<void>? _refreshCycle;
   late final GoRouter _router = buildRouter(
     initialLocation: widget.initialLocation,
   );
@@ -42,6 +43,18 @@ class _DividendenDackelAppState extends ConsumerState<DividendenDackelApp>
   }
 
   Future<void> _refreshAfterSeed() async {
+    final Future<void>? existing = _refreshCycle;
+    if (existing != null) return existing;
+    final Future<void> current = _runRefreshAfterSeed();
+    _refreshCycle = current;
+    try {
+      await current;
+    } finally {
+      if (identical(_refreshCycle, current)) _refreshCycle = null;
+    }
+  }
+
+  Future<void> _runRefreshAfterSeed() async {
     if (!ref.read(automaticPortfolioRefreshEnabledProvider)) return;
     try {
       await ref.read(sampleDataProvider.future);
@@ -60,9 +73,7 @@ class _DividendenDackelAppState extends ConsumerState<DividendenDackelApp>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed &&
         ref.read(automaticPortfolioRefreshEnabledProvider)) {
-      unawaited(ref.read(portfolioRefreshProvider.notifier).refresh());
-      unawaited(ref.read(fxRefreshProvider.notifier).refresh());
-      unawaited(ref.read(notificationSettingsProvider.notifier).sync());
+      unawaited(_refreshAfterSeed());
     }
   }
 
