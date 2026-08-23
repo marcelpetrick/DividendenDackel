@@ -342,6 +342,45 @@ void main() {
 
     expect(result.valueOrNull, <FxRate>[expected]);
   });
+
+  test(
+    'ProviderMarketDataService routes company events by capability',
+    () async {
+      final RequestCoordinator coordinator = RequestCoordinator(
+        defaultPolicy: ProviderRequestPolicy(maxAttempts: 1),
+      );
+      addTearDown(coordinator.dispose);
+      final CorporateEvent expected = CorporateEvent(
+        id: 'event-1',
+        instrumentId: _instrument.internalId,
+        scheduledFor: DateTime.utc(2026, 6, 1),
+        type: CorporateEventType.investorDay,
+        status: CorporateEventStatus.confirmed,
+        title: 'Investor day',
+        provenance: Provenance(
+          source: 'event-provider',
+          fetchedAt: DateTime.utc(2026),
+        ),
+      );
+      final ProviderMarketDataService service = ProviderMarketDataService(
+        ProviderFallbackChain(
+          registry: ProviderRegistry(
+            providers: <MarketDataProvider>[
+              _FakeCompanyEventProvider(expected),
+            ],
+          ),
+          coordinator: coordinator,
+        ),
+      );
+
+      final Result<List<CorporateEvent>> result = await service.companyEvents(
+        _instrument,
+        _range,
+      );
+
+      expect(result.valueOrNull, <CorporateEvent>[expected]);
+    },
+  );
 }
 
 const Instrument _instrument = Instrument(
@@ -435,6 +474,27 @@ final class _FakeFxProvider implements FxRateDataProvider {
     DateRange range, {
     required CancellationToken cancellationToken,
   }) async => Success<List<FxRate>>(<FxRate>[rate]);
+}
+
+final class _FakeCompanyEventProvider implements CompanyEventDataProvider {
+  const _FakeCompanyEventProvider(this.event);
+
+  final CorporateEvent event;
+
+  @override
+  String get id => 'event-provider';
+
+  @override
+  Set<ProviderDataType> get capabilities => const <ProviderDataType>{
+    ProviderDataType.companyEvents,
+  };
+
+  @override
+  Future<Result<List<CorporateEvent>>> fetchCompanyEvents(
+    Instrument instrument,
+    DateRange range, {
+    required CancellationToken cancellationToken,
+  }) async => Success<List<CorporateEvent>>(<CorporateEvent>[event]);
 }
 
 Future<void> _waitUntil(bool Function() condition) async {

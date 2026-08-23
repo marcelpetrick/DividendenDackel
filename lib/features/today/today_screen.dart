@@ -35,6 +35,18 @@ class TodayScreen extends ConsumerWidget {
     final AsyncValue<List<DividendEvent>> next365 = ref.watch(
       upcomingDividendPaymentsProvider(365),
     );
+    final AsyncValue<List<EarningsEvent>> next3Earnings = ref.watch(
+      upcomingEarningsProvider(3),
+    );
+    final AsyncValue<List<CorporateEvent>> next3Corporate = ref.watch(
+      upcomingCorporateEventsProvider(3),
+    );
+    final AsyncValue<List<EarningsEvent>> next30Earnings = ref.watch(
+      upcomingEarningsProvider(30),
+    );
+    final AsyncValue<List<CorporateEvent>> next30Corporate = ref.watch(
+      upcomingCorporateEventsProvider(30),
+    );
     final AsyncValue<Map<String, Instrument>> instrumentValue = ref.watch(
       instrumentsByIdProvider,
     );
@@ -64,8 +76,15 @@ class TodayScreen extends ConsumerWidget {
       children: <Widget>[
         _SummaryCard(
           holdingCount: holdings.value?.length,
-          relevantCount: next3Ex.hasValue && next3Payments.hasValue
-              ? next3Ex.requireValue.length + next3Payments.requireValue.length
+          relevantCount:
+              next3Ex.hasValue &&
+                  next3Payments.hasValue &&
+                  next3Earnings.hasValue &&
+                  next3Corporate.hasValue
+              ? next3Ex.requireValue.length +
+                    next3Payments.requireValue.length +
+                    next3Earnings.requireValue.length +
+                    next3Corporate.requireValue.length
               : null,
           overview: overview,
           quoteDataAvailable: quoteValue.hasValue,
@@ -74,12 +93,26 @@ class TodayScreen extends ConsumerWidget {
         _TodayMattersCard(
           exEvents: next3Ex,
           paymentEvents: next3Payments,
+          earningsEvents: next3Earnings,
+          corporateEvents: next3Corporate,
           instruments: instruments,
           holdings: holdingsByInstrument,
           now: now,
         ),
         const SizedBox(height: AppTheme.space * 2),
-        _NextThreeDaysCard(exEvents: next3Ex, paymentEvents: next3Payments),
+        _NextThreeDaysCard(
+          exEvents: next3Ex,
+          paymentEvents: next3Payments,
+          earningsEvents: next3Earnings,
+          corporateEvents: next3Corporate,
+        ),
+        const SizedBox(height: AppTheme.space * 2),
+        _UpcomingCompanyEventsCard(
+          earningsEvents: next30Earnings,
+          corporateEvents: next30Corporate,
+          instruments: instruments,
+          now: now,
+        ),
         const SizedBox(height: AppTheme.space * 2),
         _ExpectedDividendsCard(
           next7: next7,
@@ -127,7 +160,7 @@ class _SummaryCard extends StatelessWidget {
             Text(
               relevantCount == null
                   ? 'Loading the next 3 days…'
-                  : '$relevantCount relevant dividend date(s) in the next 3 days',
+                  : '$relevantCount relevant event(s) in the next 3 days',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -173,12 +206,16 @@ class _TodayMattersCard extends StatelessWidget {
   const _TodayMattersCard({
     required this.exEvents,
     required this.paymentEvents,
+    required this.earningsEvents,
+    required this.corporateEvents,
     required this.instruments,
     required this.holdings,
     required this.now,
   });
   final AsyncValue<List<DividendEvent>> exEvents;
   final AsyncValue<List<DividendEvent>> paymentEvents;
+  final AsyncValue<List<EarningsEvent>> earningsEvents;
+  final AsyncValue<List<CorporateEvent>> corporateEvents;
   final Map<String, Instrument> instruments;
   final Map<String, Holding> holdings;
   final DateTime now;
@@ -189,14 +226,28 @@ class _TodayMattersCard extends StatelessWidget {
       for (final DividendEvent event
           in exEvents.value ?? const <DividendEvent>[])
         if (event.exDate case final DateTime date)
-          _Matter(event: event, date: date, kind: 'Ex-dividend'),
+          _Matter.dividend(event: event, date: date, kind: 'Ex-dividend'),
       for (final DividendEvent event
           in paymentEvents.value ?? const <DividendEvent>[])
         if (event.paymentDate case final DateTime date)
-          _Matter(event: event, date: date, kind: 'Payment'),
+          _Matter.dividend(event: event, date: date, kind: 'Payment'),
+      for (final EarningsEvent event
+          in earningsEvents.value ?? const <EarningsEvent>[])
+        _Matter.earnings(event),
+      for (final CorporateEvent event
+          in corporateEvents.value ?? const <CorporateEvent>[])
+        _Matter.corporate(event),
     ]..sort((_Matter a, _Matter b) => a.date.compareTo(b.date));
-    final bool loading = exEvents.isLoading || paymentEvents.isLoading;
-    final bool failed = exEvents.hasError || paymentEvents.hasError;
+    final bool loading =
+        exEvents.isLoading ||
+        paymentEvents.isLoading ||
+        earningsEvents.isLoading ||
+        corporateEvents.isLoading;
+    final bool failed =
+        exEvents.hasError ||
+        paymentEvents.hasError ||
+        earningsEvents.hasError ||
+        corporateEvents.hasError;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(AppTheme.space * 2),
@@ -212,19 +263,21 @@ class _TodayMattersCard extends StatelessWidget {
               const Text(
                 'Upcoming dates could not be refreshed. Cached portfolio and '
                 'income figures remain available.',
-              )
-            else if (loading)
-              const LinearProgressIndicator(semanticsLabel: 'Loading events')
-            else if (matters.isEmpty)
-              const Text('No dividend dates need attention in the next 3 days.')
-            else
-              for (final _Matter matter in matters.take(3))
+              ),
+            if (matters.isNotEmpty)
+              for (final _Matter matter in matters.take(5))
                 _MatterTile(
                   matter: matter,
-                  instrument: instruments[matter.event.instrumentId],
-                  holding: holdings[matter.event.instrumentId],
+                  instrument: instruments[matter.instrumentId],
+                  holding: holdings[matter.instrumentId],
                   now: now,
-                ),
+                )
+            else if (loading)
+              const LinearProgressIndicator(semanticsLabel: 'Loading events')
+            else if (!failed)
+              const Text(
+                'No portfolio events need attention in the next 3 days.',
+              ),
           ],
         ),
       ),
@@ -233,10 +286,56 @@ class _TodayMattersCard extends StatelessWidget {
 }
 
 final class _Matter {
-  const _Matter({required this.event, required this.date, required this.kind});
-  final DividendEvent event;
+  const _Matter._({
+    required this.instrumentId,
+    required this.date,
+    required this.kind,
+    required this.icon,
+    required this.status,
+    this.detail,
+    this.dividend,
+  });
+
+  factory _Matter.dividend({
+    required DividendEvent event,
+    required DateTime date,
+    required String kind,
+  }) => _Matter._(
+    instrumentId: event.instrumentId,
+    date: date,
+    kind: kind,
+    icon: kind == 'Payment'
+        ? Icons.payments_outlined
+        : Icons.event_available_outlined,
+    status: DividendStatusChip.labelFor(event.status),
+    dividend: event,
+  );
+
+  factory _Matter.earnings(EarningsEvent event) => _Matter._(
+    instrumentId: event.instrumentId,
+    date: event.scheduledFor,
+    kind: 'Earnings',
+    icon: Icons.assessment_outlined,
+    status: _earningsStatus(event.status),
+    detail: _earningsTiming(event.timing),
+  );
+
+  factory _Matter.corporate(CorporateEvent event) => _Matter._(
+    instrumentId: event.instrumentId,
+    date: event.scheduledFor,
+    kind: event.title,
+    icon: Icons.corporate_fare_outlined,
+    status: _corporateStatus(event.status),
+    detail: _corporateType(event.type),
+  );
+
+  final String instrumentId;
   final DateTime date;
   final String kind;
+  final IconData icon;
+  final String status;
+  final String? detail;
+  final DividendEvent? dividend;
 }
 
 class _MatterTile extends StatelessWidget {
@@ -253,25 +352,23 @@ class _MatterTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Money? gross = holding == null
+    final DividendEvent? dividend = matter.dividend;
+    final Money? gross = holding == null || dividend == null
         ? null
-        : matter.event.grossPaymentFor(holding!.quantity);
+        : dividend.grossPaymentFor(holding!.quantity);
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      leading: Icon(
-        matter.kind == 'Payment'
-            ? Icons.payments_outlined
-            : Icons.event_available_outlined,
-      ),
-      title: Text(instrument?.name ?? matter.event.instrumentId),
+      leading: Icon(matter.icon),
+      title: Text(instrument?.name ?? matter.instrumentId),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text('${matter.kind} ${_relativeDay(matter.date, now)}'),
-          if (gross != null) GrossNetAmount(event: matter.event, gross: gross),
+          if (matter.detail case final String detail) Text(detail),
+          if (gross != null) GrossNetAmount(event: dividend!, gross: gross),
         ],
       ),
-      trailing: DividendStatusChip(matter.event.status),
+      trailing: Chip(label: Text(matter.status)),
     );
   }
 
@@ -291,9 +388,13 @@ class _NextThreeDaysCard extends StatelessWidget {
   const _NextThreeDaysCard({
     required this.exEvents,
     required this.paymentEvents,
+    required this.earningsEvents,
+    required this.corporateEvents,
   });
   final AsyncValue<List<DividendEvent>> exEvents;
   final AsyncValue<List<DividendEvent>> paymentEvents;
+  final AsyncValue<List<EarningsEvent>> earningsEvents;
+  final AsyncValue<List<CorporateEvent>> corporateEvents;
 
   @override
   Widget build(BuildContext context) => Card(
@@ -304,6 +405,13 @@ class _NextThreeDaysCard extends StatelessWidget {
         children: <Widget>[
           Text('Next 3 days', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: AppTheme.space),
+          Text(
+            earningsEvents.hasError
+                ? 'Earnings: unavailable'
+                : earningsEvents.value == null
+                ? 'Earnings: loading…'
+                : '${earningsEvents.requireValue.length} earnings event(s)',
+          ),
           Text(
             exEvents.hasError
                 ? 'Ex-dividend dates: unavailable'
@@ -318,11 +426,112 @@ class _NextThreeDaysCard extends StatelessWidget {
                 ? 'Payments: loading…'
                 : '${paymentEvents.requireValue.length} payment date(s)',
           ),
+          Text(
+            corporateEvents.hasError
+                ? 'Company events: unavailable'
+                : corporateEvents.value == null
+                ? 'Company events: loading…'
+                : '${corporateEvents.requireValue.length} company event(s)',
+          ),
         ],
       ),
     ),
   );
 }
+
+class _UpcomingCompanyEventsCard extends StatelessWidget {
+  const _UpcomingCompanyEventsCard({
+    required this.earningsEvents,
+    required this.corporateEvents,
+    required this.instruments,
+    required this.now,
+  });
+
+  final AsyncValue<List<EarningsEvent>> earningsEvents;
+  final AsyncValue<List<CorporateEvent>> corporateEvents;
+  final Map<String, Instrument> instruments;
+  final DateTime now;
+
+  @override
+  Widget build(BuildContext context) {
+    final List<_Matter> matters = <_Matter>[
+      for (final EarningsEvent event
+          in earningsEvents.value ?? const <EarningsEvent>[])
+        _Matter.earnings(event),
+      for (final CorporateEvent event
+          in corporateEvents.value ?? const <CorporateEvent>[])
+        _Matter.corporate(event),
+    ]..sort((_Matter a, _Matter b) => a.date.compareTo(b.date));
+    final bool failed = earningsEvents.hasError || corporateEvents.hasError;
+    final bool loading = earningsEvents.isLoading || corporateEvents.isLoading;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppTheme.space * 2),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              'Upcoming company events · 30 days',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: AppTheme.space),
+            if (failed)
+              const Text(
+                'Some event sources are unavailable. Cached events remain '
+                'visible below.',
+              ),
+            if (matters.isNotEmpty)
+              for (final _Matter matter in matters.take(5))
+                _MatterTile(
+                  matter: matter,
+                  instrument: instruments[matter.instrumentId],
+                  holding: null,
+                  now: now,
+                )
+            else if (loading)
+              const LinearProgressIndicator(
+                semanticsLabel: 'Loading company events',
+              )
+            else if (!failed)
+              const Text('No earnings or company events are currently known.'),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+String _earningsTiming(EarningsTiming timing) => switch (timing) {
+  EarningsTiming.beforeMarketOpen => 'Before market open',
+  EarningsTiming.afterMarketClose => 'After market close',
+  EarningsTiming.duringMarketHours => 'During market hours',
+  EarningsTiming.unspecified => 'Release time not supplied',
+};
+
+String _earningsStatus(EarningsStatus status) => switch (status) {
+  EarningsStatus.estimated => 'Estimated',
+  EarningsStatus.confirmed => 'Confirmed',
+  EarningsStatus.reported => 'Reported',
+};
+
+String _corporateType(CorporateEventType type) => switch (type) {
+  CorporateEventType.shareholderMeeting => 'Shareholder meeting',
+  CorporateEventType.investorDay => 'Investor event',
+  CorporateEventType.shareSplit => 'Share split',
+  CorporateEventType.transaction => 'Corporate transaction',
+  CorporateEventType.capitalAction => 'Capital action',
+  CorporateEventType.companyUpdate => 'Company update',
+  CorporateEventType.regulatory => 'Regulatory event',
+  CorporateEventType.other => 'Company event',
+};
+
+String _corporateStatus(CorporateEventStatus status) => switch (status) {
+  CorporateEventStatus.estimated => 'Estimated',
+  CorporateEventStatus.confirmed => 'Confirmed',
+  CorporateEventStatus.completed => 'Completed',
+  CorporateEventStatus.cancelled => 'Cancelled',
+};
 
 class _ChangesCard extends StatelessWidget {
   const _ChangesCard({required this.changes});

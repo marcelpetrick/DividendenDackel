@@ -56,6 +56,33 @@ final class DriftMarketDataRepository implements MarketDataRepository {
           );
 
   @override
+  Stream<List<CorporateEvent>> watchCorporateEventsInRange(
+    DateRange range, {
+    Set<String>? instrumentIds,
+  }) =>
+      (db.select(db.corporateEvents)
+            ..where(($CorporateEventsTable t) {
+              final Expression<bool> inRange =
+                  t.scheduledFor.isBiggerOrEqualValue(range.start.toUtc()) &
+                  t.scheduledFor.isSmallerThanValue(range.end.toUtc());
+              final Expression<bool> active =
+                  t.status.isNotValue(CorporateEventStatus.completed.name) &
+                  t.status.isNotValue(CorporateEventStatus.cancelled.name);
+              return instrumentIds == null
+                  ? inRange & active
+                  : inRange & active & t.instrumentId.isIn(instrumentIds);
+            })
+            ..orderBy(<OrderClauseGenerator<$CorporateEventsTable>>[
+              ($CorporateEventsTable t) => OrderingTerm.asc(t.scheduledFor),
+            ]))
+          .watch()
+          .map(
+            (List<DbCorporateEvent> rows) => rows
+                .map((DbCorporateEvent row) => row.toDomain())
+                .toList(growable: false),
+          );
+
+  @override
   Stream<List<NewsItem>> watchRecentNews({
     Set<String>? instrumentIds,
     int limit = 50,
@@ -126,5 +153,33 @@ final class DriftMarketDataRepository implements MarketDataRepository {
         await db
             .into(db.quotes)
             .insertOnConflictUpdate(CompanionMappers.quote(quote));
+      });
+
+  @override
+  Future<Result<void>> saveEarnings(
+    List<EarningsEvent> events, {
+    required String Function(EarningsEvent event) idOf,
+  }) => Result.guardAsync<void>(() async {
+    await db.transaction(() async {
+      for (final EarningsEvent event in events) {
+        await db
+            .into(db.earningsEvents)
+            .insertOnConflictUpdate(
+              CompanionMappers.earningsEvent(event, id: idOf(event)),
+            );
+      }
+    });
+  });
+
+  @override
+  Future<Result<void>> saveCorporateEvents(List<CorporateEvent> events) =>
+      Result.guardAsync<void>(() async {
+        await db.transaction(() async {
+          for (final CorporateEvent event in events) {
+            await db
+                .into(db.corporateEvents)
+                .insertOnConflictUpdate(CompanionMappers.corporateEvent(event));
+          }
+        });
       });
 }

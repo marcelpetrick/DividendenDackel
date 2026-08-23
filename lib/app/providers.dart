@@ -381,3 +381,38 @@ final upcomingDividendPaymentsProvider =
             instrumentIds: followed,
           );
     });
+
+/// Upcoming earnings for held or watched instruments.
+final upcomingEarningsProvider =
+    StreamProvider.family<List<EarningsEvent>, int>((Ref ref, int days) async* {
+      final Set<String> followed = await ref.watch(
+        followedInstrumentIdsProvider.future,
+      );
+      final DateTime now = ref.watch(clockProvider).now();
+      final DateTime start = DateTime.utc(now.year, now.month, now.day);
+      yield* ref
+          .watch(marketDataRepositoryProvider)
+          .watchEarningsInRange(
+            DateRange.days(start, days),
+            instrumentIds: followed,
+          );
+    });
+
+/// Upcoming non-dividend, non-earnings company events.
+final upcomingCorporateEventsProvider =
+    StreamProvider.family<List<CorporateEvent>, int>((
+      Ref ref,
+      int days,
+    ) async* {
+      final Set<String> followed = await ref.watch(
+        followedInstrumentIdsProvider.future,
+      );
+      final DateTime now = ref.watch(clockProvider).now();
+      final DateTime start = DateTime.utc(now.year, now.month, now.day);
+      yield* ref
+          .watch(marketDataRepositoryProvider)
+          .watchCorporateEventsInRange(
+            DateRange.days(start, days),
+            instrumentIds: followed,
+          );
+    });

@@ -2,6 +2,7 @@
 library;
 
 export 'package:dividendendackel/domain/entities/cache_metadata.dart';
+export 'package:dividendendackel/domain/entities/corporate_event.dart';
 export 'package:dividendendackel/domain/entities/dividend_event.dart';
 export 'package:dividendendackel/domain/entities/earnings_event.dart';
 export 'package:dividendendackel/domain/entities/filing.dart';

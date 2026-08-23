@@ -133,6 +133,12 @@ abstract interface class MarketDataRepository {
     Set<String>? instrumentIds,
   });
 
+  /// Emits company events other than dividends and earnings inside [range].
+  Stream<List<CorporateEvent>> watchCorporateEventsInRange(
+    DateRange range, {
+    Set<String>? instrumentIds,
+  });
+
   /// Emits recent news, newest first.
   Stream<List<NewsItem>> watchRecentNews({
     Set<String>? instrumentIds,
@@ -147,6 +153,15 @@ abstract interface class MarketDataRepository {
 
   /// Inserts or updates a quote.
   Future<Result<void>> saveQuote(Quote quote);
+
+  /// Inserts or updates earnings events using deterministic identities.
+  Future<Result<void>> saveEarnings(
+    List<EarningsEvent> events, {
+    required String Function(EarningsEvent event) idOf,
+  });
+
+  /// Inserts or updates normalized company events.
+  Future<Result<void>> saveCorporateEvents(List<CorporateEvent> events);
 }
 
 /// Reads and writes daily foreign-exchange reference rates.

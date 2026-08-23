@@ -159,6 +159,12 @@
     {"instrumentId": "isin:US7561091049", "anchors": ["02-24", "05-05", "08-04", "11-03"], "timing": "afterMarketClose"},
     {"instrumentId": "isin:GB00B10RZP78", "anchors": ["02-13", "04-24", "07-24", "10-23"], "timing": "beforeMarketOpen"}
   ],
+  "corporateEventPatterns": [
+    {"instrumentId": "isin:DE0008404005", "anchor": "05-08", "type": "shareholderMeeting", "title": "Annual shareholder meeting"},
+    {"instrumentId": "isin:DE0007236101", "anchor": "09-09", "type": "investorDay", "title": "Capital markets day"},
+    {"instrumentId": "isin:US0378331005", "anchor": "09-12", "type": "companyUpdate", "title": "Company product event"},
+    {"instrumentId": "isin:US7561091049", "anchor": "11-18", "type": "investorDay", "title": "Investor presentation"}
+  ],
   "portfolio": [
     {"instrumentId": "isin:DE0008404005", "quantity": "20", "averagePrice": "210.40", "purchaseOffsetDays": -820},
     {"instrumentId": "isin:DE0008430026", "quantity": "6", "averagePrice": "352.00", "purchaseOffsetDays": -610},

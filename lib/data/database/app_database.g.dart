@@ -6666,6 +6666,942 @@ class EarningsEventsCompanion extends UpdateCompanion<DbEarningsEvent> {
   }
 }
 
+class $CorporateEventsTable extends CorporateEvents
+    with TableInfo<$CorporateEventsTable, DbCorporateEvent> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CorporateEventsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 64,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fetchedAtMeta = const VerificationMeta(
+    'fetchedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> fetchedAt = GeneratedColumn<DateTime>(
+    'fetched_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<CacheState, String> cacheState =
+      GeneratedColumn<String>(
+        'cache_state',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('fresh'),
+      ).withConverter<CacheState>($CorporateEventsTable.$convertercacheState);
+  @override
+  late final GeneratedColumnWithTypeConverter<Confidence, String> confidence =
+      GeneratedColumn<String>(
+        'confidence',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('high'),
+      ).withConverter<Confidence>($CorporateEventsTable.$converterconfidence);
+  static const VerificationMeta _reportedCurrencyMeta = const VerificationMeta(
+    'reportedCurrency',
+  );
+  @override
+  late final GeneratedColumn<String> reportedCurrency = GeneratedColumn<String>(
+    'reported_currency',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _originalSymbolMeta = const VerificationMeta(
+    'originalSymbol',
+  );
+  @override
+  late final GeneratedColumn<String> originalSymbol = GeneratedColumn<String>(
+    'original_symbol',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _providerExchangeMeta = const VerificationMeta(
+    'providerExchange',
+  );
+  @override
+  late final GeneratedColumn<String> providerExchange = GeneratedColumn<String>(
+    'provider_exchange',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _instrumentIdMeta = const VerificationMeta(
+    'instrumentId',
+  );
+  @override
+  late final GeneratedColumn<String> instrumentId = GeneratedColumn<String>(
+    'instrument_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES instruments (internal_id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _scheduledForMeta = const VerificationMeta(
+    'scheduledFor',
+  );
+  @override
+  late final GeneratedColumn<DateTime> scheduledFor = GeneratedColumn<DateTime>(
+    'scheduled_for',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<CorporateEventType, String> type =
+      GeneratedColumn<String>(
+        'type',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<CorporateEventType>($CorporateEventsTable.$convertertype);
+  @override
+  late final GeneratedColumnWithTypeConverter<CorporateEventStatus, String>
+  status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  ).withConverter<CorporateEventStatus>($CorporateEventsTable.$converterstatus);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _urlMeta = const VerificationMeta('url');
+  @override
+  late final GeneratedColumn<String> url = GeneratedColumn<String>(
+    'url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    source,
+    fetchedAt,
+    updatedAt,
+    cacheState,
+    confidence,
+    reportedCurrency,
+    originalSymbol,
+    providerExchange,
+    id,
+    instrumentId,
+    scheduledFor,
+    type,
+    status,
+    title,
+    url,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'corporate_events';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DbCorporateEvent> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('source')) {
+      context.handle(
+        _sourceMeta,
+        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceMeta);
+    }
+    if (data.containsKey('fetched_at')) {
+      context.handle(
+        _fetchedAtMeta,
+        fetchedAt.isAcceptableOrUnknown(data['fetched_at']!, _fetchedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_fetchedAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('reported_currency')) {
+      context.handle(
+        _reportedCurrencyMeta,
+        reportedCurrency.isAcceptableOrUnknown(
+          data['reported_currency']!,
+          _reportedCurrencyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('original_symbol')) {
+      context.handle(
+        _originalSymbolMeta,
+        originalSymbol.isAcceptableOrUnknown(
+          data['original_symbol']!,
+          _originalSymbolMeta,
+        ),
+      );
+    }
+    if (data.containsKey('provider_exchange')) {
+      context.handle(
+        _providerExchangeMeta,
+        providerExchange.isAcceptableOrUnknown(
+          data['provider_exchange']!,
+          _providerExchangeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('instrument_id')) {
+      context.handle(
+        _instrumentIdMeta,
+        instrumentId.isAcceptableOrUnknown(
+          data['instrument_id']!,
+          _instrumentIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_instrumentIdMeta);
+    }
+    if (data.containsKey('scheduled_for')) {
+      context.handle(
+        _scheduledForMeta,
+        scheduledFor.isAcceptableOrUnknown(
+          data['scheduled_for']!,
+          _scheduledForMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_scheduledForMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('url')) {
+      context.handle(
+        _urlMeta,
+        url.isAcceptableOrUnknown(data['url']!, _urlMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DbCorporateEvent map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DbCorporateEvent(
+      source: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source'],
+      )!,
+      fetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}fetched_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      ),
+      cacheState: $CorporateEventsTable.$convertercacheState.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}cache_state'],
+        )!,
+      ),
+      confidence: $CorporateEventsTable.$converterconfidence.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}confidence'],
+        )!,
+      ),
+      reportedCurrency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reported_currency'],
+      ),
+      originalSymbol: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}original_symbol'],
+      ),
+      providerExchange: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}provider_exchange'],
+      ),
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      instrumentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}instrument_id'],
+      )!,
+      scheduledFor: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}scheduled_for'],
+      )!,
+      type: $CorporateEventsTable.$convertertype.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}type'],
+        )!,
+      ),
+      status: $CorporateEventsTable.$converterstatus.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}status'],
+        )!,
+      ),
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      url: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}url'],
+      ),
+    );
+  }
+
+  @override
+  $CorporateEventsTable createAlias(String alias) {
+    return $CorporateEventsTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<CacheState, String, String> $convertercacheState =
+      const EnumNameConverter<CacheState>(CacheState.values);
+  static JsonTypeConverter2<Confidence, String, String> $converterconfidence =
+      const EnumNameConverter<Confidence>(Confidence.values);
+  static JsonTypeConverter2<CorporateEventType, String, String> $convertertype =
+      const EnumNameConverter<CorporateEventType>(CorporateEventType.values);
+  static JsonTypeConverter2<CorporateEventStatus, String, String>
+  $converterstatus = const EnumNameConverter<CorporateEventStatus>(
+    CorporateEventStatus.values,
+  );
+}
+
+class DbCorporateEvent extends DataClass
+    implements Insertable<DbCorporateEvent> {
+  /// Provider that supplied the row, e.g. `fmp`, `user`, `sample`.
+  final String source;
+
+  /// When the row was retrieved.
+  final DateTime fetchedAt;
+
+  /// When the content last changed, if the provider reports it.
+  final DateTime? updatedAt;
+
+  /// Freshness relative to the configured cache lifetime.
+  final CacheState cacheState;
+
+  /// How much trust the value deserves.
+  final Confidence confidence;
+
+  /// Currency the provider reported, before normalization.
+  final String? reportedCurrency;
+
+  /// Symbol the provider used.
+  final String? originalSymbol;
+
+  /// Exchange the provider attributed the row to.
+  final String? providerExchange;
+
+  /// Stable provider or locally generated identifier.
+  final String id;
+
+  /// The company instrument.
+  final String instrumentId;
+
+  /// Calendar date or timestamp supplied by the source.
+  final DateTime scheduledFor;
+
+  /// Normalized category.
+  final CorporateEventType type;
+
+  /// Date certainty and lifecycle state.
+  final CorporateEventStatus status;
+
+  /// Human-readable source label.
+  final String title;
+
+  /// Optional original source page.
+  final String? url;
+  const DbCorporateEvent({
+    required this.source,
+    required this.fetchedAt,
+    this.updatedAt,
+    required this.cacheState,
+    required this.confidence,
+    this.reportedCurrency,
+    this.originalSymbol,
+    this.providerExchange,
+    required this.id,
+    required this.instrumentId,
+    required this.scheduledFor,
+    required this.type,
+    required this.status,
+    required this.title,
+    this.url,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['source'] = Variable<String>(source);
+    map['fetched_at'] = Variable<DateTime>(fetchedAt);
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    {
+      map['cache_state'] = Variable<String>(
+        $CorporateEventsTable.$convertercacheState.toSql(cacheState),
+      );
+    }
+    {
+      map['confidence'] = Variable<String>(
+        $CorporateEventsTable.$converterconfidence.toSql(confidence),
+      );
+    }
+    if (!nullToAbsent || reportedCurrency != null) {
+      map['reported_currency'] = Variable<String>(reportedCurrency);
+    }
+    if (!nullToAbsent || originalSymbol != null) {
+      map['original_symbol'] = Variable<String>(originalSymbol);
+    }
+    if (!nullToAbsent || providerExchange != null) {
+      map['provider_exchange'] = Variable<String>(providerExchange);
+    }
+    map['id'] = Variable<String>(id);
+    map['instrument_id'] = Variable<String>(instrumentId);
+    map['scheduled_for'] = Variable<DateTime>(scheduledFor);
+    {
+      map['type'] = Variable<String>(
+        $CorporateEventsTable.$convertertype.toSql(type),
+      );
+    }
+    {
+      map['status'] = Variable<String>(
+        $CorporateEventsTable.$converterstatus.toSql(status),
+      );
+    }
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || url != null) {
+      map['url'] = Variable<String>(url);
+    }
+    return map;
+  }
+
+  CorporateEventsCompanion toCompanion(bool nullToAbsent) {
+    return CorporateEventsCompanion(
+      source: Value(source),
+      fetchedAt: Value(fetchedAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+      cacheState: Value(cacheState),
+      confidence: Value(confidence),
+      reportedCurrency: reportedCurrency == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reportedCurrency),
+      originalSymbol: originalSymbol == null && nullToAbsent
+          ? const Value.absent()
+          : Value(originalSymbol),
+      providerExchange: providerExchange == null && nullToAbsent
+          ? const Value.absent()
+          : Value(providerExchange),
+      id: Value(id),
+      instrumentId: Value(instrumentId),
+      scheduledFor: Value(scheduledFor),
+      type: Value(type),
+      status: Value(status),
+      title: Value(title),
+      url: url == null && nullToAbsent ? const Value.absent() : Value(url),
+    );
+  }
+
+  factory DbCorporateEvent.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DbCorporateEvent(
+      source: serializer.fromJson<String>(json['source']),
+      fetchedAt: serializer.fromJson<DateTime>(json['fetchedAt']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+      cacheState: $CorporateEventsTable.$convertercacheState.fromJson(
+        serializer.fromJson<String>(json['cacheState']),
+      ),
+      confidence: $CorporateEventsTable.$converterconfidence.fromJson(
+        serializer.fromJson<String>(json['confidence']),
+      ),
+      reportedCurrency: serializer.fromJson<String?>(json['reportedCurrency']),
+      originalSymbol: serializer.fromJson<String?>(json['originalSymbol']),
+      providerExchange: serializer.fromJson<String?>(json['providerExchange']),
+      id: serializer.fromJson<String>(json['id']),
+      instrumentId: serializer.fromJson<String>(json['instrumentId']),
+      scheduledFor: serializer.fromJson<DateTime>(json['scheduledFor']),
+      type: $CorporateEventsTable.$convertertype.fromJson(
+        serializer.fromJson<String>(json['type']),
+      ),
+      status: $CorporateEventsTable.$converterstatus.fromJson(
+        serializer.fromJson<String>(json['status']),
+      ),
+      title: serializer.fromJson<String>(json['title']),
+      url: serializer.fromJson<String?>(json['url']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'source': serializer.toJson<String>(source),
+      'fetchedAt': serializer.toJson<DateTime>(fetchedAt),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+      'cacheState': serializer.toJson<String>(
+        $CorporateEventsTable.$convertercacheState.toJson(cacheState),
+      ),
+      'confidence': serializer.toJson<String>(
+        $CorporateEventsTable.$converterconfidence.toJson(confidence),
+      ),
+      'reportedCurrency': serializer.toJson<String?>(reportedCurrency),
+      'originalSymbol': serializer.toJson<String?>(originalSymbol),
+      'providerExchange': serializer.toJson<String?>(providerExchange),
+      'id': serializer.toJson<String>(id),
+      'instrumentId': serializer.toJson<String>(instrumentId),
+      'scheduledFor': serializer.toJson<DateTime>(scheduledFor),
+      'type': serializer.toJson<String>(
+        $CorporateEventsTable.$convertertype.toJson(type),
+      ),
+      'status': serializer.toJson<String>(
+        $CorporateEventsTable.$converterstatus.toJson(status),
+      ),
+      'title': serializer.toJson<String>(title),
+      'url': serializer.toJson<String?>(url),
+    };
+  }
+
+  DbCorporateEvent copyWith({
+    String? source,
+    DateTime? fetchedAt,
+    Value<DateTime?> updatedAt = const Value.absent(),
+    CacheState? cacheState,
+    Confidence? confidence,
+    Value<String?> reportedCurrency = const Value.absent(),
+    Value<String?> originalSymbol = const Value.absent(),
+    Value<String?> providerExchange = const Value.absent(),
+    String? id,
+    String? instrumentId,
+    DateTime? scheduledFor,
+    CorporateEventType? type,
+    CorporateEventStatus? status,
+    String? title,
+    Value<String?> url = const Value.absent(),
+  }) => DbCorporateEvent(
+    source: source ?? this.source,
+    fetchedAt: fetchedAt ?? this.fetchedAt,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+    cacheState: cacheState ?? this.cacheState,
+    confidence: confidence ?? this.confidence,
+    reportedCurrency: reportedCurrency.present
+        ? reportedCurrency.value
+        : this.reportedCurrency,
+    originalSymbol: originalSymbol.present
+        ? originalSymbol.value
+        : this.originalSymbol,
+    providerExchange: providerExchange.present
+        ? providerExchange.value
+        : this.providerExchange,
+    id: id ?? this.id,
+    instrumentId: instrumentId ?? this.instrumentId,
+    scheduledFor: scheduledFor ?? this.scheduledFor,
+    type: type ?? this.type,
+    status: status ?? this.status,
+    title: title ?? this.title,
+    url: url.present ? url.value : this.url,
+  );
+  DbCorporateEvent copyWithCompanion(CorporateEventsCompanion data) {
+    return DbCorporateEvent(
+      source: data.source.present ? data.source.value : this.source,
+      fetchedAt: data.fetchedAt.present ? data.fetchedAt.value : this.fetchedAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      cacheState: data.cacheState.present
+          ? data.cacheState.value
+          : this.cacheState,
+      confidence: data.confidence.present
+          ? data.confidence.value
+          : this.confidence,
+      reportedCurrency: data.reportedCurrency.present
+          ? data.reportedCurrency.value
+          : this.reportedCurrency,
+      originalSymbol: data.originalSymbol.present
+          ? data.originalSymbol.value
+          : this.originalSymbol,
+      providerExchange: data.providerExchange.present
+          ? data.providerExchange.value
+          : this.providerExchange,
+      id: data.id.present ? data.id.value : this.id,
+      instrumentId: data.instrumentId.present
+          ? data.instrumentId.value
+          : this.instrumentId,
+      scheduledFor: data.scheduledFor.present
+          ? data.scheduledFor.value
+          : this.scheduledFor,
+      type: data.type.present ? data.type.value : this.type,
+      status: data.status.present ? data.status.value : this.status,
+      title: data.title.present ? data.title.value : this.title,
+      url: data.url.present ? data.url.value : this.url,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DbCorporateEvent(')
+          ..write('source: $source, ')
+          ..write('fetchedAt: $fetchedAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('cacheState: $cacheState, ')
+          ..write('confidence: $confidence, ')
+          ..write('reportedCurrency: $reportedCurrency, ')
+          ..write('originalSymbol: $originalSymbol, ')
+          ..write('providerExchange: $providerExchange, ')
+          ..write('id: $id, ')
+          ..write('instrumentId: $instrumentId, ')
+          ..write('scheduledFor: $scheduledFor, ')
+          ..write('type: $type, ')
+          ..write('status: $status, ')
+          ..write('title: $title, ')
+          ..write('url: $url')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    source,
+    fetchedAt,
+    updatedAt,
+    cacheState,
+    confidence,
+    reportedCurrency,
+    originalSymbol,
+    providerExchange,
+    id,
+    instrumentId,
+    scheduledFor,
+    type,
+    status,
+    title,
+    url,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DbCorporateEvent &&
+          other.source == this.source &&
+          other.fetchedAt == this.fetchedAt &&
+          other.updatedAt == this.updatedAt &&
+          other.cacheState == this.cacheState &&
+          other.confidence == this.confidence &&
+          other.reportedCurrency == this.reportedCurrency &&
+          other.originalSymbol == this.originalSymbol &&
+          other.providerExchange == this.providerExchange &&
+          other.id == this.id &&
+          other.instrumentId == this.instrumentId &&
+          other.scheduledFor == this.scheduledFor &&
+          other.type == this.type &&
+          other.status == this.status &&
+          other.title == this.title &&
+          other.url == this.url);
+}
+
+class CorporateEventsCompanion extends UpdateCompanion<DbCorporateEvent> {
+  final Value<String> source;
+  final Value<DateTime> fetchedAt;
+  final Value<DateTime?> updatedAt;
+  final Value<CacheState> cacheState;
+  final Value<Confidence> confidence;
+  final Value<String?> reportedCurrency;
+  final Value<String?> originalSymbol;
+  final Value<String?> providerExchange;
+  final Value<String> id;
+  final Value<String> instrumentId;
+  final Value<DateTime> scheduledFor;
+  final Value<CorporateEventType> type;
+  final Value<CorporateEventStatus> status;
+  final Value<String> title;
+  final Value<String?> url;
+  final Value<int> rowid;
+  const CorporateEventsCompanion({
+    this.source = const Value.absent(),
+    this.fetchedAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.cacheState = const Value.absent(),
+    this.confidence = const Value.absent(),
+    this.reportedCurrency = const Value.absent(),
+    this.originalSymbol = const Value.absent(),
+    this.providerExchange = const Value.absent(),
+    this.id = const Value.absent(),
+    this.instrumentId = const Value.absent(),
+    this.scheduledFor = const Value.absent(),
+    this.type = const Value.absent(),
+    this.status = const Value.absent(),
+    this.title = const Value.absent(),
+    this.url = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CorporateEventsCompanion.insert({
+    required String source,
+    required DateTime fetchedAt,
+    this.updatedAt = const Value.absent(),
+    this.cacheState = const Value.absent(),
+    this.confidence = const Value.absent(),
+    this.reportedCurrency = const Value.absent(),
+    this.originalSymbol = const Value.absent(),
+    this.providerExchange = const Value.absent(),
+    required String id,
+    required String instrumentId,
+    required DateTime scheduledFor,
+    required CorporateEventType type,
+    required CorporateEventStatus status,
+    required String title,
+    this.url = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : source = Value(source),
+       fetchedAt = Value(fetchedAt),
+       id = Value(id),
+       instrumentId = Value(instrumentId),
+       scheduledFor = Value(scheduledFor),
+       type = Value(type),
+       status = Value(status),
+       title = Value(title);
+  static Insertable<DbCorporateEvent> custom({
+    Expression<String>? source,
+    Expression<DateTime>? fetchedAt,
+    Expression<DateTime>? updatedAt,
+    Expression<String>? cacheState,
+    Expression<String>? confidence,
+    Expression<String>? reportedCurrency,
+    Expression<String>? originalSymbol,
+    Expression<String>? providerExchange,
+    Expression<String>? id,
+    Expression<String>? instrumentId,
+    Expression<DateTime>? scheduledFor,
+    Expression<String>? type,
+    Expression<String>? status,
+    Expression<String>? title,
+    Expression<String>? url,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (source != null) 'source': source,
+      if (fetchedAt != null) 'fetched_at': fetchedAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (cacheState != null) 'cache_state': cacheState,
+      if (confidence != null) 'confidence': confidence,
+      if (reportedCurrency != null) 'reported_currency': reportedCurrency,
+      if (originalSymbol != null) 'original_symbol': originalSymbol,
+      if (providerExchange != null) 'provider_exchange': providerExchange,
+      if (id != null) 'id': id,
+      if (instrumentId != null) 'instrument_id': instrumentId,
+      if (scheduledFor != null) 'scheduled_for': scheduledFor,
+      if (type != null) 'type': type,
+      if (status != null) 'status': status,
+      if (title != null) 'title': title,
+      if (url != null) 'url': url,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CorporateEventsCompanion copyWith({
+    Value<String>? source,
+    Value<DateTime>? fetchedAt,
+    Value<DateTime?>? updatedAt,
+    Value<CacheState>? cacheState,
+    Value<Confidence>? confidence,
+    Value<String?>? reportedCurrency,
+    Value<String?>? originalSymbol,
+    Value<String?>? providerExchange,
+    Value<String>? id,
+    Value<String>? instrumentId,
+    Value<DateTime>? scheduledFor,
+    Value<CorporateEventType>? type,
+    Value<CorporateEventStatus>? status,
+    Value<String>? title,
+    Value<String?>? url,
+    Value<int>? rowid,
+  }) {
+    return CorporateEventsCompanion(
+      source: source ?? this.source,
+      fetchedAt: fetchedAt ?? this.fetchedAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      cacheState: cacheState ?? this.cacheState,
+      confidence: confidence ?? this.confidence,
+      reportedCurrency: reportedCurrency ?? this.reportedCurrency,
+      originalSymbol: originalSymbol ?? this.originalSymbol,
+      providerExchange: providerExchange ?? this.providerExchange,
+      id: id ?? this.id,
+      instrumentId: instrumentId ?? this.instrumentId,
+      scheduledFor: scheduledFor ?? this.scheduledFor,
+      type: type ?? this.type,
+      status: status ?? this.status,
+      title: title ?? this.title,
+      url: url ?? this.url,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (fetchedAt.present) {
+      map['fetched_at'] = Variable<DateTime>(fetchedAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (cacheState.present) {
+      map['cache_state'] = Variable<String>(
+        $CorporateEventsTable.$convertercacheState.toSql(cacheState.value),
+      );
+    }
+    if (confidence.present) {
+      map['confidence'] = Variable<String>(
+        $CorporateEventsTable.$converterconfidence.toSql(confidence.value),
+      );
+    }
+    if (reportedCurrency.present) {
+      map['reported_currency'] = Variable<String>(reportedCurrency.value);
+    }
+    if (originalSymbol.present) {
+      map['original_symbol'] = Variable<String>(originalSymbol.value);
+    }
+    if (providerExchange.present) {
+      map['provider_exchange'] = Variable<String>(providerExchange.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (instrumentId.present) {
+      map['instrument_id'] = Variable<String>(instrumentId.value);
+    }
+    if (scheduledFor.present) {
+      map['scheduled_for'] = Variable<DateTime>(scheduledFor.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(
+        $CorporateEventsTable.$convertertype.toSql(type.value),
+      );
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(
+        $CorporateEventsTable.$converterstatus.toSql(status.value),
+      );
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (url.present) {
+      map['url'] = Variable<String>(url.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CorporateEventsCompanion(')
+          ..write('source: $source, ')
+          ..write('fetchedAt: $fetchedAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('cacheState: $cacheState, ')
+          ..write('confidence: $confidence, ')
+          ..write('reportedCurrency: $reportedCurrency, ')
+          ..write('originalSymbol: $originalSymbol, ')
+          ..write('providerExchange: $providerExchange, ')
+          ..write('id: $id, ')
+          ..write('instrumentId: $instrumentId, ')
+          ..write('scheduledFor: $scheduledFor, ')
+          ..write('type: $type, ')
+          ..write('status: $status, ')
+          ..write('title: $title, ')
+          ..write('url: $url, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $NewsItemsTable extends NewsItems
     with TableInfo<$NewsItemsTable, DbNewsItem> {
   @override
@@ -10369,7 +11305,8 @@ class DbProviderState extends DataClass implements Insertable<DbProviderState> {
   /// Category of the most recent failure.
   final String? lastErrorCategory;
 
-  /// Diagnostic detail of the most recent failure. Never user-facing.
+  /// Privacy-safe, user-facing message for the most recent failure.
+  /// Technical details and causes remain in the bounded developer log only.
   final String? lastErrorDetail;
 
   /// Requests served from cache, for the hit-rate display.
@@ -12337,6 +13274,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $FxRatesTable fxRates = $FxRatesTable(this);
   late final $DividendEventsTable dividendEvents = $DividendEventsTable(this);
   late final $EarningsEventsTable earningsEvents = $EarningsEventsTable(this);
+  late final $CorporateEventsTable corporateEvents = $CorporateEventsTable(
+    this,
+  );
   late final $NewsItemsTable newsItems = $NewsItemsTable(this);
   late final $NewsInstrumentLinksTable newsInstrumentLinks =
       $NewsInstrumentLinksTable(this);
@@ -12368,6 +13308,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'idx_earnings_scheduled',
     'CREATE INDEX idx_earnings_scheduled ON earnings_events (scheduled_for)',
   );
+  late final Index idxCorporateEventsScheduled = Index(
+    'idx_corporate_events_scheduled',
+    'CREATE INDEX idx_corporate_events_scheduled ON corporate_events (scheduled_for)',
+  );
   late final Index idxNewsPublished = Index(
     'idx_news_published',
     'CREATE INDEX idx_news_published ON news_items (published_at)',
@@ -12397,6 +13341,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     fxRates,
     dividendEvents,
     earningsEvents,
+    corporateEvents,
     newsItems,
     newsInstrumentLinks,
     filings,
@@ -12411,6 +13356,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     idxDividendPaymentDate,
     idxDividendInstrument,
     idxEarningsScheduled,
+    idxCorporateEventsScheduled,
     idxNewsPublished,
     idxFilingFiledAt,
     idxResearchTakenAt,
@@ -12445,6 +13391,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('earnings_events', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'instruments',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('corporate_events', kind: UpdateKind.delete)],
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
@@ -12636,6 +13589,28 @@ final class $$InstrumentsTableReferences
         );
 
     final cache = $_typedResult.readTableOrNull(_earningsEventsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$CorporateEventsTable, List<DbCorporateEvent>>
+  _corporateEventsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.corporateEvents,
+    aliasName: 'instruments__internal_id__corporate_events__instrument_id',
+  );
+
+  $$CorporateEventsTableProcessedTableManager get corporateEventsRefs {
+    final manager =
+        $$CorporateEventsTableTableManager($_db, $_db.corporateEvents).filter(
+          (f) => f.instrumentId.internalId.sqlEquals(
+            $_itemColumn<String>('internal_id')!,
+          ),
+        );
+
+    final cache = $_typedResult.readTableOrNull(
+      _corporateEventsRefsTable($_db),
+    );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -12933,6 +13908,31 @@ class $$InstrumentsTableFilterComposer
           }) => $$EarningsEventsTableFilterComposer(
             $db: $db,
             $table: $db.earningsEvents,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> corporateEventsRefs(
+    Expression<bool> Function($$CorporateEventsTableFilterComposer f) f,
+  ) {
+    final $$CorporateEventsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.internalId,
+      referencedTable: $db.corporateEvents,
+      getReferencedColumn: (t) => t.instrumentId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CorporateEventsTableFilterComposer(
+            $db: $db,
+            $table: $db.corporateEvents,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -13288,6 +14288,31 @@ class $$InstrumentsTableAnnotationComposer
     return f(composer);
   }
 
+  Expression<T> corporateEventsRefs<T extends Object>(
+    Expression<T> Function($$CorporateEventsTableAnnotationComposer a) f,
+  ) {
+    final $$CorporateEventsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.internalId,
+      referencedTable: $db.corporateEvents,
+      getReferencedColumn: (t) => t.instrumentId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CorporateEventsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.corporateEvents,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<T> newsInstrumentLinksRefs<T extends Object>(
     Expression<T> Function($$NewsInstrumentLinksTableAnnotationComposer a) f,
   ) {
@@ -13411,6 +14436,7 @@ class $$InstrumentsTableTableManager
             bool quotesRefs,
             bool dividendEventsRefs,
             bool earningsEventsRefs,
+            bool corporateEventsRefs,
             bool newsInstrumentLinksRefs,
             bool filingsRefs,
             bool researchSnapshotsRefs,
@@ -13492,6 +14518,7 @@ class $$InstrumentsTableTableManager
                 quotesRefs = false,
                 dividendEventsRefs = false,
                 earningsEventsRefs = false,
+                corporateEventsRefs = false,
                 newsInstrumentLinksRefs = false,
                 filingsRefs = false,
                 researchSnapshotsRefs = false,
@@ -13506,6 +14533,7 @@ class $$InstrumentsTableTableManager
                     if (quotesRefs) db.quotes,
                     if (dividendEventsRefs) db.dividendEvents,
                     if (earningsEventsRefs) db.earningsEvents,
+                    if (corporateEventsRefs) db.corporateEvents,
                     if (newsInstrumentLinksRefs) db.newsInstrumentLinks,
                     if (filingsRefs) db.filings,
                     if (researchSnapshotsRefs) db.researchSnapshots,
@@ -13640,6 +14668,27 @@ class $$InstrumentsTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (corporateEventsRefs)
+                        await $_getPrefetchedData<
+                          DbInstrument,
+                          $InstrumentsTable,
+                          DbCorporateEvent
+                        >(
+                          currentTable: table,
+                          referencedTable: $$InstrumentsTableReferences
+                              ._corporateEventsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$InstrumentsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).corporateEventsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.instrumentId == item.internalId,
+                              ),
+                          typedResults: items,
+                        ),
                       if (newsInstrumentLinksRefs)
                         await $_getPrefetchedData<
                           DbInstrument,
@@ -13751,6 +14800,7 @@ typedef $$InstrumentsTableProcessedTableManager =
         bool quotesRefs,
         bool dividendEventsRefs,
         bool earningsEventsRefs,
+        bool corporateEventsRefs,
         bool newsInstrumentLinksRefs,
         bool filingsRefs,
         bool researchSnapshotsRefs,
@@ -17152,6 +18202,545 @@ typedef $$EarningsEventsTableProcessedTableManager =
       DbEarningsEvent,
       PrefetchHooks Function({bool instrumentId})
     >;
+typedef $$CorporateEventsTableCreateCompanionBuilder =
+    CorporateEventsCompanion Function({
+      required String source,
+      required DateTime fetchedAt,
+      Value<DateTime?> updatedAt,
+      Value<CacheState> cacheState,
+      Value<Confidence> confidence,
+      Value<String?> reportedCurrency,
+      Value<String?> originalSymbol,
+      Value<String?> providerExchange,
+      required String id,
+      required String instrumentId,
+      required DateTime scheduledFor,
+      required CorporateEventType type,
+      required CorporateEventStatus status,
+      required String title,
+      Value<String?> url,
+      Value<int> rowid,
+    });
+typedef $$CorporateEventsTableUpdateCompanionBuilder =
+    CorporateEventsCompanion Function({
+      Value<String> source,
+      Value<DateTime> fetchedAt,
+      Value<DateTime?> updatedAt,
+      Value<CacheState> cacheState,
+      Value<Confidence> confidence,
+      Value<String?> reportedCurrency,
+      Value<String?> originalSymbol,
+      Value<String?> providerExchange,
+      Value<String> id,
+      Value<String> instrumentId,
+      Value<DateTime> scheduledFor,
+      Value<CorporateEventType> type,
+      Value<CorporateEventStatus> status,
+      Value<String> title,
+      Value<String?> url,
+      Value<int> rowid,
+    });
+
+final class $$CorporateEventsTableReferences
+    extends
+        BaseReferences<_$AppDatabase, $CorporateEventsTable, DbCorporateEvent> {
+  $$CorporateEventsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $InstrumentsTable _instrumentIdTable(_$AppDatabase db) => db
+      .instruments
+      .createAlias('corporate_events__instrument_id__instruments__internal_id');
+
+  $$InstrumentsTableProcessedTableManager get instrumentId {
+    final $_column = $_itemColumn<String>('instrument_id')!;
+
+    final manager = $$InstrumentsTableTableManager(
+      $_db,
+      $_db.instruments,
+    ).filter((f) => f.internalId.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_instrumentIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$CorporateEventsTableFilterComposer
+    extends Composer<_$AppDatabase, $CorporateEventsTable> {
+  $$CorporateEventsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<CacheState, CacheState, String>
+  get cacheState => $composableBuilder(
+    column: $table.cacheState,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<Confidence, Confidence, String>
+  get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get reportedCurrency => $composableBuilder(
+    column: $table.reportedCurrency,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get originalSymbol => $composableBuilder(
+    column: $table.originalSymbol,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get providerExchange => $composableBuilder(
+    column: $table.providerExchange,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get scheduledFor => $composableBuilder(
+    column: $table.scheduledFor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<CorporateEventType, CorporateEventType, String>
+  get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<
+    CorporateEventStatus,
+    CorporateEventStatus,
+    String
+  >
+  get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get url => $composableBuilder(
+    column: $table.url,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$InstrumentsTableFilterComposer get instrumentId {
+    final $$InstrumentsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.instrumentId,
+      referencedTable: $db.instruments,
+      getReferencedColumn: (t) => t.internalId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$InstrumentsTableFilterComposer(
+            $db: $db,
+            $table: $db.instruments,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CorporateEventsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CorporateEventsTable> {
+  $$CorporateEventsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get cacheState => $composableBuilder(
+    column: $table.cacheState,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get reportedCurrency => $composableBuilder(
+    column: $table.reportedCurrency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get originalSymbol => $composableBuilder(
+    column: $table.originalSymbol,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get providerExchange => $composableBuilder(
+    column: $table.providerExchange,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get scheduledFor => $composableBuilder(
+    column: $table.scheduledFor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get url => $composableBuilder(
+    column: $table.url,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$InstrumentsTableOrderingComposer get instrumentId {
+    final $$InstrumentsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.instrumentId,
+      referencedTable: $db.instruments,
+      getReferencedColumn: (t) => t.internalId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$InstrumentsTableOrderingComposer(
+            $db: $db,
+            $table: $db.instruments,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CorporateEventsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CorporateEventsTable> {
+  $$CorporateEventsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get fetchedAt =>
+      $composableBuilder(column: $table.fetchedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<CacheState, String> get cacheState =>
+      $composableBuilder(
+        column: $table.cacheState,
+        builder: (column) => column,
+      );
+
+  GeneratedColumnWithTypeConverter<Confidence, String> get confidence =>
+      $composableBuilder(
+        column: $table.confidence,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<String> get reportedCurrency => $composableBuilder(
+    column: $table.reportedCurrency,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get originalSymbol => $composableBuilder(
+    column: $table.originalSymbol,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get providerExchange => $composableBuilder(
+    column: $table.providerExchange,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get scheduledFor => $composableBuilder(
+    column: $table.scheduledFor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumnWithTypeConverter<CorporateEventType, String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<CorporateEventStatus, String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get url =>
+      $composableBuilder(column: $table.url, builder: (column) => column);
+
+  $$InstrumentsTableAnnotationComposer get instrumentId {
+    final $$InstrumentsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.instrumentId,
+      referencedTable: $db.instruments,
+      getReferencedColumn: (t) => t.internalId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$InstrumentsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.instruments,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CorporateEventsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CorporateEventsTable,
+          DbCorporateEvent,
+          $$CorporateEventsTableFilterComposer,
+          $$CorporateEventsTableOrderingComposer,
+          $$CorporateEventsTableAnnotationComposer,
+          $$CorporateEventsTableCreateCompanionBuilder,
+          $$CorporateEventsTableUpdateCompanionBuilder,
+          (DbCorporateEvent, $$CorporateEventsTableReferences),
+          DbCorporateEvent,
+          PrefetchHooks Function({bool instrumentId})
+        > {
+  $$CorporateEventsTableTableManager(
+    _$AppDatabase db,
+    $CorporateEventsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CorporateEventsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CorporateEventsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CorporateEventsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> source = const Value.absent(),
+                Value<DateTime> fetchedAt = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<CacheState> cacheState = const Value.absent(),
+                Value<Confidence> confidence = const Value.absent(),
+                Value<String?> reportedCurrency = const Value.absent(),
+                Value<String?> originalSymbol = const Value.absent(),
+                Value<String?> providerExchange = const Value.absent(),
+                Value<String> id = const Value.absent(),
+                Value<String> instrumentId = const Value.absent(),
+                Value<DateTime> scheduledFor = const Value.absent(),
+                Value<CorporateEventType> type = const Value.absent(),
+                Value<CorporateEventStatus> status = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String?> url = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CorporateEventsCompanion(
+                source: source,
+                fetchedAt: fetchedAt,
+                updatedAt: updatedAt,
+                cacheState: cacheState,
+                confidence: confidence,
+                reportedCurrency: reportedCurrency,
+                originalSymbol: originalSymbol,
+                providerExchange: providerExchange,
+                id: id,
+                instrumentId: instrumentId,
+                scheduledFor: scheduledFor,
+                type: type,
+                status: status,
+                title: title,
+                url: url,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String source,
+                required DateTime fetchedAt,
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<CacheState> cacheState = const Value.absent(),
+                Value<Confidence> confidence = const Value.absent(),
+                Value<String?> reportedCurrency = const Value.absent(),
+                Value<String?> originalSymbol = const Value.absent(),
+                Value<String?> providerExchange = const Value.absent(),
+                required String id,
+                required String instrumentId,
+                required DateTime scheduledFor,
+                required CorporateEventType type,
+                required CorporateEventStatus status,
+                required String title,
+                Value<String?> url = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CorporateEventsCompanion.insert(
+                source: source,
+                fetchedAt: fetchedAt,
+                updatedAt: updatedAt,
+                cacheState: cacheState,
+                confidence: confidence,
+                reportedCurrency: reportedCurrency,
+                originalSymbol: originalSymbol,
+                providerExchange: providerExchange,
+                id: id,
+                instrumentId: instrumentId,
+                scheduledFor: scheduledFor,
+                type: type,
+                status: status,
+                title: title,
+                url: url,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$CorporateEventsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({instrumentId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (instrumentId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.instrumentId,
+                                referencedTable:
+                                    $$CorporateEventsTableReferences
+                                        ._instrumentIdTable(db),
+                                referencedColumn:
+                                    $$CorporateEventsTableReferences
+                                        ._instrumentIdTable(db)
+                                        .internalId,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$CorporateEventsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CorporateEventsTable,
+      DbCorporateEvent,
+      $$CorporateEventsTableFilterComposer,
+      $$CorporateEventsTableOrderingComposer,
+      $$CorporateEventsTableAnnotationComposer,
+      $$CorporateEventsTableCreateCompanionBuilder,
+      $$CorporateEventsTableUpdateCompanionBuilder,
+      (DbCorporateEvent, $$CorporateEventsTableReferences),
+      DbCorporateEvent,
+      PrefetchHooks Function({bool instrumentId})
+    >;
 typedef $$NewsItemsTableCreateCompanionBuilder =
     NewsItemsCompanion Function({
       required String source,
@@ -20511,6 +22100,8 @@ class $AppDatabaseManager {
       $$DividendEventsTableTableManager(_db, _db.dividendEvents);
   $$EarningsEventsTableTableManager get earningsEvents =>
       $$EarningsEventsTableTableManager(_db, _db.earningsEvents);
+  $$CorporateEventsTableTableManager get corporateEvents =>
+      $$CorporateEventsTableTableManager(_db, _db.corporateEvents);
   $$NewsItemsTableTableManager get newsItems =>
       $$NewsItemsTableTableManager(_db, _db.newsItems);
   $$NewsInstrumentLinksTableTableManager get newsInstrumentLinks =>

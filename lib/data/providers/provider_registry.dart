@@ -248,6 +248,25 @@ final class ProviderMarketDataService {
         ),
   );
 
+  /// Fetches normalized scheduled company events.
+  Future<Result<List<CorporateEvent>>> companyEvents(
+    Instrument instrument,
+    DateRange range,
+  ) => fallback.run<List<CorporateEvent>>(
+    dataType: ProviderDataType.companyEvents,
+    requestKey:
+        'company-events:${instrument.internalId}:'
+        '${range.start.toIso8601String()}:${range.end.toIso8601String()}',
+    operation: 'fetchCompanyEvents',
+    priority: RequestPriority.high,
+    invoke: (MarketDataProvider provider, CancellationToken token) =>
+        (provider as CompanyEventDataProvider).fetchCompanyEvents(
+          instrument,
+          range,
+          cancellationToken: token,
+        ),
+  );
+
   /// Fetches normalized news metadata.
   Future<Result<List<NewsItem>>> news(
     Instrument instrument, {

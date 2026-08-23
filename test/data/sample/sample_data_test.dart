@@ -31,6 +31,8 @@ void main() {
     test('parses the bundled asset', () {
       expect(dataset.instruments, hasLength(10));
       expect(dataset.dividendPatterns, hasLength(10));
+      expect(dataset.earningsPatterns, hasLength(10));
+      expect(dataset.corporateEventPatterns, isNotEmpty);
       expect(dataset.portfolio, isNotEmpty);
       expect(dataset.watchlist, isNotEmpty);
       expect(dataset.news, isNotEmpty);
@@ -289,7 +291,7 @@ void main() {
     });
 
     test(
-      'populates instruments, quotes, dividends and the portfolio',
+      'populates instruments, quotes, dividends, events and the portfolio',
       () async {
         expect((await seeder.seed(dataset)).isSuccess, isTrue);
 
@@ -299,6 +301,22 @@ void main() {
         expect(
           await marketData.watchQuote('isin:DE0008404005').first,
           isNotNull,
+        );
+        expect(
+          await marketData
+              .watchEarningsInRange(
+                DateRange(DateTime.utc(2026), DateTime.utc(2028)),
+              )
+              .first,
+          isNotEmpty,
+        );
+        expect(
+          await marketData
+              .watchCorporateEventsInRange(
+                DateRange(DateTime.utc(2026, 8, 22), DateTime.utc(2028)),
+              )
+              .first,
+          isNotEmpty,
         );
       },
     );

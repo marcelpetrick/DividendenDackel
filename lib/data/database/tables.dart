@@ -1,6 +1,7 @@
 // Row classes are prefixed with `Db` so a persistence row never shadows the
 // domain entity of the same name. The repository layer maps between the two,
 // and keeping both readable in one file matters there.
+import 'package:dividendendackel/domain/entities/corporate_event.dart';
 import 'package:dividendendackel/domain/entities/dividend_event.dart';
 import 'package:dividendendackel/domain/entities/earnings_event.dart';
 import 'package:dividendendackel/domain/entities/news_item.dart';
@@ -286,6 +287,42 @@ class EarningsEvents extends Table with ProvenanceColumns {
 
   /// Currency of the EPS and revenue figures.
   TextColumn get figuresCurrency => text().nullable()();
+
+  @override
+  Set<Column<Object>> get primaryKey => <Column<Object>>{id};
+}
+
+/// Scheduled company events other than dividends and earnings.
+@TableIndex(
+  name: 'idx_corporate_events_scheduled',
+  columns: <Symbol>{#scheduledFor},
+)
+@DataClassName('DbCorporateEvent')
+class CorporateEvents extends Table with ProvenanceColumns {
+  /// Stable provider or locally generated identifier.
+  TextColumn get id => text()();
+
+  /// The company instrument.
+  TextColumn get instrumentId => text().references(
+    Instruments,
+    #internalId,
+    onDelete: KeyAction.cascade,
+  )();
+
+  /// Calendar date or timestamp supplied by the source.
+  DateTimeColumn get scheduledFor => dateTime()();
+
+  /// Normalized category.
+  TextColumn get type => textEnum<CorporateEventType>()();
+
+  /// Date certainty and lifecycle state.
+  TextColumn get status => textEnum<CorporateEventStatus>()();
+
+  /// Human-readable source label.
+  TextColumn get title => text()();
+
+  /// Optional original source page.
+  TextColumn get url => text().nullable()();
 
   @override
   Set<Column<Object>> get primaryKey => <Column<Object>>{id};

@@ -19,6 +19,7 @@ final class SampleDataset {
     required this.instruments,
     required this.dividendPatterns,
     required this.earningsPatterns,
+    required this.corporateEventPatterns,
     required this.portfolio,
     required this.watchlist,
     required this.news,
@@ -35,6 +36,9 @@ final class SampleDataset {
 
   /// Recurring earnings schedules.
   final List<SampleEarningsPattern> earningsPatterns;
+
+  /// Recurring illustrative company events.
+  final List<SampleCorporateEventPattern> corporateEventPatterns;
 
   /// The demonstration portfolio.
   final List<SampleHolding> portfolio;
@@ -70,6 +74,11 @@ final class SampleDataset {
           json,
           'earningsPatterns',
           SampleEarningsPattern._fromJson,
+        ),
+        corporateEventPatterns: _list(
+          json,
+          'corporateEventPatterns',
+          SampleCorporateEventPattern._fromJson,
         ),
         portfolio: _list(json, 'portfolio', SampleHolding._fromJson),
         watchlist: _list(json, 'watchlist', SampleWatchlistEntry._fromJson),
@@ -109,6 +118,9 @@ final class SampleDataset {
     return <Iterable<String>>[
       dividendPatterns.map((SampleDividendPattern p) => p.instrumentId),
       earningsPatterns.map((SampleEarningsPattern p) => p.instrumentId),
+      corporateEventPatterns.map(
+        (SampleCorporateEventPattern p) => p.instrumentId,
+      ),
       portfolio.map((SampleHolding h) => h.instrumentId),
       watchlist.map((SampleWatchlistEntry w) => w.instrumentId),
       news.map((SampleNews n) => n.instrumentId),
@@ -281,6 +293,39 @@ final class SampleEarningsPattern {
 
   /// When during the day it reports.
   final EarningsTiming timing;
+}
+
+/// A recurring illustrative company-event schedule.
+final class SampleCorporateEventPattern {
+  const SampleCorporateEventPattern._({
+    required this.instrumentId,
+    required this.anchor,
+    required this.type,
+    required this.title,
+  });
+
+  factory SampleCorporateEventPattern._fromJson(Map<String, dynamic> json) =>
+      SampleCorporateEventPattern._(
+        instrumentId: json['instrumentId'] as String,
+        anchor: MonthDay.parse(json['anchor'] as String),
+        type: CorporateEventType.values.firstWhere(
+          (CorporateEventType type) => type.name == json['type'],
+          orElse: () => CorporateEventType.other,
+        ),
+        title: json['title'] as String,
+      );
+
+  /// Company instrument.
+  final String instrumentId;
+
+  /// Annual month/day anchor.
+  final MonthDay anchor;
+
+  /// Normalized category.
+  final CorporateEventType type;
+
+  /// Display label.
+  final String title;
 }
 
 /// A position in the demonstration portfolio.
