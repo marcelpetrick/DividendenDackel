@@ -3,11 +3,11 @@ import 'package:dividendendackel/app/widgets/async_value_view.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 /// Instrument research (Vision.md §15, §16).
 ///
-/// Lists the instruments the app knows about; the research score and the detail
-/// screen land with tasks T5 and T6.
+/// Lists locally known instruments and opens their evidence-led research view.
 class ResearchScreen extends ConsumerWidget {
   /// Creates the research screen.
   const ResearchScreen({super.key});
@@ -32,14 +32,30 @@ class ResearchScreen extends ConsumerWidget {
           itemCount: list.length,
           separatorBuilder: (BuildContext context, int index) =>
               const Divider(height: 1),
-          itemBuilder: (BuildContext context, int index) => ListTile(
-            title: Text(list[index].name),
-            subtitle: Text(list[index].displaySymbol),
-            trailing: Text(
-              list[index].sector ?? '',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ),
+          itemBuilder: (BuildContext context, int index) {
+            final Instrument instrument = list[index];
+            return Semantics(
+              button: true,
+              label: 'Research ${instrument.name}, ${instrument.displaySymbol}',
+              hint: 'Open research details',
+              child: ExcludeSemantics(
+                child: ListTile(
+                  title: Text(instrument.name),
+                  subtitle: Text(
+                    <String>[
+                      instrument.displaySymbol,
+                      ?instrument.sector,
+                    ].join(' · '),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.push(
+                    '/research/${Uri.encodeComponent(instrument.internalId)}',
+                  ),
+                ),
+              ),
+            );
+          },
         );
       },
     );

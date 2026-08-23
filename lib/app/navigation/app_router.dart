@@ -3,6 +3,7 @@ import 'package:dividendendackel/app/navigation/destinations.dart';
 import 'package:dividendendackel/features/calendar/calendar_screen.dart';
 import 'package:dividendendackel/features/calendar/forecast_screen.dart';
 import 'package:dividendendackel/features/portfolio/portfolio_screen.dart';
+import 'package:dividendendackel/features/research/research_detail_screen.dart';
 import 'package:dividendendackel/features/research/research_screen.dart';
 import 'package:dividendendackel/features/settings/about_screen.dart';
 import 'package:dividendendackel/features/settings/currency_settings_screen.dart';
@@ -73,6 +74,13 @@ GoRouter buildRouter({String initialLocation = '/today'}) => GoRouter(
       path: '/status',
       builder: (BuildContext context, GoRouterState state) =>
           const DataStatusScreen(),
+    ),
+    GoRoute(
+      path: '/research/:instrumentId',
+      builder: (BuildContext context, GoRouterState state) =>
+          ResearchDetailScreen(
+            instrumentId: state.pathParameters['instrumentId']!,
+          ),
     ),
     GoRoute(
       path: '/settings',

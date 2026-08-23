@@ -6,7 +6,7 @@ including a future session — can pick up without re-reading the whole history.
 - **Last updated:** 2026-08-23
 - **Version:** 0.1.0+1 (pre-release, `0.x.y`)
 - **Branch:** `master` (local work ahead of `origin`)
-- **Quality gate:** green — 447 tests, analyzer clean, both platforms build
+- **Quality gate:** green — 457 tests, analyzer clean, both platforms build
 
 ---
 
@@ -69,6 +69,7 @@ factors.
 | News metadata, categories and publisher links | T3 | done |
 | Explainable Today relevance ranking | T4 | done |
 | Six-dimension explainable research score | T5 | done |
+| Per-asset research detail and score history | T6 | done |
 
 ### What is left
 
@@ -76,8 +77,8 @@ Ordered by what unblocks a usable app soonest.
 
 | Next | Task | Why it matters |
 | --- | --- | --- |
-| 1 | **T6** research detail | Surface the assessment and evidence per asset. |
-| 2 | **Q1–Q9** quality | Harden offline behavior, accessibility and performance. |
+| 1 | **Q1–Q3** offline and UX | Harden caching, states and accessibility. |
+| 2 | **Q4–Q9** product quality | Add health, simulator, onboarding, alerts and performance. |
 
 Then:
 Q1–Q7 offline, states, accessibility, health, simulator, onboarding,
@@ -233,6 +234,11 @@ dart format .
   weights are renormalized over available dimensions and coverage is disclosed.
   Thresholds and limitations are recorded in
   [`research-score.md`](research-score.md).
+- **Research history stores changes, not screen visits.** A per-asset detail
+  combines cached price, dividend history, earnings, company events, headline
+  metadata and filings. Its derived score is persisted only when the complete
+  explainable assessment changes, keeping the history meaningful and bounded
+  in the UI.
 - **Dividends will be shown gross *and* net**, with withholding, treaty cap and
   German tax modelled as an explainable estimate — see
   [`dividend-taxation.md`](dividend-taxation.md).

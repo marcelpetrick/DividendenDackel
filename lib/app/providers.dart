@@ -17,6 +17,7 @@ import 'package:dividendendackel/data/repositories/drift_instrument_repository.d
 import 'package:dividendendackel/data/repositories/drift_market_data_repository.dart';
 import 'package:dividendendackel/data/repositories/drift_portfolio_repository.dart';
 import 'package:dividendendackel/data/repositories/drift_provider_status_repository.dart';
+import 'package:dividendendackel/data/repositories/drift_research_repository.dart';
 import 'package:dividendendackel/data/sample/sample_data_seeder.dart';
 import 'package:dividendendackel/data/sample/sample_dataset.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
@@ -89,6 +90,12 @@ final Provider<MarketDataRepository> marketDataRepositoryProvider =
 final Provider<FxRateRepository> fxRateRepositoryProvider =
     Provider<FxRateRepository>(
       (Ref ref) => DriftFxRateRepository(ref.watch(databaseProvider)),
+    );
+
+/// Explainable research-score history.
+final Provider<ResearchRepository> researchRepositoryProvider =
+    Provider<ResearchRepository>(
+      (Ref ref) => DriftResearchRepository(ref.watch(databaseProvider)),
     );
 
 /// Cache-expiry metadata used by the request coordinator.
