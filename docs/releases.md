@@ -92,3 +92,23 @@ Release notes are generated from Conventional Commit subjects by
 Flutter version, Android SDK contract and checksums. Use `feat`, `fix`, `perf`,
 `build`, `ci`, `docs`, `test` or `refactor` accurately; put user-relevant detail
 in `CHANGELOG.md` rather than relying on commit history alone.
+
+## 0.1.0 verification record
+
+Recorded on 2026-08-23 before tagging:
+
+- full rendered pipeline: 500 tests, strict analyzer, Linux integration and
+  release first frame, Android and Linux release builds — all passed;
+- Android 10/API 29: the real add-holding → portfolio → calendar → forecast →
+  offline journey passed on an x86_64 Google APIs emulator;
+- release APK: installed and cold-launched on API 29 in 535 ms, activity resumed
+  and Android crash buffer empty;
+- migrations: schema 1→4 preserved its legacy dividend row, 2→4 and 3→4 created
+  their new tables, and an undefined migration was refused;
+- artifacts: Linux bundle 29,653,312 bytes; APK 66,059,207 bytes;
+- workflow syntax: CI, release, freshness and Dependabot configuration passed
+  `actionlint` 1.7.12 / YAML parsing; all third-party Actions are full-SHA
+  pinned.
+
+The Android 10 portfolio journey is also a required CI and release-workflow job,
+so future dependency and UI changes must preserve this runtime evidence.

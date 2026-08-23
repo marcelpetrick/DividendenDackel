@@ -102,6 +102,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
   notifications.
 - A real Linux integration journey covering holding creation, portfolio,
   calendar, income forecast and offline persistence.
+- The same portfolio journey runs on an Android 10/API 29 emulator in CI and
+  blocks tag-triggered releases if the phone runtime regresses.
 - Release artifact checks for Android and Linux, including APK inspection,
   exact sizes and a rendered Linux first-frame smoke test.
 - Weekly Dependabot checks and a non-mutating toolchain freshness report for

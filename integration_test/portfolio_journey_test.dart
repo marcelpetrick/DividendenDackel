@@ -137,14 +137,13 @@ void main() {
       final Finder basfHolding = find.byKey(
         const ValueKey<String>('holding-isin:DE000BASF111'),
       );
-      for (
-        int attempt = 0;
-        attempt < 8 && basfHolding.evaluate().isEmpty;
-        attempt++
-      ) {
-        await tester.drag(find.byType(ListView).first, const Offset(0, -250));
-        await tester.pumpAndSettle();
-      }
+      await tester.scrollUntilVisible(
+        basfHolding,
+        300,
+        scrollable: find.byType(Scrollable).first,
+        maxScrolls: 30,
+      );
+      await tester.pumpAndSettle();
       expect(basfHolding, findsOneWidget);
       expect(find.textContaining('7.5 shares'), findsOneWidget);
 
@@ -159,7 +158,15 @@ void main() {
       await tester.tap(find.text('Income forecast'));
       await tester.pumpAndSettle();
       expect(find.text('24-month income forecast'), findsOneWidget);
-      expect(find.text('Month'), findsOneWidget);
+      final Finder monthView = find.text('Month');
+      final Finder forecastScroll = find.byType(Scrollable).last;
+      await tester.scrollUntilVisible(
+        monthView,
+        250,
+        scrollable: forecastScroll,
+        maxScrolls: 20,
+      );
+      expect(monthView, findsOneWidget);
 
       await tester.tap(find.byTooltip('Refresh data'));
       await tester.pumpAndSettle(
@@ -168,6 +175,12 @@ void main() {
         const Duration(seconds: 20),
       );
 
+      await tester.scrollUntilVisible(
+        find.text('24-month income forecast'),
+        -250,
+        scrollable: forecastScroll,
+        maxScrolls: 20,
+      );
       expect(find.text('24-month income forecast'), findsOneWidget);
       expect(
         find.textContaining('source failures; saved data remains visible'),
