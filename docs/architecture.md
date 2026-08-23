@@ -97,6 +97,13 @@ rebuilding affected positions share one transaction. Undo appends reversals for
 that batch. Source documents and filenames are never persisted; see
 [`portfolio-import.md`](portfolio-import.md).
 
+Calendar export is the inverse kind of local boundary: a pure domain use case
+turns the already filtered calendar events into an RFC 5545 snapshot, then the
+user chooses the destination. Linux uses a native save dialog; Android uses the
+system `ACTION_CREATE_DOCUMENT` flow, which grants access only to the selected
+document and needs no broad storage permission. No subscription URL or remote
+calendar service exists. See [`calendar-export.md`](calendar-export.md).
+
 ## Data provenance and offline behavior
 
 Normalized records carry source, fetch/update time, cache state, confidence,
@@ -137,7 +144,7 @@ See [`privacy.md`](privacy.md) for the user-visible data inventory.
 
 `./localPipeline.sh` is shared by local development, CI and release automation.
 It checks the pinned Flutter toolchain, dependency resolution, formatting,
-analysis, 544 unit/widget tests, the real Linux integration journey, Android 10
+analysis, 552 unit/widget tests, the real Linux integration journey, Android 10
 compatibility, both release builds and—unless disabled—a rendered Linux first
 frame. Provider contracts use recorded fixtures and do not depend on network
 availability.

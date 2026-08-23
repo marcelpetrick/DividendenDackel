@@ -10,7 +10,7 @@ local-first privacy model and explainable calculations.
 | Capability | Parqet evidence | DividendenDackel 0.1.0 | Scope decision |
 | --- | --- | --- | --- |
 | Dividend calendar | Month/year/table views, portfolio/watchlist filters, ex/payment date choice, weekend control, expected marker and large instrument universe | Month/year/agenda views, the same core filters and date modes, weekend control, explicit estimate markers, held gross/net amounts and attributable FX | Core is covered. Do not add another calendar view merely for parity. |
-| Calendar export | iCal download and subscribed calendar feeds | No export | Promote a privacy-safe local `.ics` export. Do not expose a public portfolio feed URL by default. |
+| Calendar export | iCal download and subscribed calendar feeds | Private RFC 5545 `.ics` snapshots of the active scope/date mode on Android and Linux, with estimates marked | Covered with a local export. Do not expose a public portfolio feed URL by default. |
 | Dividend forecast | Historical forecast and announced-dividend views | Explainable 24-month monthly/quarterly/yearly forecast, announced values preferred, confirmed/estimated split, tax and FX disclosures | DividendenDackel is already differentiated; improve data coverage rather than adding opaque forecast complexity. |
 | Live data coverage | Dividend data for more than 35,000 instruments | Keyless SEC coverage for US issuers, ECB FX and an explicitly labelled offline dataset | Expand only through documented, licensed adapters such as R5; never disguise sample coverage as live parity. |
 | Portfolio capture | Manual activities, PDF/CSV import and broker autosync | Manual activities plus reviewable native, Portfolio Performance and Interactive Brokers Flex CSV imports | Local file capture is covered for documented formats. Broker credential sync remains later and requires a separate threat model. |
@@ -31,9 +31,9 @@ local-first privacy model and explainable calculations.
 2. **Local, reviewable import.** Start with a documented CSV schema and
    Portfolio Performance CSV. Import must have preview, validation, duplicate
    detection, an atomic commit and undo; source files stay on the device.
-3. **Private calendar export.** Export the currently selected portfolio/date
-   mode to `.ics`, with estimates visibly marked. Avoid a remotely hosted secret
-   URL in the local-only architecture.
+3. **Private calendar export — implemented.** The selected scope, visible date
+   range and ex/payment-date mode export to `.ics`; estimates are marked in the
+   summary, description and iCalendar status. No remote feed URL exists.
 4. **Multiple portfolios and consolidated views — implemented.** Per-portfolio
    tax, currency, provenance and write boundaries are retained while an explicit
    read-only view combines safe projections.

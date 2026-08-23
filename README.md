@@ -28,7 +28,7 @@ question it answers is:
 
 ## Status
 
-**0.47.0.** The Android 10+ and Linux desktop applications are
+**0.48.0.** The Android 10+ and Linux desktop applications are
 implemented and build as release artifacts. They include the Today dashboard,
 portfolio editor and health insights, dividend calendar and 24-month income
 forecast, gross/net tax estimates, multi-currency conversion, explainable
@@ -43,6 +43,9 @@ Users start with an empty personal portfolio, can create and rename additional
 portfolios, edit or remove positions and watchlist entries, clear or delete a
 portfolio with confirmation, and use an explicit read-only consolidated view.
 Display currency and tax assumptions remain isolated per portfolio.
+The active calendar view can be exported as a private `.ics` snapshot for
+Google Calendar, Outlook or Apple Calendar. It keeps the selected scope and
+ex/payment-date mode, and labels every unconfirmed event as an estimate.
 
 The full specification lives in [`Vision.md`](Vision.md); current delivery
 work is tracked in [`docs/BACKLOG.md`](docs/BACKLOG.md).
@@ -151,6 +154,7 @@ merged.
 
 - [Architecture and data flow](docs/architecture.md)
 - [Portfolio CSV import](docs/portfolio-import.md)
+- [Private calendar export](docs/calendar-export.md)
 - [Provider policy and licensing](docs/data-providers.md)
 - [Research score](docs/research-score.md)
 - [Current Parqet comparison and scope decisions](docs/parqet-comparison.md)

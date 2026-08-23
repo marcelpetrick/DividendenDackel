@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ### Added
 
+- Private RFC 5545 calendar snapshots for the current portfolio/watchlist/all
+  scope, visible range and ex/payment-date mode. Estimated events are explicit,
+  Android uses the system document creator and Linux uses its native save
+  dialog; no public subscription URL or broad storage permission is added.
 - Direct local Interactive Brokers Flex CSV import for stock trades,
   commissions, taxes, dividends and account cash movements. The adapter accepts
   official trade and statement-of-funds fields, refuses derivatives, canceled

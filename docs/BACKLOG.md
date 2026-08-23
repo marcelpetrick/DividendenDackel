@@ -229,7 +229,7 @@ local-first model and improves the dividend workflow before broadening the app.
 - [x] **P2** Local import with preview, validation, idempotent duplicate
       handling, atomic application and undo: documented CSV first, then
       Portfolio Performance CSV. Source documents never leave the device.
-- [ ] **P3** Calendar export as a local `.ics` snapshot importable into Google
+- [x] **P3** Calendar export as a local `.ics` snapshot importable into Google
       Calendar, Outlook and Apple Calendar. Preserve portfolio/date filters and
       mark estimates in text; do not create a public subscription URL.
 - [x] **P4** Multiple portfolios and explicit consolidated views, preserving

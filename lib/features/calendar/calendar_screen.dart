@@ -4,6 +4,8 @@ import 'package:dividendendackel/app/widgets/async_value_view.dart';
 import 'package:dividendendackel/app/widgets/gross_net_amount.dart';
 import 'package:dividendendackel/app/widgets/value_labels.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
+import 'package:dividendendackel/domain/use_cases/calendar_export.dart';
+import 'package:dividendendackel/features/calendar/calendar_export_writer.dart';
 import 'package:dividendendackel/features/calendar/calendar_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,6 +28,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   bool _weekends = true;
   DateTime? _expandedDay;
   Currency? _displayCurrency;
+  bool _exporting = false;
 
   @override
   void initState() {
@@ -64,6 +67,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final AsyncValue<List<DividendEvent>> events = ref.watch(
       calendarEventsProvider(query),
     );
+    final List<DividendEvent>? exportEvents = events.value;
     final Map<String, Holding> holdingsById = <String, Holding>{
       for (final Holding holding in holdings) holding.instrumentId: holding,
     };
@@ -105,6 +109,15 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               onCurrencyChanged: (Currency? currency) =>
                   setState(() => _displayCurrency = currency),
               onForecast: () => context.push('/calendar/forecast'),
+              exporting: _exporting,
+              onExport:
+                  exportEvents != null && exportEvents.isNotEmpty && !_exporting
+                  ? () => _exportCalendar(
+                      query: query,
+                      events: exportEvents,
+                      instruments: instruments,
+                    )
+                  : null,
             ),
           ),
         ),
@@ -193,6 +206,53 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     };
     _expandedDay = null;
   });
+
+  Future<void> _exportCalendar({
+    required CalendarEventsQuery query,
+    required List<DividendEvent> events,
+    required Map<String, Instrument> instruments,
+  }) async {
+    setState(() => _exporting = true);
+    final String? portfolioId = ref.read(effectivePortfolioIdProvider);
+    final CalendarExportDocument document = CalendarIcsExporter.export(
+      events: events,
+      instruments: instruments,
+      range: query.range,
+      dateMode: query.dateMode,
+      scopeLabel: switch (_scope) {
+        DividendCalendarScope.portfolio =>
+          portfolioId == null ? 'All portfolios' : 'Current portfolio',
+        DividendCalendarScope.watchlist =>
+          portfolioId == null
+              ? 'All portfolio watchlists'
+              : 'Current watchlist',
+        DividendCalendarScope.all => 'All instruments',
+      },
+      createdAt: ref.read(clockProvider).now(),
+    );
+    try {
+      final bool saved = await ref
+          .read(calendarExportWriterProvider)
+          .save(document);
+      if (saved && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${document.eventCount} dividend events exported locally.',
+            ),
+          ),
+        );
+      }
+    } on Object {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Calendar export could not be saved.')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _exporting = false);
+    }
+  }
 }
 
 class _Controls extends StatelessWidget {
@@ -212,6 +272,8 @@ class _Controls extends StatelessWidget {
     required this.onWeekendsChanged,
     required this.onCurrencyChanged,
     required this.onForecast,
+    required this.exporting,
+    required this.onExport,
   });
 
   final DateTime focus;
@@ -229,6 +291,8 @@ class _Controls extends StatelessWidget {
   final ValueChanged<bool> onWeekendsChanged;
   final ValueChanged<Currency?> onCurrencyChanged;
   final VoidCallback onForecast;
+  final bool exporting;
+  final VoidCallback? onExport;
 
   @override
   Widget build(BuildContext context) {
@@ -363,12 +427,30 @@ class _Controls extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 6),
-            Text(
-              explanation,
-              key: const ValueKey<String>('date-explanation'),
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Expanded(
+                  child: Text(
+                    explanation,
+                    key: const ValueKey<String>('date-explanation'),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+                IconButton.filledTonal(
+                  key: const ValueKey<String>('export-calendar'),
+                  tooltip: 'Export calendar',
+                  onPressed: onExport,
+                  icon: exporting
+                      ? const SizedBox.square(
+                          dimension: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.download_outlined),
+                ),
+              ],
             ),
           ],
         ),
