@@ -6,7 +6,7 @@ including a future session — can pick up without re-reading the whole history.
 - **Last updated:** 2026-08-23
 - **Version:** 0.1.0+1 (pre-release, `0.x.y`)
 - **Branch:** `master` (local work ahead of `origin`)
-- **Quality gate:** green — 441 tests, analyzer clean, both platforms build
+- **Quality gate:** green — 447 tests, analyzer clean, both platforms build
 
 ---
 
@@ -68,6 +68,7 @@ factors.
 | Earnings and corporate events | T2 | done |
 | News metadata, categories and publisher links | T3 | done |
 | Explainable Today relevance ranking | T4 | done |
+| Six-dimension explainable research score | T5 | done |
 
 ### What is left
 
@@ -75,7 +76,7 @@ Ordered by what unblocks a usable app soonest.
 
 | Next | Task | Why it matters |
 | --- | --- | --- |
-| 1 | **T5/T6** research | Complete the explainable research experience. |
+| 1 | **T6** research detail | Surface the assessment and evidence per asset. |
 | 2 | **Q1–Q9** quality | Harden offline behavior, accessibility and performance. |
 
 Then:
@@ -226,6 +227,12 @@ dart format .
   attributable holding weight, information type, timing and confirmation each
   contribute disclosed points. Unrelated items are excluded, ties use stable
   ordering, and every visible score shows all of its reasons.
+- **Research scores normalize only known evidence.** Valuation, quality,
+  growth, momentum, dividend and event-risk dimensions are independently
+  explainable; missing metrics and dimensions never become zero. Overall
+  weights are renormalized over available dimensions and coverage is disclosed.
+  Thresholds and limitations are recorded in
+  [`research-score.md`](research-score.md).
 - **Dividends will be shown gross *and* net**, with withholding, treaty cap and
   German tax modelled as an explainable estimate — see
   [`dividend-taxation.md`](dividend-taxation.md).
