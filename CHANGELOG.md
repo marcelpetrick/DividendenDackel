@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ### Added
 
+- Current official Parqet comparison and a reprioritized post-1.0 scope focused
+  on local transaction truth, dividend reconciliation, private import/export,
+  multiple portfolios and explainable performance.
+
+## [0.1.0] - 2026-08-23
+
+### Added
+
 - Flutter application skeleton targeting Android 10+ (API 29) and Linux x86_64.
 - Typed `Failure` hierarchy and `Result` type covering every error category in
   Vision.md §55.
