@@ -271,6 +271,39 @@ class Quotes extends Table with ProvenanceColumns {
   Set<Column<Object>> get primaryKey => <Column<Object>>{instrumentId};
 }
 
+/// Local portfolio value history whose coverage controls return eligibility.
+@TableIndex(
+  name: 'idx_portfolio_valuation_scope_time',
+  columns: <Symbol>{#scopeId, #observedAt},
+)
+@DataClassName('DbPortfolioValuationSnapshot')
+class PortfolioValuationSnapshots extends Table {
+  /// Portfolio identity or the explicit consolidated scope identity.
+  TextColumn get scopeId => text()();
+
+  /// Currency of every represented position.
+  TextColumn get currencyCode => text().withLength(min: 3, max: 8)();
+
+  /// Exact covered portfolio value.
+  TextColumn get valueAmount => text()();
+
+  /// End-of-day quote date represented by the value.
+  DateTimeColumn get observedAt => dateTime()();
+
+  /// Positions denominated in this currency.
+  IntColumn get positionCount => integer()();
+
+  /// Positions included in the value.
+  IntColumn get pricedPositionCount => integer()();
+
+  @override
+  Set<Column<Object>> get primaryKey => <Column<Object>>{
+    scopeId,
+    currencyCode,
+    observedAt,
+  };
+}
+
 /// Daily reference exchange rates (Vision.md §20, §45).
 @TableIndex(name: 'idx_fx_rate_observed_at', columns: <Symbol>{#observedAt})
 @DataClassName('DbFxRate')

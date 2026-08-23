@@ -53,10 +53,10 @@ Retry delays do not hold a concurrency slot.
 ## Persistence and migrations
 
 `AppDatabase` is a Drift database stored in the platform application-data
-directory. The current schema is version 6 and contains portfolio ownership,
-normalized market data, research snapshots, provider health and cache metadata.
-Money and rates are decimal text; timestamps are ISO-8601 text; enums persist by
-name.
+directory. The current schema is version 7 and contains portfolio ownership,
+normalized market data, research snapshots, provider health, cache metadata and
+local end-of-day portfolio valuations. Money and rates are decimal text;
+timestamps are ISO-8601 text; enums persist by name.
 
 Migrations are explicit and additive:
 
@@ -67,6 +67,7 @@ Migrations are explicit and additive:
 | 3 → 4 | corporate events |
 | 4 → 5 | portfolio identities and immutable activity ledger |
 | 5 → 6 | unique per-portfolio import identities |
+| 6 → 7 | exact, currency-separated portfolio valuation history |
 
 Unknown or backward paths fail instead of resetting the database. Foreign keys
 are enabled for every connection, while user-owned holdings deliberately do not
@@ -103,6 +104,15 @@ user chooses the destination. Linux uses a native save dialog; Android uses the
 system `ACTION_CREATE_DOCUMENT` flow, which grants access only to the selected
 document and needs no broad storage permission. No subscription URL or remote
 calendar service exists. See [`calendar-export.md`](calendar-export.md).
+
+Portfolio performance is derived locally from the immutable activity ledger and
+complete native-currency valuations. XIRR uses dated security cash flows plus a
+terminal value; TTWROR chains only valuation segments for which every security
+cash-flow day is covered. Deposits and withdrawals are disclosed but excluded
+because the app does not model a cash balance. Currencies never mix, benchmark
+comparison is withheld until a like-for-like historical series exists, and
+insufficient evidence produces a visible limitation instead of a number. See
+[`portfolio-performance.md`](portfolio-performance.md).
 
 ## Data provenance and offline behavior
 
@@ -144,7 +154,7 @@ See [`privacy.md`](privacy.md) for the user-visible data inventory.
 
 `./localPipeline.sh` is shared by local development, CI and release automation.
 It checks the pinned Flutter toolchain, dependency resolution, formatting,
-analysis, 552 unit/widget tests, the real Linux integration journey, Android 10
+analysis, 565 unit/widget tests, the real Linux integration journey, Android 10
 compatibility, both release builds and—unless disabled—a rendered Linux first
 frame. Provider contracts use recorded fixtures and do not depend on network
 availability.

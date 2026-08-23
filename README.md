@@ -28,7 +28,7 @@ question it answers is:
 
 ## Status
 
-**0.48.0.** The Android 10+ and Linux desktop applications are
+**0.49.0.** The Android 10+ and Linux desktop applications are
 implemented and build as release artifacts. They include the Today dashboard,
 portfolio editor and health insights, dividend calendar and 24-month income
 forecast, gross/net tax estimates, multi-currency conversion, explainable
@@ -46,6 +46,10 @@ Display currency and tax assumptions remain isolated per portfolio.
 The active calendar view can be exported as a private `.ics` snapshot for
 Google Calendar, Outlook or Apple Calendar. It keeps the selected scope and
 ex/payment-date mode, and labels every unconfirmed event as an estimate.
+The portfolio also shows exact monthly, quarterly and annual cash-flow detail,
+money-weighted XIRR and valuation-chain TTWROR. Each return states its period,
+formula and limitations; unsupported prices, stale quote timing and incomplete
+valuation history make the result unavailable instead of approximate.
 
 The full specification lives in [`Vision.md`](Vision.md); current delivery
 work is tracked in [`docs/BACKLOG.md`](docs/BACKLOG.md).
@@ -154,6 +158,7 @@ merged.
 
 - [Architecture and data flow](docs/architecture.md)
 - [Portfolio CSV import](docs/portfolio-import.md)
+- [Portfolio performance](docs/portfolio-performance.md)
 - [Private calendar export](docs/calendar-export.md)
 - [Provider policy and licensing](docs/data-providers.md)
 - [Research score](docs/research-score.md)

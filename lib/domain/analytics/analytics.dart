@@ -11,5 +11,6 @@ export 'package:dividendendackel/domain/analytics/dividend_simulator.dart';
 export 'package:dividendendackel/domain/analytics/dividend_tax.dart';
 export 'package:dividendendackel/domain/analytics/portfolio_health.dart';
 export 'package:dividendendackel/domain/analytics/portfolio_overview.dart';
+export 'package:dividendendackel/domain/analytics/portfolio_performance.dart';
 export 'package:dividendendackel/domain/analytics/relevance_ranking.dart';
 export 'package:dividendendackel/domain/analytics/research_score.dart';

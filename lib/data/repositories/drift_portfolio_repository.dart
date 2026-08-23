@@ -62,6 +62,10 @@ final class DriftPortfolioRepository implements PortfolioRepository {
                     table.portfolioId.equals(portfolioId),
               ))
               .go();
+          await _deleteValuationScopes(<String>{
+            portfolioId,
+            InvestmentPortfolio.consolidatedId,
+          });
         });
       });
 
@@ -82,6 +86,10 @@ final class DriftPortfolioRepository implements PortfolioRepository {
               message: 'The final portfolio cannot be deleted.',
             );
           }
+          await _deleteValuationScopes(<String>{
+            portfolioId,
+            InvestmentPortfolio.consolidatedId,
+          });
           await (db.delete(db.investmentPortfolios)..where(
                 ($InvestmentPortfoliosTable table) =>
                     table.id.equals(portfolioId),
@@ -290,6 +298,43 @@ final class DriftPortfolioRepository implements PortfolioRepository {
           .toList(growable: false),
     );
   }
+
+  @override
+  Stream<List<PortfolioValuationSnapshot>> watchValuationSnapshots(
+    String scopeId,
+  ) =>
+      (db.select(db.portfolioValuationSnapshots)
+            ..where(
+              ($PortfolioValuationSnapshotsTable table) =>
+                  table.scopeId.equals(scopeId),
+            )
+            ..orderBy(<OrderClauseGenerator<$PortfolioValuationSnapshotsTable>>[
+              ($PortfolioValuationSnapshotsTable table) =>
+                  OrderingTerm.asc(table.observedAt),
+              ($PortfolioValuationSnapshotsTable table) =>
+                  OrderingTerm.asc(table.currencyCode),
+            ]))
+          .watch()
+          .map(
+            (List<DbPortfolioValuationSnapshot> rows) => rows
+                .map((DbPortfolioValuationSnapshot row) => row.toDomain())
+                .toList(growable: false),
+          );
+
+  @override
+  Future<Result<void>> saveValuationSnapshots(
+    List<PortfolioValuationSnapshot> snapshots,
+  ) => Result.guardAsync<void>(() async {
+    await db.transaction(() async {
+      for (final PortfolioValuationSnapshot snapshot in snapshots) {
+        await db
+            .into(db.portfolioValuationSnapshots)
+            .insertOnConflictUpdate(
+              CompanionMappers.portfolioValuationSnapshot(snapshot),
+            );
+      }
+    });
+  });
 
   @override
   Future<Result<int>> recordActivity(PortfolioActivity activity) =>
@@ -574,9 +619,35 @@ final class DriftPortfolioRepository implements PortfolioRepository {
       .into(db.holdings)
       .insertOnConflictUpdate(CompanionMappers.holding(holding, id: id));
 
-  Future<int> _insertActivity(PortfolioActivity activity) => db
-      .into(db.portfolioActivities)
-      .insert(CompanionMappers.portfolioActivity(activity));
+  Future<void> _deleteValuationScopes(Set<String> scopeIds) =>
+      (db.delete(db.portfolioValuationSnapshots)..where(
+            ($PortfolioValuationSnapshotsTable table) =>
+                table.scopeId.isIn(scopeIds),
+          ))
+          .go();
+
+  Future<int> _insertActivity(PortfolioActivity activity) async {
+    final int id = await db
+        .into(db.portfolioActivities)
+        .insert(CompanionMappers.portfolioActivity(activity));
+    if (activity.shareDelta != null) {
+      await _deleteValuationsFrom(activity.portfolioId, activity.occurredAt);
+    }
+    return id;
+  }
+
+  Future<void> _deleteValuationsFrom(String portfolioId, DateTime from) =>
+      (db.delete(db.portfolioValuationSnapshots)..where(
+            ($PortfolioValuationSnapshotsTable table) =>
+                table.scopeId.isIn(<String>{
+                  portfolioId,
+                  InvestmentPortfolio.consolidatedId,
+                }) &
+                table.observedAt.isBiggerOrEqualValue(
+                  DateTime.utc(from.year, from.month, from.day),
+                ),
+          ))
+          .go();
 
   Future<int> _recordReversal(PortfolioActivity reversal) async {
     final int targetId = reversal.reversesActivityId!;
@@ -615,6 +686,7 @@ final class DriftPortfolioRepository implements PortfolioRepository {
     );
     final int id = await _insertActivity(normalizedReversal);
     if (target.instrumentId != null && target.quantity != null) {
+      await _deleteValuationsFrom(target.portfolioId, target.occurredAt);
       await _rebuildHolding(target.portfolioId, target.instrumentId!);
     }
     return id;

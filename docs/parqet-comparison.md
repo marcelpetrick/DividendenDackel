@@ -15,7 +15,7 @@ local-first privacy model and explainable calculations.
 | Live data coverage | Dividend data for more than 35,000 instruments | Keyless SEC coverage for US issuers, ECB FX and an explicitly labelled offline dataset | Expand only through documented, licensed adapters such as R5; never disguise sample coverage as live parity. |
 | Portfolio capture | Manual activities, PDF/CSV import and broker autosync | Manual activities plus reviewable native, Portfolio Performance and Interactive Brokers Flex CSV imports | Local file capture is covered for documented formats. Broker credential sync remains later and requires a separate threat model. |
 | Actual cash flows | Purchases, sales, distributions, fees and taxes are activities | Holdings and forecast events; no broker-recorded cash-flow history | Add actual dividend/tax/fee records and forecast-versus-paid reconciliation. This directly improves the dividend product. |
-| Performance | Capital-weighted return, TTWROR, XIRR, benchmarks, monthly/quarterly/yearly return detail and capital-flow analysis | Value/day change, allocation, yield, health and dividend-income analytics | Add only after the activity ledger. Every method must disclose formula, cash-flow treatment, period and data coverage. |
+| Performance | Capital-weighted return, TTWROR, XIRR, benchmarks, monthly/quarterly/yearly return detail and capital-flow analysis | Native-currency XIRR, valuation-chain TTWROR and exact monthly/quarterly/yearly cash-flow detail with formula, period and evidence limits | Core local performance is covered. Add a benchmark only with comparable historical evidence; never imply one from current prices. |
 | Multiple portfolios | Multiple portfolios/subaccounts and consolidated views | Local create/rename/clear/delete, isolated holdings/watchlists/ledgers/preferences and an explicit read-only consolidated view | Covered without crossing tax, currency, provenance or write boundaries. |
 | Taxes and fees | Actual tax/withholding and fee analysis from activities | Explainable German estimated net dividend tax, treaty/credit/reclaim split and editable assumptions | Preserve the estimate advantage; add actual-versus-estimated reconciliation rather than another standalone estimate chart. |
 | News and analysis | Portfolio-filtered news, allocation/performance analysis and integrations | Portfolio-ranked Today feed, provider provenance, health, explainable dividend/research scores and change conditions | Current direction is stronger for the product statement. No generic news volume or hidden score. |
@@ -37,8 +37,9 @@ local-first privacy model and explainable calculations.
 4. **Multiple portfolios and consolidated views — implemented.** Per-portfolio
    tax, currency, provenance and write boundaries are retained while an explicit
    read-only view combines safe projections.
-5. **Explainable performance.** Add capital flows, XIRR and TTWROR plus optional
-   benchmark comparison only after transaction history is trustworthy. Never
+5. **Explainable performance — implemented.** Capital flows, XIRR and TTWROR
+   use the immutable ledger and local valuation history. Optional benchmark
+   comparison remains unavailable until comparable history exists. Never
    compare money-weighted portfolio return with a time-weighted benchmark
    without explaining the mismatch.
 6. **Broker document import, then reconsider autosync.** Local PDF/CSV parsing is

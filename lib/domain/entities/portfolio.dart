@@ -1,5 +1,6 @@
 import 'package:decimal/decimal.dart';
 import 'package:dividendendackel/domain/entities/provenance.dart';
+import 'package:dividendendackel/domain/value_objects/currency.dart';
 import 'package:dividendendackel/domain/value_objects/money.dart';
 
 /// A user-owned, locally stored portfolio.
@@ -220,6 +221,63 @@ final class PortfolioActivity implements HasProvenance {
 
   @override
   String toString() => 'PortfolioActivity(${id ?? 'new'}, ${type.name})';
+}
+
+/// One local end-of-day portfolio valuation used for time-weighted returns.
+///
+/// Values remain separated by currency. A snapshot records its coverage so a
+/// partial quote set can never be mistaken for a complete portfolio value.
+final class PortfolioValuationSnapshot {
+  /// Creates a valuation snapshot.
+  PortfolioValuationSnapshot({
+    required this.scopeId,
+    required this.currency,
+    required this.value,
+    required DateTime observedAt,
+    required this.positionCount,
+    required this.pricedPositionCount,
+  }) : observedAt = _valuationDay(observedAt) {
+    if (scopeId.trim().isEmpty) {
+      throw ArgumentError.value(scopeId, 'scopeId', 'cannot be empty');
+    }
+    if (value.currency != currency) {
+      throw ArgumentError('Snapshot value must use ${currency.code}.');
+    }
+    if (value.isNegative) {
+      throw ArgumentError.value(value, 'value', 'cannot be negative');
+    }
+    if (positionCount < 0 ||
+        pricedPositionCount < 0 ||
+        pricedPositionCount > positionCount) {
+      throw ArgumentError('Snapshot position coverage is invalid.');
+    }
+  }
+
+  /// Portfolio id or the explicit consolidated scope id.
+  final String scopeId;
+
+  /// Currency shared by the positions and [value].
+  final Currency currency;
+
+  /// Exact covered market value.
+  final Money value;
+
+  /// Quote day represented by this snapshot.
+  final DateTime observedAt;
+
+  /// Positions denominated in [currency].
+  final int positionCount;
+
+  /// Positions contributing to [value].
+  final int pricedPositionCount;
+
+  /// Whether [value] covers every position in this currency.
+  bool get isComplete => positionCount == pricedPositionCount;
+}
+
+DateTime _valuationDay(DateTime value) {
+  final DateTime utc = value.toUtc();
+  return DateTime.utc(utc.year, utc.month, utc.day);
 }
 
 /// One persisted local import batch, derived from its immutable activities.

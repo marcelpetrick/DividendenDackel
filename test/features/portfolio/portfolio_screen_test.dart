@@ -1,8 +1,10 @@
 import 'package:decimal/decimal.dart';
 import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/core/errors/result.dart';
+import 'package:dividendendackel/domain/analytics/analytics.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/features/currency/fx_state.dart';
+import 'package:dividendendackel/features/portfolio/performance_state.dart';
 import 'package:dividendendackel/features/portfolio/portfolio_editor.dart';
 import 'package:dividendendackel/features/portfolio/portfolio_screen.dart';
 import 'package:dividendendackel/features/portfolio/portfolio_selection.dart';
@@ -33,6 +35,8 @@ void main() {
     Map<String, Quote>? quotes,
     List<DividendEvent>? dividends,
     List<PortfolioActivity> activities = const <PortfolioActivity>[],
+    List<PortfolioValuationSnapshot> valuations =
+        const <PortfolioValuationSnapshot>[],
     Currency displayCurrency = Currency.eur,
     List<FxRate> fxRates = const <FxRate>[],
     bool consolidated = false,
@@ -61,6 +65,11 @@ void main() {
           ),
           effectivePortfolioIdProvider.overrideWith(
             (Ref ref) => consolidated ? null : InvestmentPortfolio.defaultId,
+          ),
+          automaticPortfolioValuationEnabledProvider.overrideWithValue(false),
+          portfolioValuationSnapshotsProvider.overrideWith(
+            (Ref ref) =>
+                Stream<List<PortfolioValuationSnapshot>>.value(valuations),
           ),
           portfoliosProvider.overrideWith(
             (Ref ref) =>
@@ -196,6 +205,100 @@ void main() {
     expect(find.text('DE'), findsOneWidget);
     expect(
       find.text('100.0% of expected dividend income comes from 1 company.'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('shows explainable XIRR, TTWROR and period cash flows', (
+    WidgetTester tester,
+  ) async {
+    final Holding holding = Holding(
+      instrumentId: instrument.internalId,
+      quantity: Decimal.one,
+      provenance: provenance,
+    );
+    final Quote quote = Quote(
+      instrumentId: instrument.internalId,
+      price: Money.parse('110', Currency.eur),
+      asOf: now,
+      provenance: provenance,
+    );
+    final PortfolioActivity purchase = PortfolioActivity(
+      id: 1,
+      portfolioId: InvestmentPortfolio.defaultId,
+      type: PortfolioActivityType.purchase,
+      occurredAt: DateTime.utc(2025, 8, 23),
+      instrumentId: instrument.internalId,
+      quantity: Decimal.one,
+      unitPrice: Money.parse('100', Currency.eur),
+      provenance: provenance,
+    );
+    final PortfolioValuationSnapshot valuation = PortfolioValuationSnapshot(
+      scopeId: InvestmentPortfolio.defaultId,
+      currency: Currency.eur,
+      value: Money.parse('100', Currency.eur),
+      observedAt: DateTime.utc(2025, 8, 23),
+      positionCount: 1,
+      pricedPositionCount: 1,
+    );
+    await pumpPortfolio(
+      tester,
+      holdings: <Holding>[holding],
+      quotes: <String, Quote>{instrument.internalId: quote},
+      activities: <PortfolioActivity>[purchase],
+      valuations: <PortfolioValuationSnapshot>[valuation],
+    );
+
+    await tester.scrollUntilVisible(find.text('Performance'), 500);
+    expect(find.text('Performance'), findsOneWidget);
+    expect(find.text('XIRR · money-weighted'), findsOneWidget);
+    expect(find.text('+10.00% p.a.'), findsOneWidget);
+    expect(find.text('TTWROR · time-weighted'), findsOneWidget);
+    expect(find.text('+10.00%'), findsOneWidget);
+    expect(find.textContaining('net present value'), findsOneWidget);
+    expect(
+      find.textContaining('Benchmark comparison unavailable'),
+      findsOneWidget,
+    );
+
+    final SegmentedButton<PerformanceGrouping> grouping = tester.widget(
+      find.byKey(const ValueKey<String>('performance-grouping')),
+    );
+    grouping.onSelectionChanged!(<PerformanceGrouping>{
+      PerformanceGrouping.quarterly,
+    });
+    await tester.pump();
+    expect(find.text('EUR quarterly detail'), findsOneWidget);
+  });
+
+  testWidgets('does not treat an unpriced current holding as sold out', (
+    WidgetTester tester,
+  ) async {
+    const String missingInstrumentId = 'missing-instrument';
+    final Holding holding = Holding(
+      instrumentId: missingInstrumentId,
+      quantity: Decimal.one,
+      provenance: provenance,
+    );
+    final PortfolioActivity opening = PortfolioActivity(
+      id: 1,
+      portfolioId: InvestmentPortfolio.defaultId,
+      type: PortfolioActivityType.openingBalance,
+      occurredAt: DateTime.utc(2025, 8, 23),
+      instrumentId: missingInstrumentId,
+      quantity: Decimal.one,
+      unitPrice: Money.parse('100', Currency.eur),
+      provenance: provenance,
+    );
+    await pumpPortfolio(
+      tester,
+      holdings: <Holding>[holding],
+      activities: <PortfolioActivity>[opening],
+    );
+
+    await tester.scrollUntilVisible(find.text('Performance'), 500);
+    expect(
+      find.textContaining('current EUR value excludes unpriced positions'),
       findsOneWidget,
     );
   });
@@ -499,7 +602,7 @@ void main() {
       activities: <PortfolioActivity>[activity],
       consolidated: true,
     );
-    await tester.scrollUntilVisible(find.textContaining('Deposit'), 500);
+    await tester.scrollUntilVisible(find.textContaining('Deposit ·'), 500);
 
     expect(find.text('All portfolios (consolidated)'), findsOneWidget);
     expect(find.byKey(const ValueKey<String>('add-instrument')), findsNothing);
