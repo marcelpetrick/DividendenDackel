@@ -1,9 +1,30 @@
 import 'package:decimal/decimal.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/features/today/today_state.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('derives bounded windows from one wider async result', () {
+    final DateTime now = DateTime.utc(2026, 8, 23, 12);
+    final AsyncValue<List<DateTime>> result = upcomingWindow<DateTime>(
+      source: AsyncValue<List<DateTime>>.data(<DateTime>[
+        DateTime.utc(2026, 8, 22),
+        DateTime.utc(2026, 8, 23),
+        DateTime.utc(2026, 8, 25, 23),
+        DateTime.utc(2026, 8, 26),
+      ]),
+      now: now,
+      days: 3,
+      dateOf: (DateTime date) => date,
+    );
+
+    expect(result.requireValue, <DateTime>[
+      DateTime.utc(2026, 8, 23),
+      DateTime.utc(2026, 8, 25, 23),
+    ]);
+  });
+
   final DateTime firstAt = DateTime.utc(2026, 8, 20);
   final Provenance provenance = Provenance(source: 'test', fetchedAt: firstAt);
 

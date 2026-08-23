@@ -96,8 +96,10 @@ final class _FakeDividendRepository implements DividendRepository {
   );
 
   @override
-  Stream<List<DividendEvent>> watchForInstrument(String instrumentId) =>
-      const Stream<List<DividendEvent>>.empty();
+  Stream<List<DividendEvent>> watchForInstrument(
+    String instrumentId, {
+    int? limit,
+  }) => const Stream<List<DividendEvent>>.empty();
 
   @override
   Future<Result<void>> saveAll(

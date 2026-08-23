@@ -191,7 +191,7 @@ Each task names the `Vision.md` sections it satisfies.
       — §23
 - [x] **Q7** Local notifications with disabled/important-only/all modes and
       non-manipulative wording. — §22, §85
-- [ ] **Q9** Performance pass: fast cached Today, no jank in calendar scrolling,
+- [x] **Q9** Performance pass: fast cached Today, no jank in calendar scrolling,
       lazy deep research, no full-history loads at startup. — §78
 
 ---

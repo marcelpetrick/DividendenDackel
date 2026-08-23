@@ -48,6 +48,22 @@ abstract final class DividendCalendarMath {
     return result;
   }
 
+  /// Groups one visible year in a single pass for the 12 lazy month tiles.
+  static Map<int, List<DividendEvent>> groupByMonth(
+    Iterable<DividendEvent> events,
+    DividendDateMode mode,
+    int year,
+  ) {
+    final Map<int, List<DividendEvent>> result = <int, List<DividendEvent>>{};
+    for (final DividendEvent event in events) {
+      final DateTime? date = event.dateFor(mode);
+      if (date?.year == year) {
+        result.putIfAbsent(date!.month, () => <DividendEvent>[]).add(event);
+      }
+    }
+    return result;
+  }
+
   /// Calendar cells covering a month, padded to whole display weeks.
   static List<DateTime> monthCells(DateTime focus, {required bool weekends}) {
     final DateTime first = DateTime(focus.year, focus.month);

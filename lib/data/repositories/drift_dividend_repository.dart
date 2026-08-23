@@ -14,16 +14,27 @@ final class DriftDividendRepository implements DividendRepository {
   final AppDatabase db;
 
   @override
-  Stream<List<DividendEvent>> watchForInstrument(String instrumentId) =>
-      (db.select(db.dividendEvents)
-            ..where(
-              ($DividendEventsTable t) => t.instrumentId.equals(instrumentId),
-            )
-            ..orderBy(<OrderClauseGenerator<$DividendEventsTable>>[
+  Stream<List<DividendEvent>> watchForInstrument(
+    String instrumentId, {
+    int? limit,
+  }) {
+    if (limit != null && limit <= 0) {
+      throw RangeError.range(limit, 1, null, 'limit');
+    }
+    final SimpleSelectStatement<$DividendEventsTable, DbDividendEvent> query =
+        db.select(db.dividendEvents)
+          ..where(
+            ($DividendEventsTable t) => t.instrumentId.equals(instrumentId),
+          )
+          ..orderBy(<OrderClauseGenerator<$DividendEventsTable>>[
+            if (limit != null)
+              ($DividendEventsTable t) => OrderingTerm.desc(t.fetchedAt)
+            else
               ($DividendEventsTable t) => OrderingTerm.desc(t.exDate),
-            ]))
-          .watch()
-          .map(_toDomain);
+          ]);
+    if (limit != null) query.limit(limit);
+    return query.watch().map(_toDomain);
+  }
 
   @override
   Stream<List<DividendEvent>> watchInRange(

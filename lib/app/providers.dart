@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:decimal/decimal.dart';
+import 'package:dividendendackel/core/errors/result.dart';
 import 'package:dividendendackel/core/logging/logging.dart';
 import 'package:dividendendackel/core/networking/provider_status_monitor.dart';
 import 'package:dividendendackel/core/networking/request_coordinator.dart';
@@ -255,9 +256,17 @@ final FutureProvider<void> sampleDataProvider = FutureProvider<void>((
     instrumentRepositoryProvider,
   );
 
-  final List<Instrument> existing = await instruments.watchAll().first;
-  if (existing.isNotEmpty) {
+  final Result<bool> hasAny = await instruments.hasAny();
+  if (hasAny.valueOrNull == true) {
     log.debug('sample data already present', operation: 'seed');
+    return;
+  }
+  if (hasAny.failureOrNull case final Object failure) {
+    log.error(
+      'could not inspect local data before seeding',
+      operation: 'seed',
+      error: failure,
+    );
     return;
   }
 
@@ -326,25 +335,28 @@ final StreamProvider<List<WatchlistEntry>> watchlistProvider =
       (Ref ref) => ref.watch(portfolioRepositoryProvider).watchWatchlist(),
     );
 
-/// Every known instrument, keyed by internal id for quick lookup.
-final StreamProvider<Map<String, Instrument>> instrumentsByIdProvider =
-    StreamProvider<Map<String, Instrument>>(
-      (Ref ref) => ref
-          .watch(instrumentRepositoryProvider)
-          .watchAll()
-          .map(
-            (List<Instrument> list) => <String, Instrument>{
-              for (final Instrument i in list) i.internalId: i,
-            },
-          ),
-    );
-
 /// Instrument ids the user holds or watches.
 final StreamProvider<Set<String>> followedInstrumentIdsProvider =
     StreamProvider<Set<String>>(
       (Ref ref) =>
           ref.watch(portfolioRepositoryProvider).watchFollowedInstrumentIds(),
     );
+
+/// Held or watched instruments, keyed by internal id for quick lookup.
+final StreamProvider<Map<String, Instrument>> instrumentsByIdProvider =
+    StreamProvider<Map<String, Instrument>>((Ref ref) async* {
+      final Set<String> followed = await ref.watch(
+        followedInstrumentIdsProvider.future,
+      );
+      yield* ref
+          .watch(instrumentRepositoryProvider)
+          .watchByIds(followed)
+          .map(
+            (List<Instrument> list) => <String, Instrument>{
+              for (final Instrument i in list) i.internalId: i,
+            },
+          );
+    });
 
 /// Latest quotes for the instruments the user follows.
 final StreamProvider<Map<String, Quote>> quotesProvider =

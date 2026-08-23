@@ -67,6 +67,10 @@ void main() {
       provenance: provenance,
     );
     final _NewsLauncher launcher = _NewsLauncher();
+    final Set<int> exDateWindows = <int>{};
+    final Set<int> paymentWindows = <int>{};
+    final Set<int> earningsWindows = <int>{};
+    final Set<int> corporateWindows = <int>{};
 
     await tester.pumpWidget(
       ProviderScope(
@@ -96,23 +100,24 @@ void main() {
               const <String, Instrument>{'de': instrument},
             ),
           ),
-          upcomingDividendsProvider.overrideWith(
-            (Ref ref, int days) =>
-                Stream<List<DividendEvent>>.value(<DividendEvent>[event]),
-          ),
-          upcomingDividendPaymentsProvider.overrideWith(
-            (Ref ref, int days) =>
-                Stream<List<DividendEvent>>.value(<DividendEvent>[event]),
-          ),
-          upcomingEarningsProvider.overrideWith(
-            (Ref ref, int days) =>
-                Stream<List<EarningsEvent>>.value(<EarningsEvent>[earnings]),
-          ),
-          upcomingCorporateEventsProvider.overrideWith(
-            (Ref ref, int days) => Stream<List<CorporateEvent>>.value(
-              <CorporateEvent>[companyEvent],
-            ),
-          ),
+          upcomingDividendsProvider.overrideWith((Ref ref, int days) {
+            exDateWindows.add(days);
+            return Stream<List<DividendEvent>>.value(<DividendEvent>[event]);
+          }),
+          upcomingDividendPaymentsProvider.overrideWith((Ref ref, int days) {
+            paymentWindows.add(days);
+            return Stream<List<DividendEvent>>.value(<DividendEvent>[event]);
+          }),
+          upcomingEarningsProvider.overrideWith((Ref ref, int days) {
+            earningsWindows.add(days);
+            return Stream<List<EarningsEvent>>.value(<EarningsEvent>[earnings]);
+          }),
+          upcomingCorporateEventsProvider.overrideWith((Ref ref, int days) {
+            corporateWindows.add(days);
+            return Stream<List<CorporateEvent>>.value(<CorporateEvent>[
+              companyEvent,
+            ]);
+          }),
           recentPortfolioNewsProvider.overrideWith(
             (Ref ref) => Stream<List<NewsItem>>.value(<NewsItem>[news]),
           ),
@@ -131,6 +136,10 @@ void main() {
     await tester.pump();
     await tester.pump();
 
+    expect(exDateWindows, <int>{3});
+    expect(paymentWindows, <int>{365});
+    expect(earningsWindows, <int>{30});
+    expect(corporateWindows, <int>{30});
     expect(find.text('Gross €20.00'), findsWidgets);
     expect(find.text('Net (estimated) €20.00'), findsWidgets);
     expect(find.textContaining('not tax advice'), findsWidgets);

@@ -51,6 +51,36 @@ void main() {
       expect(weekdays, contains(DateTime(2026, 8, 31)));
     });
 
+    test('groups a visible year in one pass and ignores other years', () {
+      final Provenance provenance = Provenance(
+        source: 'test',
+        fetchedAt: DateTime.utc(2026),
+      );
+      DividendEvent event(DateTime date) => DividendEvent(
+        instrumentId: 'asset',
+        amountPerShare: Money.parse('1', Currency.eur),
+        status: DividendStatus.confirmed,
+        paymentDate: date,
+        provenance: provenance,
+      );
+
+      final Map<int, List<DividendEvent>> grouped =
+          DividendCalendarMath.groupByMonth(
+            <DividendEvent>[
+              event(DateTime.utc(2026, 1, 1)),
+              event(DateTime.utc(2026, 8, 1)),
+              event(DateTime.utc(2026, 8, 15)),
+              event(DateTime.utc(2027, 8, 1)),
+            ],
+            DividendDateMode.paymentDate,
+            2026,
+          );
+
+      expect(grouped.keys, <int>{1, 8});
+      expect(grouped[1], hasLength(1));
+      expect(grouped[8], hasLength(2));
+    });
+
     test(
       'query identity ignores set order but distinguishes all from none',
       () {
