@@ -2,6 +2,8 @@ import 'package:decimal/decimal.dart';
 import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
+import 'package:dividendendackel/domain/use_cases/calendar_export.dart';
+import 'package:dividendendackel/features/calendar/calendar_export_writer.dart';
 import 'package:dividendendackel/features/calendar/calendar_screen.dart';
 import 'package:dividendendackel/features/calendar/calendar_state.dart';
 import 'package:flutter/material.dart';
@@ -46,6 +48,7 @@ void main() {
     WidgetTester tester, {
     Size size = const Size(1100, 1000),
     double textScale = 1,
+    CalendarExportWriter? exportWriter,
   }) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
@@ -93,6 +96,8 @@ void main() {
             }).toList();
             return Stream<List<DividendEvent>>.value(filtered);
           }),
+          if (exportWriter != null)
+            calendarExportWriterProvider.overrideWithValue(exportWriter),
         ],
         child: MaterialApp(
           theme: AppTheme.light(),
@@ -185,6 +190,60 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('exports the current scope and date-mode snapshot locally', (
+    WidgetTester tester,
+  ) async {
+    final _FakeCalendarExportWriter writer = _FakeCalendarExportWriter();
+    await pumpCalendar(tester, exportWriter: writer);
+
+    await tester.tap(find.byKey(const ValueKey<String>('export-calendar')));
+    await tester.pumpAndSettle();
+
+    expect(writer.documents, hasLength(1));
+    expect(writer.documents.single.eventCount, 3);
+    expect(
+      writer.documents.single.contents,
+      contains('X-WR-CALNAME:DividendenDackel · Current portfolio · Ex-date'),
+    );
+    expect(
+      writer.documents.single.contents,
+      contains('DTSTART;VALUE=DATE:20260825'),
+    );
+    expect(find.text('3 dividend events exported locally.'), findsOneWidget);
+
+    await tester.tap(find.text('Payment'));
+    await tester.pump();
+    await tester.pump();
+    await tester.tap(find.byTooltip('Next period'));
+    await tester.pump();
+    await tester.pump();
+    await tester.tap(find.byKey(const ValueKey<String>('export-calendar')));
+    await tester.pumpAndSettle();
+    expect(writer.documents, hasLength(2));
+    expect(
+      writer.documents.last.contents,
+      contains('DTSTART;VALUE=DATE:20260902'),
+    );
+  });
+
+  testWidgets('reports a local calendar save failure without getting stuck', (
+    WidgetTester tester,
+  ) async {
+    final _FakeCalendarExportWriter writer = _FakeCalendarExportWriter(
+      fail: true,
+    );
+    await pumpCalendar(tester, exportWriter: writer);
+
+    await tester.tap(find.byKey(const ValueKey<String>('export-calendar')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Calendar export could not be saved.'), findsOneWidget);
+    final IconButton button = tester.widget(
+      find.byKey(const ValueKey<String>('export-calendar')),
+    );
+    expect(button.onPressed, isNotNull);
+  });
+
   testWidgets(
     'supports large text without clipping interactive calendar rows',
     (WidgetTester tester) async {
@@ -208,4 +267,18 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+}
+
+final class _FakeCalendarExportWriter implements CalendarExportWriter {
+  _FakeCalendarExportWriter({this.fail = false});
+
+  final bool fail;
+  final List<CalendarExportDocument> documents = <CalendarExportDocument>[];
+
+  @override
+  Future<bool> save(CalendarExportDocument document) async {
+    documents.add(document);
+    if (fail) throw StateError('simulated local write failure');
+    return true;
+  }
 }

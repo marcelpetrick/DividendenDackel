@@ -1,12 +1,11 @@
 # Project status
 
 - **Last updated:** 2026-08-23
-- **Version:** 0.47.0+78
+- **Version:** 0.48.0+79
 - **Branch:** `master` (local work ahead of `origin/master`)
 - **Pinned toolchain:** Flutter 3.47.1 / Dart 3.13.1
-- **Quality gate:** green — 544 tests, Linux integration, Android and Linux
-  release builds, Android 10 compatibility
-  release builds, Android 10 compatibility
+- **Quality gate:** green — 552 tests, Linux integration, Android 10
+  compatibility and Android/Linux release builds
 
 ## Product state
 
@@ -36,6 +35,8 @@ Implemented user capabilities:
 - additional-investment dividend simulator;
 - month/year/agenda dividend calendar with ex/payment date modes, scopes,
   weekend control, busy-day disclosure and attributable held income;
+- private local `.ics` snapshots of the active calendar filters, with
+  deterministic identities and estimates marked for calendar clients;
 - 24-month monthly/quarterly/yearly income forecast, paid/confirmed/estimated
   separation, TTM and year-over-year comparisons;
 - explainable dividend growth, forecast, quality and six-dimension research
@@ -92,12 +93,12 @@ versions with current stable upstream releases without blindly merging them.
 
 The required 0.1.0 backlog is complete and locally tagged. The official Parqet
 comparison in [`parqet-comparison.md`](parqet-comparison.md) reprioritized the
-post-1.0 queue around private calendar export,
-multiple portfolios and explainable cash-flow performance. The activity ledger
-and actual-versus-forecast reconciliation plus reviewable CSV import are
-implemented, as is isolated multi-portfolio management. Optional keyed providers,
-broker credential sync, encrypted cross-device sync, widgets/tray mode,
-research history and localization remain candidates rather than MVP blockers.
+post-1.0 queue. The activity ledger, actual-versus-forecast reconciliation,
+reviewable CSV and IBKR imports, private calendar export and isolated
+multi-portfolio management are implemented. Explainable cash-flow performance
+is next. Optional keyed providers, broker credential sync, encrypted
+cross-device sync, widgets/tray mode, research history and localization remain
+candidates rather than MVP blockers.
 
 Known release limitations:
 

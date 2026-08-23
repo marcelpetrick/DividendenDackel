@@ -1,5 +1,38 @@
 # Engineering self-review
 
+## Phase 6 P3 calendar-export review
+
+Base: P6 (`ea76c6c`)<br>
+Review date: 2026-08-23
+
+### Findings
+
+#1 HIGH Architecture `lib/features/calendar/calendar_export_writer.dart`
+
+The first implementation used `file_selector.getSaveLocation` for both target
+platforms, but the plugin explicitly does not implement save-location selection
+on Android. Fixed with a narrow native `ACTION_CREATE_DOCUMENT` channel on
+Android 10+ while retaining the native Linux save dialog. The Android path is
+covered at the Dart channel boundary and compiled as an APK without requesting
+broad storage permission.
+
+#2 MEDIUM UI `lib/features/calendar/calendar_screen.dart`
+
+An initially labelled export button added a complete control row at 200% text
+on phone layouts and made the existing Year selector miss hit testing. Fixed by
+placing a compact, tooltip-labelled export icon beside the date explanation;
+the large-text regression and export interaction both have widget coverage.
+
+### Verdict
+
+P3 passes the full local gate. Export is an explicit local snapshot of the
+active scope, range and date mode; standard all-day events have stable
+identities and UTF-8-safe folding, estimates are unambiguous in three fields,
+and cancellation or failure cannot mutate portfolio data. All 552 tests, Linux
+integration, Android 10 compatibility and both release builds pass.
+
+---
+
 ## Phase 6 P6 broker-import review
 
 Base: P4 (`ca8beea`)<br>

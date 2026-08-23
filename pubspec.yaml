@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 0.47.0+78
+version: 0.48.0+79
 
 environment:
   sdk: 3.13.1
@@ -43,8 +43,8 @@ dependencies:
   # and Linux.
   drift: 2.34.3
   drift_flutter: 0.3.1
-  # Native read-only file selection on Android and Linux. Imported bytes never
-  # leave the device and the selected source document is not retained.
+  # Native read-only import selection and Linux export dialogs. Android export
+  # uses ACTION_CREATE_DOCUMENT because this plugin does not save there.
   file_selector: 1.1.0
   flutter:
     sdk: flutter

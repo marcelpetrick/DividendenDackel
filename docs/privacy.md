@@ -24,6 +24,14 @@ an import-batch identifier are retained. Undo appends local reversal records.
 Interactive Brokers account ids or aliases are used only to hash a
 collision-safe duplicate identity; the raw account value is not retained.
 
+Calendar export creates an `.ics` snapshot only after the user selects Export
+and a destination. The file contains the currently filtered instrument names,
+symbols, per-share dividend amounts, dates, certainty and source labels. It
+does not contain portfolio quantities, purchase prices, tax settings or account
+credentials. Android grants the app temporary access only to the document the
+user chose; Linux writes only to the selected path. The app does not upload,
+host or subscribe the calendar and does not retain the export destination.
+
 Optional third-party API keys are stored separately through Android secure
 storage backed by the Keystore or Linux Secret Service. The application never
 includes a shared provider credential in its source code or artifacts. Android
