@@ -57,6 +57,9 @@ class TodayScreen extends ConsumerWidget {
     final Map<String, Instrument> instruments =
         instrumentValue.value ?? const <String, Instrument>{};
     final AsyncValue<List<Holding>> holdings = ref.watch(holdingsProvider);
+    final AsyncValue<List<WatchlistEntry>> watchlist = ref.watch(
+      watchlistProvider,
+    );
     final AsyncValue<Map<String, Quote>> quoteValue = ref.watch(quotesProvider);
     final Map<String, Quote> quotes =
         quoteValue.value ?? const <String, Quote>{};
@@ -74,6 +77,12 @@ class TodayScreen extends ConsumerWidget {
             dividends: next365.value ?? const <DividendEvent>[],
             asOf: now,
           );
+    final Map<String, double> holdingWeights = <String, double>{
+      for (final PortfolioPositionSummary position
+          in overview?.positions ?? const <PortfolioPositionSummary>[])
+        if (position.allocation case final Percentage allocation)
+          position.holding.instrumentId: allocation.rate.toDouble(),
+    };
 
     return ListView(
       padding: const EdgeInsets.all(AppTheme.space * 2),
@@ -99,8 +108,16 @@ class TodayScreen extends ConsumerWidget {
           paymentEvents: next3Payments,
           earningsEvents: next3Earnings,
           corporateEvents: next3Corporate,
+          news: news,
           instruments: instruments,
           holdings: holdingsByInstrument,
+          watchlistIds: <String>{
+            for (final WatchlistEntry entry
+                in watchlist.value ?? const <WatchlistEntry>[])
+              entry.instrumentId,
+          },
+          holdingWeights: holdingWeights,
+          launcher: ref.watch(newsLinkLauncherProvider),
           now: now,
         ),
         const SizedBox(height: AppTheme.space * 2),
@@ -116,12 +133,6 @@ class TodayScreen extends ConsumerWidget {
           corporateEvents: next30Corporate,
           instruments: instruments,
           now: now,
-        ),
-        const SizedBox(height: AppTheme.space * 2),
-        _PortfolioNewsCard(
-          news: news,
-          instruments: instruments,
-          launcher: ref.watch(newsLinkLauncherProvider),
         ),
         const SizedBox(height: AppTheme.space * 2),
         _ExpectedDividendsCard(
@@ -218,16 +229,24 @@ class _TodayMattersCard extends StatelessWidget {
     required this.paymentEvents,
     required this.earningsEvents,
     required this.corporateEvents,
+    required this.news,
     required this.instruments,
     required this.holdings,
+    required this.watchlistIds,
+    required this.holdingWeights,
+    required this.launcher,
     required this.now,
   });
   final AsyncValue<List<DividendEvent>> exEvents;
   final AsyncValue<List<DividendEvent>> paymentEvents;
   final AsyncValue<List<EarningsEvent>> earningsEvents;
   final AsyncValue<List<CorporateEvent>> corporateEvents;
+  final AsyncValue<List<NewsItem>> news;
   final Map<String, Instrument> instruments;
   final Map<String, Holding> holdings;
+  final Set<String> watchlistIds;
+  final Map<String, double> holdingWeights;
+  final NewsLinkLauncher launcher;
   final DateTime now;
 
   @override
@@ -247,17 +266,31 @@ class _TodayMattersCard extends StatelessWidget {
       for (final CorporateEvent event
           in corporateEvents.value ?? const <CorporateEvent>[])
         _Matter.corporate(event),
-    ]..sort((_Matter a, _Matter b) => a.date.compareTo(b.date));
+      for (final NewsItem item in news.value ?? const <NewsItem>[])
+        _Matter.news(item),
+    ];
+    final Map<String, _Matter> byId = <String, _Matter>{
+      for (final _Matter matter in matters) matter.id: matter,
+    };
+    final List<RankedRelevance> ranked = const RelevanceRanker().rank(
+      signals: matters.map((_Matter matter) => matter.signal),
+      holdingIds: holdings.keys.toSet(),
+      watchlistIds: watchlistIds,
+      holdingWeights: holdingWeights,
+      now: now,
+    );
     final bool loading =
         exEvents.isLoading ||
         paymentEvents.isLoading ||
         earningsEvents.isLoading ||
-        corporateEvents.isLoading;
+        corporateEvents.isLoading ||
+        news.isLoading;
     final bool failed =
         exEvents.hasError ||
         paymentEvents.hasError ||
         earningsEvents.hasError ||
-        corporateEvents.hasError;
+        corporateEvents.hasError ||
+        news.hasError;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(AppTheme.space * 2),
@@ -271,25 +304,50 @@ class _TodayMattersCard extends StatelessWidget {
             const SizedBox(height: AppTheme.space),
             if (failed)
               const Text(
-                'Upcoming dates could not be refreshed. Cached portfolio and '
-                'income figures remain available.',
+                'Some sources could not be refreshed. Cached items remain '
+                'visible below.',
               ),
-            if (matters.isNotEmpty)
-              for (final _Matter matter in matters.take(5))
+            if (ranked.isNotEmpty)
+              for (final RankedRelevance relevance in ranked.take(5))
                 _MatterTile(
-                  matter: matter,
-                  instrument: instruments[matter.instrumentId],
-                  holding: holdings[matter.instrumentId],
+                  matter: byId[relevance.signal.id]!,
+                  relevance: relevance,
+                  instrumentNames: <String>[
+                    for (final String id in relevance.signal.instrumentIds)
+                      instruments[id]?.name ?? id,
+                  ],
+                  holding: relevance.signal.instrumentIds
+                      .map((String id) => holdings[id])
+                      .whereType<Holding>()
+                      .firstOrNull,
+                  onOpen: byId[relevance.signal.id]!.news == null
+                      ? null
+                      : () => _open(context, byId[relevance.signal.id]!.news!),
                   now: now,
                 )
             else if (loading)
               const LinearProgressIndicator(semanticsLabel: 'Loading events')
             else if (!failed)
               const Text(
-                'No portfolio events need attention in the next 3 days.',
+                'No relevant portfolio events or headlines are cached.',
               ),
           ],
         ),
+      ),
+    );
+  }
+
+  Future<void> _open(BuildContext context, NewsItem item) async {
+    bool opened = false;
+    try {
+      opened = await launcher.open(item.url);
+    } on Object {
+      opened = false;
+    }
+    if (!context.mounted || opened) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Could not open the original publisher page.'),
       ),
     );
   }
@@ -297,13 +355,18 @@ class _TodayMattersCard extends StatelessWidget {
 
 final class _Matter {
   const _Matter._({
-    required this.instrumentId,
+    required this.id,
+    required this.instrumentIds,
     required this.date,
     required this.kind,
     required this.icon,
     required this.status,
+    required this.relevanceKind,
+    required this.relevanceTiming,
+    required this.confirmed,
     this.detail,
     this.dividend,
+    this.news,
   });
 
   factory _Matter.dividend({
@@ -311,53 +374,103 @@ final class _Matter {
     required DateTime date,
     required String kind,
   }) => _Matter._(
-    instrumentId: event.instrumentId,
+    id:
+        'dividend:$kind:${event.instrumentId}:'
+        '${event.exDate?.toIso8601String()}:'
+        '${event.paymentDate?.toIso8601String()}:'
+        '${event.amountPerShare.currency.code}:${event.amountPerShare.amount}',
+    instrumentIds: <String>[event.instrumentId],
     date: date,
     kind: kind,
     icon: kind == 'Payment'
         ? Icons.payments_outlined
         : Icons.event_available_outlined,
     status: DividendStatusChip.labelFor(event.status),
+    relevanceKind: kind == 'Payment'
+        ? RelevanceKind.dividendPayment
+        : RelevanceKind.exDividend,
+    relevanceTiming: RelevanceTiming.scheduled,
+    confirmed: event.status.isConfirmedByCompany,
     dividend: event,
   );
 
   factory _Matter.earnings(EarningsEvent event) => _Matter._(
-    instrumentId: event.instrumentId,
+    id: 'earnings:${event.instrumentId}:${event.scheduledFor.toIso8601String()}',
+    instrumentIds: <String>[event.instrumentId],
     date: event.scheduledFor,
     kind: 'Earnings',
     icon: Icons.assessment_outlined,
     status: _earningsStatus(event.status),
+    relevanceKind: RelevanceKind.earnings,
+    relevanceTiming: RelevanceTiming.scheduled,
+    confirmed: event.status != EarningsStatus.estimated,
     detail: _earningsTiming(event.timing),
   );
 
   factory _Matter.corporate(CorporateEvent event) => _Matter._(
-    instrumentId: event.instrumentId,
+    id: 'corporate:${event.id}',
+    instrumentIds: <String>[event.instrumentId],
     date: event.scheduledFor,
     kind: event.title,
     icon: Icons.corporate_fare_outlined,
     status: _corporateStatus(event.status),
+    relevanceKind: _corporateRelevanceKind(event),
+    relevanceTiming: RelevanceTiming.scheduled,
+    confirmed: event.status == CorporateEventStatus.confirmed,
     detail: _corporateType(event.type),
   );
 
-  final String instrumentId;
+  factory _Matter.news(NewsItem item) => _Matter._(
+    id: 'news:${item.id}',
+    instrumentIds: item.relatedInstrumentIds,
+    date: item.publishedAt,
+    kind: item.headline,
+    icon: Icons.article_outlined,
+    status: _newsCategory(item.category),
+    relevanceKind: _newsRelevanceKind(item.category),
+    relevanceTiming: RelevanceTiming.published,
+    confirmed: false,
+    detail: item.sourceName,
+    news: item,
+  );
+
+  final String id;
+  final List<String> instrumentIds;
   final DateTime date;
   final String kind;
   final IconData icon;
   final String status;
+  final RelevanceKind relevanceKind;
+  final RelevanceTiming relevanceTiming;
+  final bool confirmed;
   final String? detail;
   final DividendEvent? dividend;
+  final NewsItem? news;
+
+  RelevanceSignal get signal => RelevanceSignal(
+    id: id,
+    instrumentIds: instrumentIds,
+    at: date,
+    kind: relevanceKind,
+    timing: relevanceTiming,
+    confirmed: confirmed,
+  );
 }
 
 class _MatterTile extends StatelessWidget {
   const _MatterTile({
     required this.matter,
-    required this.instrument,
+    required this.relevance,
+    required this.instrumentNames,
     required this.holding,
+    required this.onOpen,
     required this.now,
   });
   final _Matter matter;
-  final Instrument? instrument;
+  final RankedRelevance? relevance;
+  final List<String> instrumentNames;
   final Holding? holding;
+  final VoidCallback? onOpen;
   final DateTime now;
 
   @override
@@ -369,16 +482,50 @@ class _MatterTile extends StatelessWidget {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: Icon(matter.icon),
-      title: Text(instrument?.name ?? matter.instrumentId),
+      title: Text(
+        matter.news?.headline ??
+            (instrumentNames.isEmpty
+                ? 'Unknown instrument'
+                : instrumentNames.join(', ')),
+      ),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text('${matter.kind} ${_relativeDay(matter.date, now)}'),
-          if (matter.detail case final String detail) Text(detail),
+          if (matter.news == null) ...<Widget>[
+            Text('${matter.kind} ${_relativeDay(matter.date, now)}'),
+            if (matter.detail case final String detail) Text(detail),
+          ] else ...<Widget>[
+            Text('${matter.detail} · ${_published(context, matter.date)}'),
+            if (instrumentNames.isNotEmpty) Text(instrumentNames.join(', ')),
+          ],
+          Text(matter.status),
           if (gross != null) GrossNetAmount(event: dividend!, gross: gross),
+          if (relevance case final RankedRelevance ranked)
+            Text(
+              'Why: ${ranked.factors.map((RelevanceFactor factor) => factor.explanation).join(' · ')}',
+              style: Theme.of(context).textTheme.labelSmall,
+            ),
+          if (onOpen != null)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: onOpen,
+                icon: const Icon(Icons.open_in_new, size: 16),
+                label: Text(
+                  matter.news!.provenance.source == Provenance.sampleSource
+                      ? 'View sample source'
+                      : 'Open original',
+                ),
+              ),
+            ),
         ],
       ),
-      trailing: Chip(label: Text(matter.status)),
+      trailing: relevance == null
+          ? null
+          : Semantics(
+              label: 'Relevance score ${relevance!.score} out of 100',
+              child: Chip(label: Text('${relevance!.score}/100')),
+            ),
     );
   }
 
@@ -391,6 +538,15 @@ class _MatterTile extends StatelessWidget {
       1 => 'tomorrow',
       _ => 'in $difference days',
     };
+  }
+
+  static String _published(BuildContext context, DateTime value) {
+    final DateTime local = value.toLocal();
+    final MaterialLocalizations localizations = MaterialLocalizations.of(
+      context,
+    );
+    return '${localizations.formatMediumDate(local)} · '
+        '${localizations.formatTimeOfDay(TimeOfDay.fromDateTime(local))}';
   }
 }
 
@@ -495,8 +651,13 @@ class _UpcomingCompanyEventsCard extends StatelessWidget {
               for (final _Matter matter in matters.take(5))
                 _MatterTile(
                   matter: matter,
-                  instrument: instruments[matter.instrumentId],
+                  relevance: null,
+                  instrumentNames: <String>[
+                    for (final String id in matter.instrumentIds)
+                      instruments[id]?.name ?? id,
+                  ],
                   holding: null,
+                  onOpen: null,
                   now: now,
                 )
             else if (loading)
@@ -507,125 +668,6 @@ class _UpcomingCompanyEventsCard extends StatelessWidget {
               const Text('No earnings or company events are currently known.'),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _PortfolioNewsCard extends StatelessWidget {
-  const _PortfolioNewsCard({
-    required this.news,
-    required this.instruments,
-    required this.launcher,
-  });
-
-  final AsyncValue<List<NewsItem>> news;
-  final Map<String, Instrument> instruments;
-  final NewsLinkLauncher launcher;
-
-  @override
-  Widget build(BuildContext context) {
-    final List<NewsItem> items = news.value ?? const <NewsItem>[];
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppTheme.space * 2),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              'Portfolio news',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: AppTheme.space / 2),
-            const Text(
-              'Headlines and links only. Articles remain with their publishers.',
-            ),
-            const SizedBox(height: AppTheme.space),
-            if (news.hasError)
-              const Text(
-                'News could not be refreshed. Cached headlines remain visible.',
-              ),
-            if (items.isNotEmpty)
-              for (final NewsItem item in items.take(5))
-                _NewsTile(
-                  item: item,
-                  instrumentNames: <String>[
-                    for (final String id in item.relatedInstrumentIds)
-                      instruments[id]?.name ?? id,
-                  ],
-                  onOpen: () => _open(context, item),
-                )
-            else if (news.isLoading)
-              const LinearProgressIndicator(
-                semanticsLabel: 'Loading portfolio news',
-              )
-            else if (!news.hasError)
-              const Text('No recent headlines are cached for your portfolio.'),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<void> _open(BuildContext context, NewsItem item) async {
-    bool opened = false;
-    try {
-      opened = await launcher.open(item.url);
-    } on Object {
-      opened = false;
-    }
-    if (!context.mounted || opened) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Could not open the original publisher page.'),
-      ),
-    );
-  }
-}
-
-class _NewsTile extends StatelessWidget {
-  const _NewsTile({
-    required this.item,
-    required this.instrumentNames,
-    required this.onOpen,
-  });
-
-  final NewsItem item;
-  final List<String> instrumentNames;
-  final VoidCallback onOpen;
-
-  @override
-  Widget build(BuildContext context) {
-    final MaterialLocalizations localizations = MaterialLocalizations.of(
-      context,
-    );
-    final DateTime localPublishedAt = item.publishedAt.toLocal();
-    final String published =
-        '${localizations.formatMediumDate(localPublishedAt)} · '
-        '${localizations.formatTimeOfDay(TimeOfDay.fromDateTime(localPublishedAt))}';
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: const Icon(Icons.article_outlined),
-      title: Text(item.headline),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text('${item.sourceName} · $published'),
-          if (instrumentNames.isNotEmpty) Text(instrumentNames.join(', ')),
-          Text(_newsCategory(item.category)),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: TextButton.icon(
-              onPressed: onOpen,
-              icon: const Icon(Icons.open_in_new, size: 16),
-              label: Text(
-                item.provenance.source == Provenance.sampleSource
-                    ? 'View sample source'
-                    : 'Open original',
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -662,6 +704,19 @@ String _corporateStatus(CorporateEventStatus status) => switch (status) {
   CorporateEventStatus.cancelled => 'Cancelled',
 };
 
+RelevanceKind _corporateRelevanceKind(CorporateEvent event) {
+  if (event.type == CorporateEventType.capitalAction &&
+      event.title.toLowerCase().contains('buyback')) {
+    return RelevanceKind.shareBuyback;
+  }
+  return switch (event.type) {
+    CorporateEventType.transaction => RelevanceKind.mergerOrAcquisition,
+    CorporateEventType.capitalAction => RelevanceKind.capitalAction,
+    CorporateEventType.regulatory => RelevanceKind.regulatoryEvent,
+    _ => RelevanceKind.companyEvent,
+  };
+}
+
 String _newsCategory(NewsCategory category) => switch (category) {
   NewsCategory.earnings => 'Earnings',
   NewsCategory.dividends => 'Dividends',
@@ -674,6 +729,20 @@ String _newsCategory(NewsCategory category) => switch (category) {
   NewsCategory.filing => 'Filing',
   NewsCategory.macro => 'Macro',
   NewsCategory.general => 'General',
+};
+
+RelevanceKind _newsRelevanceKind(NewsCategory category) => switch (category) {
+  NewsCategory.earnings => RelevanceKind.earnings,
+  NewsCategory.dividends => RelevanceKind.dividendAnnouncement,
+  NewsCategory.guidance => RelevanceKind.guidance,
+  NewsCategory.mergersAndAcquisitions => RelevanceKind.mergerOrAcquisition,
+  NewsCategory.management => RelevanceKind.managementChange,
+  NewsCategory.regulation => RelevanceKind.regulatoryEvent,
+  NewsCategory.product => RelevanceKind.product,
+  NewsCategory.analyst => RelevanceKind.analyst,
+  NewsCategory.filing => RelevanceKind.materialFiling,
+  NewsCategory.macro => RelevanceKind.macro,
+  NewsCategory.general => RelevanceKind.generalNews,
 };
 
 class _ChangesCard extends StatelessWidget {

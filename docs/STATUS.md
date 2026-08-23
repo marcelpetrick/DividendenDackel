@@ -6,7 +6,7 @@ including a future session — can pick up without re-reading the whole history.
 - **Last updated:** 2026-08-23
 - **Version:** 0.1.0+1 (pre-release, `0.x.y`)
 - **Branch:** `master` (local work ahead of `origin`)
-- **Quality gate:** green — 434 tests, analyzer clean, both platforms build
+- **Quality gate:** green — 441 tests, analyzer clean, both platforms build
 
 ---
 
@@ -26,8 +26,9 @@ Settings, About with the version, and a Data Status screen. Sample data is
 seeded on first launch, so the screens are populated with no API key.
 
 The core portfolio, calendar and 24-month income forecast are functional. Today
-combines portfolio value, dividend income, earnings and company events from the
-local cache; relevance-ranked news is the next product slice.
+combines portfolio value, dividend income, earnings, company events and
+attributable headlines from the local cache, ranked by disclosed relevance
+factors.
 
 ### Done
 
@@ -66,6 +67,7 @@ local cache; relevance-ranked news is the next product slice.
 | Offline-capable Today dashboard | T1 | done |
 | Earnings and corporate events | T2 | done |
 | News metadata, categories and publisher links | T3 | done |
+| Explainable Today relevance ranking | T4 | done |
 
 ### What is left
 
@@ -73,9 +75,8 @@ Ordered by what unblocks a usable app soonest.
 
 | Next | Task | Why it matters |
 | --- | --- | --- |
-| 1 | **T4** relevance | Rank portfolio events and news by disclosed factors. |
-| 2 | **T5/T6** research | Complete the explainable research experience. |
-| 3 | **Q1–Q9** quality | Harden offline behavior, accessibility and performance. |
+| 1 | **T5/T6** research | Complete the explainable research experience. |
+| 2 | **Q1–Q9** quality | Harden offline behavior, accessibility and performance. |
 
 Then:
 Q1–Q7 offline, states, accessibility, health, simulator, onboarding,
@@ -221,14 +222,16 @@ dart format .
 - **Sample data is generated from patterns, not fixed dates**, so dividend,
   earnings and corporate-event views stay populated whenever the app runs, and
   generated dividend history grows year on year so CAGR is computable.
+- **Today relevance is deterministic and inspectable.** Held positions,
+  attributable holding weight, information type, timing and confirmation each
+  contribute disclosed points. Unrelated items are excluded, ties use stable
+  ordering, and every visible score shows all of its reasons.
 - **Dividends will be shown gross *and* net**, with withholding, treaty cap and
   German tax modelled as an explainable estimate — see
   [`dividend-taxation.md`](dividend-taxation.md).
 
 ## 6. Known issues and follow-ups
 
-- Portfolio relevance ranking is not implemented yet, so Today orders dated
-  events chronologically and recent headlines by publication time until T4.
 - Widget tests run without a database on purpose: drift's stream machinery
   outlives the widget tree and the test binding reports it as a pending timer.
   The data layer is covered by its own tests.

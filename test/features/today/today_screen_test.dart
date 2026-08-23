@@ -76,6 +76,10 @@ void main() {
           holdingsProvider.overrideWith(
             (Ref ref) => Stream<List<Holding>>.value(<Holding>[holding]),
           ),
+          watchlistProvider.overrideWith(
+            (Ref ref) =>
+                Stream<List<WatchlistEntry>>.value(const <WatchlistEntry>[]),
+          ),
           quotesProvider.overrideWith(
             (Ref ref) => Stream<Map<String, Quote>>.value(<String, Quote>{
               'de': Quote(
@@ -135,17 +139,14 @@ void main() {
     expect(find.textContaining('Earnings tomorrow'), findsOneWidget);
     expect(find.text('After market close'), findsWidgets);
     expect(find.textContaining('Capital markets day in 2 days'), findsWidgets);
-    await tester.scrollUntilVisible(find.text('Next 3 days'), 300);
-    expect(find.text('Next 3 days'), findsOneWidget);
-    await tester.scrollUntilVisible(
-      find.text('Upcoming company events · 30 days'),
-      300,
-    );
-    expect(find.text('Upcoming company events · 30 days'), findsOneWidget);
-    await tester.scrollUntilVisible(find.text('Portfolio news'), 300);
     expect(find.text('Dividend policy updated'), findsOneWidget);
     expect(find.textContaining('Original Publisher ·'), findsOneWidget);
     expect(find.text('Dividends'), findsOneWidget);
+    expect(find.textContaining('Why: Held position'), findsNWidgets(5));
+    expect(
+      find.bySemanticsLabel(RegExp(r'Relevance score \d+ out of 100')),
+      findsNWidgets(5),
+    );
     expect(
       find.text('This provider summary must not be republished.'),
       findsNothing,
@@ -155,6 +156,13 @@ void main() {
     expect(launcher.opened, <Uri>[
       Uri.parse('https://publisher.example/story'),
     ]);
+    await tester.scrollUntilVisible(find.text('Next 3 days'), 300);
+    expect(find.text('Next 3 days'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Upcoming company events · 30 days'),
+      300,
+    );
+    expect(find.text('Upcoming company events · 30 days'), findsOneWidget);
     await tester.scrollUntilVisible(find.text('Next 365 days'), 300);
     expect(find.text('Next 365 days'), findsOneWidget);
     await tester.scrollUntilVisible(
@@ -181,6 +189,10 @@ void main() {
           clockProvider.overrideWithValue(FakeClock(now)),
           holdingsProvider.overrideWith(
             (Ref ref) => Stream<List<Holding>>.value(<Holding>[holding]),
+          ),
+          watchlistProvider.overrideWith(
+            (Ref ref) =>
+                Stream<List<WatchlistEntry>>.value(const <WatchlistEntry>[]),
           ),
           instrumentsByIdProvider.overrideWith(
             (Ref ref) => Stream<Map<String, Instrument>>.value(
@@ -236,7 +248,7 @@ void main() {
 
     expect(find.textContaining('No cached quotes'), findsOneWidget);
     expect(
-      find.text('No portfolio events need attention in the next 3 days.'),
+      find.text('No relevant portfolio events or headlines are cached.'),
       findsOneWidget,
     );
     await tester.scrollUntilVisible(
