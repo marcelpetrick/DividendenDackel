@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:dividendendackel/app/navigation/app_router.dart';
 import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
 import 'package:dividendendackel/app/theme/theme_preference.dart';
+import 'package:dividendendackel/features/currency/fx_state.dart';
+import 'package:dividendendackel/features/refresh/portfolio_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -19,13 +23,47 @@ class DividendenDackelApp extends ConsumerStatefulWidget {
       _DividendenDackelAppState();
 }
 
-class _DividendenDackelAppState extends ConsumerState<DividendenDackelApp> {
+class _DividendenDackelAppState extends ConsumerState<DividendenDackelApp>
+    with WidgetsBindingObserver {
   late final GoRouter _router = buildRouter(
     initialLocation: widget.initialLocation,
   );
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((Duration _) {
+      unawaited(_refreshAfterSeed());
+    });
+  }
+
+  Future<void> _refreshAfterSeed() async {
+    if (!ref.read(automaticPortfolioRefreshEnabledProvider)) return;
+    try {
+      await ref.read(sampleDataProvider.future);
+      if (mounted) {
+        await ref.read(portfolioRefreshProvider.notifier).refresh();
+        await ref.read(fxRefreshProvider.notifier).refresh();
+      }
+    } on Object {
+      // The local-data provider records its own failure. The app remains usable
+      // and a later resume/manual refresh can retry without an unhandled future.
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed &&
+        ref.read(automaticPortfolioRefreshEnabledProvider)) {
+      unawaited(ref.read(portfolioRefreshProvider.notifier).refresh());
+      unawaited(ref.read(fxRefreshProvider.notifier).refresh());
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _router.dispose();
     super.dispose();
   }

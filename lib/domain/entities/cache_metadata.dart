@@ -14,6 +14,9 @@ enum CacheDataType {
   /// Upcoming earnings dates.
   earningsCalendar,
 
+  /// Scheduled issuer events other than dividends and earnings.
+  companyEvents,
+
   /// Statements, ratios and other company fundamentals.
   fundamentals,
 

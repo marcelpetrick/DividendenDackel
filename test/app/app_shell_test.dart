@@ -10,6 +10,7 @@ import 'package:dividendendackel/core/networking/request_coordinator.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/features/calendar/calendar_state.dart';
 import 'package:dividendendackel/features/calendar/forecast_state.dart';
+import 'package:dividendendackel/features/refresh/portfolio_refresh.dart';
 import 'package:dividendendackel/features/settings/about_screen.dart';
 import 'package:dividendendackel/features/settings/data_source_settings.dart';
 import 'package:dividendendackel/features/today/today_state.dart';
@@ -43,6 +44,7 @@ void main() {
           ),
           clockProvider.overrideWithValue(FakeClock(DateTime.utc(2026, 8, 22))),
           sampleDataProvider.overrideWith((Ref ref) async {}),
+          automaticPortfolioRefreshEnabledProvider.overrideWithValue(false),
           holdingsProvider.overrideWith(
             (Ref ref) => Stream<List<Holding>>.value(const <Holding>[]),
           ),

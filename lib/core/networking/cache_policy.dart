@@ -51,6 +51,7 @@ final class CachePolicy {
         CacheDataType.historicalDividends: Duration(days: 14),
         CacheDataType.announcedDividends: Duration(hours: 12),
         CacheDataType.earningsCalendar: Duration(hours: 8),
+        CacheDataType.companyEvents: Duration(hours: 8),
         CacheDataType.fundamentals: Duration(hours: 18),
         CacheDataType.news: Duration(minutes: 10),
         CacheDataType.quotes: Duration(minutes: 5),

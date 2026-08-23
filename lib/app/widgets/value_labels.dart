@@ -1,5 +1,6 @@
 import 'package:dividendendackel/app/theme/app_colors.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
+import 'package:dividendendackel/features/refresh/portfolio_refresh.dart';
 import 'package:flutter/material.dart';
 
 /// A dividend's certainty, shown as a word and a shape — never colour alone.
@@ -137,6 +138,66 @@ class FreshnessLabel extends StatelessWidget {
       '$source · $age$suffix',
       style: theme.textTheme.labelSmall?.copyWith(
         color: theme.colorScheme.onSurfaceVariant,
+      ),
+    );
+  }
+}
+
+/// Compact app-wide explanation of saved-data age and refresh activity.
+class DataFreshnessBanner extends StatelessWidget {
+  /// Creates the banner from shared refresh state.
+  const DataFreshnessBanner({
+    required this.state,
+    required this.now,
+    super.key,
+  });
+
+  final PortfolioRefreshState state;
+  final DateTime now;
+
+  @override
+  Widget build(BuildContext context) {
+    final DateTime? completedAt = state.lastCompletedAt;
+    final String age = completedAt == null
+        ? 'saved data'
+        : FreshnessLabel.describeAge(now.difference(completedAt));
+    final String progress = state.isRefreshing ? ' — refreshing…' : '';
+    final String failure = state.failureCount > 0
+        ? ' · ${state.failureCount} source ${state.failureCount == 1 ? 'failed' : 'failures'}; saved data remains visible'
+        : '';
+    final String message = 'Last updated $age$progress$failure';
+    final ThemeData theme = Theme.of(context);
+
+    return Semantics(
+      liveRegion: true,
+      label: message,
+      child: Container(
+        width: double.infinity,
+        color: theme.colorScheme.surfaceContainerHighest,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        child: Row(
+          children: <Widget>[
+            if (state.isRefreshing)
+              const Padding(
+                padding: EdgeInsets.only(right: 8),
+                child: SizedBox.square(
+                  dimension: 12,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              )
+            else
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: Icon(
+                  state.failureCount > 0
+                      ? Icons.cloud_off_outlined
+                      : Icons.offline_pin_outlined,
+                  size: 16,
+                ),
+              ),
+            Expanded(child: Text(message, style: theme.textTheme.labelSmall)),
+          ],
+        ),
       ),
     );
   }

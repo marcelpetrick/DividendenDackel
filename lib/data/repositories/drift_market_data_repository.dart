@@ -211,4 +211,16 @@ final class DriftMarketDataRepository implements MarketDataRepository {
           }
         });
       });
+
+  @override
+  Future<Result<void>> saveFilings(List<Filing> filings) =>
+      Result.guardAsync<void>(() async {
+        await db.transaction(() async {
+          for (final Filing filing in filings) {
+            await db
+                .into(db.filings)
+                .insertOnConflictUpdate(CompanionMappers.filing(filing));
+          }
+        });
+      });
 }
