@@ -90,6 +90,12 @@ remain immutable. Tax estimates are not combined across portfolios. Tax
 assumptions and display-currency choices use separately scoped preference keys,
 with migration of the original default-portfolio values.
 
+Appearance preferences store the theme and application language outside
+portfolio scope. The root application observes the language preference and
+rebuilds both onboarding and routed trees with bundled English, German or
+Croatian localizations. User-entered names and externally supplied content are
+explicitly excluded from translation.
+
 Local CSV import parses and validates without writing, resolves instruments by
 exact ISIN or unambiguous ticker, and previews accepted, duplicate and rejected
 rows. Native, Portfolio Performance and Interactive Brokers Flex adapters

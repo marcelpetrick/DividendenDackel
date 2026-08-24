@@ -1,3 +1,4 @@
+import 'package:dividendendackel/app/localization/localized_material.dart';
 import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
 import 'package:dividendendackel/app/widgets/gross_net_amount.dart';
@@ -7,7 +8,6 @@ import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/features/news/news_link_launcher.dart';
 import 'package:dividendendackel/features/tax/tax_estimates.dart';
 import 'package:dividendendackel/features/today/today_state.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// The central product experience (Vision.md §7).
@@ -388,7 +388,9 @@ class _TodayMattersCard extends StatelessWidget {
                   now: now,
                 )
             else if (loading)
-              const LinearProgressIndicator(semanticsLabel: 'Loading events')
+              LinearProgressIndicator(
+                semanticsLabel: context.tr('Loading events'),
+              )
             else if (!failed)
               const Text(
                 'No relevant portfolio events or headlines are cached.',
@@ -544,12 +546,11 @@ class _MatterTile extends StatelessWidget {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: Icon(matter.icon),
-      title: Text(
-        matter.news?.headline ??
-            (instrumentNames.isEmpty
-                ? 'Unknown instrument'
-                : instrumentNames.join(', ')),
-      ),
+      title: matter.news != null
+          ? Text(matter.news!.headline, translate: false)
+          : instrumentNames.isEmpty
+          ? const Text('Unknown instrument')
+          : Text(instrumentNames.join(', '), translate: false),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -558,7 +559,8 @@ class _MatterTile extends StatelessWidget {
             if (matter.detail case final String detail) Text(detail),
           ] else ...<Widget>[
             Text('${matter.detail} · ${_published(context, matter.date)}'),
-            if (instrumentNames.isNotEmpty) Text(instrumentNames.join(', ')),
+            if (instrumentNames.isNotEmpty)
+              Text(instrumentNames.join(', '), translate: false),
           ],
           Text(matter.status),
           if (gross != null) GrossNetAmount(event: dividend!, gross: gross),
@@ -585,7 +587,9 @@ class _MatterTile extends StatelessWidget {
       trailing: relevance == null
           ? null
           : Semantics(
-              label: 'Relevance score ${relevance!.score} out of 100',
+              label: context.tr(
+                'Relevance score ${relevance!.score} out of 100',
+              ),
               child: Chip(label: Text('${relevance!.score}/100')),
             ),
     );
@@ -723,8 +727,8 @@ class _UpcomingCompanyEventsCard extends StatelessWidget {
                   now: now,
                 )
             else if (loading)
-              const LinearProgressIndicator(
-                semanticsLabel: 'Loading company events',
+              LinearProgressIndicator(
+                semanticsLabel: context.tr('Loading company events'),
               )
             else if (!failed)
               const Text('No earnings or company events are currently known.'),
@@ -852,8 +856,8 @@ class _ChangesCard extends StatelessWidget {
               'Could not update the local comparison. Current portfolio and '
               'dividend data remain available above.',
             ),
-            _ => const LinearProgressIndicator(
-              semanticsLabel: 'Comparing refresh changes',
+            _ => LinearProgressIndicator(
+              semanticsLabel: context.tr('Comparing refresh changes'),
             ),
           },
         ],

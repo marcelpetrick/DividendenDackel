@@ -1,9 +1,9 @@
 import 'package:decimal/decimal.dart';
+import 'package:dividendendackel/app/localization/localized_material.dart';
 import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
 import 'package:dividendendackel/core/errors/result.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Manual activity entry shared by Android and Linux.
@@ -148,7 +148,9 @@ class _PortfolioActivityDialogState
           children: <Widget>[
             DropdownButtonFormField<PortfolioActivityType>(
               initialValue: _type,
-              decoration: const InputDecoration(labelText: 'Activity type'),
+              decoration: InputDecoration(
+                labelText: context.tr('Activity type'),
+              ),
               items: <DropdownMenuItem<PortfolioActivityType>>[
                 for (final PortfolioActivityType type in _visibleTypes)
                   DropdownMenuItem<PortfolioActivityType>(
@@ -205,7 +207,7 @@ class _PortfolioActivityDialogState
               const SizedBox(height: AppTheme.space),
               TextField(
                 controller: _quantity,
-                decoration: const InputDecoration(labelText: 'Quantity'),
+                decoration: InputDecoration(labelText: context.tr('Quantity')),
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
@@ -214,7 +216,7 @@ class _PortfolioActivityDialogState
               TextField(
                 controller: _price,
                 decoration: InputDecoration(
-                  labelText: 'Price per share (optional)',
+                  labelText: context.tr('Price per share (optional)'),
                   suffixText: widget.instruments[_instrumentId]?.currency.code,
                 ),
                 keyboardType: const TextInputType.numberWithOptions(
@@ -245,7 +247,9 @@ class _PortfolioActivityDialogState
                     width: 110,
                     child: DropdownButtonFormField<Currency>(
                       initialValue: _currency,
-                      decoration: const InputDecoration(labelText: 'Currency'),
+                      decoration: InputDecoration(
+                        labelText: context.tr('Currency'),
+                      ),
                       items: <DropdownMenuItem<Currency>>[
                         for (final Currency currency in Currency.known.values)
                           DropdownMenuItem<Currency>(
@@ -268,7 +272,9 @@ class _PortfolioActivityDialogState
             const SizedBox(height: AppTheme.space),
             TextField(
               controller: _notes,
-              decoration: const InputDecoration(labelText: 'Notes (optional)'),
+              decoration: InputDecoration(
+                labelText: context.tr('Notes (optional)'),
+              ),
               maxLines: 2,
             ),
             if (_message case final String message) ...<Widget>[

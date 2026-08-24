@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:decimal/decimal.dart';
+import 'package:dividendendackel/app/localization/localized_material.dart';
 import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
 import 'package:dividendendackel/app/widgets/async_value_view.dart';
@@ -19,7 +20,6 @@ import 'package:dividendendackel/features/portfolio/portfolio_management_dialog.
 import 'package:dividendendackel/features/portfolio/portfolio_selection.dart';
 import 'package:dividendendackel/features/settings/currency_settings.dart';
 import 'package:dividendendackel/features/tax/tax_estimates.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Portfolio value, income and collection management (Vision.md §8).
@@ -540,13 +540,14 @@ class _PortfolioScopeCard extends StatelessWidget {
             ),
             initialValue: portfolioId ?? InvestmentPortfolio.consolidatedId,
             isExpanded: true,
-            decoration: const InputDecoration(labelText: 'Showing'),
+            decoration: InputDecoration(labelText: context.tr('Showing')),
             items: <DropdownMenuItem<String>>[
               for (final InvestmentPortfolio portfolio in portfolios)
                 DropdownMenuItem<String>(
                   value: portfolio.id,
                   child: Text(
                     portfolio.name,
+                    translate: false,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -755,7 +756,7 @@ class _PortfolioBody extends StatelessWidget {
                   trailing: onRemoveWatchlist == null
                       ? null
                       : IconButton(
-                          tooltip: 'Remove from watchlist',
+                          tooltip: context.tr('Remove from watchlist'),
                           onPressed: () => onRemoveWatchlist!(entry),
                           icon: const Icon(Icons.bookmark_remove_outlined),
                         ),
@@ -945,7 +946,7 @@ class _ActivityLedgerCard extends StatelessWidget {
                           activity.type != PortfolioActivityType.reversal &&
                           !reversed.contains(activity.id)
                       ? IconButton(
-                          tooltip: 'Reverse activity',
+                          tooltip: context.tr('Reverse activity'),
                           onPressed: () => onReverse!(activity.id!),
                           icon: const Icon(Icons.undo),
                         )
@@ -1164,7 +1165,7 @@ class _ExposureList extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(bottom: AppTheme.space / 2),
             child: Semantics(
-              label: '${slice.label}, ${slice.share.format()}',
+              label: context.tr('${slice.label}, ${slice.share.format()}'),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
@@ -1229,7 +1230,7 @@ class _DisplayCurrencyCard extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  tooltip: 'Refresh ECB exchange rates',
+                  tooltip: context.tr('Refresh ECB exchange rates'),
                   onPressed: refreshing ? null : onRefresh,
                   icon: refreshing
                       ? const SizedBox.square(
@@ -1279,8 +1280,9 @@ class _DisplayCurrencyCard extends StatelessWidget {
                     Expanded(
                       child: LinearProgressIndicator(
                         value: double.parse(slice.share.rate.toString()),
-                        semanticsLabel:
-                            '${slice.nativeCurrency.code} ${slice.share.format()}',
+                        semanticsLabel: context.tr(
+                          '${slice.nativeCurrency.code} ${slice.share.format()}',
+                        ),
                       ),
                     ),
                     const SizedBox(width: AppTheme.space),
@@ -1703,10 +1705,12 @@ class _SimulationDialogState extends State<_SimulationDialog> {
                   decimal: true,
                 ),
                 decoration: InputDecoration(
-                  labelText: 'Additional investment (${price.currency.code})',
+                  labelText: context.tr(
+                    'Additional investment (${price.currency.code})',
+                  ),
                   border: const OutlineInputBorder(),
                   errorText: amount == null || amount <= Decimal.zero
-                      ? 'Enter an amount greater than zero.'
+                      ? context.tr('Enter an amount greater than zero.')
                       : null,
                 ),
                 onChanged: (String value) => setState(() {}),

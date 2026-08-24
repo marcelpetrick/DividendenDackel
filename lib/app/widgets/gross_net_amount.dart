@@ -1,7 +1,7 @@
+import 'package:dividendendackel/app/localization/localized_material.dart';
 import 'package:dividendendackel/domain/analytics/analytics.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/features/tax/tax_estimates.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Gross and estimated-net labels for one held dividend.

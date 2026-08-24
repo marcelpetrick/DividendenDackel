@@ -1,10 +1,10 @@
 # Project status
 
-- **Last updated:** 2026-08-23
-- **Version:** 0.49.0+80
+- **Last updated:** 2026-08-24
+- **Version:** 0.51.0+83
 - **Branch:** `master` (local work ahead of `origin/master`)
 - **Pinned toolchain:** Flutter 3.47.1 / Dart 3.13.1
-- **Quality gate:** green — 565 tests, Linux integration, Android 10
+- **Quality gate:** green — 571 tests, Linux integration, Android 10
   compatibility and Android/Linux release builds
 
 ## Product state
@@ -18,7 +18,8 @@ company facts, filings, dividend history and daily reference FX rates.
 Implemented user capabilities:
 
 - responsive Android bottom navigation and Linux navigation rail;
-- first-run onboarding and persisted System/Light/Dark themes;
+- first-run onboarding, persisted System/Light/Dark themes and live persisted
+  English/German/Croatian language selection;
 - Today dashboard with ranked portfolio-relevant events and income windows;
 - holding/watchlist search and editing, allocation, yield and next dividend;
 - multiple local portfolios with create, rename, clear and protected delete,
@@ -62,7 +63,9 @@ priorities, deadlines, bounded exponential retries, deduplication and
 cancellation. Cache policy supports stale-while-revalidate so network failures
 do not erase useful local data. Logs omit portfolio contents and credentials;
 optional credentials use Android Keystore-backed or Linux Secret Service-backed
-storage.
+storage. Application translations are bundled and work offline; the language
+preference is stored locally and updates both application and platform UI
+without restarting.
 
 The complete design is in [`architecture.md`](architecture.md). Provider terms,
 research methodology, privacy and releases are documented in
@@ -99,7 +102,7 @@ post-1.0 queue. The activity ledger, actual-versus-forecast reconciliation,
 reviewable CSV and IBKR imports, private calendar export, isolated
 multi-portfolio management and explainable cash-flow performance are
 implemented. Optional keyed providers, broker credential sync, encrypted
-cross-device sync, widgets/tray mode, research history and localization remain
+cross-device sync, widgets/tray mode and research history remain
 candidates rather than MVP blockers.
 
 Known release limitations:

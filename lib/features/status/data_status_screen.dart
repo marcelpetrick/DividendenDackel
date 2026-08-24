@@ -1,3 +1,4 @@
+import 'package:dividendendackel/app/localization/localized_material.dart';
 import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/app/theme/app_colors.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
@@ -6,7 +7,6 @@ import 'package:dividendendackel/core/logging/logging.dart';
 import 'package:dividendendackel/core/networking/request_coordinator.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/features/settings/data_source_settings.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Transparent provider health and request diagnostics (Vision.md §41–§43).
@@ -240,7 +240,7 @@ class _Metric extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Semantics(
-    label: '$label: $value',
+    label: context.tr('$label: $value'),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[

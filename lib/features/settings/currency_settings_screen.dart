@@ -1,9 +1,9 @@
+import 'package:dividendendackel/app/localization/localized_material.dart';
 import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/features/currency/fx_state.dart';
 import 'package:dividendendackel/features/settings/currency_settings.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Display-currency choice and transparent ECB reference-rate status.
@@ -60,9 +60,11 @@ class CurrencySettingsScreen extends ConsumerWidget {
           const SizedBox(height: AppTheme.space),
           DropdownButtonFormField<Currency>(
             initialValue: preference.currency,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               border: OutlineInputBorder(),
-              helperText: 'Native amounts stay visible; this controls converted totals.',
+              helperText: context.tr(
+                'Native amounts stay visible; this controls converted totals.',
+              ),
             ),
             items: <DropdownMenuItem<Currency>>[
               for (final Currency currency in Currency.known.values)

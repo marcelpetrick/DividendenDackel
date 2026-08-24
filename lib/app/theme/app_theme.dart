@@ -1,5 +1,5 @@
+import 'package:dividendendackel/app/localization/localized_material.dart';
 import 'package:dividendendackel/app/theme/app_colors.dart';
-import 'package:flutter/material.dart';
 
 /// Light and dark themes (Vision.md §24, §26).
 ///

@@ -1,6 +1,6 @@
+import 'package:dividendendackel/app/localization/localized_material.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
 import 'package:dividendendackel/features/notifications/notification_state.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// User-controlled local notification modes.
@@ -60,8 +60,8 @@ class NotificationSettingsScreen extends ConsumerWidget {
             ),
           ),
           if (settings.isLoading || settings.isSaving)
-            const LinearProgressIndicator(
-              semanticsLabel: 'Saving notification settings',
+            LinearProgressIndicator(
+              semanticsLabel: context.tr('Saving notification settings'),
             ),
           if (settings.errorMessage case final String message)
             Padding(

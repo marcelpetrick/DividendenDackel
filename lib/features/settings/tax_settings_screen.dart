@@ -1,9 +1,9 @@
+import 'package:dividendendackel/app/localization/localized_material.dart';
 import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/app/widgets/async_value_view.dart';
 import 'package:dividendendackel/domain/analytics/analytics.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/features/settings/tax_settings.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Visible, editable dividend-tax assumptions (Vision.md §50).
@@ -188,12 +188,12 @@ class _TaxSettingsBody extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   IconButton(
-                    tooltip: 'Edit ${rule.country} rates',
+                    tooltip: context.tr('Edit ${rule.country} rates'),
                     onPressed: () => _editRule(context, rule),
                     icon: const Icon(Icons.edit_outlined),
                   ),
                   Semantics(
-                    label: 'Treaty forms filed for ${rule.country}',
+                    label: context.tr('Treaty forms filed for ${rule.country}'),
                     child: Switch(
                       value: profile.formsFiledFor(rule.country),
                       onChanged: (bool value) {
@@ -277,9 +277,9 @@ class _MoneySetting extends StatelessWidget {
         content: TextField(
           controller: controller,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             labelText: 'EUR',
-            helperText: 'Enter 0 or a positive amount',
+            helperText: context.tr('Enter 0 or a positive amount'),
           ),
         ),
         actions: <Widget>[

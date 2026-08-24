@@ -244,7 +244,8 @@ local-first model and improves the dividend workflow before broadening the app.
       use.
 - [ ] **P8** Home-screen widgets and Linux tray mode.
 - [ ] **P9** Advanced research history.
-- [ ] **P10** German/English localization.
+- [x] **P10** Live, persisted English/German/Croatian localization, including
+      all user-facing copy, accessibility labels and locale-aware platform UI.
 
 ---
 

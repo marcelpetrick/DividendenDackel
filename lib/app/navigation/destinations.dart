@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:dividendendackel/app/localization/localized_material.dart';
 
 /// A top-level section of the app (Vision.md §6).
 ///

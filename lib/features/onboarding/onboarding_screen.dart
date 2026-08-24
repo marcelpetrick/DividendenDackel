@@ -1,5 +1,5 @@
+import 'package:dividendendackel/app/localization/localized_material.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
-import 'package:flutter/material.dart';
 
 /// Three-step first-run introduction (Vision.md §23).
 class OnboardingScreen extends StatefulWidget {
@@ -57,7 +57,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   Semantics(
-                    label: 'Step ${_step + 1} of ${_steps.length}',
+                    label: context.tr('Step ${_step + 1} of ${_steps.length}'),
                     child: Text(
                       '${_step + 1} / ${_steps.length}',
                       style: theme.textTheme.labelLarge,

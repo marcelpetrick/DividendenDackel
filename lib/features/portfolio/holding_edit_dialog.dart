@@ -1,8 +1,8 @@
 import 'package:decimal/decimal.dart';
+import 'package:dividendendackel/app/localization/localized_material.dart';
 import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Edits user-owned holding metadata without replacing ledger history.
@@ -133,7 +133,7 @@ class _HoldingEditDialogState extends ConsumerState<HoldingEditDialog> {
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
-                decoration: const InputDecoration(labelText: 'Quantity'),
+                decoration: InputDecoration(labelText: context.tr('Quantity')),
               ),
               const SizedBox(height: AppTheme.space),
               TextField(
@@ -144,7 +144,7 @@ class _HoldingEditDialogState extends ConsumerState<HoldingEditDialog> {
                   decimal: true,
                 ),
                 decoration: InputDecoration(
-                  labelText: 'Average purchase price (optional)',
+                  labelText: context.tr('Average purchase price (optional)'),
                   suffixText: priceCurrency.code,
                 ),
               ),
@@ -165,7 +165,7 @@ class _HoldingEditDialogState extends ConsumerState<HoldingEditDialog> {
                   ),
                   if (_purchaseDate != null)
                     IconButton(
-                      tooltip: 'Clear purchase date',
+                      tooltip: context.tr('Clear purchase date'),
                       onPressed: _saving
                           ? null
                           : () => setState(() => _purchaseDate = null),
@@ -179,8 +179,8 @@ class _HoldingEditDialogState extends ConsumerState<HoldingEditDialog> {
                 controller: _notes,
                 enabled: !_saving,
                 maxLines: 3,
-                decoration: const InputDecoration(
-                  labelText: 'Notes (optional)',
+                decoration: InputDecoration(
+                  labelText: context.tr('Notes (optional)'),
                 ),
               ),
               if (_message case final String message) ...<Widget>[

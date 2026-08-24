@@ -1,5 +1,5 @@
+import 'package:dividendendackel/app/localization/localized_material.dart';
 import 'package:dividendendackel/core/errors/failure.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Renders an [AsyncValue] with the three states every screen owes the user.
@@ -84,11 +84,11 @@ class AsyncValueView<T> extends StatelessWidget {
               ),
       );
     }
-    return const Center(
+    return Center(
       child: Padding(
-        padding: EdgeInsets.all(32),
+        padding: const EdgeInsets.all(32),
         child: CircularProgressIndicator.adaptive(
-          semanticsLabel: 'Loading saved data',
+          semanticsLabel: context.tr('Loading saved data'),
         ),
       ),
     );

@@ -299,3 +299,39 @@ scroll-until-visible interactions and verified on both API 29 and Linux.
 Release-ready after the fixes above: full rendered pipeline green, API 29
 journey and release APK cold launch green, migrations verified, and workflow
 syntax clean.
+# Localization review
+
+Base: `master` @ `74e6e95`
+Head reviewed: P10 working tree
+Review date: 2026-08-24
+
+## Findings
+
+#1 MEDIUM Code `lib/app/app.dart`
+
+The first-run loading accessibility label initially used a localization lookup
+above `MaterialApp`, where no application localization was installed and the
+label therefore always remained English. Fixed by translating it directly with
+the already selected locale, and covered the catalog and live application path.
+
+#2 MEDIUM Code `lib/features/research/research_detail_screen.dart`
+
+Instrument names and externally supplied sector/country metadata initially
+passed through phrase translation, which could alter portfolio/provider
+content. Fixed by explicitly marking every such field as non-translatable while
+keeping surrounding application labels localized.
+
+#3 LOW Code `lib/features/settings/settings_screen.dart`
+
+Language controls initially remained active while a preference write was in
+flight, allowing out-of-order writes to persist a different language from the
+one displayed. Fixed by disabling the group during load/save; the live
+English/Croatian/German journey verifies the applied locale and persisted value.
+
+## Verdict
+
+Mergeable after these fixes. The full local release pipeline is green: 571
+tests, Linux integration, version policy, Android 10 compatibility, Linux and
+Android release builds, and a rendered Linux first-frame smoke test.
+
+---

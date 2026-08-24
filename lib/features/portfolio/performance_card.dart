@@ -1,7 +1,7 @@
+import 'package:dividendendackel/app/localization/localized_material.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
 import 'package:dividendendackel/domain/analytics/analytics.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
-import 'package:flutter/material.dart';
 
 /// Explainable, currency-separated ledger performance and cash-flow detail.
 class PortfolioPerformanceCard extends StatefulWidget {

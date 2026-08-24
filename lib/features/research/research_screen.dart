@@ -1,7 +1,7 @@
+import 'package:dividendendackel/app/localization/localized_material.dart';
 import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/app/widgets/async_value_view.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -37,11 +37,13 @@ class ResearchScreen extends ConsumerWidget {
             final Instrument instrument = list[index];
             return Semantics(
               button: true,
-              label: 'Research ${instrument.name}, ${instrument.displaySymbol}',
-              hint: 'Open research details',
+              label: context.tr(
+                'Research ${instrument.name}, ${instrument.displaySymbol}',
+              ),
+              hint: context.tr('Open research details'),
               child: ExcludeSemantics(
                 child: ListTile(
-                  title: Text(instrument.name),
+                  title: Text(instrument.name, translate: false),
                   subtitle: Text(
                     <String>[
                       instrument.displaySymbol,

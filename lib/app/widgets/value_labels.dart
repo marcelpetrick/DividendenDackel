@@ -1,7 +1,7 @@
+import 'package:dividendendackel/app/localization/localized_material.dart';
 import 'package:dividendendackel/app/theme/app_colors.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/features/refresh/portfolio_refresh.dart';
-import 'package:flutter/material.dart';
 
 /// A dividend's certainty, shown as a word and a shape — never colour alone.
 ///
@@ -40,7 +40,7 @@ class DividendStatusChip extends StatelessWidget {
         : theme.colorScheme.onSurfaceVariant;
 
     return Semantics(
-      label: 'Dividend status: ${labelFor(status)}',
+      label: context.tr('Dividend status: ${labelFor(status)}'),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
@@ -170,7 +170,7 @@ class DataFreshnessBanner extends StatelessWidget {
 
     return Semantics(
       liveRegion: true,
-      label: message,
+      label: context.tr(message),
       child: Container(
         width: double.infinity,
         color: theme.colorScheme.surfaceContainerHighest,

@@ -1,9 +1,9 @@
+import 'package:dividendendackel/app/localization/localized_material.dart';
 import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
 import 'package:dividendendackel/core/errors/result.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/features/portfolio/portfolio_selection.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Creates, renames, clears and deletes local portfolio containers.
@@ -39,7 +39,7 @@ class _PortfolioManagementDialogState
               Navigator.of(context).pop(value.trim());
             }
           },
-          decoration: const InputDecoration(labelText: 'Portfolio name'),
+          decoration: InputDecoration(labelText: context.tr('Portfolio name')),
         ),
         actions: <Widget>[
           TextButton(
@@ -247,7 +247,7 @@ class _PortfolioManagementDialogState
                 Card(
                   child: ListTile(
                     leading: const Icon(Icons.account_balance_wallet_outlined),
-                    title: Text(portfolio.name),
+                    title: Text(portfolio.name, translate: false),
                     subtitle: Text(
                       portfolio.isDemo
                           ? 'Demo portfolio'
@@ -257,19 +257,21 @@ class _PortfolioManagementDialogState
                       spacing: AppTheme.space / 2,
                       children: <Widget>[
                         IconButton(
-                          tooltip: 'Rename ${portfolio.name}',
+                          tooltip: context.tr('Rename ${portfolio.name}'),
                           onPressed: _working ? null : () => _rename(portfolio),
                           icon: const Icon(Icons.edit_outlined),
                         ),
                         IconButton(
-                          tooltip: 'Clear ${portfolio.name}',
+                          tooltip: context.tr('Clear ${portfolio.name}'),
                           onPressed: _working ? null : () => _clear(portfolio),
                           icon: const Icon(Icons.cleaning_services_outlined),
                         ),
                         IconButton(
-                          tooltip: portfolios.length == 1
-                              ? 'The final portfolio cannot be deleted'
-                              : 'Delete ${portfolio.name}',
+                          tooltip: context.tr(
+                            portfolios.length == 1
+                                ? 'The final portfolio cannot be deleted'
+                                : 'Delete ${portfolio.name}',
+                          ),
                           onPressed: _working || portfolios.length == 1
                               ? null
                               : () => _delete(portfolio, portfolios),

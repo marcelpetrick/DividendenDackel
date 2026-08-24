@@ -1,4 +1,5 @@
 import 'package:dividendendackel/app/app.dart';
+import 'package:dividendendackel/app/localization/language_preference.dart';
 import 'package:dividendendackel/app/navigation/app_shell.dart';
 import 'package:dividendendackel/app/navigation/destinations.dart';
 import 'package:dividendendackel/app/providers.dart';
@@ -27,6 +28,7 @@ void main() {
   Future<void> pumpApp(
     WidgetTester tester, {
     Size size = const Size(400, 800),
+    _MemoryLanguagePreferenceStore? languageStore,
   }) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
@@ -41,6 +43,9 @@ void main() {
         overrides: [
           themePreferenceStoreProvider.overrideWithValue(
             _MemoryThemePreferenceStore(),
+          ),
+          languagePreferenceStoreProvider.overrideWithValue(
+            languageStore ?? _MemoryLanguagePreferenceStore(),
           ),
           dataSourceSettingsStoreProvider.overrideWithValue(
             _MemoryDataSourceSettingsStore(),
@@ -328,6 +333,38 @@ void main() {
       );
     });
 
+    testWidgets('switches English, Croatian and German live', (
+      WidgetTester tester,
+    ) async {
+      final _MemoryLanguagePreferenceStore store =
+          _MemoryLanguagePreferenceStore();
+      await pumpApp(tester, languageStore: store);
+      await tester.tap(find.byTooltip('Settings'));
+      await tester.pumpAndSettle();
+      await tester.drag(find.byType(ListView), const Offset(0, -700));
+      await tester.pumpAndSettle();
+      final Finder croatian = find.byKey(const ValueKey<String>('language-hr'));
+
+      await tester.tap(croatian);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Postavke'), findsWidgets);
+      expect(find.text('Jezik'), findsOneWidget);
+      expect(store.language, AppLanguage.croatian);
+      expect(
+        tester.widget<MaterialApp>(find.byType(MaterialApp)).locale,
+        const Locale('hr'),
+      );
+
+      final Finder german = find.byKey(const ValueKey<String>('language-de'));
+      await tester.tap(german);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Einstellungen'), findsWidgets);
+      expect(find.text('Sprache'), findsOneWidget);
+      expect(store.language, AppLanguage.german);
+    });
+
     testWidgets('stores provider keys without displaying their value', (
       WidgetTester tester,
     ) async {
@@ -473,6 +510,18 @@ final class _MemoryThemePreferenceStore implements ThemePreferenceStore {
 
   @override
   Future<void> save(ThemeMode mode) async => this.mode = mode;
+}
+
+final class _MemoryLanguagePreferenceStore implements LanguagePreferenceStore {
+  AppLanguage language = AppLanguage.english;
+
+  @override
+  Future<AppLanguage> load() async => language;
+
+  @override
+  Future<void> save(AppLanguage language) async {
+    this.language = language;
+  }
 }
 
 final class _MemoryDataSourceSettingsStore implements DataSourceSettingsStore {

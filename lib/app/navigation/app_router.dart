@@ -1,3 +1,4 @@
+import 'package:dividendendackel/app/localization/localized_material.dart';
 import 'package:dividendendackel/app/navigation/app_shell.dart';
 import 'package:dividendendackel/app/navigation/destinations.dart';
 import 'package:dividendendackel/app/providers.dart';
@@ -18,7 +19,6 @@ import 'package:dividendendackel/features/settings/settings_screen.dart';
 import 'package:dividendendackel/features/settings/tax_settings_screen.dart';
 import 'package:dividendendackel/features/status/data_status_screen.dart';
 import 'package:dividendendackel/features/today/today_screen.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -48,9 +48,9 @@ GoRouter buildRouter({String initialLocation = '/today'}) => GoRouter(
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Icon(Icons.refresh),
-                    tooltip: refresh.isRefreshing
-                        ? 'Refreshing data'
-                        : 'Refresh data',
+                    tooltip: context.tr(
+                      refresh.isRefreshing ? 'Refreshing data' : 'Refresh data',
+                    ),
                     onPressed: refresh.isRefreshing
                         ? null
                         : () async {
@@ -67,12 +67,12 @@ GoRouter buildRouter({String initialLocation = '/today'}) => GoRouter(
                   ),
                   IconButton(
                     icon: const Icon(Icons.dns_outlined),
-                    tooltip: 'Data status',
+                    tooltip: context.tr('Data status'),
                     onPressed: () => context.push('/status'),
                   ),
                   IconButton(
                     icon: const Icon(Icons.settings_outlined),
-                    tooltip: 'Settings',
+                    tooltip: context.tr('Settings'),
                     onPressed: () => context.push('/settings'),
                   ),
                 ],

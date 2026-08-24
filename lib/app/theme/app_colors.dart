@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:dividendendackel/app/localization/localized_material.dart';
 
 /// Brand and semantic colours (Vision.md §24, §26, §27).
 ///

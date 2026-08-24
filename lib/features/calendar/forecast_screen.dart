@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:dividendendackel/app/localization/localized_material.dart';
 import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
 import 'package:dividendendackel/app/widgets/async_value_view.dart';
@@ -10,7 +11,6 @@ import 'package:dividendendackel/features/calendar/forecast_state.dart';
 import 'package:dividendendackel/features/currency/fx_state.dart';
 import 'package:dividendendackel/features/settings/tax_settings.dart';
 import 'package:dividendendackel/features/tax/tax_estimates.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum _ForecastView { month, quarter, year }
@@ -492,9 +492,10 @@ class _StackedBar extends StatelessWidget {
               .toDouble();
     final ColorScheme colors = Theme.of(context).colorScheme;
     return Semantics(
-      label:
-          '${value.currency.code}: ${value.total.format()}, paid ${value.paid.format()}, '
-          'confirmed ${value.confirmedUpcoming.format()}, estimated ${value.estimated.format()}',
+      label: context.tr(
+        '${value.currency.code}: ${value.total.format()}, paid ${value.paid.format()}, '
+        'confirmed ${value.confirmedUpcoming.format()}, estimated ${value.estimated.format()}',
+      ),
       child: Padding(
         padding: const EdgeInsets.only(bottom: 4),
         child: Row(
@@ -589,10 +590,11 @@ class _CumulativeCharts extends StatelessWidget {
                   ),
                   Semantics(
                     image: true,
-                    label:
-                        'Cumulative income chart for ${item.$1} in '
-                        '${item.$2.code}. Exact monthly values are in the '
-                        'payout table below.',
+                    label: context.tr(
+                      'Cumulative income chart for ${item.$1} in '
+                      '${item.$2.code}. Exact monthly values are in the '
+                      'payout table below.',
+                    ),
                     child: SizedBox(
                       height: 130,
                       width: double.infinity,

@@ -1,6 +1,6 @@
+import 'package:dividendendackel/app/localization/localized_material.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
 import 'package:dividendendackel/features/settings/data_source_settings.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Enables providers and manages user-supplied credentials.
@@ -27,8 +27,8 @@ class DataSourcesScreen extends ConsumerWidget {
           ),
           const SizedBox(height: AppTheme.space * 2),
           if (settings.isLoading)
-            const LinearProgressIndicator(
-              semanticsLabel: 'Loading data-source settings',
+            LinearProgressIndicator(
+              semanticsLabel: context.tr('Loading data-source settings'),
             ),
           if (settings.errorMessage case final String message)
             _ErrorBanner(
@@ -245,9 +245,9 @@ class _ApiKeyDialogState extends State<_ApiKeyDialog> {
         autocorrect: false,
         enableSuggestions: false,
         decoration: InputDecoration(
-          labelText: 'API key',
+          labelText: context.tr('API key'),
           suffixIcon: IconButton(
-            tooltip: _obscured ? 'Show API key' : 'Hide API key',
+            tooltip: context.tr(_obscured ? 'Show API key' : 'Hide API key'),
             onPressed: () => setState(() => _obscured = !_obscured),
             icon: Icon(
               _obscured ? Icons.visibility_outlined : Icons.visibility_off,

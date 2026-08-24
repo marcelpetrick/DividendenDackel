@@ -47,6 +47,10 @@ app removes its application data under normal Android behavior. Linux users can
 remove the application data through their desktop/user-data management tools;
 the exact directory is selected by the platform application-data API.
 
+Theme and language choices are ordinary local preferences. Translation files
+are bundled with the application, so switching between English, German and
+Croatian performs no network request.
+
 ## Network requests
 
 Live refresh uses HTTPS and contacts only enabled data sources:

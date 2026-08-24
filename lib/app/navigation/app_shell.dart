@@ -1,5 +1,5 @@
+import 'package:dividendendackel/app/localization/localized_material.dart';
 import 'package:dividendendackel/app/navigation/destinations.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 /// Width at or above which the layout uses a navigation rail.
@@ -61,7 +61,7 @@ class AppShell extends StatelessWidget {
           },
           child: Scaffold(
             appBar: AppBar(
-              title: Text(currentDestination.label),
+              title: Text(context.tr(currentDestination.label)),
               actions: actions,
             ),
             body: Column(
@@ -90,8 +90,10 @@ class AppShell extends StatelessWidget {
               icon: Icon(destination.icon),
               selectedIcon: Icon(destination.selectedIcon),
               label: Tooltip(
-                message: '${destination.label} (Alt+${destination.index + 1})',
-                child: Text(destination.label),
+                message: context.tr(
+                  '${destination.label} (Alt+${destination.index + 1})',
+                ),
+                child: Text(context.tr(destination.label)),
               ),
             ),
         ],
@@ -110,8 +112,10 @@ class AppShell extends StatelessWidget {
         NavigationDestination(
           icon: Icon(destination.icon),
           selectedIcon: Icon(destination.selectedIcon),
-          label: destination.label,
-          tooltip: '${destination.label} (Alt+${destination.index + 1})',
+          label: context.tr(destination.label),
+          tooltip: context.tr(
+            '${destination.label} (Alt+${destination.index + 1})',
+          ),
         ),
     ],
   );

@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:dividendendackel/app/localization/language_preference.dart';
+import 'package:dividendendackel/app/localization/localized_material.dart';
 import 'package:dividendendackel/app/navigation/app_router.dart';
 import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
@@ -9,7 +11,7 @@ import 'package:dividendendackel/features/notifications/notification_state.dart'
 import 'package:dividendendackel/features/onboarding/onboarding_screen.dart';
 import 'package:dividendendackel/features/onboarding/onboarding_state.dart';
 import 'package:dividendendackel/features/refresh/portfolio_refresh.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -90,6 +92,7 @@ class _DividendenDackelAppState extends ConsumerState<DividendenDackelApp>
     // first frame already has data on the way.
     ref.watch(sampleDataProvider);
     final ThemeMode themeMode = ref.watch(themePreferenceProvider).mode;
+    final Locale locale = ref.watch(languagePreferenceProvider).language.locale;
     final AsyncValue<bool> onboarding = ref.watch(onboardingCompletedProvider);
 
     if (onboarding.value != true) {
@@ -99,11 +102,20 @@ class _DividendenDackelAppState extends ConsumerState<DividendenDackelApp>
         theme: AppTheme.light(),
         darkTheme: AppTheme.dark(),
         themeMode: themeMode,
+        locale: locale,
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
         home: onboarding.isLoading && !onboarding.hasError
-            ? const Scaffold(
+            ? Scaffold(
                 body: Center(
                   child: CircularProgressIndicator.adaptive(
-                    semanticsLabel: 'Loading first-run settings',
+                    semanticsLabel: AppLocalizations(locale)
+                        .text('Loading first-run settings'),
                   ),
                 ),
               )
@@ -122,6 +134,14 @@ class _DividendenDackelAppState extends ConsumerState<DividendenDackelApp>
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       themeMode: themeMode,
+      locale: locale,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       routerConfig: _router,
     );
   }

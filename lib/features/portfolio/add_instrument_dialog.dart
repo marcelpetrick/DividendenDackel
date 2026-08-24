@@ -1,11 +1,11 @@
 import 'package:decimal/decimal.dart';
+import 'package:dividendendackel/app/localization/localized_material.dart';
 import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
 import 'package:dividendendackel/core/errors/failure.dart';
 import 'package:dividendendackel/core/errors/result.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/features/portfolio/portfolio_editor.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Search and add flow shared by Android and Linux portfolio screens.
@@ -136,7 +136,9 @@ class _AddInstrumentDialogState extends ConsumerState<AddInstrumentDialog> {
   Widget build(BuildContext context) {
     final Instrument? selected = _selected;
     return AlertDialog(
-      title: Text(selected == null ? 'Add instrument' : selected.name),
+      title: selected == null
+          ? const Text('Add instrument')
+          : Text(selected.name, translate: false),
       content: SizedBox(
         width: 560,
         height: (MediaQuery.sizeOf(context).height * 0.65).clamp(260, 430),
@@ -160,9 +162,9 @@ class _AddInstrumentDialogState extends ConsumerState<AddInstrumentDialog> {
         textInputAction: TextInputAction.search,
         onSubmitted: (_) => _search(),
         decoration: InputDecoration(
-          labelText: 'Symbol, company name or ISIN',
+          labelText: context.tr('Symbol, company name or ISIN'),
           suffixIcon: IconButton(
-            tooltip: 'Search',
+            tooltip: context.tr('Search'),
             onPressed: _searching ? null : _search,
             icon: const Icon(Icons.search),
           ),
@@ -192,7 +194,7 @@ class _AddInstrumentDialogState extends ConsumerState<AddInstrumentDialog> {
                     key: ValueKey<String>(
                       'search-result-${instrument.internalId}',
                     ),
-                    title: Text(instrument.name),
+                    title: Text(instrument.name, translate: false),
                     subtitle: Text(
                       '${instrument.displaySymbol} · ${instrument.currency.code}',
                     ),
@@ -227,16 +229,16 @@ class _AddInstrumentDialogState extends ConsumerState<AddInstrumentDialog> {
               label: const Text('Back to results'),
             ),
           ),
-          Text(selected.displaySymbol),
+          Text(selected.displaySymbol, translate: false),
           const SizedBox(height: AppTheme.space * 2),
           TextField(
             key: const ValueKey<String>('holding-quantity'),
             controller: _quantity,
             enabled: !_saving,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(
-              labelText: 'Quantity',
-              helperText: 'Fractional shares are supported.',
+            decoration: InputDecoration(
+              labelText: context.tr('Quantity'),
+              helperText: context.tr('Fractional shares are supported.'),
             ),
           ),
           const SizedBox(height: AppTheme.space),
@@ -246,7 +248,7 @@ class _AddInstrumentDialogState extends ConsumerState<AddInstrumentDialog> {
             enabled: !_saving,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(
-              labelText: 'Average purchase price (optional)',
+              labelText: context.tr('Average purchase price (optional)'),
               suffixText: selected.currency.code,
             ),
           ),

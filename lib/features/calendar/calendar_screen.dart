@@ -1,3 +1,4 @@
+import 'package:dividendendackel/app/localization/localized_material.dart';
 import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
 import 'package:dividendendackel/app/widgets/async_value_view.dart';
@@ -7,7 +8,6 @@ import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/domain/use_cases/calendar_export.dart';
 import 'package:dividendendackel/features/calendar/calendar_export_writer.dart';
 import 'package:dividendendackel/features/calendar/calendar_state.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -313,7 +313,7 @@ class _Controls extends StatelessWidget {
               crossAxisAlignment: WrapCrossAlignment.center,
               children: <Widget>[
                 IconButton(
-                  tooltip: 'Previous period',
+                  tooltip: context.tr('Previous period'),
                   onPressed: onPrevious,
                   icon: const Icon(Icons.chevron_left),
                 ),
@@ -322,7 +322,7 @@ class _Controls extends StatelessWidget {
                   style: theme.textTheme.titleLarge,
                 ),
                 IconButton(
-                  tooltip: 'Next period',
+                  tooltip: context.tr('Next period'),
                   onPressed: onNext,
                   icon: const Icon(Icons.chevron_right),
                 ),
@@ -401,9 +401,9 @@ class _Controls extends StatelessWidget {
                   label: const Text('Display currency'),
                   initialSelection: displayCurrency,
                   dropdownMenuEntries: <DropdownMenuEntry<Currency?>>[
-                    const DropdownMenuEntry<Currency?>(
+                    DropdownMenuEntry<Currency?>(
                       value: null,
-                      label: 'Native',
+                      label: context.tr('Native'),
                     ),
                     for (final Currency currency in <Currency>[
                       Currency.eur,
@@ -441,7 +441,7 @@ class _Controls extends StatelessWidget {
                 ),
                 IconButton.filledTonal(
                   key: const ValueKey<String>('export-calendar'),
-                  tooltip: 'Export calendar',
+                  tooltip: context.tr('Export calendar'),
                   onPressed: onExport,
                   icon: exporting
                       ? const SizedBox.square(
@@ -482,7 +482,14 @@ class _EnumMenu<T> extends StatelessWidget {
     width: 155,
     label: Text(label),
     initialSelection: value,
-    dropdownMenuEntries: entries,
+    dropdownMenuEntries: <DropdownMenuEntry<T>>[
+      for (final DropdownMenuEntry<T> entry in entries)
+        DropdownMenuEntry<T>(
+          value: entry.value,
+          label: context.tr(entry.label),
+          enabled: entry.enabled,
+        ),
+    ],
     onSelected: (T? value) {
       if (value != null) onSelected(value);
     },
@@ -657,8 +664,12 @@ class _DayCell extends StatelessWidget {
       child: Semantics(
         button: true,
         selected: selected,
-        label: '${_longDate(day)}, ${events.length} dividend events',
-        hint: events.isEmpty ? 'Select day' : 'Select to show dividend details',
+        label: context.tr(
+          '${_longDate(day)}, ${events.length} dividend events',
+        ),
+        hint: context.tr(
+          events.isEmpty ? 'Select day' : 'Select to show dividend details',
+        ),
         child: InkWell(
           key: ValueKey<String>('calendar-day-${day.toIso8601String()}'),
           onTap: onSelected,
@@ -786,10 +797,11 @@ class _YearView extends StatelessWidget {
                   .join(', ');
         return Semantics(
           button: true,
-          label:
-              '${_monthNames[index]} ${focus.year}, ${monthEvents.length} '
-              'payments, $totalsLabel',
-          hint: 'Open month',
+          label: context.tr(
+            '${_monthNames[index]} ${focus.year}, ${monthEvents.length} '
+            'payments, $totalsLabel',
+          ),
+          hint: context.tr('Open month'),
           child: ExcludeSemantics(
             child: Card(
               child: InkWell(
@@ -922,9 +934,13 @@ class _EventCard extends StatelessWidget {
                       children: <Widget>[
                         Text(
                           instrument?.name ?? event.instrumentId,
+                          translate: false,
                           style: Theme.of(context).textTheme.titleSmall,
                         ),
-                        Text(instrument?.displaySymbol ?? event.instrumentId),
+                        Text(
+                          instrument?.displaySymbol ?? event.instrumentId,
+                          translate: false,
+                        ),
                       ],
                     ),
                   ),

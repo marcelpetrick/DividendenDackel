@@ -1,7 +1,8 @@
+import 'package:dividendendackel/app/localization/language_preference.dart';
+import 'package:dividendendackel/app/localization/localized_material.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
 import 'package:dividendendackel/app/theme/theme_preference.dart';
 import 'package:dividendendackel/features/settings/about_screen.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -17,6 +18,9 @@ class SettingsScreen extends ConsumerWidget {
     final ThemeData theme = Theme.of(context);
     final ThemePreferenceState themePreference = ref.watch(
       themePreferenceProvider,
+    );
+    final LanguagePreferenceState languagePreference = ref.watch(
+      languagePreferenceProvider,
     );
 
     return Scaffold(
@@ -101,7 +105,7 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ),
           if (themePreference.isSaving)
-            const LinearProgressIndicator(semanticsLabel: 'Saving theme'),
+            LinearProgressIndicator(semanticsLabel: context.tr('Saving theme')),
           if (themePreference.errorMessage case final String message)
             Padding(
               padding: const EdgeInsets.fromLTRB(
@@ -123,6 +127,66 @@ class SettingsScreen extends ConsumerWidget {
                     onPressed: () => ref
                         .read(themePreferenceProvider.notifier)
                         .select(themePreference.mode),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
+          const Divider(height: 1),
+          Padding(
+            padding: const EdgeInsets.all(AppTheme.space * 2),
+            child: Text('Language', style: theme.textTheme.titleSmall),
+          ),
+          IgnorePointer(
+            ignoring:
+                languagePreference.isLoading || languagePreference.isSaving,
+            child: RadioGroup<AppLanguage>(
+              groupValue: languagePreference.language,
+              onChanged: (AppLanguage? language) {
+                if (language != null) {
+                  ref
+                      .read(languagePreferenceProvider.notifier)
+                      .select(language);
+                }
+              },
+              child: Column(
+                children: <Widget>[
+                  for (final AppLanguage language in AppLanguage.values)
+                    RadioListTile<AppLanguage>(
+                      key: ValueKey<String>('language-${language.code}'),
+                      value: language,
+                      secondary: const Icon(Icons.language_outlined),
+                      title: Text(language.nativeName),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          if (languagePreference.isSaving)
+            LinearProgressIndicator(
+              semanticsLabel: context.tr('Saving language'),
+            ),
+          if (languagePreference.errorMessage case final String message)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppTheme.space * 2,
+                AppTheme.space,
+                AppTheme.space * 2,
+                AppTheme.space * 2,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Icon(
+                    Icons.warning_amber_outlined,
+                    color: theme.colorScheme.error,
+                  ),
+                  const SizedBox(width: AppTheme.space),
+                  Expanded(child: Text(message)),
+                  TextButton(
+                    onPressed: () => ref
+                        .read(languagePreferenceProvider.notifier)
+                        .select(languagePreference.language),
                     child: const Text('Retry'),
                   ),
                 ],

@@ -1,3 +1,4 @@
+import 'package:dividendendackel/app/localization/localized_material.dart';
 import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
 import 'package:dividendendackel/app/widgets/async_value_view.dart';
@@ -6,7 +7,6 @@ import 'package:dividendendackel/domain/analytics/analytics.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/features/news/news_link_launcher.dart';
 import 'package:dividendendackel/features/research/research_state.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Evidence-led research detail for one locally known instrument.
@@ -21,7 +21,11 @@ class ResearchDetailScreen extends ConsumerWidget {
       researchInstrumentProvider(instrumentId),
     );
     return Scaffold(
-      appBar: AppBar(title: Text(instrument.value?.name ?? 'Research')),
+      appBar: AppBar(
+        title: instrument.value == null
+            ? const Text('Research')
+            : Text(instrument.value!.name, translate: false),
+      ),
       body: AsyncValueView<Instrument?>(
         value: instrument,
         isEmpty: (Instrument? value) => value == null,
@@ -120,21 +124,22 @@ class _IdentityCard extends StatelessWidget {
         children: <Widget>[
           Text(
             instrument.name,
+            translate: false,
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: AppTheme.space / 2),
-          Text(instrument.displaySymbol),
+          Text(instrument.displaySymbol, translate: false),
           Wrap(
             spacing: AppTheme.space,
             runSpacing: AppTheme.space / 2,
             children: <Widget>[
               if (instrument.sector case final String value)
-                Chip(label: Text(value)),
+                Chip(label: Text(value, translate: false)),
               if (instrument.country case final String value)
-                Chip(label: Text(value)),
-              Chip(label: Text(instrument.currency.code)),
+                Chip(label: Text(value, translate: false)),
+              Chip(label: Text(instrument.currency.code, translate: false)),
               if (instrument.isin case final String value)
-                Chip(label: Text(value)),
+                Chip(label: Text(value, translate: false)),
             ],
           ),
         ],
@@ -166,7 +171,9 @@ class _PriceCard extends StatelessWidget {
     } else if (quote.hasError) {
       child = const _InlineMessage('The cached price could not be read.');
     } else if (quote.isLoading && quote.value == null) {
-      child = const LinearProgressIndicator(semanticsLabel: 'Loading price');
+      child = LinearProgressIndicator(
+        semanticsLabel: context.tr('Loading price'),
+      );
     } else {
       child = const _InlineMessage(
         'No cached quote is available. Research remains usable without it.',
@@ -227,8 +234,8 @@ class _ScoreCard extends StatelessWidget {
         'The assessment could not be computed from cached evidence.',
       );
     } else if (snapshot.isLoading) {
-      child = const LinearProgressIndicator(
-        semanticsLabel: 'Computing research score',
+      child = LinearProgressIndicator(
+        semanticsLabel: context.tr('Computing research score'),
       );
     } else {
       child = const _InlineMessage(
@@ -249,7 +256,9 @@ class _ScoreContent extends StatelessWidget {
     crossAxisAlignment: CrossAxisAlignment.start,
     children: <Widget>[
       Semantics(
-        label: 'Research score ${snapshot.overall.score} out of 100',
+        label: context.tr(
+          'Research score ${snapshot.overall.score} out of 100',
+        ),
         child: Text(
           '${snapshot.overall.score} / 100',
           style: Theme.of(context).textTheme.headlineMedium,
@@ -405,7 +414,9 @@ class _UpcomingEventsCard extends StatelessWidget {
           if ((earnings.isLoading || corporateEvents.isLoading) &&
               earningItems.isEmpty &&
               companyItems.isEmpty)
-            const LinearProgressIndicator(semanticsLabel: 'Loading events')
+            LinearProgressIndicator(
+              semanticsLabel: context.tr('Loading events'),
+            )
           else if (earningItems.isEmpty && companyItems.isEmpty)
             const _InlineMessage('No upcoming events are cached.')
           else ...<Widget>[
@@ -423,7 +434,7 @@ class _UpcomingEventsCard extends StatelessWidget {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.corporate_fare_outlined),
-                title: Text(event.title),
+                title: Text(event.title, translate: false),
                 subtitle: Text(
                   '${_date(context, event.scheduledFor)} · '
                   '${_corporateStatus(event.status)}',
@@ -468,8 +479,8 @@ class _DividendHistoryCard extends StatelessWidget {
               'The cached dividend history could not be read.',
             )
           else if (dividends.isLoading && events.isEmpty)
-            const LinearProgressIndicator(
-              semanticsLabel: 'Loading dividend history',
+            LinearProgressIndicator(
+              semanticsLabel: context.tr('Loading dividend history'),
             )
           else if (events.isEmpty)
             const _InlineMessage('No dividend history is cached.')
@@ -529,8 +540,8 @@ class _SourceLinksCard extends StatelessWidget {
           if ((news.isLoading || filings.isLoading) &&
               headlines.isEmpty &&
               reports.isEmpty)
-            const LinearProgressIndicator(
-              semanticsLabel: 'Loading news and filings',
+            LinearProgressIndicator(
+              semanticsLabel: context.tr('Loading news and filings'),
             )
           else if (headlines.isEmpty && reports.isEmpty)
             const _InlineMessage('No recent news or filings are cached.')
@@ -539,12 +550,12 @@ class _SourceLinksCard extends StatelessWidget {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.article_outlined),
-                title: Text(item.headline),
+                title: Text(item.headline, translate: false),
                 subtitle: Text(
                   '${item.sourceName} · ${_date(context, item.publishedAt)}',
                 ),
                 trailing: IconButton(
-                  tooltip: 'Open original',
+                  tooltip: context.tr('Open original'),
                   onPressed: () => _open(context, item.url),
                   icon: const Icon(Icons.open_in_new),
                 ),
@@ -553,12 +564,12 @@ class _SourceLinksCard extends StatelessWidget {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.description_outlined),
-                title: Text(filing.title ?? filing.formType),
+                title: Text(filing.title ?? filing.formType, translate: false),
                 subtitle: Text(
                   '${filing.formType} · ${_date(context, filing.filedAt)}',
                 ),
                 trailing: IconButton(
-                  tooltip: 'Open filing source',
+                  tooltip: context.tr('Open filing source'),
                   onPressed: () => _open(context, filing.url),
                   icon: const Icon(Icons.open_in_new),
                 ),
@@ -702,8 +713,8 @@ class _ScoreHistoryCard extends StatelessWidget {
           if (history.hasError)
             const _InlineMessage('Score history could not be read.')
           else if (history.isLoading && items.isEmpty)
-            const LinearProgressIndicator(
-              semanticsLabel: 'Loading score history',
+            LinearProgressIndicator(
+              semanticsLabel: context.tr('Loading score history'),
             )
           else if (items.isEmpty)
             const _InlineMessage(
