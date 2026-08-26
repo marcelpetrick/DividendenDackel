@@ -20,9 +20,9 @@ question it answers is:
 
 **Author: Marcel Petrick <mail@marcelpetrick.it>**
 
-**Note: project is generated with AI.**
+**License: GPLv3 or later. See `LICENSE`.**
 
-**License: GPLv3 or later. See [`LICENSE`](LICENSE).**
+**Note: project is generated with AI.**
 
 ---
 
