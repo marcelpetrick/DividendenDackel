@@ -262,6 +262,11 @@ check_version_scheme() {
     if [[ ! -x "${ROOT_DIR}/tool/check-version.sh" ]]; then
         return 0
     fi
+    # The checker is a build gate, so its own cases run first: a broken gate
+    # that passes everything is worse than no gate at all.
+    if [[ -x "${ROOT_DIR}/tool/test-check-version.sh" ]]; then
+        "${ROOT_DIR}/tool/test-check-version.sh" || return 1
+    fi
     "${ROOT_DIR}/tool/check-version.sh" origin/master HEAD
 }
 

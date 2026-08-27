@@ -12,15 +12,48 @@
 # shipped under the same version. Checking it mechanically is the difference
 # between a rule and a hope.
 #
+# Two kinds of commit may leave the version where it is, because they cannot
+# run ./tool/bump-version.sh at all:
+#
+#   * commits that touch nothing the application is built from - documentation
+#     and repository metadata only. A version identifies a build, and these
+#     produce a bit-identical one. Editing README.md in the GitHub web UI is
+#     the normal case, and it used to fail the build.
+#   * commits authored by a bot, i.e. Dependabot, which has no way to bump the
+#     version in the branch it opens.
+#
+# The exemption is a floor, not a licence: such a commit that *does* move the
+# version must still move it correctly, and the next commit steps on from
+# whatever its parent carries, so the chain never drifts.
+#
 # Usage: ./tool/check-version.sh [base-ref] [head-ref]
 # Defaults to origin/master..HEAD, i.e. whatever this branch adds.
 set -euo pipefail
+
+# Paths that are never compiled, bundled or shipped. Anything outside this set
+# is assumed to change the artifact and therefore needs a version.
+NON_SHIPPING_PATHS='^(docs/|\.github/|\.idea/|\.claude/|[^/]+\.md$|LICENSE$)'
 
 BASE_REF="${1:-origin/master}"
 HEAD_REF="${2:-HEAD}"
 
 version_at() {
     git show "$1:pubspec.yaml" 2>/dev/null | grep -E '^version:' | awk '{print $2}'
+}
+
+# True when the commit changes nothing the application is built from.
+changes_only_non_shipping_paths() {
+    local files
+    files="$(git show --pretty=format: --name-only "$1")"
+    # A commit that changes nothing at all is not documentation; treat it as
+    # shipping so an empty or merge-like commit is never silently waved past.
+    [[ -n "$(printf '%s' "${files}" | tr -d '[:space:]')" ]] || return 1
+    ! printf '%s\n' "${files}" | grep -vE '^[[:space:]]*$' | grep -qvE "${NON_SHIPPING_PATHS}"
+}
+
+# True when the commit was authored by a bot, which cannot bump the version.
+authored_by_bot() {
+    [[ "$(git log -1 --pretty=%an "$1")" == *'[bot]' ]]
 }
 
 # Prints "major minor patch build" for a `X.Y.Z+B` string.
@@ -41,6 +74,7 @@ fi
 
 failures=0
 checked=0
+exempted=0
 
 for sha in ${commits}; do
     subject="$(git log -1 --pretty=%s "${sha}")"
@@ -53,6 +87,21 @@ for sha in ${commits}; do
     if [[ -z "${current}" || -z "${previous}" ]]; then
         echo "[WARN] ${short}: no version found on this commit or its parent; skipping."
         continue
+    fi
+
+    # Commits that cannot bump the version are allowed to leave it alone. One
+    # that moved it anyway falls through and is validated like any other.
+    if [[ "${current}" == "${previous}" ]]; then
+        if changes_only_non_shipping_paths "${sha}"; then
+            echo "[SKIP] ${short}: documentation/metadata only; version stays ${current}."
+            exempted=$((exempted + 1))
+            continue
+        fi
+        if authored_by_bot "${sha}"; then
+            echo "[SKIP] ${short}: authored by a bot; version stays ${current}."
+            exempted=$((exempted + 1))
+            continue
+        fi
     fi
 
     read -r cmaj cmin cpat cbuild <<<"$(parts_of "${current}")"
@@ -95,4 +144,8 @@ if [[ "${failures}" -gt 0 ]]; then
     exit 1
 fi
 
-echo "[INFO] Version scheme holds across ${checked} commit(s)."
+if [[ "${exempted}" -gt 0 ]]; then
+    echo "[INFO] Version scheme holds across ${checked} commit(s); ${exempted} exempt."
+else
+    echo "[INFO] Version scheme holds across ${checked} commit(s)."
+fi

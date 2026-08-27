@@ -187,6 +187,23 @@ The history follows Semantic Versioning from `0.0.0`:
 
 The build number increases by one per commit. Pre-1.0 the major stays at `0`.
 
+### Commits that may keep the version
+
+A version identifies a build. Two commits may leave it where it is, because
+neither can run `bump-version.sh` in the first place:
+
+| Commit | Why |
+| --- | --- |
+| touches only `docs/`, `.github/`, `.idea/`, `.claude/`, a root `*.md` or `LICENSE` | nothing the application is built from changed, so the artifact is bit-identical. Editing `README.md` in the GitHub web UI is the normal case. |
+| authored by a bot, i.e. Dependabot | it has no way to bump the version in the branch it opens; the reviewer merging it carries the change. |
+
+This is a floor, not a licence. Such a commit that *does* move the version is
+validated like any other, and the next commit steps on from whatever its parent
+carries — so the sequence never drifts, it only pauses.
+
+Commits you make locally should still bump, whatever they touch. The exemption
+exists for the two cases where the tooling is out of reach.
+
 ### It is enforced, not trusted
 
 This started as a convention and drifted: two feature commits once shipped
@@ -212,3 +229,7 @@ To verify what a branch adds:
 it as a required `Version scheme` job over the commits each push adds. A commit
 whose version does not move exactly one step fails the build and names the
 version it should have had.
+
+The checker is a gate, so it has its own cases — `./tool/test-check-version.sh`
+builds throwaway repositories and asserts every rule above, and the **Version
+scheme** stage runs them before it trusts the checker's verdict.

@@ -45,6 +45,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
   on local transaction truth, dividend reconciliation, private import/export,
   multiple portfolios and explainable performance.
 
+### Fixed
+
+- The version-scheme gate no longer fails commits that cannot bump the version.
+  A commit touching only documentation or repository metadata produces a
+  bit-identical build, and a bot-authored dependency update cannot run the bump
+  script at all; both may keep the current version, while one that moves it is
+  still validated. The gate now carries its own test cases.
+
 ## [0.1.0] - 2026-08-23
 
 ### Added
