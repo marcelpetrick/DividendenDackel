@@ -45,6 +45,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
   on local transaction truth, dividend reconciliation, private import/export,
   multiple portfolios and explainable performance.
 
+### Changed
+
+- Dependencies moved to their latest stable releases: `go_router` 18.0.0 (which
+  migrates to `material_ui`/`cupertino_ui`) and Android Gradle Plugin 9.3.2,
+  plus refreshed transitive pins. Flutter 3.47.1, Gradle 9.7.1 and Kotlin
+  2.4.10 were already current.
+
 ### Fixed
 
 - The version-scheme gate no longer fails commits that cannot bump the version.

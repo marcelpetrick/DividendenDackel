@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 0.51.5+88
+version: 0.51.6+89
 
 environment:
   sdk: 3.13.1
@@ -58,7 +58,7 @@ dependencies:
   # User-supplied provider credentials live in Android Keystore-backed or
   # Linux Secret Service-backed storage, never in plain preferences.
   flutter_secure_storage: 11.0.0
-  go_router: 17.5.0
+  go_router: 18.0.0
   # Provider HTTP transport. Pinned exactly for reproducible Android/Linux
   # artifacts and injected as a Client so adapters remain fixture-testable.
   http: 1.6.0
