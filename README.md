@@ -3,6 +3,14 @@
 > *The dachshund that fetches your dividends.*
 
 [![CI](https://github.com/marcelpetrick/DividendenDackel/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/marcelpetrick/DividendenDackel/actions/workflows/ci.yml)
+[![Release](https://github.com/marcelpetrick/DividendenDackel/actions/workflows/release.yml/badge.svg)](https://github.com/marcelpetrick/DividendenDackel/actions/workflows/release.yml)
+[![Latest release](https://img.shields.io/github/v/release/marcelpetrick/DividendenDackel?sort=semver&label=release)](https://github.com/marcelpetrick/DividendenDackel/releases/latest)
+[![License: GPL v3 or later](https://img.shields.io/badge/license-GPLv3%20or%20later-blue.svg)](LICENSE)
+[![Flutter 3.47.1](https://img.shields.io/badge/Flutter-3.47.1-02569B.svg)](https://flutter.dev/)
+[![Dart 3.13.1](https://img.shields.io/badge/Dart-3.13.1-0175C2.svg)](https://dart.dev/)
+[![Android 10+ (API 29)](https://img.shields.io/badge/Android-10%2B%20(API%2029)-3DDC84.svg)](https://developer.android.com/about/versions/10)
+[![Linux x86_64](https://img.shields.io/badge/Linux-x86__64-FCC624.svg)](https://flutter.dev/multi-platform/desktop)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-FE5196.svg)](https://www.conventionalcommits.org/en/v1.0.0/)
 
 **DividendenDackel turns a local portfolio into a clear timeline of dividends, events, research changes, and upcoming income.**
 
