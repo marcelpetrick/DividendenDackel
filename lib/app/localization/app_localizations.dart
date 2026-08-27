@@ -40,6 +40,49 @@ final class AppLocalizations {
     return _substitutePhrases(source);
   }
 
+  /// Translates a message [pattern] and fills its `{name}` placeholders.
+  ///
+  /// The pattern is what the catalog is keyed by, so `'{count} more
+  /// activities'` is one translatable message whatever `count` happens to be.
+  /// Interpolating first and translating afterwards cannot work: the assembled
+  /// string never matches a catalog entry, so it fell through to the phrase
+  /// table and came back half English.
+  ///
+  /// Values are substituted after translation and are never themselves
+  /// translated -- they are amounts, dates, codes and user content. Translate
+  /// a value at the call site if it is application copy.
+  String format(String pattern, Map<String, Object?> values) {
+    final String translated = text(pattern);
+    if (values.isEmpty) return translated;
+    final StringBuffer output = StringBuffer();
+    int index = 0;
+    while (index < translated.length) {
+      final int open = translated.indexOf('{', index);
+      if (open < 0) {
+        output.write(translated.substring(index));
+        break;
+      }
+      final int close = translated.indexOf('}', open + 1);
+      if (close < 0) {
+        output.write(translated.substring(index));
+        break;
+      }
+      final String name = translated.substring(open + 1, close);
+      if (!values.containsKey(name)) {
+        // An unknown placeholder is a catalog bug, not user input. Leave it
+        // visible rather than silently dropping part of the message.
+        output.write(translated.substring(index, close + 1));
+        index = close + 1;
+        continue;
+      }
+      output
+        ..write(translated.substring(index, open))
+        ..write(values[name]);
+      index = close + 1;
+    }
+    return output.toString();
+  }
+
   /// Applies the phrase table to [source] in a single left-to-right pass.
   ///
   /// Two rules keep the result from corrupting words, both of which a plain
@@ -121,6 +164,10 @@ final List<MapEntry<String, _Translation>> _phrasesByLength =
 extension AppLocalizationContext on BuildContext {
   /// Translates [source] in the current live locale.
   String tr(String source) => AppLocalizations.of(this).text(source);
+
+  /// Translates message [pattern] and fills its `{name}` placeholders.
+  String trFormat(String pattern, Map<String, Object?> values) =>
+      AppLocalizations.of(this).format(pattern, values);
 }
 
 final class _AppLocalizationsDelegate

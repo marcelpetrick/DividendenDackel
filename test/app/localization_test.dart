@@ -94,6 +94,66 @@ void main() {
       expect(french.text('3 payments'), '3 payments');
     });
 
+    test('keys parameterised messages by pattern, not by result', () {
+      // The assembled string can never match a catalog entry, which is why
+      // interpolating before translating produced half-English output.
+      expect(
+        german.format('{count} more activities', <String, Object?>{'count': 7}),
+        '7 weitere Aktivitäten',
+      );
+      expect(
+        croatian.format('{count} more activities', <String, Object?>{
+          'count': 7,
+        }),
+        '7 dodatnih aktivnosti',
+      );
+    });
+
+    test('never translates the substituted values', () {
+      // Values are amounts, codes and user content, not application copy.
+      expect(
+        german.format('Line {line}', <String, Object?>{'line': 'net'}),
+        'Zeile net',
+      );
+    });
+
+    test('leaves an unknown placeholder visible rather than dropping it', () {
+      expect(
+        german.format('Line {line}', const <String, Object?>{'other': 1}),
+        'Zeile {line}',
+      );
+    });
+
+    test('returns the pattern untouched for English', () {
+      const AppLocalizations english = AppLocalizations(Locale('en'));
+      expect(
+        english.format('{count} more activities', <String, Object?>{
+          'count': 2,
+        }),
+        '2 more activities',
+      );
+    });
+
+    testWidgets('Text.format resolves in the live locale', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          locale: Locale('de'),
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: <LocalizationsDelegate<dynamic>>[
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          home: Text.format('Line {line}', <String, Object?>{'line': 42}),
+        ),
+      );
+
+      expect(find.text('Zeile 42'), findsOneWidget);
+    });
+
     testWidgets('localizes app copy but preserves user content', (
       WidgetTester tester,
     ) async {

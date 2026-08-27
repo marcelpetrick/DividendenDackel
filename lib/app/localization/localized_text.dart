@@ -22,6 +22,32 @@ class Text extends material.StatelessWidget {
     this.textHeightBehavior,
     this.selectionColor,
     this.translate = true,
+  }) : textSpan = null,
+       values = null;
+
+  /// Creates localized text from a message pattern in [data] and its [values].
+  ///
+  /// The catalog is keyed by the pattern, so `Text.format('Line {line}', ...)`
+  /// stays one translatable message for every line number.
+  const Text.format(
+    String this.data,
+    Map<String, Object?> this.values, {
+    super.key,
+    this.style,
+    this.strutStyle,
+    this.textAlign,
+    this.textDirection,
+    this.locale,
+    this.softWrap,
+    this.overflow,
+    this.textScaler,
+    this.maxLines,
+    this.semanticsLabel,
+    this.semanticsIdentifier,
+    this.textWidthBasis,
+    this.textHeightBehavior,
+    this.selectionColor,
+    this.translate = true,
   }) : textSpan = null;
 
   /// Creates localized rich text. Text spans remain caller-owned.
@@ -43,13 +69,17 @@ class Text extends material.StatelessWidget {
     this.textHeightBehavior,
     this.selectionColor,
     this.translate = true,
-  }) : data = null;
+  }) : data = null,
+       values = null;
 
   /// Canonical English plain text.
   final String? data;
 
   /// Rich text supplied by the caller.
   final material.InlineSpan? textSpan;
+
+  /// Placeholder values for [Text.format]; null for a plain literal.
+  final Map<String, Object?>? values;
 
   final material.TextStyle? style;
   final material.StrutStyle? strutStyle;
@@ -75,8 +105,14 @@ class Text extends material.StatelessWidget {
     final String? source = data;
     final String? semantics = semanticsLabel;
     if (source != null) {
+      final Map<String, Object?>? arguments = values;
+      final String resolved = !translate
+          ? source
+          : arguments == null
+          ? localizations.text(source)
+          : localizations.format(source, arguments);
       return material.Text(
-        translate ? localizations.text(source) : source,
+        resolved,
         style: style,
         strutStyle: strutStyle,
         textAlign: textAlign,
