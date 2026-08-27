@@ -54,6 +54,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ### Fixed
 
+- German and Croatian no longer corrupt words. The phrase catalog was applied
+  as repeated whole-string replacements, so each rule could match the previous
+  rule's output and any rule could fire inside an unrelated word: `ex-dividend`
+  rendered as `ex-Dividendee` and `internet` as `internetto`. Substitution is
+  now a single left-to-right pass that never re-examines translated text and
+  requires a word boundary around letter phrases.
+- An application language the catalog does not carry now falls back to the
+  canonical English copy instead of German.
 - The version-scheme gate no longer fails commits that cannot bump the version.
   A commit touching only documentation or repository metadata produces a
   bit-identical build, and a bot-authored dependency update cannot run the bump

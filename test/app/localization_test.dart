@@ -69,6 +69,31 @@ void main() {
       );
     });
 
+    test('substitutes a phrase once, never its own output', () {
+      // 'dividend' -> 'Dividende' used to be re-matched by 'Dividend', so
+      // 'ex-dividend' came out of the catalog as 'ex-Dividendee'.
+      expect(german.text('0 ex-dividend date(s)'), '0 ex-Dividende date(s)');
+      expect(german.text('0 ex-Dividend date(s)'), '0 ex-Dividende date(s)');
+      expect(croatian.text('0 ex-dividend date(s)'), '0 ex-dividenda date(s)');
+    });
+
+    test('substitutes whole words, not fragments inside them', () {
+      // 'net' -> 'netto' used to fire inside any word containing it.
+      expect(german.text('internet'), 'internet');
+      expect(german.text('network value'), 'network Wert');
+      expect(croatian.text('internet'), 'internet');
+      // The same phrase still applies where it really is a word.
+      expect(german.text('net'), 'netto');
+    });
+
+    test('falls back to the English source for an uncarried language', () {
+      // The default arm used to return German, so an unsupported locale
+      // rendered a German app instead of the canonical source copy.
+      const AppLocalizations french = AppLocalizations(Locale('fr'));
+      expect(french.text('Today'), 'Today');
+      expect(french.text('3 payments'), '3 payments');
+    });
+
     testWidgets('localizes app copy but preserves user content', (
       WidgetTester tester,
     ) async {

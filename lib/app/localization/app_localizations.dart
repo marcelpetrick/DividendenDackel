@@ -35,28 +35,87 @@ final class AppLocalizations {
         _longMessages[source] ??
         _formMessages[source] ??
         _onboardingMessages[source];
-    if (exact != null) return _select(exact);
+    if (exact != null) return _select(exact, source);
 
-    String translated = source;
-    final List<MapEntry<String, _Translation>> phrases =
-        _phrases.entries.toList()..sort(
-          (
-            MapEntry<String, _Translation> left,
-            MapEntry<String, _Translation> right,
-          ) => right.key.length.compareTo(left.key.length),
-        );
-    for (final MapEntry<String, _Translation> phrase in phrases) {
-      translated = translated.replaceAll(phrase.key, _select(phrase.value));
-    }
-    return translated;
+    return _substitutePhrases(source);
   }
 
-  String _select(_Translation translation) => switch (locale.languageCode) {
-    'de' => translation.de,
-    'hr' => translation.hr,
-    _ => translation.de,
-  };
+  /// Applies the phrase table to [source] in a single left-to-right pass.
+  ///
+  /// Two rules keep the result from corrupting words, both of which a plain
+  /// `replaceAll` over every phrase in turn got wrong:
+  ///
+  ///   * **Translated text is never re-examined.** Each match advances past the
+  ///     source it consumed, so one phrase's output cannot be matched by the
+  ///     next. Replacing in turn meant `dividend -> Dividende` was then hit by
+  ///     `Dividend -> Dividende`, and `ex-dividend` came out `ex-Dividendee`.
+  ///   * **A phrase that starts or ends in a letter needs a word boundary.**
+  ///     Otherwise `net -> netto` fires inside unrelated words and `internet`
+  ///     becomes `internetto`.
+  ///
+  /// Longest phrases are tried first so `holdings` wins over `holding`.
+  String _substitutePhrases(String source) {
+    final StringBuffer output = StringBuffer();
+    int index = 0;
+    while (index < source.length) {
+      final MapEntry<String, _Translation>? match = _matchAt(source, index);
+      if (match == null) {
+        output.write(source[index]);
+        index += 1;
+        continue;
+      }
+      output.write(_select(match.value, match.key));
+      index += match.key.length;
+    }
+    return output.toString();
+  }
+
+  /// The longest phrase that starts at [index] and respects word boundaries.
+  static MapEntry<String, _Translation>? _matchAt(String source, int index) {
+    for (final MapEntry<String, _Translation> phrase in _phrasesByLength) {
+      final String key = phrase.key;
+      if (!source.startsWith(key, index)) continue;
+      if (_isLetter(key.codeUnitAt(0)) &&
+          index > 0 &&
+          _isLetter(source.codeUnitAt(index - 1))) {
+        continue;
+      }
+      final int end = index + key.length;
+      if (_isLetter(key.codeUnitAt(key.length - 1)) &&
+          end < source.length &&
+          _isLetter(source.codeUnitAt(end))) {
+        continue;
+      }
+      return phrase;
+    }
+    return null;
+  }
+
+  /// Latin letters, which is what the English phrase keys are built from.
+  static bool _isLetter(int unit) =>
+      (unit >= 0x41 && unit <= 0x5A) || (unit >= 0x61 && unit <= 0x7A);
+
+  /// Returns the translation for the active language, or the canonical English
+  /// [source] when the language is not one this catalog carries.
+  ///
+  /// The previous default returned German, so an unsupported locale silently
+  /// rendered a German app rather than the source language.
+  String _select(_Translation translation, String source) =>
+      switch (locale.languageCode) {
+        'de' => translation.de,
+        'hr' => translation.hr,
+        _ => source,
+      };
 }
+
+/// Phrase table ordered longest key first, built once rather than per call.
+final List<MapEntry<String, _Translation>> _phrasesByLength =
+    _phrases.entries.toList()..sort(
+      (
+        MapEntry<String, _Translation> left,
+        MapEntry<String, _Translation> right,
+      ) => right.key.length.compareTo(left.key.length),
+    );
 
 /// Convenient translation for non-Text properties such as tooltips.
 extension AppLocalizationContext on BuildContext {
