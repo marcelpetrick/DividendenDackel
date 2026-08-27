@@ -1,4 +1,5 @@
 import 'package:dividendendackel/app/app.dart';
+import 'package:dividendendackel/app/localization/language_preference.dart';
 import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/app/theme/theme_preference.dart';
 import 'package:dividendendackel/core/errors/failure.dart';
@@ -85,6 +86,10 @@ void main() {
             clockProvider.overrideWithValue(clock),
             onboardingCompletedProvider.overrideWith((Ref ref) async => true),
             automaticPortfolioRefreshEnabledProvider.overrideWithValue(false),
+            // Without this the journey reads the developer's real
+            // shared_preferences and renders whatever language they last
+            // chose in the app, while the assertions below are English.
+            languagePreferenceStoreProvider.overrideWithValue(_LanguageStore()),
             themePreferenceStoreProvider.overrideWithValue(_ThemeStore()),
             displayCurrencyStoreProvider.overrideWithValue(_CurrencyStore()),
             taxSettingsStoreProvider.overrideWithValue(_TaxStore()),
@@ -224,6 +229,14 @@ final class _OfflineQuoteProvider implements QuoteDataProvider {
     Instrument instrument, {
     required CancellationToken cancellationToken,
   }) async => const Failed<Quote>(NetworkFailure());
+}
+
+final class _LanguageStore implements LanguagePreferenceStore {
+  @override
+  Future<AppLanguage> load() async => AppLanguage.english;
+
+  @override
+  Future<void> save(AppLanguage language) async {}
 }
 
 final class _ThemeStore implements ThemePreferenceStore {
