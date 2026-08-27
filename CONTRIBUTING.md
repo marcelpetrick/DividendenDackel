@@ -9,11 +9,16 @@ satisfy before it can be merged.
 | --- | --- |
 | Flutter | **3.47.1** (stable) |
 | Dart | 3.13.1 (ships with that Flutter) |
-| Java | 17 (Android builds) |
+| Java | **21** (Android builds; Android Lint and the Gradle release build require it) |
 
 The Flutter version is pinned deliberately (Vision.md §70). It appears in
 `localPipeline.sh` (`PINNED_FLUTTER_VERSION`) and in
 `.github/workflows/ci.yml` (`FLUTTER_VERSION`) — change both together.
+
+The JDK is pinned the same way: `REQUIRED_JAVA_MAJOR` in `localPipeline.sh` and
+`java-version` in the CI and release workflows. `localPipeline.sh` warns when
+the local JDK differs, because a build that succeeds on 17 locally still fails
+Android Lint in CI.
 
 ## Setup
 
