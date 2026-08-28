@@ -27,12 +27,23 @@ final class CacheResolution {
 ///
 /// Defaults sit inside the ranges in Vision.md §37. Callers may override any
 /// duration for a provider or deployment without changing resolver logic.
+/// How often the configured quote source can actually produce a new price.
+enum QuoteCadence {
+  /// A new price may arrive at any time, so a short lifetime is right.
+  intraday,
+
+  /// One price per trading session, so a close holds until the next one.
+  endOfDay,
+}
+
 final class CachePolicy {
   /// Creates a policy, replacing selected [overrides].
-  CachePolicy({Map<CacheDataType, Duration> overrides = const {}})
-    : _lifetimes = UnmodifiableMapView<CacheDataType, Duration>(
-        <CacheDataType, Duration>{...defaultLifetimes, ...overrides},
-      ) {
+  CachePolicy({
+    Map<CacheDataType, Duration> overrides = const {},
+    this.quoteCadence = QuoteCadence.endOfDay,
+  }) : _lifetimes = UnmodifiableMapView<CacheDataType, Duration>(
+         <CacheDataType, Duration>{...defaultLifetimes, ...overrides},
+       ) {
     for (final MapEntry<CacheDataType, Duration> entry in _lifetimes.entries) {
       if (entry.value <= Duration.zero) {
         throw ArgumentError.value(
@@ -59,6 +70,13 @@ final class CachePolicy {
         CacheDataType.fxRates: Duration(hours: 12),
       };
 
+  /// Cadence of the configured quote source.
+  ///
+  /// Defaults to [QuoteCadence.endOfDay] because the only quote adapter is
+  /// Alpha Vantage's free tier, which publishes one closing price per session.
+  /// Switch this when a source that ticks intraday is configured.
+  final QuoteCadence quoteCadence;
+
   final Map<CacheDataType, Duration> _lifetimes;
 
   /// Read-only configured lifetimes.
@@ -68,8 +86,44 @@ final class CachePolicy {
   Duration lifetimeFor(CacheDataType dataType) => _lifetimes[dataType]!;
 
   /// Computes the expiry for a payload fetched at [fetchedAt].
+  ///
+  /// End-of-day quotes expire at the next session close rather than after a
+  /// fixed interval. A close cannot change until the next one, so a short
+  /// lifetime would spend a request on an identical answer -- and with Alpha
+  /// Vantage's 25 requests per day, the five-minute default emptied a user's
+  /// quota within one screen's worth of refreshes.
   DateTime expiresAt(CacheDataType dataType, DateTime fetchedAt) =>
-      fetchedAt.add(lifetimeFor(dataType));
+      dataType == CacheDataType.quotes && quoteCadence == QuoteCadence.endOfDay
+      ? nextSessionClose(fetchedAt)
+      : fetchedAt.add(lifetimeFor(dataType));
+
+  /// The first session close strictly after [moment].
+  ///
+  /// Weekends carry Friday's close forward, which is where a fixed lifetime
+  /// wastes the most: a Saturday refresh cannot produce a new price.
+  ///
+  /// The close is held at 16:30 UTC, Xetra's 17:30 in winter. Through summer
+  /// time that is an hour after the real close, which costs at most one extra
+  /// hour of staleness and never an extra request. Modelling the exchange
+  /// calendar properly would need holiday data the app does not carry, and
+  /// holidays only ever delay a new price, so a quote simply stays fresh.
+  static DateTime nextSessionClose(DateTime moment) {
+    final DateTime utc = moment.toUtc();
+    DateTime candidate = DateTime.utc(
+      utc.year,
+      utc.month,
+      utc.day,
+    ).add(_sessionClose);
+    while (!candidate.isAfter(utc) || _isWeekend(candidate)) {
+      candidate = candidate.add(const Duration(days: 1));
+    }
+    return candidate;
+  }
+
+  static const Duration _sessionClose = Duration(hours: 16, minutes: 30);
+
+  static bool _isWeekend(DateTime value) =>
+      value.weekday == DateTime.saturday || value.weekday == DateTime.sunday;
 
   /// Resolves a lookup using an explicit persisted expiry when supplied.
   ///

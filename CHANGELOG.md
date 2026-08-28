@@ -67,6 +67,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ### Fixed
 
+- Cached prices are no longer refetched several times an hour. A quote now
+  expires at the next session close instead of after five minutes, because a
+  closing price cannot change until the next one. A Friday price holds across
+  the weekend. With a 25-request daily quota the old lifetime would have spent
+  a user's whole day re-downloading identical numbers.
+
 - The bundled sample dataset no longer invents prices for real companies. It
   seeded a made-up quote stamped with the current time, so Allianz showed
   287.50 against a real market price of 451, and that number fed portfolio

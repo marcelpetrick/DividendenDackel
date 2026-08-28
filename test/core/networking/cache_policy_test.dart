@@ -3,6 +3,87 @@ import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  group('end-of-day quote cadence', () {
+    final CachePolicy policy = CachePolicy();
+
+    test('a quote fetched before the close expires at that close', () {
+      // Tuesday 09:00 UTC: the price on hand is Monday's close, and a new one
+      // arrives at today's close.
+      expect(
+        policy.expiresAt(CacheDataType.quotes, DateTime.utc(2026, 8, 25, 9)),
+        DateTime.utc(2026, 8, 25, 16, 30),
+      );
+    });
+
+    test('a quote fetched after the close holds until the next one', () {
+      expect(
+        policy.expiresAt(CacheDataType.quotes, DateTime.utc(2026, 8, 25, 18)),
+        DateTime.utc(2026, 8, 26, 16, 30),
+      );
+    });
+
+    test('a Friday close carries across the weekend', () {
+      // 2026-08-28 is a Friday. A fixed lifetime would refetch all weekend and
+      // spend a 25-request day on prices that cannot have changed.
+      expect(
+        policy.expiresAt(CacheDataType.quotes, DateTime.utc(2026, 8, 28, 18)),
+        DateTime.utc(2026, 8, 31, 16, 30),
+      );
+    });
+
+    test('a weekend refresh still waits for Monday', () {
+      expect(
+        policy.expiresAt(CacheDataType.quotes, DateTime.utc(2026, 8, 29, 12)),
+        DateTime.utc(2026, 8, 31, 16, 30),
+      );
+    });
+
+    test('a quote stays fresh until its session close', () {
+      final DateTime fetched = DateTime.utc(2026, 8, 25, 18);
+      expect(
+        policy
+            .resolve(
+              dataType: CacheDataType.quotes,
+              now: DateTime.utc(2026, 8, 26, 16, 29),
+              fetchedAt: fetched,
+              expiresAt: policy.expiresAt(CacheDataType.quotes, fetched),
+            )
+            .state,
+        CacheState.fresh,
+      );
+      expect(
+        policy
+            .resolve(
+              dataType: CacheDataType.quotes,
+              now: DateTime.utc(2026, 8, 26, 16, 31),
+              fetchedAt: fetched,
+              expiresAt: policy.expiresAt(CacheDataType.quotes, fetched),
+            )
+            .state,
+        CacheState.stale,
+      );
+    });
+
+    test('an intraday source keeps the short fixed lifetime', () {
+      final CachePolicy intraday = CachePolicy(
+        quoteCadence: QuoteCadence.intraday,
+      );
+      final DateTime fetched = DateTime.utc(2026, 8, 25, 9);
+      expect(
+        intraday.expiresAt(CacheDataType.quotes, fetched),
+        fetched.add(intraday.lifetimeFor(CacheDataType.quotes)),
+      );
+    });
+
+    test('other data types are unaffected by the quote cadence', () {
+      final DateTime fetched = DateTime.utc(2026, 8, 25, 9);
+      expect(
+        policy.expiresAt(CacheDataType.fxRates, fetched),
+        fetched.add(policy.lifetimeFor(CacheDataType.fxRates)),
+      );
+    });
+  });
+
   final DateTime fetchedAt = DateTime.utc(2026, 8, 22, 12);
 
   group('CachePolicy', () {
