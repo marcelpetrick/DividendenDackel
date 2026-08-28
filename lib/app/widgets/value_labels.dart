@@ -40,7 +40,9 @@ class DividendStatusChip extends StatelessWidget {
         : theme.colorScheme.onSurfaceVariant;
 
     return Semantics(
-      label: context.tr('Dividend status: ${labelFor(status)}'),
+      label: context.trFormat('Dividend status: {status}', <String, Object?>{
+        'status': context.tr(labelFor(status)),
+      }),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
@@ -111,31 +113,44 @@ class FreshnessLabel extends StatelessWidget {
   /// The current time.
   final DateTime now;
 
-  /// Renders an age as approximate, human wording.
-  static String describeAge(Duration age) {
+  /// The age as a translatable message pattern and its values.
+  ///
+  /// The wording carries a number, so it cannot be one catalog key per age.
+  /// Callers with a [BuildContext] render it with `trFormat`.
+  static (String, Map<String, Object?>) ageMessage(Duration age) {
     if (age.inMinutes < 1) {
-      return 'just now';
+      return ('just now', const <String, Object?>{});
     }
     if (age.inMinutes < 60) {
-      return '${age.inMinutes} min ago';
+      return ('{count} min ago', <String, Object?>{'count': age.inMinutes});
     }
     if (age.inHours < 24) {
-      return '${age.inHours} h ago';
+      return ('{count} h ago', <String, Object?>{'count': age.inHours});
     }
-    return '${age.inDays} d ago';
+    return ('{count} d ago', <String, Object?>{'count': age.inDays});
+  }
+
+  /// Renders an age as approximate, human wording in the live locale.
+  static String describeAge(BuildContext context, Duration age) {
+    final (String pattern, Map<String, Object?> values) = ageMessage(age);
+    return context.trFormat(pattern, values);
   }
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final String source = provenance.source == Provenance.sampleSource
-        ? 'Sample data'
+        ? context.tr('Sample data')
         : provenance.source;
-    final String age = describeAge(provenance.ageAt(now));
-    final String suffix = provenance.isStale ? ' · refreshing…' : '';
+    final String age = describeAge(context, provenance.ageAt(now));
+    final String suffix = provenance.isStale
+        ? ' · ${context.tr('refreshing…')}'
+        : '';
 
     return Text(
+      // Already assembled from translated parts and a provider name.
       '$source · $age$suffix',
+      translate: false,
       style: theme.textTheme.labelSmall?.copyWith(
         color: theme.colorScheme.onSurfaceVariant,
       ),
@@ -159,18 +174,23 @@ class DataFreshnessBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final DateTime? completedAt = state.lastCompletedAt;
     final String age = completedAt == null
-        ? 'saved data'
-        : FreshnessLabel.describeAge(now.difference(completedAt));
-    final String progress = state.isRefreshing ? ' — refreshing…' : '';
-    final String failure = state.failureCount > 0
-        ? ' · ${state.failureCount} source ${state.failureCount == 1 ? 'failed' : 'failures'}; saved data remains visible'
+        ? context.tr('saved data')
+        : FreshnessLabel.describeAge(context, now.difference(completedAt));
+    final String progress = state.isRefreshing
+        ? ' — ${context.tr('refreshing…')}'
         : '';
-    final String message = 'Last updated $age$progress$failure';
+    final String failure = state.failureCount > 0
+        ? ' · ${context.trFormat(state.failureCount == 1 ? '{count} source failed; saved data remains visible' : '{count} source failures; saved data remains visible', <String, Object?>{'count': state.failureCount})}'
+        : '';
+    final String message = context.trFormat(
+      'Last updated {age}{progress}{failure}',
+      <String, Object?>{'age': age, 'progress': progress, 'failure': failure},
+    );
     final ThemeData theme = Theme.of(context);
 
     return Semantics(
       liveRegion: true,
-      label: context.tr(message),
+      label: message,
       child: Container(
         width: double.infinity,
         color: theme.colorScheme.surfaceContainerHighest,
@@ -195,7 +215,13 @@ class DataFreshnessBanner extends StatelessWidget {
                   size: 16,
                 ),
               ),
-            Expanded(child: Text(message, style: theme.textTheme.labelSmall)),
+            Expanded(
+              child: Text(
+                message,
+                style: theme.textTheme.labelSmall,
+                translate: false,
+              ),
+            ),
           ],
         ),
       ),

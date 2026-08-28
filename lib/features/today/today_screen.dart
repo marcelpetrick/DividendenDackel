@@ -230,20 +230,25 @@ class _SummaryCard extends StatelessWidget {
           children: <Widget>[
             Text('Portfolio today', style: theme.textTheme.titleMedium),
             const SizedBox(height: AppTheme.space),
-            Text(
-              holdingCount == null
-                  ? holdingsFailed
+            holdingCount == null
+                ? Text(
+                    holdingsFailed
                         ? 'Holdings unavailable'
-                        : 'Loading your holdings…'
-                  : '$holdingCount holdings',
-              style: theme.textTheme.bodyLarge,
-            ),
+                        : 'Loading your holdings…',
+                    style: theme.textTheme.bodyLarge,
+                  )
+                : Text.format('{count} holdings', <String, Object?>{
+                    'count': holdingCount,
+                  }, style: theme.textTheme.bodyLarge),
             Text(
               relevantCount == null
                   ? eventsFailed
                         ? 'Next-three-days summary unavailable'
                         : 'Loading the next 3 days…'
-                  : '$relevantCount relevant event(s) in the next 3 days',
+                  : context.trFormat(
+                      '{count} relevant event(s) in the next 3 days',
+                      <String, Object?>{'count': relevantCount},
+                    ),
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -271,11 +276,13 @@ class _SummaryCard extends StatelessWidget {
                         summary.totalValue,
                         style: theme.textTheme.titleLarge,
                       ),
-                      Text(
-                        summary.dayChange == null
-                            ? 'day change unavailable'
-                            : '${summary.dayChange!.format(withSymbol: true)} today',
-                      ),
+                      summary.dayChange == null
+                          ? const Text('day change unavailable')
+                          : Text.format('{change} today', <String, Object?>{
+                              'change': summary.dayChange!.format(
+                                withSymbol: true,
+                              ),
+                            }),
                     ],
                   ),
           ],
@@ -555,20 +562,30 @@ class _MatterTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           if (matter.news == null) ...<Widget>[
-            Text('${matter.kind} ${_relativeDay(matter.date, now)}'),
+            Text(
+              '${context.tr(matter.kind)} '
+              '${_relativeDay(context, matter.date, now)}',
+              translate: false,
+            ),
             if (matter.detail case final String detail) Text(detail),
           ] else ...<Widget>[
-            Text('${matter.detail} · ${_published(context, matter.date)}'),
+            Text(
+              '${matter.detail} · ${_published(context, matter.date)}',
+              translate: false,
+            ),
             if (instrumentNames.isNotEmpty)
               Text(instrumentNames.join(', '), translate: false),
           ],
           Text(matter.status),
           if (gross != null) GrossNetAmount(event: dividend!, gross: gross),
           if (relevance case final RankedRelevance ranked)
-            Text(
-              'Why: ${ranked.factors.map((RelevanceFactor factor) => factor.explanation).join(' · ')}',
-              style: Theme.of(context).textTheme.labelSmall,
-            ),
+            Text.format('Why: {reasons}', <String, Object?>{
+              'reasons': ranked.factors
+                  .map(
+                    (RelevanceFactor factor) => context.tr(factor.explanation),
+                  )
+                  .join(' · '),
+            }, style: Theme.of(context).textTheme.labelSmall),
           if (onOpen != null)
             Align(
               alignment: Alignment.centerLeft,
@@ -587,22 +604,31 @@ class _MatterTile extends StatelessWidget {
       trailing: relevance == null
           ? null
           : Semantics(
-              label: context.tr(
-                'Relevance score ${relevance!.score} out of 100',
+              label: context.trFormat(
+                'Relevance score {score} out of 100',
+                <String, Object?>{'score': relevance!.score},
               ),
-              child: Chip(label: Text('${relevance!.score}/100')),
+              child: Chip(
+                label: Text('${relevance!.score}/100', translate: false),
+              ),
             ),
     );
   }
 
-  static String _relativeDay(DateTime value, DateTime now) {
+  static String _relativeDay(
+    BuildContext context,
+    DateTime value,
+    DateTime now,
+  ) {
     final DateTime day = DateTime(value.year, value.month, value.day);
     final DateTime today = DateTime(now.year, now.month, now.day);
     final int difference = day.difference(today).inDays;
     return switch (difference) {
-      0 => 'today',
-      1 => 'tomorrow',
-      _ => 'in $difference days',
+      0 => context.tr('today'),
+      1 => context.tr('tomorrow'),
+      _ => context.trFormat('in {count} days', <String, Object?>{
+        'count': difference,
+      }),
     };
   }
 
@@ -642,28 +668,43 @@ class _NextThreeDaysCard extends StatelessWidget {
                 ? 'Earnings: unavailable'
                 : earningsEvents.value == null
                 ? 'Earnings: loading…'
-                : '${earningsEvents.requireValue.length} earnings event(s)',
+                : context.trFormat(
+                    '{count} earnings event(s)',
+                    <String, Object?>{
+                      'count': earningsEvents.requireValue.length,
+                    },
+                  ),
           ),
           Text(
             exEvents.hasError
                 ? 'Ex-dividend dates: unavailable'
                 : exEvents.value == null
                 ? 'Ex-dividend dates: loading…'
-                : '${exEvents.requireValue.length} ex-dividend date(s)',
+                : context.trFormat(
+                    '{count} ex-dividend date(s)',
+                    <String, Object?>{'count': exEvents.requireValue.length},
+                  ),
           ),
           Text(
             paymentEvents.hasError
                 ? 'Payments: unavailable'
                 : paymentEvents.value == null
                 ? 'Payments: loading…'
-                : '${paymentEvents.requireValue.length} payment date(s)',
+                : context.trFormat('{count} payment date(s)', <String, Object?>{
+                    'count': paymentEvents.requireValue.length,
+                  }),
           ),
           Text(
             corporateEvents.hasError
                 ? 'Company events: unavailable'
                 : corporateEvents.value == null
                 ? 'Company events: loading…'
-                : '${corporateEvents.requireValue.length} company event(s)',
+                : context.trFormat(
+                    '{count} company event(s)',
+                    <String, Object?>{
+                      'count': corporateEvents.requireValue.length,
+                    },
+                  ),
           ),
         ],
       ),
@@ -843,13 +884,19 @@ class _ChangesCard extends StatelessWidget {
             AsyncData<TodayChanges>(:final TodayChanges value) => Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text('${value.holdingChanges} holding change(s)'),
-                Text('${value.quoteChanges} quote change(s)'),
-                Text('${value.dividendChanges} dividend-outlook change(s)'),
-                Text(
-                  'Compared with ${_dateTime(context, value.previousAt!)}.',
-                  style: Theme.of(context).textTheme.labelSmall,
+                Text.format('{count} holding change(s)', <String, Object?>{
+                  'count': value.holdingChanges,
+                }),
+                Text.format('{count} quote change(s)', <String, Object?>{
+                  'count': value.quoteChanges,
+                }),
+                Text.format(
+                  '{count} dividend-outlook change(s)',
+                  <String, Object?>{'count': value.dividendChanges},
                 ),
+                Text.format('Compared with {time}.', <String, Object?>{
+                  'time': _dateTime(context, value.previousAt!),
+                }, style: Theme.of(context).textTheme.labelSmall),
               ],
             ),
             AsyncError<TodayChanges>() => const Text(
@@ -970,10 +1017,9 @@ class _ExpectedDividendsCard extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: <Widget>[
               for (final Money total in totals.values)
-                Text(
-                  'Gross ${total.format(withSymbol: true)}',
-                  style: theme.textTheme.titleSmall,
-                ),
+                Text.format('Gross {amount}', <String, Object?>{
+                  'amount': total.format(withSymbol: true),
+                }, style: theme.textTheme.titleSmall),
               if (estimatedNet?.loading ?? false)
                 const Text('Net (estimated) calculating…')
               else if (estimatedNet != null)
@@ -983,9 +1029,9 @@ class _ExpectedDividendsCard extends ConsumerWidget {
                   style: theme.textTheme.titleSmall,
                 ),
               if ((estimatedNet?.unsupportedCount ?? 0) > 0)
-                Text(
-                  '${estimatedNet!.unsupportedCount} need a payment date, '
-                  'EUR FX, or country data',
+                Text.format(
+                  '{count} need a payment date, EUR FX, or country data',
+                  <String, Object?>{'count': estimatedNet!.unsupportedCount},
                   style: theme.textTheme.labelSmall,
                 ),
             ],

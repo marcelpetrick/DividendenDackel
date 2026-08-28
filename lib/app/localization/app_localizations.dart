@@ -34,7 +34,8 @@ final class AppLocalizations {
         _messages[source] ??
         _longMessages[source] ??
         _formMessages[source] ??
-        _onboardingMessages[source];
+        _onboardingMessages[source] ??
+        _patternMessages[source];
     if (exact != null) return _select(exact, source);
 
     return _substitutePhrases(source);
@@ -938,6 +939,356 @@ const Map<String, _Translation> _onboardingMessages = <String, _Translation>{
 };
 
 /// Ordered phrase fragments cover interpolated amounts, names and counts.
+/// Messages that carry runtime values, keyed by their pattern.
+///
+/// Keyed by the pattern rather than the assembled string, so one entry
+/// covers every value the placeholders can take.
+const Map<String, _Translation> _patternMessages = <String, _Translation>{
+  'Additional investment ({code})': _Translation(
+    'Zusätzliche Investition ({code})',
+    'Dodatno ulaganje ({code})',
+  ),
+  'Allocation in {code}': _Translation('Anteil in {code}', 'Udio u {code}'),
+  'Applies to: {scope}': _Translation(
+    'Gilt für: {scope}',
+    'Primjenjuje se na: {scope}',
+  ),
+  'Basis: cached price {price} and next-365-day gross dividends of {perShare} per current share.':
+      _Translation(
+        'Grundlage: gespeicherter Kurs {price} und Brutto-Dividenden der nächsten 365 Tage von {perShare} je aktueller Aktie.',
+        'Osnova: spremljena cijena {price} i bruto dividende sljedećih 365 dana od {perShare} po trenutnoj dionici.',
+      ),
+  'Clear {name}': _Translation('{name} leeren', 'Isprazni {name}'),
+  'Clear {name}?': _Translation('{name} leeren?', 'Isprazniti {name}?'),
+  'Compared with {time}.': _Translation(
+    'Verglichen mit {time}.',
+    'U usporedbi s {time}.',
+  ),
+  'Cumulative income chart for {label} in {code}. Exact monthly values are in the payout table below.':
+      _Translation(
+        'Diagramm der kumulierten Erträge für {label} in {code}. Genaue Monatswerte stehen in der Auszahlungstabelle unten.',
+        'Grafikon kumulativnog prihoda za {label} u {code}. Točne mjesečne vrijednosti nalaze se u tablici isplata ispod.',
+      ),
+  'Current covered value: {value}': _Translation(
+    'Aktuell erfasster Wert: {value}',
+    'Trenutačno pokrivena vrijednost: {value}',
+  ),
+  'Current covered value: {value} · incomplete': _Translation(
+    'Aktuell erfasster Wert: {value} · unvollständig',
+    'Trenutačno pokrivena vrijednost: {value} · nepotpuno',
+  ),
+  'Delete {name}': _Translation('{name} löschen', 'Izbriši {name}'),
+  'Delete {name}?': _Translation('{name} löschen?', 'Izbrisati {name}?'),
+  'Dividend income in {currencies} is excluded because no dated FX rate is cached.':
+      _Translation(
+        'Dividendenerträge in {currencies} sind ausgeschlossen, weil kein datierter Wechselkurs gespeichert ist.',
+        'Prihod od dividendi u {currencies} isključen je jer nije spremljen datirani tečaj.',
+      ),
+  'Dividend status: {status}': _Translation(
+    'Dividendenstatus: {status}',
+    'Status dividende: {status}',
+  ),
+  'E Estimated {amount}': _Translation(
+    'E Geschätzt {amount}',
+    'E Procijenjeno {amount}',
+  ),
+  'Earnings · {date}': _Translation(
+    'Ergebnisse · {date}',
+    'Poslovni rezultati · {date}',
+  ),
+  'Edit {country} rates': _Translation(
+    'Sätze für {country} bearbeiten',
+    'Uredi stope za {country}',
+  ),
+  'Edit {name}': _Translation('{name} bearbeiten', 'Uredi {name}'),
+  'Ex-date: {date}': _Translation('Ex-Tag: {date}', 'Ex-datum: {date}'),
+  'Ex-dividend {date} · Payment date not yet confirmed.': _Translation(
+    'Ex-Dividende {date} · Zahlungsdatum noch nicht bestätigt.',
+    'Ex-dividenda {date} · Datum isplate još nije potvrđen.',
+  ),
+  'Expected {expected} · Actual {actual}': _Translation(
+    'Erwartet {expected} · Tatsächlich {actual}',
+    'Očekivano {expected} · Stvarno {actual}',
+  ),
+  'FX {sources} {date}{stale}': _Translation(
+    'FX {sources} {date}{stale}',
+    'FX {sources} {date}{stale}',
+  ),
+  'Gross {amount}': _Translation('Brutto {amount}', 'Bruto {amount}'),
+  'Last error: {message}': _Translation(
+    'Letzter Fehler: {message}',
+    'Zadnja pogreška: {message}',
+  ),
+  'Last updated {age}{progress}{failure}': _Translation(
+    'Zuletzt aktualisiert {age}{progress}{failure}',
+    'Zadnje ažuriranje {age}{progress}{failure}',
+  ),
+  'Line {line}': _Translation('Zeile {line}', 'Redak {line}'),
+  'Net (estimated) {amount}': _Translation(
+    'Netto (geschätzt) {amount}',
+    'Neto (procijenjeno) {amount}',
+  ),
+  'New weight in {code} holdings': _Translation(
+    'Neue Gewichtung in {code}-Positionen',
+    'Nova težina u {code} pozicijama',
+  ),
+  'New {form} filing': _Translation(
+    'Neue {form}-Meldung',
+    'Nova {form} prijava',
+  ),
+  'Next dividend {date}': _Translation(
+    'Nächste Dividende {date}',
+    'Sljedeća dividenda {date}',
+  ),
+  'Observed {time}': _Translation('Beobachtet {time}', 'Zabilježeno {time}'),
+  'Payment {date}': _Translation('Zahlung {date}', 'Isplata {date}'),
+  'Payment: {date}': _Translation('Zahlung: {date}', 'Isplata: {date}'),
+  'Purchases {purchases} · Sales {sales} · Dividends {dividends} · Taxes {taxes} · Fees {fees}\nDeposits {deposits} · Withdrawals {withdrawals} · Net invested {netInvested}':
+      _Translation(
+        'Käufe {purchases} · Verkäufe {sales} · Dividenden {dividends} · Steuern {taxes} · Gebühren {fees}\nEinzahlungen {deposits} · Auszahlungen {withdrawals} · Netto investiert {netInvested}',
+        'Kupnje {purchases} · Prodaje {sales} · Dividende {dividends} · Porezi {taxes} · Naknade {fees}\nUplate {deposits} · Isplate {withdrawals} · Neto uloženo {netInvested}',
+      ),
+  'Purchases {purchases} · Sales {sales} · Dividends {dividends} · Taxes {taxes} · Fees {fees}\nDeposits {deposits} · Withdrawals {withdrawals} · Net invested {netInvested} · incomplete activity values':
+      _Translation(
+        'Käufe {purchases} · Verkäufe {sales} · Dividenden {dividends} · Steuern {taxes} · Gebühren {fees}\nEinzahlungen {deposits} · Auszahlungen {withdrawals} · Netto investiert {netInvested} · unvollständige Aktivitätswerte',
+        'Kupnje {purchases} · Prodaje {sales} · Dividende {dividends} · Porezi {taxes} · Naknade {fees}\nUplate {deposits} · Isplate {withdrawals} · Neto uloženo {netInvested} · nepotpune vrijednosti aktivnosti',
+      ),
+  'Refresh failed: {error} Cached values remain visible.': _Translation(
+    'Aktualisierung fehlgeschlagen: {error} Gespeicherte Werte bleiben sichtbar.',
+    'Osvježavanje nije uspjelo: {error} Spremljene vrijednosti ostaju vidljive.',
+  ),
+  'Relevance score {score} out of 100': _Translation(
+    'Relevanzwert {score} von 100',
+    'Ocjena važnosti {score} od 100',
+  ),
+  'Remove {source} key?': _Translation(
+    'Schlüssel für {source} entfernen?',
+    'Ukloniti ključ za {source}?',
+  ),
+  'Rename {name}': _Translation('{name} umbenennen', 'Preimenuj {name}'),
+  'Reported period ended {date}': _Translation(
+    'Berichtszeitraum endete {date}',
+    'Izvještajno razdoblje završilo {date}',
+  ),
+  'Research score {score} out of 100': _Translation(
+    'Analysewert {score} von 100',
+    'Ocjena analize {score} od 100',
+  ),
+  'Research {name}, {symbol}': _Translation(
+    'Analyse {name}, {symbol}',
+    'Analiza {name}, {symbol}',
+  ),
+  'Retry available: {time}': _Translation(
+    'Erneuter Versuch möglich: {time}',
+    'Ponovni pokušaj moguć: {time}',
+  ),
+  'Show {count} more': _Translation(
+    '{count} weitere anzeigen',
+    'Prikaži još {count}',
+  ),
+  'Simulate {name}': _Translation('{name} simulieren', 'Simuliraj {name}'),
+  'Step {current} of {total}': _Translation(
+    'Schritt {current} von {total}',
+    'Korak {current} od {total}',
+  ),
+  'Table v{version} · {date}\n{source}': _Translation(
+    'Tabelle v{version} · {date}\n{source}',
+    'Tablica v{version} · {date}\n{source}',
+  ),
+  'Top {count} positions: {share} of covered value': _Translation(
+    'Top {count} Positionen: {share} des erfassten Werts',
+    'Najvećih {count} pozicija: {share} pokrivene vrijednosti',
+  ),
+  'Treaty forms filed for {country}': _Translation(
+    'Abkommensformulare für {country} eingereicht',
+    'Obrasci ugovora podneseni za {country}',
+  ),
+  'Value coverage: {priced} of {total} holdings': _Translation(
+    'Wertabdeckung: {priced} von {total} Positionen',
+    'Pokrivenost vrijednosti: {priced} od {total} pozicija',
+  ),
+  'Why: {reasons}': _Translation('Warum: {reasons}', 'Zašto: {reasons}'),
+  'With forms {withForms} · statutory {statutory} · credit cap {cap}':
+      _Translation(
+        'Mit Formularen {withForms} · gesetzlich {statutory} · Anrechnungsgrenze {cap}',
+        'S obrascima {withForms} · zakonski {statutory} · gornja granica odbitka {cap}',
+      ),
+  'attempt {count}': _Translation('Versuch {count}', 'pokušaj {count}'),
+  'in {count} days': _Translation('in {count} Tagen', 'za {count} dana'),
+  'retry {time}': _Translation('erneut {time}', 'ponovno {time}'),
+  '{amount} / share': _Translation('{amount} / Aktie', '{amount} / dionici'),
+  '{change} since previous close': _Translation(
+    '{change} seit dem vorherigen Schlusskurs',
+    '{change} od prethodnog zatvaranja',
+  ),
+  '{change} today': _Translation('{change} heute', '{change} danas'),
+  '{code} display view': _Translation(
+    'Anzeigeansicht in {code}',
+    'Prikaz u {code}',
+  ),
+  '{code} portfolio': _Translation('Portfolio in {code}', 'Portfelj u {code}'),
+  '{code} return': _Translation('Rendite in {code}', 'Prinos u {code}'),
+  '{code} selected. Amounts stay in their native currency until a dated FX rate is available.':
+      _Translation(
+        '{code} ausgewählt. Beträge bleiben in ihrer Ursprungswährung, bis ein datierter Wechselkurs verfügbar ist.',
+        '{code} odabrano. Iznosi ostaju u izvornoj valuti dok ne bude dostupan datirani tečaj.',
+      ),
+  '{code} {grouping} detail': _Translation(
+    'Detail {grouping} in {code}',
+    'Detalji {grouping} u {code}',
+  ),
+  '{code}: {total}, paid {paid}, confirmed {confirmed}, estimated {estimated}':
+      _Translation(
+        '{code}: {total}, gezahlt {paid}, bestätigt {confirmed}, geschätzt {estimated}',
+        '{code}: {total}, isplaćeno {paid}, potvrđeno {confirmed}, procijenjeno {estimated}',
+      ),
+  '{country} · not modelled': _Translation(
+    '{country} · nicht modelliert',
+    '{country} · nije modelirano',
+  ),
+  '{count} activities': _Translation(
+    '{count} Aktivitäten',
+    '{count} aktivnosti',
+  ),
+  '{count} activities imported.': _Translation(
+    '{count} Aktivitäten importiert.',
+    'Uvezeno {count} aktivnosti.',
+  ),
+  '{count} activities reversed.': _Translation(
+    '{count} Aktivitäten rückgängig gemacht.',
+    'Poništeno {count} aktivnosti.',
+  ),
+  '{count} company event(s)': _Translation(
+    '{count} Unternehmensereignis(se)',
+    '{count} korporativnih događaja',
+  ),
+  '{count} d ago': _Translation('vor {count} T', 'prije {count} d'),
+  '{count} dividend events exported locally.': _Translation(
+    '{count} Dividendenereignisse lokal exportiert.',
+    'Lokalno izvezeno {count} događaja dividendi.',
+  ),
+  '{count} dividend-outlook change(s)': _Translation(
+    '{count} Änderung(en) des Dividendenausblicks',
+    '{count} promjena izgleda dividende',
+  ),
+  '{count} earnings event(s)': _Translation(
+    '{count} Ergebnistermin(e)',
+    '{count} objava rezultata',
+  ),
+  '{count} ex-dividend date(s)': _Translation(
+    '{count} Ex-Dividenden-Termin(e)',
+    '{count} ex-dividendnih datuma',
+  ),
+  '{count} h ago': _Translation('vor {count} Std.', 'prije {count} h'),
+  '{count} holding change(s)': _Translation(
+    '{count} Positionsänderung(en)',
+    '{count} promjena pozicija',
+  ),
+  '{count} holdings': _Translation('{count} Positionen', '{count} pozicija'),
+  '{count} min ago': _Translation('vor {count} Min.', 'prije {count} min'),
+  '{count} more activities': _Translation(
+    '{count} weitere Aktivitäten',
+    '{count} dodatnih aktivnosti',
+  ),
+  '{count} need a payment date, EUR FX, or country data': _Translation(
+    '{count} benötigen ein Zahlungsdatum, einen EUR-Wechselkurs oder Länderdaten',
+    '{count} treba datum isplate, EUR tečaj ili podatke o državi',
+  ),
+  '{count} payment': _Translation('{count} Zahlung', '{count} isplata'),
+  '{count} payment date(s)': _Translation(
+    '{count} Zahlungstermin(e)',
+    '{count} datuma isplate',
+  ),
+  '{count} payment(s) need FX/country data': _Translation(
+    '{count} Zahlung(en) benötigen Wechselkurs-/Länderdaten',
+    '{count} isplata treba podatke o tečaju/državi',
+  ),
+  '{count} payments': _Translation('{count} Zahlungen', '{count} isplata'),
+  '{count} quote change(s)': _Translation(
+    '{count} Kursänderung(en)',
+    '{count} promjena cijena',
+  ),
+  '{count} relevant event(s) in the next 3 days': _Translation(
+    '{count} relevante(s) Ereignis(se) in den nächsten 3 Tagen',
+    '{count} važnih događaja u sljedeća 3 dana',
+  ),
+  '{date} · {count} event': _Translation(
+    '{date} · {count} Ereignis',
+    '{date} · {count} događaj',
+  ),
+  '{date} · {count} events': _Translation(
+    '{date} · {count} Ereignisse',
+    '{date} · {count} događaja',
+  ),
+  '{date}, {count} dividend events': _Translation(
+    '{date}, {count} Dividendenereignisse',
+    '{date}, {count} događaja dividendi',
+  ),
+  '{evidence} available.': _Translation(
+    '{evidence} verfügbar.',
+    '{evidence} dostupno.',
+  ),
+  '{evidence} — unavailable from configured sources.': _Translation(
+    '{evidence} — bei den eingerichteten Quellen nicht verfügbar.',
+    '{evidence} — nije dostupno iz postavljenih izvora.',
+  ),
+  '{format} · {ready} ready · {duplicates} duplicates · {rejected} rejected':
+      _Translation(
+        '{format} · {ready} bereit · {duplicates} Duplikate · {rejected} abgelehnt',
+        '{format} · {ready} spremno · {duplicates} duplikata · {rejected} odbijeno',
+      ),
+  '{label} (Alt+{index})': _Translation(
+    '{label} (Alt+{index})',
+    '{label} (Alt+{index})',
+  ),
+  '{name} filed {form} today.': _Translation(
+    '{name} hat heute {form} eingereicht.',
+    '{name} je danas podnio {form}.',
+  ),
+  '{name} is scheduled to report today; timing is {timing}.': _Translation(
+    '{name} legt heute Zahlen vor; Zeitpunkt: {timing}.',
+    '{name} danas objavljuje rezultate; vrijeme: {timing}.',
+  ),
+  '{name} is scheduled to report tomorrow; timing is {timing}.': _Translation(
+    '{name} legt morgen Zahlen vor; Zeitpunkt: {timing}.',
+    '{name} sutra objavljuje rezultate; vrijeme: {timing}.',
+  ),
+  '{name} updated.': _Translation('{name} aktualisiert.', '{name} ažuriran.'),
+  '{net}': _Translation('{net}', '{net}'),
+  '{net} + {count} unavailable': _Translation(
+    '{net} + {count} nicht verfügbar',
+    '{net} + {count} nedostupno',
+  ),
+  '{priced} of {total} holdings priced': _Translation(
+    '{priced} von {total} Positionen bewertet',
+    '{priced} od {total} pozicija vrednovano',
+  ),
+  '{source} API key': _Translation(
+    '{source} API-Schlüssel',
+    '{source} API ključ',
+  ),
+  '{symbol} · {quantity} shares': _Translation(
+    '{symbol} · {quantity} Aktien',
+    '{symbol} · {quantity} dionica',
+  ),
+  '{total} priced holdings': _Translation(
+    '{total} bewertete Positionen',
+    '{total} vrednovanih pozicija',
+  ),
+  '{years} completed reported year(s) · {withoutCut} year(s) without a cut':
+      _Translation(
+        '{years} abgeschlossene(s) Berichtsjahr(e) · {withoutCut} Jahr(e) ohne Kürzung',
+        '{years} završenih izvještajnih godina · {withoutCut} godina bez smanjenja',
+      ),
+  '{year} forecast': _Translation('Prognose {year}', 'Prognoza za {year}'),
+  '• {limitation}': _Translation('• {limitation}', '• {limitation}'),
+  '● Confirmed {amount}': _Translation(
+    '● Bestätigt {amount}',
+    '● Potvrđeno {amount}',
+  ),
+  '✓ Paid {amount}': _Translation('✓ Gezahlt {amount}', '✓ Isplaćeno {amount}'),
+};
+
 const Map<String, _Translation> _phrases = <String, _Translation>{
   'January': _Translation('Januar', 'siječanj'),
   'February': _Translation('Februar', 'veljača'),

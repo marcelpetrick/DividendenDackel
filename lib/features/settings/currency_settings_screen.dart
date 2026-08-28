@@ -51,7 +51,9 @@ class CurrencySettingsScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(AppTheme.space * 2),
         children: <Widget>[
-          Text('Applies to: $scopeName'),
+          Text.format('Applies to: {scope}', <String, Object?>{
+            'scope': context.tr(scopeName),
+          }),
           const SizedBox(height: AppTheme.space),
           Text(
             'Display currency',
@@ -172,7 +174,7 @@ class _RateTile extends StatelessWidget {
     if (rate == null) {
       return ListTile(
         leading: const Icon(Icons.currency_exchange),
-        title: Text('EUR/${currency.code}'),
+        title: Text('EUR/${currency.code}', translate: false),
         subtitle: const Text('No cached rate. Refresh when online.'),
       );
     }
@@ -182,7 +184,7 @@ class _RateTile extends StatelessWidget {
       leading: Icon(
         stale ? Icons.warning_amber_outlined : Icons.check_circle_outline,
       ),
-      title: Text('1 EUR = ${rate.rate} ${currency.code}'),
+      title: Text('1 EUR = ${rate.rate} ${currency.code}', translate: false),
       subtitle: Text(
         '${rate.provenance.source} · ${_date(rate.observedAt)} · '
         '${stale ? 'stale ($age days old)' : '$age days old'}',

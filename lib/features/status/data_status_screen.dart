@@ -184,6 +184,7 @@ class _ProviderCard extends StatelessWidget {
                   value: status?.lastRequestAt == null
                       ? 'Never'
                       : FreshnessLabel.describeAge(
+                          context,
                           now.difference(status!.lastRequestAt!),
                         ),
                 ),
@@ -200,10 +201,9 @@ class _ProviderCard extends StatelessWidget {
             if (status?.rateLimitResetAt
                 case final DateTime retryAt) ...<Widget>[
               const SizedBox(height: AppTheme.space),
-              Text(
-                'Retry available: ${_formatDateTime(context, retryAt)}',
-                style: theme.textTheme.bodySmall,
-              ),
+              Text.format('Retry available: {time}', <String, Object?>{
+                'time': _formatDateTime(context, retryAt),
+              }, style: theme.textTheme.bodySmall),
             ],
             if (status?.lastErrorMessage case final String message) ...<Widget>[
               const SizedBox(height: AppTheme.space),
@@ -217,8 +217,9 @@ class _ProviderCard extends StatelessWidget {
                   ),
                   const SizedBox(width: AppTheme.space / 2),
                   Expanded(
-                    child: Text(
-                      'Last error: $message',
+                    child: Text.format(
+                      'Last error: {message}',
+                      <String, Object?>{'message': message},
                       style: theme.textTheme.bodySmall,
                     ),
                   ),
@@ -274,10 +275,15 @@ class _OperationTile extends StatelessWidget {
             operation.provider,
             operation.lifecycle.name,
             operation.priority.name,
-            if (operation.attempt > 0) 'attempt ${operation.attempt}',
+            if (operation.attempt > 0)
+              context.trFormat('attempt {count}', <String, Object?>{
+                'count': operation.attempt,
+              }),
             if (duration != null) '${duration.inMilliseconds} ms',
             if (operation.rateLimitResetAt != null)
-              'retry ${_formatDateTime(context, operation.rateLimitResetAt!)}',
+              context.trFormat('retry {time}', <String, Object?>{
+                'time': _formatDateTime(context, operation.rateLimitResetAt!),
+              }),
             if (operation.failureMessage != null) operation.failureMessage!,
           ].join(' · '),
         ),
@@ -301,7 +307,7 @@ class _LogTile extends StatelessWidget {
           : Icons.error_outline,
       size: 18,
     ),
-    title: Text('${record.component}: ${record.message}'),
+    title: Text('${record.component}: ${record.message}', translate: false),
     subtitle: Text(
       <String>[
         record.level.label,

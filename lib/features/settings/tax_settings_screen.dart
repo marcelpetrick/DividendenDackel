@@ -79,8 +79,12 @@ class _TaxSettingsBody extends StatelessWidget {
           title: const Text('Tax residence'),
           subtitle: Text(
             profile.taxResidenceCountry == 'DE'
-                ? 'Germany'
-                : '${profile.taxResidenceCountry} · not modelled',
+                ? context.tr('Germany')
+                : context.trFormat(
+                    '{country} · not modelled',
+                    <String, Object?>{'country': profile.taxResidenceCountry},
+                  ),
+            translate: false,
           ),
           trailing: DropdownButton<String>(
             value: profile.taxResidenceCountry,
@@ -168,9 +172,13 @@ class _TaxSettingsBody extends StatelessWidget {
         _heading(context, 'Withholding assumptions'),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            'Table v${settings.table.version} · ${_date(settings.table.asOf)}\n'
-            '${settings.table.source}',
+          child: Text.format(
+            'Table v{version} · {date}\n{source}',
+            <String, Object?>{
+              'version': settings.table.version,
+              'date': _date(settings.table.asOf),
+              'source': settings.table.source,
+            },
             style: theme.textTheme.bodySmall,
           ),
         ),
@@ -180,20 +188,31 @@ class _TaxSettingsBody extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.receipt_long_outlined),
               title: Text(rule.country),
-              subtitle: Text(
-                'With forms ${rule.treatyRateWithForms.format()} · statutory '
-                '${rule.statutoryRate.format()} · credit cap ${rule.creditableCap.format()}',
+              subtitle: Text.format(
+                'With forms {withForms} · statutory {statutory} · '
+                'credit cap {cap}',
+                <String, Object?>{
+                  'withForms': rule.treatyRateWithForms.format(),
+                  'statutory': rule.statutoryRate.format(),
+                  'cap': rule.creditableCap.format(),
+                },
               ),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   IconButton(
-                    tooltip: context.tr('Edit ${rule.country} rates'),
+                    tooltip: context.trFormat(
+                      'Edit {country} rates',
+                      <String, Object?>{'country': rule.country},
+                    ),
                     onPressed: () => _editRule(context, rule),
                     icon: const Icon(Icons.edit_outlined),
                   ),
                   Semantics(
-                    label: context.tr('Treaty forms filed for ${rule.country}'),
+                    label: context.trFormat(
+                      'Treaty forms filed for {country}',
+                      <String, Object?>{'country': rule.country},
+                    ),
                     child: Switch(
                       value: profile.formsFiledFor(rule.country),
                       onChanged: (bool value) {
@@ -334,7 +353,9 @@ class _RuleDialogState extends State<_RuleDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-    title: Text('Edit ${widget.rule.country} rates'),
+    title: Text.format('Edit {country} rates', <String, Object?>{
+      'country': widget.rule.country,
+    }),
     content: Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[

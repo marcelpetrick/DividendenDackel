@@ -90,8 +90,12 @@ class AppShell extends StatelessWidget {
               icon: Icon(destination.icon),
               selectedIcon: Icon(destination.selectedIcon),
               label: Tooltip(
-                message: context.tr(
-                  '${destination.label} (Alt+${destination.index + 1})',
+                message: context.trFormat(
+                  '{label} (Alt+{index})',
+                  <String, Object?>{
+                    'label': context.tr(destination.label),
+                    'index': destination.index + 1,
+                  },
                 ),
                 child: Text(context.tr(destination.label)),
               ),
@@ -113,9 +117,10 @@ class AppShell extends StatelessWidget {
           icon: Icon(destination.icon),
           selectedIcon: Icon(destination.selectedIcon),
           label: context.tr(destination.label),
-          tooltip: context.tr(
-            '${destination.label} (Alt+${destination.index + 1})',
-          ),
+          tooltip: context.trFormat('{label} (Alt+{index})', <String, Object?>{
+            'label': context.tr(destination.label),
+            'index': destination.index + 1,
+          }),
         ),
     ],
   );

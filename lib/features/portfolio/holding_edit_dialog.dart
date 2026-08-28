@@ -109,7 +109,11 @@ class _HoldingEditDialogState extends ConsumerState<HoldingEditDialog> {
       });
       return;
     }
-    Navigator.of(context).pop('${widget.instrument.name} updated.');
+    Navigator.of(context).pop(
+      context.trFormat('{name} updated.', <String, Object?>{
+        'name': widget.instrument.name,
+      }),
+    );
   }
 
   @override
@@ -118,7 +122,9 @@ class _HoldingEditDialogState extends ConsumerState<HoldingEditDialog> {
         widget.holding.averagePurchasePrice?.currency ??
         widget.instrument.currency;
     return AlertDialog(
-      title: Text('Edit ${widget.instrument.name}'),
+      title: Text.format('Edit {name}', <String, Object?>{
+        'name': widget.instrument.name,
+      }),
       content: SizedBox(
         width: 520,
         child: SingleChildScrollView(

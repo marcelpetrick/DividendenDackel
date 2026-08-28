@@ -29,15 +29,21 @@ class GrossNetAmount extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text('Gross ${gross.format(withSymbol: true)}'),
-        Text('Net (estimated) $net'),
+        Text.format('Gross {amount}', <String, Object?>{
+          'amount': gross.format(withSymbol: true),
+        }),
+        Text.format('Net (estimated) {amount}', <String, Object?>{
+          'amount': context.tr(net),
+        }),
         if (estimate?.fxConversion case final FxConversion conversion)
-          Text(
-            'FX ${conversion.rates.map((rate) => rate.provenance.source).toSet().join('/')} '
-            '${_date(conversion.oldestRateDate!)}'
-            '${conversion.isStale ? ' · stale' : ''}',
-            style: Theme.of(context).textTheme.labelSmall,
-          ),
+          Text.format('FX {sources} {date}{stale}', <String, Object?>{
+            'sources': conversion.rates
+                .map((rate) => rate.provenance.source)
+                .toSet()
+                .join('/'),
+            'date': _date(conversion.oldestRateDate!),
+            'stale': conversion.isStale ? ' · ${context.tr('stale')}' : '',
+          }, style: Theme.of(context).textTheme.labelSmall),
         Text(
           'Estimate—not tax advice.',
           style: Theme.of(context).textTheme.labelSmall,

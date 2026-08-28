@@ -200,10 +200,14 @@ class _PriceContent extends StatelessWidget {
           style: Theme.of(context).textTheme.headlineMedium,
         ),
         if (change != null)
-          Text('${change.format(withSign: true)} since previous close')
+          Text.format('{change} since previous close', <String, Object?>{
+            'change': change.format(withSign: true),
+          })
         else
           const Text('Previous-close change unavailable'),
-        Text('Observed ${_dateTime(context, quote.asOf)}'),
+        Text.format('Observed {time}', <String, Object?>{
+          'time': _dateTime(context, quote.asOf),
+        }),
         FreshnessLabel(quote.provenance, now: now),
       ],
     );
@@ -256,8 +260,9 @@ class _ScoreContent extends StatelessWidget {
     crossAxisAlignment: CrossAxisAlignment.start,
     children: <Widget>[
       Semantics(
-        label: context.tr(
-          'Research score ${snapshot.overall.score} out of 100',
+        label: context.trFormat(
+          'Research score {score} out of 100',
+          <String, Object?>{'score': snapshot.overall.score},
         ),
         child: Text(
           '${snapshot.overall.score} / 100',
@@ -296,7 +301,7 @@ class _DimensionTile extends StatelessWidget {
       childrenPadding: const EdgeInsets.only(bottom: AppTheme.space),
       title: Text(_dimensionLabel(dimension)),
       subtitle: Text(value.summary),
-      trailing: Chip(label: Text('${value.score}/100')),
+      trailing: Chip(label: Text('${value.score}/100', translate: false)),
       children: <Widget>[
         for (final ScoreFactor factor in value.factors)
           ListTile(
@@ -372,11 +377,18 @@ class _FundamentalsAvailabilityCard extends StatelessWidget {
       available ? Icons.check_circle_outline : Icons.hourglass_empty,
     ),
     title: Text(title),
-    subtitle: Text(
-      available
-          ? summary ?? '$evidence available.'
-          : '$evidence — unavailable from configured sources.',
-    ),
+    subtitle: available && summary != null
+        ? Text(summary)
+        // The evidence label is application copy, so it needs a context of
+        // its own to be translated before it is substituted.
+        : Builder(
+            builder: (BuildContext context) => Text.format(
+              available
+                  ? '{evidence} available.'
+                  : '{evidence} — unavailable from configured sources.',
+              <String, Object?>{'evidence': context.tr(evidence)},
+            ),
+          ),
   );
 
   bool _hasFactor(ScoredAssessment? assessment, List<String> prefixes) =>
@@ -424,7 +436,9 @@ class _UpcomingEventsCard extends StatelessWidget {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.assessment_outlined),
-                title: Text('Earnings · ${_date(context, event.scheduledFor)}'),
+                title: Text.format('Earnings · {date}', <String, Object?>{
+                  'date': _date(context, event.scheduledFor),
+                }),
                 subtitle: Text(
                   '${_earningsStatus(event.status)} · '
                   '${_earningsTiming(event.timing)}',
@@ -485,9 +499,13 @@ class _DividendHistoryCard extends StatelessWidget {
           else if (events.isEmpty)
             const _InlineMessage('No dividend history is cached.')
           else ...<Widget>[
-            Text(
-              '${growth.annualTotals.length} completed reported year(s) · '
-              '${growth.yearsWithoutCut} year(s) without a cut',
+            Text.format(
+              '{years} completed reported year(s) · '
+              '{withoutCut} year(s) without a cut',
+              <String, Object?>{
+                'years': growth.annualTotals.length,
+                'withoutCut': growth.yearsWithoutCut,
+              },
             ),
             for (final int period in DividendGrowthCalculator.standardPeriods)
               if (growth.cagrs[period] case final DividendCagr cagr)
@@ -725,7 +743,10 @@ class _ScoreHistoryCard extends StatelessWidget {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.timeline_outlined),
-                title: Text('${items[index].overall.score} / 100'),
+                title: Text(
+                  '${items[index].overall.score} / 100',
+                  translate: false,
+                ),
                 subtitle: Text(_dateTime(context, items[index].takenAt)),
                 trailing: index + 1 >= items.length
                     ? null
@@ -833,14 +854,20 @@ String _corporateStatus(CorporateEventStatus status) => switch (status) {
 
 String? _dividendDate(BuildContext context, DividendEvent event) {
   if (event.paymentDate case final DateTime value) {
-    return 'Payment ${_date(context, value)}';
+    return context.trFormat('Payment {date}', <String, Object?>{
+      'date': _date(context, value),
+    });
   }
   if (event.exDate case final DateTime value) {
-    return 'Ex-dividend ${_date(context, value)} · '
-        'Payment date not yet confirmed.';
+    return context.trFormat(
+      'Ex-dividend {date} · Payment date not yet confirmed.',
+      <String, Object?>{'date': _date(context, value)},
+    );
   }
   if (event.reportedPeriodEnd case final DateTime value) {
-    return 'Reported period ended ${_date(context, value)}';
+    return context.trFormat('Reported period ended {date}', <String, Object?>{
+      'date': _date(context, value),
+    });
   }
   return null;
 }

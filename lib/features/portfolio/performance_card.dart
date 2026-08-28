@@ -226,10 +226,9 @@ class _CurrencyPerformance extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(
-              '${performance.currency.code} return',
-              style: theme.textTheme.titleMedium,
-            ),
+            Text.format('{code} return', <String, Object?>{
+              'code': performance.currency.code,
+            }, style: theme.textTheme.titleMedium),
             const SizedBox(height: AppTheme.space / 2),
             Wrap(
               spacing: AppTheme.space * 3,
@@ -247,9 +246,11 @@ class _CurrencyPerformance extends StatelessWidget {
               ],
             ),
             const SizedBox(height: AppTheme.space / 2),
-            Text(
-              'Current covered value: ${performance.currentValue.format()}'
-              '${performance.currentValueComplete ? '' : ' · incomplete'}',
+            Text.format(
+              performance.currentValueComplete
+                  ? 'Current covered value: {value}'
+                  : 'Current covered value: {value} · incomplete',
+              <String, Object?>{'value': performance.currentValue.format()},
             ),
             const SizedBox(height: AppTheme.space / 2),
             Text(
@@ -261,7 +262,9 @@ class _CurrencyPerformance extends StatelessWidget {
               style: theme.textTheme.bodySmall,
             ),
             for (final String limitation in performance.limitations)
-              Text('• $limitation', style: theme.textTheme.bodySmall),
+              Text.format('• {limitation}', <String, Object?>{
+                'limitation': context.tr(limitation),
+              }, style: theme.textTheme.bodySmall),
           ],
         ),
       ),
@@ -291,8 +294,10 @@ class _Metric extends StatelessWidget {
           Text(label, style: Theme.of(context).textTheme.labelLarge),
           Text(
             value == null
-                ? 'Unavailable'
-                : '${value.rate.format(decimals: 2, withSign: true)}${annualized ? ' p.a.' : ''}',
+                ? context.tr('Unavailable')
+                : '${value.rate.format(decimals: 2, withSign: true)}'
+                      '${annualized ? ' ${context.tr('p.a.')}' : ''}',
+            translate: false,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           if (value != null)
@@ -316,7 +321,10 @@ class _PeriodDetail extends StatelessWidget {
   Widget build(BuildContext context) => ExpansionTile(
     tilePadding: EdgeInsets.zero,
     childrenPadding: EdgeInsets.zero,
-    title: Text('${performance.currency.code} ${_groupLabel(grouping)} detail'),
+    title: Text.format('{code} {grouping} detail', <String, Object?>{
+      'code': performance.currency.code,
+      'grouping': context.tr(_groupLabel(grouping)),
+    }),
     subtitle: const Text(
       'Purchases · sales · dividends · taxes · fees · net invested',
     ),
@@ -325,15 +333,26 @@ class _PeriodDetail extends StatelessWidget {
         ListTile(
           contentPadding: EdgeInsets.zero,
           title: Text(_periodLabel(period, grouping)),
-          subtitle: Text(
-            'Purchases ${period.purchases.format()} · '
-            'Sales ${period.sales.format()} · '
-            'Dividends ${period.dividends.format()} · '
-            'Taxes ${period.taxes.format()} · Fees ${period.fees.format()}\n'
-            'Deposits ${period.deposits.format()} · '
-            'Withdrawals ${period.withdrawals.format()} · '
-            'Net invested ${period.netInvested.format()}'
-            '${period.isComplete ? '' : ' · incomplete activity values'}',
+          subtitle: Text.format(
+            period.isComplete
+                ? 'Purchases {purchases} · Sales {sales} · '
+                      'Dividends {dividends} · Taxes {taxes} · Fees {fees}\n'
+                      'Deposits {deposits} · Withdrawals {withdrawals} · '
+                      'Net invested {netInvested}'
+                : 'Purchases {purchases} · Sales {sales} · '
+                      'Dividends {dividends} · Taxes {taxes} · Fees {fees}\n'
+                      'Deposits {deposits} · Withdrawals {withdrawals} · '
+                      'Net invested {netInvested} · incomplete activity values',
+            <String, Object?>{
+              'purchases': period.purchases.format(),
+              'sales': period.sales.format(),
+              'dividends': period.dividends.format(),
+              'taxes': period.taxes.format(),
+              'fees': period.fees.format(),
+              'deposits': period.deposits.format(),
+              'withdrawals': period.withdrawals.format(),
+              'netInvested': period.netInvested.format(),
+            },
           ),
         ),
     ],

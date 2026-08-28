@@ -1,8 +1,11 @@
 import 'dart:async';
 
+import 'package:dividendendackel/app/localization/app_localizations.dart';
+import 'package:dividendendackel/app/localization/language_preference.dart';
 import 'package:dividendendackel/app/providers.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -45,6 +48,9 @@ abstract final class PortfolioNotificationPlanner {
     required List<EarningsEvent> earnings,
     required List<CorporateEvent> corporateEvents,
     required List<Filing> filings,
+    // OS notifications are built outside the widget tree, so the catalog is
+    // passed in rather than read from a BuildContext.
+    AppLocalizations localizations = const AppLocalizations(Locale('en')),
   }) {
     if (mode == NotificationMode.disabled) {
       return const <PortfolioNotification>[];
@@ -52,7 +58,8 @@ abstract final class PortfolioNotificationPlanner {
     final DateTime today = _day(now);
     final DateTime tomorrow = today.add(const Duration(days: 1));
     final List<PortfolioNotification> result = <PortfolioNotification>[];
-    String name(String id) => instruments[id]?.name ?? 'A followed company';
+    String name(String id) =>
+        instruments[id]?.name ?? localizations.text('A followed company');
 
     for (final DividendEvent event in dividends) {
       if (_dayOrNull(event.paymentDate) == today) {
@@ -88,11 +95,19 @@ abstract final class PortfolioNotificationPlanner {
         result.add(
           PortfolioNotification(
             key: 'earnings:${event.instrumentId}:${day.toIso8601String()}',
-            title: 'Earnings ${isToday ? 'today' : 'tomorrow'}',
-            body:
-                '${name(event.instrumentId)} is scheduled to report '
-                '${isToday ? 'today' : 'tomorrow'}; timing is '
-                '${_earningsTiming(event.timing)}.',
+            title: localizations.text(
+              isToday ? 'Earnings today' : 'Earnings tomorrow',
+            ),
+            body: localizations.format(
+              isToday
+                  ? '{name} is scheduled to report today; timing is {timing}.'
+                  : '{name} is scheduled to report tomorrow; '
+                        'timing is {timing}.',
+              <String, Object?>{
+                'name': name(event.instrumentId),
+                'timing': localizations.text(_earningsTiming(event.timing)),
+              },
+            ),
             importance: isToday
                 ? PortfolioNotificationImportance.important
                 : PortfolioNotificationImportance.normal,
@@ -120,9 +135,16 @@ abstract final class PortfolioNotificationPlanner {
         result.add(
           PortfolioNotification(
             key: 'filing:${filing.id}',
-            title: 'New ${filing.formType} filing',
-            body:
-                '${name(filing.instrumentId)} filed ${filing.formType} today.',
+            title: localizations.format('New {form} filing', <String, Object?>{
+              'form': filing.formType,
+            }),
+            body: localizations.format(
+              '{name} filed {form} today.',
+              <String, Object?>{
+                'name': name(filing.instrumentId),
+                'form': filing.formType,
+              },
+            ),
             importance: PortfolioNotificationImportance.important,
           ),
         );
@@ -408,6 +430,9 @@ final class NotificationSettingsController
         return PortfolioNotificationPlanner.plan(
           mode: mode,
           now: now,
+          localizations: AppLocalizations(
+            ref.read(languagePreferenceProvider).language.locale,
+          ),
           instruments: await ref.read(instrumentsByIdProvider.future),
           dividends: <DividendEvent>{
             ...await ref.read(upcomingDividendsProvider(2).future),

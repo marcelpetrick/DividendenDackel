@@ -263,7 +263,7 @@ class PortfolioScreen extends ConsumerWidget {
     );
     if (message != null && context.mounted) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(message)));
+          .showSnackBar(SnackBar(content: Text(message, translate: false)));
     }
   }
 
@@ -447,7 +447,11 @@ class PortfolioScreen extends ConsumerWidget {
         SnackBar(
           content: Text(
             result.failureOrNull?.message ??
-                '${result.valueOrNull ?? 0} activities reversed.',
+                context.trFormat(
+                  '{count} activities reversed.',
+                  <String, Object?>{'count': result.valueOrNull ?? 0},
+                ),
+            translate: false,
           ),
         ),
       );
@@ -882,7 +886,9 @@ class _ActivityLedgerCard extends StatelessWidget {
                         ? Icons.history_toggle_off
                         : Icons.file_download_done_outlined,
                   ),
-                  title: Text('${batch.activityCount} activities'),
+                  title: Text.format('{count} activities', <String, Object?>{
+                    'count': batch.activityCount,
+                  }),
                   subtitle: Text(
                     '${_importSource(batch.source)} · '
                     '${MaterialLocalizations.of(context).formatMediumDate(batch.importedAt)}'
@@ -911,9 +917,12 @@ class _ActivityLedgerCard extends StatelessWidget {
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   title: Text(line.currency.code),
-                  subtitle: Text(
-                    'Expected ${line.expectedGross.format()} · '
-                    'Actual ${line.actualGross.format()}',
+                  subtitle: Text.format(
+                    'Expected {expected} · Actual {actual}',
+                    <String, Object?>{
+                      'expected': line.expectedGross.format(),
+                      'actual': line.actualGross.format(),
+                    },
                   ),
                   trailing: Text(
                     line.variance.amount.sign >= 0
@@ -1038,9 +1047,12 @@ class _PortfolioHealthCard extends StatelessWidget {
               style: theme.textTheme.bodySmall,
             ),
             const SizedBox(height: AppTheme.space),
-            Text(
-              'Value coverage: ${health.pricedPositionCount} of '
-              '${health.positionCount} holdings',
+            Text.format(
+              'Value coverage: {priced} of {total} holdings',
+              <String, Object?>{
+                'priced': health.pricedPositionCount,
+                'total': health.positionCount,
+              },
             ),
             if (!health.valueCoverageComplete ||
                 health.missingValueCurrencies.isNotEmpty)
@@ -1050,8 +1062,14 @@ class _PortfolioHealthCard extends StatelessWidget {
                 style: theme.textTheme.bodySmall,
               ),
             if (health.missingIncomeCurrencies.isNotEmpty)
-              Text(
-                'Dividend income in ${health.missingIncomeCurrencies.map((Currency item) => item.code).join(', ')} is excluded because no dated FX rate is cached.',
+              Text.format(
+                'Dividend income in {currencies} is excluded because no '
+                'dated FX rate is cached.',
+                <String, Object?>{
+                  'currencies': health.missingIncomeCurrencies
+                      .map((Currency item) => item.code)
+                      .join(', '),
+                },
                 style: theme.textTheme.bodySmall,
               ),
             if (health.positions.isEmpty)
@@ -1065,9 +1083,12 @@ class _PortfolioHealthCard extends StatelessWidget {
             else ...<Widget>[
               const Divider(height: AppTheme.space * 3),
               if (health.topFiveShare case final Percentage share)
-                Text(
-                  'Top ${health.positions.length.clamp(0, 5)} positions: '
-                  '${share.format()} of covered value',
+                Text.format(
+                  'Top {count} positions: {share} of covered value',
+                  <String, Object?>{
+                    'count': health.positions.length.clamp(0, 5),
+                    'share': share.format(),
+                  },
                   style: theme.textTheme.titleSmall,
                 ),
               const SizedBox(height: AppTheme.space),
@@ -1224,10 +1245,9 @@ class _DisplayCurrencyCard extends StatelessWidget {
             Row(
               children: <Widget>[
                 Expanded(
-                  child: Text(
-                    '${values.displayCurrency.code} display view',
-                    style: theme.textTheme.titleMedium,
-                  ),
+                  child: Text.format('{code} display view', <String, Object?>{
+                    'code': values.displayCurrency.code,
+                  }, style: theme.textTheme.titleMedium),
                 ),
                 IconButton(
                   tooltip: context.tr('Refresh ECB exchange rates'),
@@ -1264,8 +1284,9 @@ class _DisplayCurrencyCard extends StatelessWidget {
                 style: TextStyle(color: theme.colorScheme.error),
               ),
             if (errorMessage != null)
-              Text(
-                'Refresh failed: $errorMessage Cached values remain visible.',
+              Text.format(
+                'Refresh failed: {error} Cached values remain visible.',
+                <String, Object?>{'error': errorMessage},
                 style: TextStyle(color: theme.colorScheme.error),
               ),
             const Divider(height: AppTheme.space * 2),
@@ -1361,10 +1382,9 @@ class _CurrencySummaryCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(
-                '${summary.currency.code} portfolio',
-                style: theme.textTheme.titleMedium,
-              ),
+              Text.format('{code} portfolio', <String, Object?>{
+                'code': summary.currency.code,
+              }, style: theme.textTheme.titleMedium),
               const SizedBox(height: AppTheme.space),
               if (summary.pricedPositionCount == 0)
                 Text('No priced value', style: theme.textTheme.headlineSmall)
@@ -1373,11 +1393,14 @@ class _CurrencySummaryCard extends StatelessWidget {
                   summary.totalValue,
                   style: theme.textTheme.headlineSmall,
                 ),
-              Text(
+              Text.format(
                 summary.isComplete
-                    ? '${summary.positionCount} priced holdings'
-                    : '${summary.pricedPositionCount} of '
-                          '${summary.positionCount} holdings priced',
+                    ? '{total} priced holdings'
+                    : '{priced} of {total} holdings priced',
+                <String, Object?>{
+                  'priced': summary.pricedPositionCount,
+                  'total': summary.positionCount,
+                },
                 style: theme.textTheme.labelSmall,
               ),
               const Divider(height: AppTheme.space * 2),
@@ -1414,9 +1437,14 @@ class _CurrencySummaryCard extends StatelessWidget {
                     ? const Text('Calculating…')
                     : summary.currency != Currency.eur
                     ? const Text('Needs dated EUR FX')
-                    : Text(
-                        '${taxWindow.netEur.format(withSymbol: true)}'
-                        '${taxWindow.unsupportedCount == 0 ? '' : ' + ${taxWindow.unsupportedCount} unavailable'}',
+                    : Text.format(
+                        taxWindow.unsupportedCount == 0
+                            ? '{net}'
+                            : '{net} + {count} unavailable',
+                        <String, Object?>{
+                          'net': taxWindow.netEur.format(withSymbol: true),
+                          'count': taxWindow.unsupportedCount,
+                        },
                       ),
               ),
               _SummaryRow(
@@ -1514,9 +1542,12 @@ class _PositionCard extends StatelessWidget {
                         instrument?.name ?? position.holding.instrumentId,
                         style: theme.textTheme.titleMedium,
                       ),
-                      Text(
-                        '${instrument?.displaySymbol ?? ''} · '
-                        '${position.holding.quantity} shares',
+                      Text.format(
+                        '{symbol} · {quantity} shares',
+                        <String, Object?>{
+                          'symbol': instrument?.displaySymbol ?? '',
+                          'quantity': position.holding.quantity,
+                        },
                         style: theme.textTheme.bodySmall,
                       ),
                     ],
@@ -1541,8 +1572,13 @@ class _PositionCard extends StatelessWidget {
                             '(${position.dayChangePercent?.format(withSign: true) ?? '—'})',
                 ),
                 _TextMetric(
-                  label:
-                      'Allocation in ${instrument?.currency.code ?? 'currency'}',
+                  label: context.trFormat(
+                    'Allocation in {code}',
+                    <String, Object?>{
+                      'code':
+                          instrument?.currency.code ?? context.tr('currency'),
+                    },
+                  ),
                   value: position.allocation?.format() ?? 'Not available',
                 ),
                 _TextMetric(
@@ -1610,10 +1646,9 @@ class _PositionCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text(
-                          'Next dividend ${_date(context, next.event)}',
-                          style: theme.textTheme.bodySmall,
-                        ),
+                        Text.format('Next dividend {date}', <String, Object?>{
+                          'date': _date(context, next.event),
+                        }, style: theme.textTheme.bodySmall),
                         GrossNetAmount(
                           event: next.event,
                           gross: next.grossAmount,
@@ -1689,7 +1724,9 @@ class _SimulationDialogState extends State<_SimulationDialog> {
     }
     final Instrument? instrument = position.instrument;
     return AlertDialog(
-      title: Text('Simulate ${instrument?.name ?? 'investment'}'),
+      title: Text.format('Simulate {name}', <String, Object?>{
+        'name': instrument?.name ?? context.tr('investment'),
+      }),
       content: SizedBox(
         width: 520,
         child: SingleChildScrollView(
@@ -1705,8 +1742,9 @@ class _SimulationDialogState extends State<_SimulationDialog> {
                   decimal: true,
                 ),
                 decoration: InputDecoration(
-                  labelText: context.tr(
-                    'Additional investment (${price.currency.code})',
+                  labelText: context.trFormat(
+                    'Additional investment ({code})',
+                    <String, Object?>{'code': price.currency.code},
                   ),
                   border: const OutlineInputBorder(),
                   errorText: amount == null || amount <= Decimal.zero
@@ -1716,10 +1754,13 @@ class _SimulationDialogState extends State<_SimulationDialog> {
                 onChanged: (String value) => setState(() {}),
               ),
               const SizedBox(height: AppTheme.space * 2),
-              Text(
-                'Basis: cached price ${price.format(withSymbol: true)} and '
-                'next-365-day gross dividends of '
-                '${annualPerShare.format(withSymbol: true)} per current share.',
+              Text.format(
+                'Basis: cached price {price} and next-365-day gross '
+                'dividends of {perShare} per current share.',
+                <String, Object?>{
+                  'price': price.format(withSymbol: true),
+                  'perShare': annualPerShare.format(withSymbol: true),
+                },
               ),
               const SizedBox(height: AppTheme.space * 2),
               if (simulation case final DividendSimulation value) ...<Widget>[
@@ -1740,7 +1781,10 @@ class _SimulationDialogState extends State<_SimulationDialog> {
                   value: value.averageMonthlyDividend.format(withSymbol: true),
                 ),
                 _SimulationRow(
-                  label: 'New weight in ${price.currency.code} holdings',
+                  label: context.trFormat(
+                    'New weight in {code} holdings',
+                    <String, Object?>{'code': price.currency.code},
+                  ),
                   value:
                       '${value.previousWeight.format()} → '
                       '${value.newWeight.format()} '

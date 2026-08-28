@@ -237,8 +237,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       if (saved && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              '${document.eventCount} dividend events exported locally.',
+            content: Text.format(
+              '{count} dividend events exported locally.',
+              <String, Object?>{'count': document.eventCount},
             ),
           ),
         );
@@ -504,9 +505,10 @@ class _ConversionNotice extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MaterialBanner(
     key: const ValueKey<String>('fx-notice'),
-    content: Text(
-      '${currency.code} selected. Amounts stay in their native currency until '
+    content: Text.format(
+      '{code} selected. Amounts stay in their native currency until '
       'a dated FX rate is available.',
+      <String, Object?>{'code': currency.code},
     ),
     leading: const Icon(Icons.currency_exchange),
     actions: const <Widget>[SizedBox.shrink()],
@@ -612,8 +614,14 @@ class _MonthView extends StatelessWidget {
         ),
         if (selected != null) ...<Widget>[
           const SizedBox(height: AppTheme.space * 2),
-          Text(
-            '${_longDate(selected)} · ${selectedEvents.length} event${selectedEvents.length == 1 ? '' : 's'}',
+          Text.format(
+            selectedEvents.length == 1
+                ? '{date} · {count} event'
+                : '{date} · {count} events',
+            <String, Object?>{
+              'date': _longDate(selected),
+              'count': selectedEvents.length,
+            },
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: AppTheme.space),
@@ -664,8 +672,9 @@ class _DayCell extends StatelessWidget {
       child: Semantics(
         button: true,
         selected: selected,
-        label: context.tr(
-          '${_longDate(day)}, ${events.length} dividend events',
+        label: context.trFormat(
+          '{date}, {count} dividend events',
+          <String, Object?>{'date': _longDate(day), 'count': events.length},
         ),
         hint: context.tr(
           events.isEmpty ? 'Select day' : 'Select to show dividend details',
@@ -690,7 +699,11 @@ class _DayCell extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text('${day.day}', style: theme.textTheme.labelMedium),
+                  Text(
+                    '${day.day}',
+                    style: theme.textTheme.labelMedium,
+                    translate: false,
+                  ),
                   const SizedBox(height: 3),
                   for (final DividendEvent event in events.take(2))
                     _CompactEvent(
@@ -700,8 +713,9 @@ class _DayCell extends StatelessWidget {
                           event.instrumentId,
                     ),
                   if (events.length > 2)
-                    Text(
-                      'Show ${events.length - 2} more',
+                    Text.format(
+                      'Show {count} more',
+                      <String, Object?>{'count': events.length - 2},
                       key: ValueKey<String>('more-${day.toIso8601String()}'),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -817,8 +831,11 @@ class _YearView extends StatelessWidget {
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        '${monthEvents.length} payment${monthEvents.length == 1 ? '' : 's'}',
+                      Text.format(
+                        monthEvents.length == 1
+                            ? '{count} payment'
+                            : '{count} payments',
+                        <String, Object?>{'count': monthEvents.length},
                       ),
                       const Spacer(),
                       if (totals.isEmpty)
@@ -952,9 +969,9 @@ class _EventCard extends StatelessWidget {
                 spacing: 16,
                 runSpacing: 6,
                 children: <Widget>[
-                  Text(
-                    '${event.amountPerShare.format(withSymbol: true)} / share',
-                  ),
+                  Text.format('{amount} / share', <String, Object?>{
+                    'amount': event.amountPerShare.format(withSymbol: true),
+                  }),
                   if (heldPayment != null)
                     GrossNetAmount(
                       event: event,
@@ -962,10 +979,16 @@ class _EventCard extends StatelessWidget {
                       key: const ValueKey<String>('held-payment'),
                     ),
                   Text(
-                    '${_modeLabel(dateMode)}: ${_date(event.dateFor(dateMode))}',
+                    '${context.tr(_modeLabel(dateMode))}: '
+                    '${_date(event.dateFor(dateMode))}',
+                    translate: false,
                   ),
-                  Text('Ex-date: ${_date(event.exDate)}'),
-                  Text('Payment: ${_date(event.paymentDate)}'),
+                  Text.format('Ex-date: {date}', <String, Object?>{
+                    'date': _date(event.exDate),
+                  }),
+                  Text.format('Payment: {date}', <String, Object?>{
+                    'date': _date(event.paymentDate),
+                  }),
                 ],
               ),
               const SizedBox(height: 6),

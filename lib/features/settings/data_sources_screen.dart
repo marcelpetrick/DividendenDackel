@@ -86,7 +86,9 @@ class DataSourcesScreen extends ConsumerWidget {
     final bool? confirmed = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-        title: Text('Remove ${source.label} key?'),
+        title: Text.format('Remove {source} key?', <String, Object?>{
+          'source': source.label,
+        }),
         content: const Text(
           'The provider will be disabled. You can add a new key later.',
         ),
@@ -235,7 +237,9 @@ class _ApiKeyDialogState extends State<_ApiKeyDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-    title: Text('${widget.source.label} API key'),
+    title: Text.format('{source} API key', <String, Object?>{
+      'source': widget.source.label,
+    }),
     content: Form(
       key: _formKey,
       child: TextFormField(

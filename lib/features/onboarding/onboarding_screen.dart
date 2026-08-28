@@ -57,9 +57,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   Semantics(
-                    label: context.tr('Step ${_step + 1} of ${_steps.length}'),
+                    label: context.trFormat(
+                      'Step {current} of {total}',
+                      <String, Object?>{
+                        'current': _step + 1,
+                        'total': _steps.length,
+                      },
+                    ),
                     child: Text(
                       '${_step + 1} / ${_steps.length}',
+                      translate: false,
                       style: theme.textTheme.labelLarge,
                     ),
                   ),

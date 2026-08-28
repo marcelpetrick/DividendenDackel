@@ -130,8 +130,11 @@ final class DefaultPortfolioEditor implements PortfolioEditor {
     }
     if (averagePurchasePrice != null &&
         averagePurchasePrice.currency != instrument.currency) {
-      throw InvalidInstrumentFailure(
-        message: 'The purchase price must use ${instrument.currency.code}.',
+      // Stated without the code so the message stays one translatable
+      // sentence; the editor already shows the instrument's currency, and
+      // the domain layer has no catalog to format a placeholder with.
+      throw const InvalidInstrumentFailure(
+        message: 'The purchase price must use the instrument currency.',
       );
     }
     if (averagePurchasePrice?.isNegative ?? false) {

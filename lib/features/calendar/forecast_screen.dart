@@ -281,7 +281,8 @@ class _Summary extends StatelessWidget {
       ),
       for (final DividendIncomePeriod year in projection.years)
         _SummaryCard(
-          title: '${year.start.year} forecast',
+          title: '{year} forecast',
+          titleValues: <String, Object?>{'year': year.start.year},
           values: <Currency, Money>{
             for (final MapEntry<Currency, DividendIncomeBreakdown> entry
                 in year.byCurrency.entries)
@@ -318,8 +319,14 @@ class _SummaryCard extends StatelessWidget {
     required this.values,
     required this.suffix,
     required this.net,
+    this.titleValues = const <String, Object?>{},
   });
+
+  /// Canonical English title, or a message pattern when [titleValues] is set.
   final String title;
+
+  /// Placeholder values for [title].
+  final Map<String, Object?> titleValues;
   final Map<Currency, Money> values;
   final String suffix;
   final _NetTotal net;
@@ -331,21 +338,22 @@ class _SummaryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(title),
+          Text.format(title, titleValues),
           if (values.isEmpty)
             const Text('Not available')
           else
             for (final Money value in values.values)
-              Text(
-                'Gross ${value.format(withSymbol: true)}',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-          Text(
-            'Net (estimated) ${net.netEur.format(withSymbol: true)}',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+              Text.format('Gross {amount}', <String, Object?>{
+                'amount': value.format(withSymbol: true),
+              }, style: Theme.of(context).textTheme.titleLarge),
+          Text.format('Net (estimated) {amount}', <String, Object?>{
+            'amount': net.netEur.format(withSymbol: true),
+          }, style: Theme.of(context).textTheme.titleMedium),
           if (net.unsupportedCount > 0)
-            Text('${net.unsupportedCount} payment(s) need FX/country data'),
+            Text.format(
+              '{count} payment(s) need FX/country data',
+              <String, Object?>{'count': net.unsupportedCount},
+            ),
           Text(suffix, style: Theme.of(context).textTheme.labelSmall),
         ],
       ),
@@ -378,18 +386,24 @@ class _CurrentMonth extends StatelessWidget {
                   spacing: 16,
                   runSpacing: 6,
                   children: <Widget>[
-                    Text('✓ Paid ${value.paid.format(withSymbol: true)}'),
-                    Text(
-                      '● Confirmed ${value.confirmedUpcoming.format(withSymbol: true)}',
-                    ),
-                    Text(
-                      'E Estimated ${value.estimated.format(withSymbol: true)}',
-                    ),
+                    Text.format('✓ Paid {amount}', <String, Object?>{
+                      'amount': value.paid.format(withSymbol: true),
+                    }),
+                    Text.format('● Confirmed {amount}', <String, Object?>{
+                      'amount': value.confirmedUpcoming.format(
+                        withSymbol: true,
+                      ),
+                    }),
+                    Text.format('E Estimated {amount}', <String, Object?>{
+                      'amount': value.estimated.format(withSymbol: true),
+                    }),
                   ],
                 ),
             if (period.byCurrency.isNotEmpty) ...<Widget>[
               const SizedBox(height: 8),
-              Text('Net (estimated) ${net.label}'),
+              Text.format('Net (estimated) {amount}', <String, Object?>{
+                'amount': net.label,
+              }),
             ],
           ],
         ),
@@ -452,8 +466,9 @@ class _PeriodBar extends StatelessWidget {
                         ),
                       Align(
                         alignment: Alignment.centerRight,
-                        child: Text(
-                          'Net (estimated) ${net.label}',
+                        child: Text.format(
+                          'Net (estimated) {amount}',
+                          <String, Object?>{'amount': net.label},
                           style: Theme.of(context).textTheme.labelSmall,
                         ),
                       ),
@@ -492,9 +507,16 @@ class _StackedBar extends StatelessWidget {
               .toDouble();
     final ColorScheme colors = Theme.of(context).colorScheme;
     return Semantics(
-      label: context.tr(
-        '${value.currency.code}: ${value.total.format()}, paid ${value.paid.format()}, '
-        'confirmed ${value.confirmedUpcoming.format()}, estimated ${value.estimated.format()}',
+      label: context.trFormat(
+        '{code}: {total}, paid {paid}, '
+        'confirmed {confirmed}, estimated {estimated}',
+        <String, Object?>{
+          'code': value.currency.code,
+          'total': value.total.format(),
+          'paid': value.paid.format(),
+          'confirmed': value.confirmedUpcoming.format(),
+          'estimated': value.estimated.format(),
+        },
       ),
       child: Padding(
         padding: const EdgeInsets.only(bottom: 4),
@@ -547,7 +569,9 @@ class _StackedBar extends StatelessWidget {
             SizedBox(
               width: 112,
               child: Text(
-                '${value.total.format(withSymbol: true)}${share == null ? '' : ' · ${share!.format()}'}',
+                '${value.total.format(withSymbol: true)}'
+                '${share == null ? '' : ' · ${share!.format()}'}',
+                translate: false,
                 textAlign: TextAlign.end,
                 style: Theme.of(context).textTheme.bodySmall,
               ),
@@ -581,7 +605,7 @@ class _CumulativeCharts extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text('${item.$1} · ${item.$2.code}'),
+                  Text('${item.$1} · ${item.$2.code}', translate: false),
                   Text(
                     item.$2 == Currency.eur
                         ? 'Gross and net (estimated)'
@@ -590,10 +614,11 @@ class _CumulativeCharts extends StatelessWidget {
                   ),
                   Semantics(
                     image: true,
-                    label: context.tr(
-                      'Cumulative income chart for ${item.$1} in '
-                      '${item.$2.code}. Exact monthly values are in the '
+                    label: context.trFormat(
+                      'Cumulative income chart for {label} in '
+                      '{code}. Exact monthly values are in the '
                       'payout table below.',
+                      <String, Object?>{'label': item.$1, 'code': item.$2.code},
                     ),
                     child: SizedBox(
                       height: 130,

@@ -90,8 +90,11 @@ class _PortfolioImportDialogState extends ConsumerState<PortfolioImportDialog> {
       });
       return;
     }
-    Navigator.of(context)
-        .pop('${result.valueOrNull ?? 0} activities imported.');
+    Navigator.of(context).pop(
+      context.trFormat('{count} activities imported.', <String, Object?>{
+        'count': result.valueOrNull ?? 0,
+      }),
+    );
   }
 
   @override
@@ -132,11 +135,15 @@ class _PortfolioImportDialogState extends ConsumerState<PortfolioImportDialog> {
                 const SizedBox(height: AppTheme.space * 2),
                 Text('Review', style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: AppTheme.space / 2),
-                Text(
-                  '${_formatName(preview.format)} · '
-                  '${preview.activities.length} ready · '
-                  '${preview.duplicateCount} duplicates · '
-                  '${preview.issues.length} rejected',
+                Text.format(
+                  '{format} · {ready} ready · '
+                  '{duplicates} duplicates · {rejected} rejected',
+                  <String, Object?>{
+                    'format': context.tr(_formatName(preview.format)),
+                    'ready': preview.activities.length,
+                    'duplicates': preview.duplicateCount,
+                    'rejected': preview.issues.length,
+                  },
                 ),
                 if (preview.duplicateCount > 0)
                   const Text(
@@ -161,7 +168,9 @@ class _PortfolioImportDialogState extends ConsumerState<PortfolioImportDialog> {
                       ),
                     ),
                   if (preview.activities.length > 20)
-                    Text('${preview.activities.length - 20} more activities'),
+                    Text.format('{count} more activities', <String, Object?>{
+                      'count': preview.activities.length - 20,
+                    }),
                 ],
                 if (preview.issues.isNotEmpty) ...<Widget>[
                   const Divider(height: AppTheme.space * 3),
@@ -176,7 +185,9 @@ class _PortfolioImportDialogState extends ConsumerState<PortfolioImportDialog> {
                       dense: true,
                       contentPadding: EdgeInsets.zero,
                       leading: const Icon(Icons.error_outline),
-                      title: Text('Line ${issue.line}'),
+                      title: Text.format('Line {line}', <String, Object?>{
+                        'line': issue.line,
+                      }),
                       subtitle: Text(issue.message),
                     ),
                 ],

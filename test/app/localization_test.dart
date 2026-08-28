@@ -180,6 +180,86 @@ void main() {
       expect(find.text('Today'), findsOneWidget);
     });
 
+    test('no user-facing string interpolates before it is translated', () {
+      // An assembled string can never match a catalog key, so it used to fall
+      // through to the phrase table and come back part English. Runtime values
+      // belong in a pattern's placeholders instead.
+      final RegExp literal = RegExp(r"'((?:[^'\\\n]|\\.)*)'");
+      final RegExp boundary = RegExp(
+        r'(?:(?<![A-Za-z_])Text\(|Text\.rich\(|\.tr\(|trFormat\(|'
+        r'semanticsLabel:|tooltip:|helperText:|hintText:|errorText:|'
+        r'labelText:|label:|message:|title:|content:|SnackBar\()\s*$',
+      );
+      final RegExp keyLike = RegExp(r'^[a-z0-9]+[-:.]|ValueKey|Key\(');
+      final List<String> offenders = <String>[];
+
+      for (final String root in <String>['lib/app', 'lib/features']) {
+        for (final FileSystemEntity entity in Directory(
+          root,
+        ).listSync(recursive: true)) {
+          if (entity is! File || !entity.path.endsWith('.dart')) continue;
+          if (entity.path.contains('/localization/')) continue;
+          final String source = entity.readAsStringSync();
+          for (final RegExpMatch match in literal.allMatches(source)) {
+            final String value = match.group(1)!;
+            if (!value.contains(r'$')) continue;
+            final String withoutValues = value
+                .replaceAll(RegExp(r'\$\{[^}]*\}'), '')
+                .replaceAll(RegExp(r'\$[A-Za-z_][A-Za-z0-9_]*'), '');
+            if (!RegExp('[A-Za-z]{3,}').hasMatch(withoutValues)) continue;
+            if (keyLike.hasMatch(value)) continue;
+            final int from = match.start < 200 ? 0 : match.start - 200;
+            final String before = source.substring(from, match.start);
+            if (!boundary.hasMatch(before)) continue;
+            if (before.trimRight().endsWith('Text.format(')) continue;
+            final int to = match.end + 160 > source.length
+                ? source.length
+                : match.end + 160;
+            if (source.substring(match.end, to).contains('translate: false')) {
+              continue;
+            }
+            offenders.add('${entity.path}: $value');
+          }
+        }
+      }
+
+      expect(
+        offenders,
+        isEmpty,
+        reason:
+            'Use Text.format/trFormat with a {placeholder} pattern, or mark '
+            'pure data with translate: false.',
+      );
+    });
+
+    test('every language of a message carries the same placeholders', () {
+      // A dropped placeholder silently deletes the value it stood for; an
+      // invented one renders as literal braces in the running app.
+      final String source = File('lib/app/localization/app_localizations.dart')
+          .readAsStringSync();
+      final RegExp placeholder = RegExp(r'\{[a-zA-Z][a-zA-Z0-9]*\}');
+      final RegExp entry = RegExp(
+        r"  '((?:[^'\\]|\\.)*)': _Translation\(\s*"
+        r"'((?:[^'\\]|\\.)*)',\s*'((?:[^'\\]|\\.)*)',",
+      );
+      final List<String> mismatched = <String>[];
+      for (final RegExpMatch match in entry.allMatches(source)) {
+        Set<String> names(String value) => placeholder
+            .allMatches(value)
+            .map((RegExpMatch item) => item.group(0)!)
+            .toSet();
+        final Set<String> english = names(match.group(1)!);
+        if (english.isEmpty) continue;
+        if (names(match.group(2)!).difference(english).isNotEmpty ||
+            english.difference(names(match.group(2)!)).isNotEmpty ||
+            names(match.group(3)!).difference(english).isNotEmpty ||
+            english.difference(names(match.group(3)!)).isNotEmpty) {
+          mismatched.add(match.group(1)!);
+        }
+      }
+      expect(mismatched, isEmpty);
+    });
+
     test('all feature Text widgets use the localization boundary', () {
       final List<File> files = <File>[
         for (final String root in <String>['lib/app', 'lib/features'])

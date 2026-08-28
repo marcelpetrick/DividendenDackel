@@ -127,7 +127,9 @@ class _PortfolioManagementDialogState
 
   Future<void> _clear(InvestmentPortfolio portfolio) async {
     final bool confirmed = await _confirm(
-      title: 'Clear ${portfolio.name}?',
+      title: context.trFormat('Clear {name}?', <String, Object?>{
+        'name': portfolio.name,
+      }),
       message:
           'This permanently removes all holdings, watchlist entries and '
           'activity/import history in this portfolio. Market-data cache and '
@@ -146,7 +148,9 @@ class _PortfolioManagementDialogState
     List<InvestmentPortfolio> portfolios,
   ) async {
     final bool confirmed = await _confirm(
-      title: 'Delete ${portfolio.name}?',
+      title: context.trFormat('Delete {name}?', <String, Object?>{
+        'name': portfolio.name,
+      }),
       message:
           'This permanently deletes the portfolio and all of its holdings, '
           'watchlist entries and activity/import history.',
@@ -257,20 +261,31 @@ class _PortfolioManagementDialogState
                       spacing: AppTheme.space / 2,
                       children: <Widget>[
                         IconButton(
-                          tooltip: context.tr('Rename ${portfolio.name}'),
+                          tooltip: context.trFormat(
+                            'Rename {name}',
+                            <String, Object?>{'name': portfolio.name},
+                          ),
                           onPressed: _working ? null : () => _rename(portfolio),
                           icon: const Icon(Icons.edit_outlined),
                         ),
                         IconButton(
-                          tooltip: context.tr('Clear ${portfolio.name}'),
+                          tooltip: context.trFormat(
+                            'Clear {name}',
+                            <String, Object?>{'name': portfolio.name},
+                          ),
                           onPressed: _working ? null : () => _clear(portfolio),
                           icon: const Icon(Icons.cleaning_services_outlined),
                         ),
                         IconButton(
                           tooltip: context.tr(
                             portfolios.length == 1
-                                ? 'The final portfolio cannot be deleted'
-                                : 'Delete ${portfolio.name}',
+                                ? context.tr(
+                                    'The final portfolio cannot be deleted',
+                                  )
+                                : context.trFormat(
+                                    'Delete {name}',
+                                    <String, Object?>{'name': portfolio.name},
+                                  ),
                           ),
                           onPressed: _working || portfolios.length == 1
                               ? null

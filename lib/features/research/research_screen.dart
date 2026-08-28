@@ -37,8 +37,12 @@ class ResearchScreen extends ConsumerWidget {
             final Instrument instrument = list[index];
             return Semantics(
               button: true,
-              label: context.tr(
-                'Research ${instrument.name}, ${instrument.displaySymbol}',
+              label: context.trFormat(
+                'Research {name}, {symbol}',
+                <String, Object?>{
+                  'name': instrument.name,
+                  'symbol': instrument.displaySymbol,
+                },
               ),
               hint: context.tr('Open research details'),
               child: ExcludeSemantics(
