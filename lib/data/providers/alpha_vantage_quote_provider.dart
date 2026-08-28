@@ -45,6 +45,39 @@ final class AlphaVantageQuoteProvider implements QuoteDataProvider {
   /// company, so this is a deliberate choice rather than an approximation.
   static const Set<String> germanExchangeCodes = <String>{'GY', 'GR', 'GF'};
 
+  /// The currency each supported venue quotes in.
+  ///
+  /// GLOBAL_QUOTE returns a bare number with no currency, so the venue decides
+  /// how to read it. That is safe only while the venue's unit is known, and it
+  /// is not always the obvious one: Alpha Vantage quotes London in **GBX**,
+  /// pence, not pounds. Wrapping pence in a GBP holding would show a price a
+  /// hundred times too small with complete confidence.
+  ///
+  /// Adding a venue means checking what it quotes in, not just its suffix.
+  static const Map<String, Currency> venueCurrency = <String, Currency>{
+    'GY': Currency.eur,
+    'GR': Currency.eur,
+    'GF': Currency.eur,
+    'US': Currency.usd,
+    'UN': Currency.usd,
+    'UQ': Currency.usd,
+    'UA': Currency.usd,
+    'UP': Currency.usd,
+    'UR': Currency.usd,
+    'UW': Currency.usd,
+  };
+
+  /// The currency [instrument]'s venue quotes in, or null when unknown.
+  static Currency? expectedCurrencyFor(Instrument instrument) {
+    final String? venue = instrument.exchange;
+    if (venue != null) return venueCurrency[venue];
+    return switch (instrument.country) {
+      'DE' => Currency.eur,
+      'US' => Currency.usd,
+      _ => null,
+    };
+  }
+
   /// Venue codes quoted without a suffix, which Alpha Vantage treats as US.
   static const Set<String> usExchangeCodes = <String>{
     'US',
@@ -116,6 +149,20 @@ final class AlphaVantageQuoteProvider implements QuoteDataProvider {
             'listing of the same name',
       );
     }
+    // A number in the wrong unit is worse than no number, so the venue's
+    // quoting currency has to agree with the holding's before the price is
+    // believed.
+    final Currency? venueCurrency = expectedCurrencyFor(instrument);
+    if (venueCurrency != null && venueCurrency != instrument.currency) {
+      throw NoDataFailure(
+        technicalDetail:
+            'Venue ${instrument.exchange ?? instrument.country} quotes in '
+            '${venueCurrency.code}, but the holding is in '
+            '${instrument.currency.code}; refusing rather than reading the '
+            'number in the wrong unit',
+      );
+    }
+
     final String symbol = resolved;
     final Map<String, dynamic> json = await _getJson(
       _base.replace(

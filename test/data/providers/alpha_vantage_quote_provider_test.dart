@@ -115,6 +115,54 @@ void main() {
     expect(called, isFalse, reason: 'no request, so no quota spent');
   });
 
+  test(
+    'a holding whose currency disagrees with its venue is refused',
+    () async {
+      // Alpha Vantage quotes London in GBX, pence, not pounds -- confirmed from
+      // a live SYMBOL_SEARCH response. GLOBAL_QUOTE returns a bare number with
+      // no currency, so reading it in the wrong unit would show a price a
+      // hundred times out with full confidence.
+      const Instrument mislabelled = Instrument(
+        internalId: 'isin:DE0008404005',
+        symbol: 'ALV',
+        name: 'Allianz SE',
+        currency: Currency.usd,
+        exchange: 'GY',
+        country: 'DE',
+      );
+
+      bool called = false;
+      final AlphaVantageQuoteProvider provider = providerWith((_) async {
+        called = true;
+        return http.Response(body(), 200);
+      });
+
+      expect(
+        (await provider.fetchQuote(
+          mislabelled,
+          cancellationToken: CancellationToken(),
+        )).failureOrNull,
+        isA<NoDataFailure>(),
+      );
+      expect(called, isFalse, reason: 'refused before the request');
+    },
+  );
+
+  test('every supported venue records the unit it quotes in', () {
+    // A venue with a suffix but no recorded currency is the gap that lets a
+    // minor-unit quote through, so the two tables must not drift apart.
+    for (final String venue in <String>[
+      ...AlphaVantageQuoteProvider.germanExchangeCodes,
+      ...AlphaVantageQuoteProvider.usExchangeCodes,
+    ]) {
+      expect(
+        AlphaVantageQuoteProvider.venueCurrency[venue],
+        isNotNull,
+        reason: '$venue has no recorded quoting currency',
+      );
+    }
+  });
+
   test('every German venue is priced from Xetra', () {
     for (final String venue in <String>['GY', 'GR', 'GF']) {
       final Instrument listing = Instrument(

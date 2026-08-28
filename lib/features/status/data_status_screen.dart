@@ -7,6 +7,8 @@ import 'package:dividendendackel/core/logging/logging.dart';
 import 'package:dividendendackel/core/networking/request_coordinator.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:dividendendackel/features/settings/data_source_settings.dart';
+import 'package:dividendendackel/features/status/diagnostic_report.dart';
+import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Transparent provider health and request diagnostics (Vision.md §41–§43).
@@ -36,7 +38,37 @@ class DataStatusScreen extends ConsumerWidget {
     };
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Data status')),
+      appBar: AppBar(
+        title: const Text('Data status'),
+        actions: <Widget>[
+          IconButton(
+            key: const ValueKey<String>('copy-diagnostics'),
+            tooltip: context.tr('Copy diagnostics'),
+            icon: const Icon(Icons.copy_all_outlined),
+            onPressed: () async {
+              final ScaffoldMessengerState messenger = ScaffoldMessenger.of(
+                context,
+              );
+              final String report = buildDiagnosticReport(
+                records: sink.records,
+                statuses: statuses,
+                operations: operations,
+                now: now,
+              );
+              // Translated before the await, so no BuildContext is used
+              // after it.
+              final String confirmation = context.tr(
+                'Diagnostics copied. Paste them into a report; they contain '
+                'no keys or portfolio values.',
+              );
+              await Clipboard.setData(ClipboardData(text: report));
+              messenger.showSnackBar(
+                SnackBar(content: Text(confirmation, translate: false)),
+              );
+            },
+          ),
+        ],
+      ),
       body: StreamBuilder<LogRecord>(
         stream: sink.stream,
         builder: (BuildContext context, AsyncSnapshot<LogRecord> snapshot) {

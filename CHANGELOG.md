@@ -8,7 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ## [Unreleased]
 
-Nothing yet.
+### Added
+
+- Diagnostics can be copied out of the app. Data status gains a copy action
+  producing a plain-text report of provider health, recent requests and the
+  retained log, so a defect report can carry evidence instead of a description
+  from memory. Credentials and portfolio values are removed before anything is
+  logged, so the text is safe to paste into a public issue.
+
+### Fixed
+
+- A quote is refused when the venue's quoting currency disagrees with the
+  holding's. Alpha Vantage quotes London in pence rather than pounds and the
+  quote endpoint returns no currency, so reading the number in the wrong unit
+  would have shown a price a hundred times out with full confidence.
 
 ## [0.60.2] - 2026-08-28
 

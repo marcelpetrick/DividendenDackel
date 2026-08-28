@@ -942,6 +942,12 @@ const Map<String, _Translation> _onboardingMessages = <String, _Translation>{
 /// Ordered phrase fragments cover interpolated amounts, names and counts.
 /// Screen copy that had no entry, so it rendered English in a translated app.
 const Map<String, _Translation> _screenMessages = <String, _Translation>{
+  'Copy diagnostics': _Translation('Diagnose kopieren', 'Kopiraj dijagnostiku'),
+  'Diagnostics copied. Paste them into a report; they contain no keys or portfolio values.':
+      _Translation(
+        'Diagnose kopiert. Fügen Sie sie in einen Bericht ein; sie enthält keine Schlüssel und keine Portfoliowerte.',
+        'Dijagnostika je kopirana. Zalijepite je u prijavu; ne sadrži ključeve ni vrijednosti portfelja.',
+      ),
   'Not yet connected. The app has no Financial Modeling Prep adapter, because their terms could not be read to review them, so adding a key here has no effect for now.':
       _Translation(
         'Noch nicht angebunden. Die App hat keinen Financial-Modeling-Prep-Adapter, weil deren Bedingungen nicht gelesen und geprüft werden konnten; ein Schlüssel hier bleibt daher vorerst wirkungslos.',
