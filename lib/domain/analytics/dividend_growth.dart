@@ -45,10 +45,24 @@ final class DividendCagr {
   /// Compound annual rate.
   final Percentage rate;
 
-  /// Complete UI label; a CAGR is never rendered without its period.
+  /// Complete label in canonical English; a CAGR is never shown without its
+  /// period, because a growth rate without the years it covers means nothing.
   String format({int decimals = 1}) =>
       '${periodYears}Y dividend CAGR: '
       '${rate.format(decimals: decimals, withSign: true)} p.a.';
+
+  /// The same label as a message pattern and its values.
+  ///
+  /// The domain holds no catalog and stays independent of widgets (Vision.md
+  /// §53), so it supplies the sentence and the numbers and lets the
+  /// presentation layer render them in the live locale.
+  (String, Map<String, Object?>) message({int decimals = 1}) => (
+    '{years}Y dividend CAGR: {rate} p.a.',
+    <String, Object?>{
+      'years': periodYears,
+      'rate': rate.format(decimals: decimals, withSign: true),
+    },
+  );
 }
 
 /// Direction of a year-over-year annual dividend change.

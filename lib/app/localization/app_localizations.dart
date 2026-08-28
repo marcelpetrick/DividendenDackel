@@ -1233,6 +1233,28 @@ const Map<String, _Translation> _screenMessages = <String, _Translation>{
 /// Keyed by the pattern rather than the assembled string, so one entry
 /// covers every value the placeholders can take.
 const Map<String, _Translation> _patternMessages = <String, _Translation>{
+  'Estimated from the documented default growth rate ({rate} p.a.) because fewer than three complete growth years are available.':
+      _Translation(
+        'Geschätzt anhand der dokumentierten Standard-Wachstumsrate ({rate} p. a.), weil weniger als drei vollständige Wachstumsjahre vorliegen.',
+        'Procijenjeno prema dokumentiranoj zadanoj stopi rasta ({rate} godišnje) jer je dostupno manje od tri potpune godine rasta.',
+      ),
+  'Estimated from the instrument’s {years}-year dividend CAGR ({rate} p.a.).':
+      _Translation(
+        'Geschätzt anhand des {years}-jährigen Dividenden-CAGR des Wertpapiers ({rate} p. a.).',
+        'Procijenjeno prema {years}-godišnjem CAGR-u dividende instrumenta ({rate} godišnje).',
+      ),
+  '{frequency} seasonality from {count} complete year.': _Translation(
+    '{frequency}-Rhythmus aus {count} vollständigen Jahr.',
+    '{frequency} sezonalnost iz {count} potpune godine.',
+  ),
+  '{frequency} seasonality from {count} complete years.': _Translation(
+    '{frequency}-Rhythmus aus {count} vollständigen Jahren.',
+    '{frequency} sezonalnost iz {count} potpunih godina.',
+  ),
+  '{years}Y dividend CAGR: {rate} p.a.': _Translation(
+    '{years}J Dividenden-CAGR: {rate} p. a.',
+    '{years}g CAGR dividende: {rate} godišnje',
+  ),
   'Additional investment ({code})': _Translation(
     'Zusätzliche Investition ({code})',
     'Dodatno ulaganje ({code})',

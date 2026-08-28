@@ -10,6 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ### Fixed
 
+- Forecast and dividend-growth explanations are translated. They were assembled
+  in the analytics layer as English sentences carrying numbers, so a German or
+  Croatian app showed them in English. The analytics now state the sentence and
+  its values separately and the screen renders them, which keeps that layer
+  independent of the UI.
+- A quote is no longer requested for a listing whose venue has no symbol rule.
+  Alpha Vantage resolves a bare ticker as a US listing, so a London line would
+  have returned a different company's price under the right name.
+
 - A schema change can no longer reach a release without being recorded. The
   database version is verified against a snapshot of its shape, and the upgrade
   guard now follows the declared version instead of a hard-coded number that

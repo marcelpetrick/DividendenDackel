@@ -249,7 +249,20 @@ class _ForecastBody extends StatelessWidget {
             title: Text(
               instruments[forecast.instrumentId]?.name ?? forecast.instrumentId,
             ),
-            subtitle: Text(forecast.explanation),
+            // The domain supplies each sentence with its values so it can be
+            // translated; a fixed limitation carries none and translates as
+            // the plain string it already is.
+            subtitle: forecast.messages.isEmpty
+                ? Text(forecast.explanation)
+                : Text(
+                    forecast.messages
+                        .map(
+                          ((String, Map<String, Object?>) part) =>
+                              context.trFormat(part.$1, part.$2),
+                        )
+                        .join(' '),
+                    translate: false,
+                  ),
           ),
       ],
     );

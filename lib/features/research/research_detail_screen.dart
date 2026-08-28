@@ -509,7 +509,13 @@ class _DividendHistoryCard extends StatelessWidget {
             ),
             for (final int period in DividendGrowthCalculator.standardPeriods)
               if (growth.cagrs[period] case final DividendCagr cagr)
-                Text(cagr.format()),
+                Builder(
+                  builder: (BuildContext context) {
+                    final (String pattern, Map<String, Object?> values) = cagr
+                        .message();
+                    return Text.format(pattern, values);
+                  },
+                ),
             const SizedBox(height: AppTheme.space / 2),
             for (final DividendEvent event in events.take(8))
               ListTile(

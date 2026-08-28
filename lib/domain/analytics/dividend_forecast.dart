@@ -27,6 +27,8 @@ final class ForecastGrowthAssumption {
     required this.rate,
     required this.basis,
     required this.explanation,
+    List<(String, Map<String, Object?>)>? messages,
+    required this.message,
     this.cagrPeriodYears,
   });
 
@@ -38,6 +40,14 @@ final class ForecastGrowthAssumption {
 
   /// Human-readable basis shown alongside estimated values.
   final String explanation;
+
+  /// The same explanation as a message pattern and its values.
+  ///
+  /// The domain cannot translate: it has no catalog and must stay independent
+  /// of widgets (Vision.md §53). It states the sentence and the numbers that
+  /// belong in it, and the presentation layer renders them in the live locale.
+  /// [explanation] remains the canonical English, for logs and tests.
+  final (String, Map<String, Object?>) message;
 
   /// CAGR period used when [basis] is [ForecastGrowthBasis.dividendCagr].
   final int? cagrPeriodYears;
@@ -57,6 +67,7 @@ final class DividendForecast {
     required this.explanation,
     this.growthAssumption,
     this.confidence,
+    this.messages = const <(String, Map<String, Object?>)>[],
   });
 
   /// Forecasted instrument.
@@ -81,7 +92,21 @@ final class DividendForecast {
   final DateTime horizonEnd;
 
   /// Plain-language explanation of the result or limitation.
+  ///
+  /// Canonical English, kept for logs and tests. Presentation should prefer
+  /// [messages], which can be rendered in the live locale.
   final String explanation;
+
+  /// The explanation as translatable parts, in reading order.
+  ///
+  /// The domain has no catalog and stays independent of widgets (Vision.md
+  /// §53), so it states each sentence and the values belonging in it and lets
+  /// the presentation layer render them.
+  ///
+  /// Empty when the explanation carries no runtime value. Those are fixed
+  /// sentences that the catalog matches exactly, so [explanation] translates on
+  /// its own and needs no pattern.
+  final List<(String, Map<String, Object?>)> messages;
 
   /// Growth basis, when a forecast was possible.
   final ForecastGrowthAssumption? growthAssumption;
@@ -266,6 +291,14 @@ final class DividendForecastEngine {
             'Estimated from the instrument’s '
             '${selectedCagr.periodYears}-year dividend CAGR '
             '(${selectedCagr.rate.format(withSign: true)} p.a.).',
+        message: (
+          'Estimated from the instrument’s {years}-year dividend CAGR '
+              '({rate} p.a.).',
+          <String, Object?>{
+            'years': selectedCagr.periodYears,
+            'rate': selectedCagr.rate.format(withSign: true),
+          },
+        ),
       );
       confidence = completeScheduleYears >= 3
           ? Confidence.medium
@@ -278,6 +311,11 @@ final class DividendForecastEngine {
             'Estimated from the documented default growth rate '
             '(${fallbackGrowthRate.format(withSign: true)} p.a.) because '
             'fewer than three complete growth years are available.',
+        message: (
+          'Estimated from the documented default growth rate ({rate} p.a.) '
+              'because fewer than three complete growth years are available.',
+          <String, Object?>{'rate': fallbackGrowthRate.format(withSign: true)},
+        ),
       );
       confidence = Confidence.low;
     }
@@ -371,6 +409,18 @@ final class DividendForecastEngine {
           '${frequency.name} seasonality from $completeScheduleYears complete '
           '${completeScheduleYears == 1 ? 'year' : 'years'}. '
           '${growthAssumption.explanation}',
+      messages: <(String, Map<String, Object?>)>[
+        (
+          completeScheduleYears == 1
+              ? '{frequency} seasonality from {count} complete year.'
+              : '{frequency} seasonality from {count} complete years.',
+          <String, Object?>{
+            'frequency': frequency.name,
+            'count': completeScheduleYears,
+          },
+        ),
+        growthAssumption.message,
+      ],
     );
   }
 

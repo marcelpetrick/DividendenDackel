@@ -39,7 +39,22 @@ final class AlphaVantageQuoteProvider implements QuoteDataProvider {
   static const String xetraSuffix = '.DEX';
 
   /// Venue codes this adapter treats as German, matching the OpenFIGI adapter.
+  ///
+  /// All three are priced from Xetra. It is the reference venue for German
+  /// equities, and a regional listing of the same security is the same
+  /// company, so this is a deliberate choice rather than an approximation.
   static const Set<String> germanExchangeCodes = <String>{'GY', 'GR', 'GF'};
+
+  /// Venue codes quoted without a suffix, which Alpha Vantage treats as US.
+  static const Set<String> usExchangeCodes = <String>{
+    'US',
+    'UN',
+    'UQ',
+    'UA',
+    'UP',
+    'UR',
+    'UW',
+  };
 
   static final Uri _base = Uri.parse('https://www.alphavantage.co/query');
 
@@ -55,20 +70,29 @@ final class AlphaVantageQuoteProvider implements QuoteDataProvider {
     ProviderDataType.quote,
   };
 
-  /// The symbol Alpha Vantage expects for [instrument].
+  /// The symbol Alpha Vantage expects for [instrument], or null when unknown.
   ///
-  /// A German listing needs the venue suffix; anything else is sent as-is, so
-  /// a US ticker keeps working unchanged.
-  static String symbolFor(Instrument instrument) {
+  /// Returning null matters more than it looks. Alpha Vantage resolves a bare
+  /// ticker as a US listing, so sending an unsuffixed symbol for a venue this
+  /// adapter has no rule for would quietly return a different company's price
+  /// under the right name. Refusing is the only safe answer (Vision.md §79).
+  static String? symbolFor(Instrument instrument) {
     final String? mapped = instrument.providerMappings
         .where((ProviderMapping m) => m.providerId == providerId)
         .map((ProviderMapping m) => m.symbol)
         .firstOrNull;
     if (mapped != null && mapped.isNotEmpty) return mapped;
-    final bool german =
-        germanExchangeCodes.contains(instrument.exchange) ||
-        instrument.country == 'DE';
-    return german ? '${instrument.symbol}$xetraSuffix' : instrument.symbol;
+
+    final String? venue = instrument.exchange;
+    if (germanExchangeCodes.contains(venue) ||
+        (venue == null && instrument.country == 'DE')) {
+      return '${instrument.symbol}$xetraSuffix';
+    }
+    if (usExchangeCodes.contains(venue) ||
+        (venue == null && instrument.country == 'US')) {
+      return instrument.symbol;
+    }
+    return null;
   }
 
   @override
@@ -82,7 +106,17 @@ final class AlphaVantageQuoteProvider implements QuoteDataProvider {
         technicalDetail: 'No Alpha Vantage credential is stored',
       );
     }
-    final String symbol = symbolFor(instrument);
+    final String? resolved = symbolFor(instrument);
+    if (resolved == null) {
+      throw NoDataFailure(
+        technicalDetail:
+            'No Alpha Vantage symbol rule for venue '
+            '${instrument.exchange ?? instrument.country ?? 'unknown'}; '
+            'refusing to send a bare ticker, which would resolve as a US '
+            'listing of the same name',
+      );
+    }
+    final String symbol = resolved;
     final Map<String, dynamic> json = await _getJson(
       _base.replace(
         queryParameters: <String, String>{

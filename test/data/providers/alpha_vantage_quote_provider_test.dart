@@ -85,6 +85,79 @@ void main() {
     expect(requested.queryParameters['symbol'], 'AAPL');
   });
 
+  test('a venue with no symbol rule is refused, not guessed', () async {
+    // Alpha Vantage resolves a bare ticker as a US listing. Sending one for a
+    // London line would return a different company's price under the right
+    // name, which is the failure this app exists to avoid.
+    const Instrument london = Instrument(
+      internalId: 'isin:GB0007980591',
+      symbol: 'BP',
+      name: 'BP p.l.c.',
+      currency: Currency.eur,
+      exchange: 'LN',
+      country: 'GB',
+    );
+    expect(AlphaVantageQuoteProvider.symbolFor(london), isNull);
+
+    bool called = false;
+    final AlphaVantageQuoteProvider provider = providerWith((_) async {
+      called = true;
+      return http.Response(body(), 200);
+    });
+
+    expect(
+      (await provider.fetchQuote(
+        london,
+        cancellationToken: CancellationToken(),
+      )).failureOrNull,
+      isA<NoDataFailure>(),
+    );
+    expect(called, isFalse, reason: 'no request, so no quota spent');
+  });
+
+  test('every German venue is priced from Xetra', () {
+    for (final String venue in <String>['GY', 'GR', 'GF']) {
+      final Instrument listing = Instrument(
+        internalId: 'isin:DE0008404005',
+        symbol: 'ALV',
+        name: 'Allianz SE',
+        currency: Currency.eur,
+        exchange: venue,
+        country: 'DE',
+      );
+      // A regional listing of the same security is the same company, and Xetra
+      // is the reference venue, so this is deliberate rather than approximate.
+      expect(AlphaVantageQuoteProvider.symbolFor(listing), 'ALV.DEX');
+    }
+  });
+
+  test('country decides when a venue is absent', () {
+    const Instrument noVenueDe = Instrument(
+      internalId: 'isin:DE0008404005',
+      symbol: 'ALV',
+      name: 'Allianz SE',
+      currency: Currency.eur,
+      country: 'DE',
+    );
+    const Instrument noVenueUs = Instrument(
+      internalId: 'cik:0000320193',
+      symbol: 'AAPL',
+      name: 'Apple Inc.',
+      currency: Currency.usd,
+      country: 'US',
+    );
+    const Instrument noVenueUnknown = Instrument(
+      internalId: 'x',
+      symbol: 'XYZ',
+      name: 'Somewhere else',
+      currency: Currency.eur,
+    );
+
+    expect(AlphaVantageQuoteProvider.symbolFor(noVenueDe), 'ALV.DEX');
+    expect(AlphaVantageQuoteProvider.symbolFor(noVenueUs), 'AAPL');
+    expect(AlphaVantageQuoteProvider.symbolFor(noVenueUnknown), isNull);
+  });
+
   test('an explicit provider mapping wins over the venue guess', () {
     const Instrument mapped = Instrument(
       internalId: 'isin:DE0008404005',
