@@ -57,6 +57,44 @@ history fragments. The initial adapter exposes the inline set (at least one
 year or 1,000 filings according to SEC documentation) and reports no data for
 older ranges instead of pretending the history is exhaustive.
 
+## Alpha Vantage (optional, user-supplied key)
+
+| Question | Review |
+| --- | --- |
+| Provider | Alpha Vantage, used only when the user supplies their own credential |
+| Endpoint used | `www.alphavantage.co/query?function=GLOBAL_QUOTE`, one symbol per call |
+| Free usage allowed? | Yes, with a free key the user claims themselves. No credential is bundled (Vision.md §34, §80). |
+| Client-side usage allowed? | Yes. The key is read from Android Keystore / Linux Secret Service for each request and never enters widget state, a log line or an error message. |
+| Caching allowed? | Yes, and necessary here. The free tier returns end-of-day prices, so a quote stays valid until the next close. |
+| Redistribution allowed? | Not attempted. Quotes are stored locally for the user's own portfolio only. |
+| Attribution required? | Provenance shows `alpha_vantage` as the source, as for every other adapter. |
+| Rate limit | **25 requests per day** on the free tier. The coordinator carries this as `dailyRequestBudget`, so the twenty-sixth request of a day fails with a typed `RateLimitFailure` naming when it resets rather than being sent and wasted. |
+| Retention limit | None stated for the user's own cached values. |
+| Commercial restrictions | Premium tiers exist for higher volume; the app never assumes one. |
+| API-key restrictions | Required. The source stays disabled until the user adds a key. |
+| Data warning | The free tier is **end-of-day, not real-time**. A quote is a closing price and is dated by its trading day rather than by download time, so the app never presents yesterday's close as the current market price. |
+| Reviewed | 2026-08-28 |
+
+Primary sources:
+
+- [Alpha Vantage API documentation](https://www.alphavantage.co/documentation/)
+- [Alpha Vantage premium plans, which state the free limit](https://www.alphavantage.co/premium/)
+
+Why this provider. No keyless source prices German listings: Stooq's CSV
+endpoint now serves a JavaScript bot challenge, Yahoo's quote endpoints are
+unofficial and against its terms, and the free tiers of Twelve Data, Finnhub and
+Financial Modeling Prep cover US equities only — Twelve Data places EU market
+data on Pro and above. Alpha Vantage is the one free tier that answers for
+Xetra, through a `.DEX` suffix, so `ALV.DEX` is Allianz on Xetra.
+
+Alpha Vantage answers **200 OK for errors**. An exhausted quota, an unknown
+symbol and a rejected key all arrive as a successful response carrying an
+advisory string, so the body decides the failure and not the status code. `Note`
+is the throttling message whatever wording it carries; `Information` may be
+either a quota notice or a genuine advisory, so there the wording decides. A
+missing price, a zero price and a negative price are all refused rather than
+shown, because a confident wrong number is the defect this app exists to avoid.
+
 ## OpenFIGI
 
 | Question | Review |

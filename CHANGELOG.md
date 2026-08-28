@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ### Added
 
+- Optional prices for German and other non-US listings, using an Alpha Vantage
+  key the user supplies. No credential ships with the app, the source stays
+  disabled until a key is added, and the free tier's 25-requests-per-day quota
+  is enforced before a request is sent rather than discovered by exhausting it.
+  The free tier is end-of-day, so a quote is dated by its trading day and never
+  presented as a live price.
+
 - Instruments outside the US can be found. A keyless OpenFIGI adapter resolves
   an ISIN, symbol or company name to German listings, so searches like
   "Hannover Rück" that previously returned nothing now resolve. It supplies

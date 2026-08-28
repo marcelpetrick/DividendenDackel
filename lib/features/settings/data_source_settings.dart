@@ -98,6 +98,14 @@ abstract interface class ApiSecretStore {
   /// Whether [key] exists without returning its value to the caller.
   Future<bool> contains(String key);
 
+  /// Reads a credential, for provider adapters only.
+  ///
+  /// The UI asks [contains] instead: a key must never enter widget state,
+  /// a snapshot, a log line or an error message (Vision.md §34, §80). This
+  /// exists because an adapter has to put the value on the wire, and nothing
+  /// else may call it.
+  Future<String?> read(String key);
+
   /// Writes a credential.
   Future<void> write(String key, String value);
 
@@ -116,6 +124,9 @@ final class SecureApiSecretStore implements ApiSecretStore {
   @override
   Future<bool> contains(String key) async =>
       (await _storage.read(key: key))?.isNotEmpty ?? false;
+
+  @override
+  Future<String?> read(String key) => _storage.read(key: key);
 
   @override
   Future<void> write(String key, String value) =>
@@ -154,7 +165,9 @@ final class PlatformDataSourceSettingsStore implements DataSourceSettingsStore {
 
   static String _enabledKey(MarketDataSource source) =>
       'provider.${source.name}.enabled';
-  static String _secretKey(MarketDataSource source) =>
+
+  /// Secure-storage key holding [source]'s credential.
+  static String secretKey(MarketDataSource source) =>
       'dividendendackel.provider.${source.name}.apiKey';
 
   @override
@@ -163,7 +176,7 @@ final class PlatformDataSourceSettingsStore implements DataSourceSettingsStore {
     final bool enabled =
         preferences.getBool(_enabledKey(source)) ?? source.enabledByDefault;
     final bool hasApiKey = source.requiresApiKey
-        ? await secrets.contains(_secretKey(source))
+        ? await secrets.contains(secretKey(source))
         : false;
     return DataSourceConfiguration(
       source: source,
@@ -190,12 +203,12 @@ final class PlatformDataSourceSettingsStore implements DataSourceSettingsStore {
     if (trimmed.isEmpty) {
       throw ArgumentError.value(apiKey, 'apiKey', 'API key must not be empty');
     }
-    await secrets.write(_secretKey(source), trimmed);
+    await secrets.write(secretKey(source), trimmed);
   }
 
   @override
   Future<void> removeApiKey(MarketDataSource source) =>
-      secrets.delete(_secretKey(source));
+      secrets.delete(secretKey(source));
 }
 
 /// Provider-settings UI state.
@@ -377,9 +390,19 @@ final class DataSourceSettingsController
 }
 
 /// Platform-backed provider settings; tests replace it with an in-memory fake.
+/// Secure credential store, shared by settings and by provider adapters.
+///
+/// Settings only ever asks whether a credential exists; an adapter reads the
+/// value to put it on the wire. Both go through this one boundary so there is a
+/// single place where key material is handled (Vision.md §34, §80).
+final Provider<ApiSecretStore> apiSecretStoreProvider =
+    Provider<ApiSecretStore>((Ref ref) => const SecureApiSecretStore());
+
 final Provider<DataSourceSettingsStore> dataSourceSettingsStoreProvider =
     Provider<DataSourceSettingsStore>(
-      (Ref ref) => PlatformDataSourceSettingsStore(),
+      (Ref ref) => PlatformDataSourceSettingsStore(
+        secrets: ref.watch(apiSecretStoreProvider),
+      ),
     );
 
 /// Provider configuration observed by Settings and later by the registry.

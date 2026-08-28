@@ -216,6 +216,9 @@ final class _MemorySecretStore implements ApiSecretStore {
   Future<bool> contains(String key) async => values.containsKey(key);
 
   @override
+  Future<String?> read(String key) async => values[key];
+
+  @override
   Future<void> delete(String key) async => values.remove(key);
 
   @override

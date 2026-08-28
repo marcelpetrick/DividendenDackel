@@ -7,6 +7,7 @@ import 'package:dividendendackel/core/networking/provider_status_monitor.dart';
 import 'package:dividendendackel/core/networking/request_coordinator.dart';
 import 'package:dividendendackel/core/utils/clock.dart';
 import 'package:dividendendackel/data/database/app_database.dart';
+import 'package:dividendendackel/data/providers/alpha_vantage_quote_provider.dart';
 import 'package:dividendendackel/data/providers/frankfurter_fx_provider.dart';
 import 'package:dividendendackel/data/providers/market_data_provider.dart';
 import 'package:dividendendackel/data/providers/open_figi_provider.dart';
@@ -120,6 +121,15 @@ final Provider<RequestCoordinator> requestCoordinatorProvider =
       final RequestCoordinator coordinator = RequestCoordinator(
         clock: ref.watch(clockProvider),
         providerPolicies: <String, ProviderRequestPolicy>{
+          // Alpha Vantage's free tier is 25 requests per day, one symbol per
+          // call. The budget is what stops a single portfolio refresh from
+          // spending a user's whole day in seconds; the spacing keeps a burst
+          // from looking like abuse.
+          'alpha_vantage': ProviderRequestPolicy(
+            maxConcurrent: 1,
+            minimumSpacing: Duration(milliseconds: 900),
+            dailyRequestBudget: AlphaVantageQuoteProvider.freeTierDailyRequests,
+          ),
           // OpenFIGI publishes its unauthenticated quota in-band as
           // `ratelimit-policy: 25;w=60`. One request every 2.4 s stays inside
           // it without tracking a rolling window, and a search issues at most
@@ -194,6 +204,25 @@ final Provider<OpenFigiProvider> openFigiProvider = Provider<OpenFigiProvider>(
   (Ref ref) => OpenFigiProvider(ref.watch(providerHttpClientProvider)),
 );
 
+/// Quote adapter using the user's own Alpha Vantage credential.
+///
+/// The credential is read straight from secure storage for each request and is
+/// never held in provider or widget state (Vision.md §34, §80).
+final Provider<AlphaVantageQuoteProvider> alphaVantageQuoteProvider =
+    Provider<AlphaVantageQuoteProvider>(
+      (Ref ref) => AlphaVantageQuoteProvider(
+        ref.watch(providerHttpClientProvider),
+        ref.watch(clockProvider),
+        () => ref
+            .read(apiSecretStoreProvider)
+            .read(
+              PlatformDataSourceSettingsStore.secretKey(
+                MarketDataSource.alphaVantage,
+              ),
+            ),
+      ),
+    );
+
 /// Keyless Frankfurter adapter, explicitly restricted to ECB rates.
 final Provider<FrankfurterFxProvider> frankfurterFxProvider =
     Provider<FrankfurterFxProvider>(
@@ -214,6 +243,7 @@ final Provider<ProviderRegistry> providerRegistryProvider =
           ref.watch(secEdgarProvider),
           ref.watch(frankfurterFxProvider),
           ref.watch(openFigiProvider),
+          ref.watch(alphaVantageQuoteProvider),
         ],
         priorities: const <ProviderDataType, List<String>>{
           // SEC first: it answers US tickers precisely and without a venue
@@ -222,6 +252,7 @@ final Provider<ProviderRegistry> providerRegistryProvider =
           ProviderDataType.instrumentSearch: <String>['sec', 'openfigi'],
           ProviderDataType.dividends: <String>['sec'],
           ProviderDataType.filings: <String>['sec'],
+          ProviderDataType.quote: <String>['alpha_vantage'],
           ProviderDataType.fxRates: <String>['frankfurter'],
         },
         isEnabled: (String providerId) => settings.configurations.any(

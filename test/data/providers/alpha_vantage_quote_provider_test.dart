@@ -1,0 +1,303 @@
+import 'package:decimal/decimal.dart';
+import 'package:dividendendackel/core/errors/failure.dart';
+import 'package:dividendendackel/core/errors/result.dart';
+import 'package:dividendendackel/core/networking/request_coordinator.dart';
+import 'package:dividendendackel/data/providers/alpha_vantage_quote_provider.dart';
+import 'package:dividendendackel/data/providers/market_data_provider.dart';
+import 'package:dividendendackel/domain/entities/entities.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
+
+import '../../support/fake_clock.dart';
+
+void main() {
+  final DateTime now = DateTime.utc(2026, 8, 28, 18);
+
+  const Instrument allianz = Instrument(
+    internalId: 'isin:DE0008404005',
+    symbol: 'ALV',
+    name: 'Allianz SE',
+    currency: Currency.eur,
+    exchange: 'GY',
+    isin: 'DE0008404005',
+    country: 'DE',
+  );
+  const Instrument apple = Instrument(
+    internalId: 'cik:0000320193',
+    symbol: 'AAPL',
+    name: 'Apple Inc.',
+    currency: Currency.usd,
+    exchange: 'US',
+    country: 'US',
+  );
+
+  AlphaVantageQuoteProvider providerWith(
+    Future<http.Response> Function(http.Request) handler, {
+    String? apiKey = 'user-key',
+  }) => AlphaVantageQuoteProvider(
+    MockClient(handler),
+    FakeClock(now),
+    () async => apiKey,
+  );
+
+  String body({
+    String price = '451.20',
+    String previous = '448.90',
+    String day = '2026-08-28',
+  }) =>
+      '{"Global Quote":{"01. symbol":"ALV.DEX","05. price":"$price",'
+      '"07. latest trading day":"$day","08. previous close":"$previous"}}';
+
+  test('a German listing is requested with the Xetra suffix', () async {
+    late Uri requested;
+    final AlphaVantageQuoteProvider provider = providerWith((
+      http.Request incoming,
+    ) async {
+      requested = incoming.url;
+      return http.Response(body(), 200);
+    });
+
+    final Result<Quote> result = await provider.fetchQuote(
+      allianz,
+      cancellationToken: CancellationToken(),
+    );
+
+    expect(requested.queryParameters['symbol'], 'ALV.DEX');
+    expect(requested.queryParameters['function'], 'GLOBAL_QUOTE');
+    final Quote quote = result.valueOrNull!;
+    expect(quote.price, Money(Decimal.parse('451.20'), Currency.eur));
+    expect(quote.previousClose, Money(Decimal.parse('448.90'), Currency.eur));
+    expect(quote.instrumentId, 'isin:DE0008404005');
+  });
+
+  test('a US listing keeps its plain symbol', () async {
+    late Uri requested;
+    final AlphaVantageQuoteProvider provider = providerWith((
+      http.Request incoming,
+    ) async {
+      requested = incoming.url;
+      return http.Response(body(), 200);
+    });
+
+    await provider.fetchQuote(apple, cancellationToken: CancellationToken());
+
+    expect(requested.queryParameters['symbol'], 'AAPL');
+  });
+
+  test('an explicit provider mapping wins over the venue guess', () {
+    const Instrument mapped = Instrument(
+      internalId: 'isin:DE0008404005',
+      symbol: 'ALV',
+      name: 'Allianz SE',
+      currency: Currency.eur,
+      exchange: 'GY',
+      country: 'DE',
+      providerMappings: <ProviderMapping>[
+        ProviderMapping(providerId: 'alpha_vantage', symbol: 'ALV.FRK'),
+      ],
+    );
+
+    expect(AlphaVantageQuoteProvider.symbolFor(mapped), 'ALV.FRK');
+  });
+
+  test('the quote is dated by its trading day, not by download time', () async {
+    final AlphaVantageQuoteProvider provider = providerWith(
+      (_) async => http.Response(body(day: '2026-08-27'), 200),
+    );
+
+    final Quote quote = (await provider.fetchQuote(
+      allianz,
+      cancellationToken: CancellationToken(),
+    )).valueOrNull!;
+
+    // The free tier returns a closing price. Stamping it with "now" would
+    // present yesterday's close as the current market price.
+    expect(quote.asOf, DateTime.utc(2026, 8, 27));
+    expect(quote.provenance.fetchedAt, now);
+  });
+
+  test('a missing credential fails before any request is made', () async {
+    bool called = false;
+    final AlphaVantageQuoteProvider provider = providerWith((_) async {
+      called = true;
+      return http.Response(body(), 200);
+    }, apiKey: null);
+
+    final Result<Quote> result = await provider.fetchQuote(
+      allianz,
+      cancellationToken: CancellationToken(),
+    );
+
+    expect(result.failureOrNull, isA<AuthenticationFailure>());
+    expect(called, isFalse);
+  });
+
+  test(
+    'an exhausted quota reported as 200 OK becomes RateLimitFailure',
+    () async {
+      // Alpha Vantage answers 200 with an advisory string instead of 429.
+      final AlphaVantageQuoteProvider provider = providerWith(
+        (_) async => http.Response(
+          '{"Information":"We have detected your API key ... and our standard '
+          'API rate limit is 25 requests per day."}',
+          200,
+        ),
+      );
+
+      expect(
+        (await provider.fetchQuote(
+          allianz,
+          cancellationToken: CancellationToken(),
+        )).failureOrNull,
+        isA<RateLimitFailure>(),
+      );
+    },
+  );
+
+  test('the legacy Note advisory is also a rate limit', () async {
+    final AlphaVantageQuoteProvider provider = providerWith(
+      (_) async => http.Response(
+        '{"Note":"Thank you for using Alpha Vantage! Our standard API call '
+        'frequency is 5 calls per minute and 500 calls per day."}',
+        200,
+      ),
+    );
+
+    expect(
+      (await provider.fetchQuote(
+        allianz,
+        cancellationToken: CancellationToken(),
+      )).failureOrNull,
+      isA<RateLimitFailure>(),
+    );
+  });
+
+  test('an unknown symbol is NoDataFailure, not a provider outage', () async {
+    final AlphaVantageQuoteProvider provider = providerWith(
+      (_) async => http.Response(
+        '{"Error Message":"Invalid API call. Please retry."}',
+        200,
+      ),
+    );
+
+    expect(
+      (await provider.fetchQuote(
+        allianz,
+        cancellationToken: CancellationToken(),
+      )).failureOrNull,
+      isA<NoDataFailure>(),
+    );
+  });
+
+  test('an empty Global Quote is NoDataFailure, not a zero price', () async {
+    final AlphaVantageQuoteProvider provider = providerWith(
+      (_) async => http.Response('{"Global Quote":{}}', 200),
+    );
+
+    expect(
+      (await provider.fetchQuote(
+        allianz,
+        cancellationToken: CancellationToken(),
+      )).failureOrNull,
+      isA<NoDataFailure>(),
+    );
+  });
+
+  test('a zero or negative price is refused rather than shown', () async {
+    for (final String bad in <String>['0', '0.00', '-3.10']) {
+      final AlphaVantageQuoteProvider provider = providerWith(
+        (_) async => http.Response(body(price: bad), 200),
+      );
+
+      expect(
+        (await provider.fetchQuote(
+          allianz,
+          cancellationToken: CancellationToken(),
+        )).failureOrNull,
+        isA<ParsingFailure>(),
+        reason: '$bad is not a price',
+      );
+    }
+  });
+
+  test('a non-numeric price is refused', () async {
+    final AlphaVantageQuoteProvider provider = providerWith(
+      (_) async => http.Response(body(price: 'n/a'), 200),
+    );
+
+    expect(
+      (await provider.fetchQuote(
+        allianz,
+        cancellationToken: CancellationToken(),
+      )).failureOrNull,
+      isA<ParsingFailure>(),
+    );
+  });
+
+  test('an unusable previous close is dropped, not invented', () async {
+    final AlphaVantageQuoteProvider provider = providerWith(
+      (_) async => http.Response(body(previous: '0.00'), 200),
+    );
+
+    final Quote quote = (await provider.fetchQuote(
+      allianz,
+      cancellationToken: CancellationToken(),
+    )).valueOrNull!;
+
+    expect(quote.previousClose, isNull);
+    expect(quote.price, Money(Decimal.parse('451.20'), Currency.eur));
+  });
+
+  test('an HTTP error becomes ProviderUnavailableFailure', () async {
+    final AlphaVantageQuoteProvider provider = providerWith(
+      (_) async => http.Response('gateway', 502),
+    );
+
+    expect(
+      (await provider.fetchQuote(
+        allianz,
+        cancellationToken: CancellationToken(),
+      )).failureOrNull,
+      isA<ProviderUnavailableFailure>(),
+    );
+  });
+
+  test('malformed JSON becomes ParsingFailure', () async {
+    final AlphaVantageQuoteProvider provider = providerWith(
+      (_) async => http.Response('<html>nope</html>', 200),
+    );
+
+    expect(
+      (await provider.fetchQuote(
+        allianz,
+        cancellationToken: CancellationToken(),
+      )).failureOrNull,
+      isA<ParsingFailure>(),
+    );
+  });
+
+  test('a transport failure becomes NetworkFailure', () async {
+    final AlphaVantageQuoteProvider provider = providerWith((_) async {
+      throw http.ClientException('connection reset');
+    });
+
+    expect(
+      (await provider.fetchQuote(
+        allianz,
+        cancellationToken: CancellationToken(),
+      )).failureOrNull,
+      isA<NetworkFailure>(),
+    );
+  });
+
+  test('the adapter declares only quotes', () {
+    final AlphaVantageQuoteProvider provider = providerWith(
+      (_) async => http.Response(body(), 200),
+    );
+
+    expect(provider.capabilities, <ProviderDataType>{ProviderDataType.quote});
+    expect(provider.id, 'alpha_vantage');
+    expect(AlphaVantageQuoteProvider.freeTierDailyRequests, 25);
+  });
+}
