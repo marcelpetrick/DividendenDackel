@@ -44,3 +44,8 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 dist/
+
+# Local development credentials. Provider keys are user-supplied and must never
+# enter the repository or a built artifact (Vision.md 34, 80). Copy
+# dev_secrets.example.env to dev_secrets.env and put your own keys there.
+dev_secrets.env

@@ -32,6 +32,29 @@ Linux desktop builds additionally need:
 clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libsecret-1-dev libjsoncpp-dev xauth xvfb
 ```
 
+## Provider keys during development
+
+Quotes need a credential the user supplies, so a development build has none by
+default and prices are simply unavailable. To work with real data:
+
+```sh
+cp dev_secrets.example.env dev_secrets.env   # git ignores dev_secrets.env
+./tool/run-dev.sh -d linux                   # or -d <android-device-id>
+```
+
+The script passes the file's contents as `--dart-define` values, and the app
+reads them **only in a debug build**. A release build takes a credential from
+the device's secure storage and nowhere else, so a key cannot reach a published
+artifact even if the build command is wrong.
+
+The example file starts with Alpha Vantage's published `demo` key, which
+answers for a few US symbols such as IBM. That is enough to see the quote path
+working; pricing a real portfolio needs your own key, free from
+<https://www.alphavantage.co/support/#api-key>.
+
+Never put a key anywhere else. A credential in the repository is a credential in
+every artifact built from it (Vision.md §34, §80).
+
 ## The quality gate
 
 Run the same script CI runs:

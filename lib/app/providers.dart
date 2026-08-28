@@ -30,6 +30,7 @@ import 'package:dividendendackel/domain/use_cases/portfolio_import.dart';
 import 'package:dividendendackel/features/portfolio/portfolio_editor.dart';
 import 'package:dividendendackel/features/portfolio/portfolio_selection.dart';
 import 'package:dividendendackel/features/settings/data_source_settings.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
@@ -211,6 +212,28 @@ final Provider<OpenFigiProvider> openFigiProvider = Provider<OpenFigiProvider>(
   (Ref ref) => OpenFigiProvider(ref.watch(providerHttpClientProvider)),
 );
 
+/// A provider key supplied at build time, for development only.
+///
+/// `./tool/run-dev.sh` passes the contents of the git-ignored dev_secrets.env
+/// as --dart-define values so a developer does not have to retype a key into
+/// the settings screen on every device.
+///
+/// Guarded by [kDebugMode] rather than only by the define being absent. A
+/// release build must never read a credential from anywhere but the user's own
+/// secure storage, and a guard that depends on the build command being right is
+/// not a guard (Vision.md §34, §80).
+Future<String?> _developmentKey(String define) async {
+  if (!kDebugMode) return null;
+  final String value = switch (define) {
+    'ALPHA_VANTAGE_API_KEY' => const String.fromEnvironment(
+      'ALPHA_VANTAGE_API_KEY',
+    ),
+    'FINNHUB_API_KEY' => const String.fromEnvironment('FINNHUB_API_KEY'),
+    _ => '',
+  };
+  return value.isEmpty ? null : value;
+}
+
 /// Quote adapter using the user's own Alpha Vantage credential.
 ///
 /// The credential is read straight from secure storage for each request and is
@@ -220,13 +243,15 @@ final Provider<AlphaVantageQuoteProvider> alphaVantageQuoteProvider =
       (Ref ref) => AlphaVantageQuoteProvider(
         ref.watch(providerHttpClientProvider),
         ref.watch(clockProvider),
-        () => ref
-            .read(apiSecretStoreProvider)
-            .read(
-              PlatformDataSourceSettingsStore.secretKey(
-                MarketDataSource.alphaVantage,
-              ),
-            ),
+        () async =>
+            await ref
+                .read(apiSecretStoreProvider)
+                .read(
+                  PlatformDataSourceSettingsStore.secretKey(
+                    MarketDataSource.alphaVantage,
+                  ),
+                ) ??
+            await _developmentKey('ALPHA_VANTAGE_API_KEY'),
       ),
     );
 
@@ -236,13 +261,15 @@ final Provider<FinnhubQuoteProvider> finnhubQuoteProvider =
       (Ref ref) => FinnhubQuoteProvider(
         ref.watch(providerHttpClientProvider),
         ref.watch(clockProvider),
-        () => ref
-            .read(apiSecretStoreProvider)
-            .read(
-              PlatformDataSourceSettingsStore.secretKey(
-                MarketDataSource.finnhub,
-              ),
-            ),
+        () async =>
+            await ref
+                .read(apiSecretStoreProvider)
+                .read(
+                  PlatformDataSourceSettingsStore.secretKey(
+                    MarketDataSource.finnhub,
+                  ),
+                ) ??
+            await _developmentKey('FINNHUB_API_KEY'),
       ),
     );
 

@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ### Fixed
 
+- Alpha Vantage's refusal of its own demo key now asks for a real key instead
+  of reporting the provider as unavailable, which invited waiting for a
+  recovery that would never come.
+
 - Forecast and dividend-growth explanations are translated. They were assembled
   in the analytics layer as English sentences carrying numbers, so a German or
   Croatian app showed them in English. The analytics now state the sentence and

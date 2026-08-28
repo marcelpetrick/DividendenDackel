@@ -252,8 +252,9 @@ final class AlphaVantageQuoteProvider implements QuoteDataProvider {
     if (note is String && note.isNotEmpty) {
       throw RateLimitFailure(technicalDetail: 'Alpha Vantage: $note');
     }
-    // `Information` carries both the newer quota notice and genuine advisories
-    // such as an endpoint being premium-only, so here the wording decides.
+    // `Information` carries the newer quota notice, the demo-key refusal and
+    // genuine advisories such as an endpoint being premium-only, so here the
+    // wording decides.
     final Object? information = body['Information'];
     if (information is String && information.isNotEmpty) {
       final String lower = information.toLowerCase();
@@ -263,8 +264,19 @@ final class AlphaVantageQuoteProvider implements QuoteDataProvider {
           lower.contains('per minute') ||
           lower.contains('call frequency') ||
           lower.contains('call volume');
-      throw throttled
-          ? RateLimitFailure(technicalDetail: 'Alpha Vantage: $information')
+      if (throttled) {
+        throw RateLimitFailure(technicalDetail: 'Alpha Vantage: $information');
+      }
+      // The published demo key answers for a handful of US symbols and
+      // refuses the rest with "please claim your free API key". That is
+      // something the user can act on, so it must not read as the provider
+      // being down -- they would wait for a recovery that never comes.
+      final bool needsOwnKey =
+          lower.contains('demo') || lower.contains('claim your free api key');
+      throw needsOwnKey
+          ? AuthenticationFailure(
+              technicalDetail: 'Alpha Vantage: $information',
+            )
           : ProviderUnavailableFailure(
               technicalDetail: 'Alpha Vantage: $information',
             );

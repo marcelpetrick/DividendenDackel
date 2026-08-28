@@ -87,6 +87,15 @@ Financial Modeling Prep cover US equities only — Twelve Data places EU market
 data on Pro and above. Alpha Vantage is the one free tier that answers for
 Xetra, through a `.DEX` suffix, so `ALV.DEX` is Allianz on Xetra.
 
+Alpha Vantage publishes a `demo` API key. It answers for a handful of US
+symbols such as IBM and refuses the rest, which is enough to exercise the quote
+path end to end without an account and not enough to price a real portfolio.
+The fixtures in the tests are captured from live `demo` responses, so the field
+names are the provider's own rather than a reading of its documentation. Its
+refusal is mapped to an authentication failure rather than an outage: asking
+the user for a key is something they can act on, while an outage invites them
+to wait for a recovery that will not come.
+
 Alpha Vantage answers **200 OK for errors**. An exhausted quota, an unknown
 symbol and a rejected key all arrive as a successful response carrying an
 advisory string, so the body decides the failure and not the status code. `Note`

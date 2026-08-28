@@ -246,6 +246,57 @@ void main() {
     );
   });
 
+  test(
+    'the demo key refusal asks for a key rather than reporting an outage',
+    () async {
+      // Verbatim from a live call with apikey=demo against a non-demo symbol.
+      // Reported as an outage it would look like something to wait out; it is
+      // something the user can fix in a minute.
+      final AlphaVantageQuoteProvider provider = providerWith(
+        (_) async => http.Response(
+          '{"Information":"The **demo** API key is for demo purposes only. '
+          'Please claim your free API key at '
+          '(https://www.alphavantage.co/support/#api-key) to explore our full '
+          'API offerings. It takes fewer than 20 seconds."}',
+          200,
+        ),
+      );
+
+      expect(
+        (await provider.fetchQuote(
+          allianz,
+          cancellationToken: CancellationToken(),
+        )).failureOrNull,
+        isA<AuthenticationFailure>(),
+      );
+    },
+  );
+
+  test('a live GLOBAL_QUOTE response parses field for field', () async {
+    // Captured from https://www.alphavantage.co/query with apikey=demo, so the
+    // field names here are the provider's own rather than a reading of its
+    // documentation.
+    final AlphaVantageQuoteProvider provider = providerWith(
+      (_) async => http.Response(
+        '{"Global Quote":{"01. symbol":"IBM","02. open":"232.8000",'
+        '"03. high":"240.8065","04. low":"231.4500","05. price":"238.7900",'
+        '"06. volume":"5505922","07. latest trading day":"2026-08-27",'
+        '"08. previous close":"229.8700","09. change":"8.9200",'
+        '"10. change percent":"3.8805%"}}',
+        200,
+      ),
+    );
+
+    final Quote quote = (await provider.fetchQuote(
+      apple,
+      cancellationToken: CancellationToken(),
+    )).valueOrNull!;
+
+    expect(quote.price, Money(Decimal.parse('238.7900'), Currency.usd));
+    expect(quote.previousClose, Money(Decimal.parse('229.8700'), Currency.usd));
+    expect(quote.asOf, DateTime.utc(2026, 8, 27));
+  });
+
   test('an unknown symbol is NoDataFailure, not a provider outage', () async {
     final AlphaVantageQuoteProvider provider = providerWith(
       (_) async => http.Response(
