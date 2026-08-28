@@ -8,7 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ## [Unreleased]
 
-Nothing yet.
+### Fixed
+
+- A schema change can no longer reach a release without being recorded. The
+  database version is verified against a snapshot of its shape, and the upgrade
+  guard now follows the declared version instead of a hard-coded number that
+  would have broken every upgrade the next time the schema moved.
 
 ## [0.58.0] - 2026-08-28
 

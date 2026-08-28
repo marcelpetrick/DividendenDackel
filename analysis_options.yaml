@@ -24,6 +24,9 @@ analyzer:
   exclude:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
+    # Drift's recorded schema snapshots, emitted by `drift_dev schema
+    # generate`. Hand-editing them would defeat their purpose.
+    - "test/data/database/generated/**"
     - build/**
     - android/**
     - ios/**

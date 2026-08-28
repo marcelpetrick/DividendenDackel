@@ -85,6 +85,31 @@ schema shipped by an earlier public version; destructive reset is not an
 upgrade strategy. A change that cannot preserve data needs a documented export
 or migration path and is a breaking release concern.
 
+### Changing the schema
+
+Every bump of `AppDatabase.latestSchemaVersion` needs a recorded snapshot, or a
+later release has nothing to verify itself against:
+
+```sh
+dart run drift_dev schema dump lib/data/database/app_database.dart drift_schemas/
+dart run drift_dev schema generate drift_schemas/ test/data/database/generated/
+```
+
+Both steps are required. The dump records the shape; the generate step turns it
+into the helper the tests compare against, and a stale helper would validate an
+old shape while appearing to pass. `test/data/database/schema_snapshot_test.dart`
+fails when a snapshot for the declared version is missing, and when the live
+schema no longer matches the recorded one.
+
+The migration itself still has to be written by hand in `AppDatabase.migration`,
+which refuses any path it does not define rather than risking user data. The
+upper bound comes from `schemaVersion` rather than a literal, so a bump cannot
+leave the guard behind.
+
+Snapshots exist from version 7 onward. Earlier versions have hand-written
+migration tests but no recorded schema, so a v1–v6 database is covered by those
+tests rather than by mechanical verification.
+
 ## Conventional commits and notes
 
 Release notes are generated from Conventional Commit subjects by

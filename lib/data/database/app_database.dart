@@ -54,7 +54,15 @@ class AppDatabase extends _$AppDatabase {
 
   /// Bumped whenever the schema changes. Never reused for a different schema.
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => latestSchemaVersion;
+
+  /// The schema this build creates and migrates to.
+  ///
+  /// Every bump needs a matching snapshot in `drift_schemas/`, recorded with
+  /// `dart run drift_dev schema dump lib/data/database/app_database.dart
+  /// drift_schemas/`. The snapshot is what lets a later release prove it can
+  /// still open a database an earlier one wrote (docs/releases.md).
+  static const int latestSchemaVersion = 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -68,7 +76,11 @@ class AppDatabase extends _$AppDatabase {
       // not an acceptable default once releases exist. Schema version 1 is the
       // first app schema; every supported transition is additive and explicit,
       // while an unknown path fails loudly instead of dropping data.
-      if (from < 1 || from >= to || to > 7) {
+      // Bounded by schemaVersion rather than a literal. A hard-coded ceiling
+      // rots the moment the schema is bumped: leave it behind and every
+      // upgrade throws, raise it without adding a step and the migration
+      // silently does nothing while the schema is wrong.
+      if (from < 1 || from >= to || to > schemaVersion) {
         throw StateError(
           'No migration is defined from schema version $from to $to. '
           'Refusing to modify the database rather than risk user data.',
