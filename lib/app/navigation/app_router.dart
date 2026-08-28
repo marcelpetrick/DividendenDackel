@@ -13,6 +13,7 @@ import 'package:dividendendackel/features/refresh/portfolio_refresh.dart';
 import 'package:dividendendackel/features/research/research_detail_screen.dart';
 import 'package:dividendendackel/features/research/research_screen.dart';
 import 'package:dividendendackel/features/settings/about_screen.dart';
+import 'package:dividendendackel/features/settings/changelog_screen.dart';
 import 'package:dividendendackel/features/settings/currency_settings_screen.dart';
 import 'package:dividendendackel/features/settings/data_sources_screen.dart';
 import 'package:dividendendackel/features/settings/settings_screen.dart';
@@ -153,6 +154,11 @@ GoRouter buildRouter({String initialLocation = '/today'}) => GoRouter(
       path: '/about',
       builder: (BuildContext context, GoRouterState state) =>
           const AboutScreen(),
+    ),
+    GoRoute(
+      path: '/about/changelog',
+      builder: (BuildContext context, GoRouterState state) =>
+          const ChangelogScreen(),
     ),
   ],
 );

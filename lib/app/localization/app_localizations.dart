@@ -942,6 +942,41 @@ const Map<String, _Translation> _onboardingMessages = <String, _Translation>{
 /// Ordered phrase fragments cover interpolated amounts, names and counts.
 /// Screen copy that had no entry, so it rendered English in a translated app.
 const Map<String, _Translation> _screenMessages = <String, _Translation>{
+  'Author': _Translation('Autor', 'Autor'),
+  'Finished and merged, not yet in a published build.': _Translation(
+    'Fertiggestellt und übernommen, aber noch nicht in einer veröffentlichten Version.',
+    'Dovršeno i uključeno, ali još nije u objavljenoj verziji.',
+  ),
+  'GNU General Public License v3.0 or later (GPL-3.0-or-later). The source code is available, and you may use, study, share and modify it under those terms.':
+      _Translation(
+        'GNU General Public License v3.0 oder höher (GPL-3.0-or-later). Der Quelltext ist verfügbar, und Sie dürfen ihn zu diesen Bedingungen verwenden, untersuchen, weitergeben und verändern.',
+        'GNU General Public License v3.0 ili novija (GPL-3.0-or-later). Izvorni kod je dostupan te ga smijete koristiti, proučavati, dijeliti i mijenjati pod tim uvjetima.',
+      ),
+  'Ideas for features and reports of anything wrong are genuinely wanted — a mistaken number matters most of all. Write to the author, or open an issue in the project repository.':
+      _Translation(
+        'Ideen für Funktionen und Hinweise auf Fehler sind ausdrücklich willkommen — eine falsche Zahl zählt dabei am meisten. Schreiben Sie dem Autor oder eröffnen Sie ein Issue im Projekt-Repository.',
+        'Ideje za značajke i prijave pogrešaka izričito su dobrodošle — pogrešan broj je najvažniji od svega. Pišite autoru ili otvorite prijavu u repozitoriju projekta.',
+      ),
+  'In development': _Translation('In Entwicklung', 'U razvoju'),
+  'No release notes are available.': _Translation(
+    'Es sind keine Versionshinweise verfügbar.',
+    'Nema dostupnih bilješki o izdanju.',
+  ),
+  'Release notes': _Translation('Versionshinweise', 'Bilješke o izdanju'),
+  'Report a problem or request a feature': _Translation(
+    'Problem melden oder Funktion vorschlagen',
+    'Prijavi problem ili predloži značajku',
+  ),
+  'This app is being built in the open and changes often. Features are still arriving and rough edges are expected.':
+      _Translation(
+        'Diese App entsteht offen und ändert sich häufig. Es kommen noch Funktionen hinzu, und Ecken und Kanten sind zu erwarten.',
+        'Ova se aplikacija razvija javno i često se mijenja. Značajke još pristižu, a grube rubove treba očekivati.',
+      ),
+  'Under active development': _Translation(
+    'Wird aktiv weiterentwickelt',
+    'U aktivnom razvoju',
+  ),
+  'What changed': _Translation('Was sich geändert hat', 'Što se promijenilo'),
   'No matching instrument found. Search covers the bundled reference list and any instrument already saved on this device. Listings outside it need a data source that can look them up.':
       _Translation(
         'Kein passendes Wertpapier gefunden. Die Suche umfasst die mitgelieferte Referenzliste und alle bereits auf diesem Gerät gespeicherten Wertpapiere. Andere Notierungen benötigen eine Datenquelle, die sie nachschlagen kann.',

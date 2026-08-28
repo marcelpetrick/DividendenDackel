@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ### Added
 
+- Release notes inside the app. About gains a "What changed" view that reads
+  this very file, shipped as an asset and parsed at runtime, so the app and the
+  repository can never disagree about what changed.
+- About now states the author, the GPL-3.0-or-later licence and what it grants,
+  that the app is under active development, and that feature ideas and defect
+  reports are wanted — with a button that opens the issue tracker.
+
 - Optional prices for German and other non-US listings, using an Alpha Vantage
   key the user supplies. No credential ships with the app, the source stays
   disabled until a key is added, and the free tier's 25-requests-per-day quota
