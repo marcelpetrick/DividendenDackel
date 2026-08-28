@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ## [Unreleased]
 
+### Added
+
+- A setup guide beside every data source that needs an API key. The help icon
+  next to the provider opens numbered steps saying which page to open, what to
+  enter, what to copy and where to paste it back, along with what the free plan
+  actually allows before any effort is spent. A source that requires a key and
+  has no guide now fails the build.
+
 ### Fixed
 
 - Forecast and dividend-growth explanations are translated. They were assembled

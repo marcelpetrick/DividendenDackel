@@ -1,5 +1,7 @@
 import 'package:dividendendackel/app/localization/localized_material.dart';
 import 'package:dividendendackel/app/theme/app_theme.dart';
+import 'package:dividendendackel/features/settings/data_source_guide.dart';
+import 'package:dividendendackel/features/settings/data_source_guide_sheet.dart';
 import 'package:dividendendackel/features/settings/data_source_settings.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -145,7 +147,36 @@ class _DataSourceCard extends StatelessWidget {
                   ? Icons.key_outlined
                   : Icons.public_outlined,
             ),
-            title: Text(source.label),
+            title: Row(
+              children: <Widget>[
+                Flexible(child: Text(source.label)),
+                if (DataSourceGuide.forSource(source)
+                    case final DataSourceGuide guide) ...<Widget>[
+                  const SizedBox(width: AppTheme.space / 2),
+                  // Next to the switch it belongs to, so the answer to "what
+                  // do I do here" is where the question is asked.
+                  IconButton(
+                    key: ValueKey<String>('guide-${source.name}'),
+                    visualDensity: VisualDensity.compact,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    iconSize: 18,
+                    tooltip: context.trFormat(
+                      'How to set up {source}',
+                      <String, Object?>{'source': source.label},
+                    ),
+                    icon: const Icon(Icons.help_outline),
+                    onPressed: () => showModalBottomSheet<void>(
+                      context: context,
+                      isScrollControlled: true,
+                      showDragHandle: true,
+                      builder: (BuildContext context) =>
+                          DataSourceGuideSheet(guide: guide),
+                    ),
+                  ),
+                ],
+              ],
+            ),
             subtitle: Text(source.description),
           ),
           if (source.requiresApiKey)

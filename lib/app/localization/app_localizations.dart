@@ -942,6 +942,77 @@ const Map<String, _Translation> _onboardingMessages = <String, _Translation>{
 /// Ordered phrase fragments cover interpolated amounts, names and counts.
 /// Screen copy that had no entry, so it rendered English in a translated app.
 const Map<String, _Translation> _screenMessages = <String, _Translation>{
+  'Copy the key, return here and press "Add key".': _Translation(
+    'Kopieren Sie den Schlüssel, kehren Sie hierher zurück und wählen Sie „Schlüssel hinzufügen“.',
+    'Kopirajte ključ, vratite se ovamo i odaberite „Dodaj ključ“.',
+  ),
+  'Create an account and confirm your email address.': _Translation(
+    'Erstellen Sie ein Konto und bestätigen Sie Ihre E-Mail-Adresse.',
+    'Otvorite račun i potvrdite svoju e-adresu.',
+  ),
+  'Enter your email address and what you are building — a personal portfolio tracker is a fine answer.':
+      _Translation(
+        'Geben Sie Ihre E-Mail-Adresse an und wofür Sie den Schlüssel nutzen — ein privater Portfolio-Tracker genügt als Antwort.',
+        'Unesite svoju e-adresu i za što je koristite — osobni praćenik portfelja sasvim je dovoljan odgovor.',
+      ),
+  'Open alphavantage.co/support/#api-key in a browser.': _Translation(
+    'Öffnen Sie alphavantage.co/support/#api-key im Browser.',
+    'Otvorite alphavantage.co/support/#api-key u pregledniku.',
+  ),
+  'Open finnhub.io/register in a browser.': _Translation(
+    'Öffnen Sie finnhub.io/register im Browser.',
+    'Otvorite finnhub.io/register u pregledniku.',
+  ),
+  'Open site.financialmodelingprep.com/developer/docs/dashboard in a browser.':
+      _Translation(
+        'Öffnen Sie site.financialmodelingprep.com/developer/docs/dashboard im Browser.',
+        'Otvorite site.financialmodelingprep.com/developer/docs/dashboard u pregledniku.',
+      ),
+  'Open the dashboard; the API key is shown there.': _Translation(
+    'Öffnen Sie das Dashboard; dort wird der API-Schlüssel angezeigt.',
+    'Otvorite nadzornu ploču; ondje je prikazan API ključ.',
+  ),
+  'Open the sign-up page': _Translation(
+    'Registrierungsseite öffnen',
+    'Otvori stranicu za registraciju',
+  ),
+  'Optional fundamentals and calendars. The free plan is limited and covers mostly US listings.':
+      _Translation(
+        'Optionale Fundamentaldaten und Termine. Der kostenlose Tarif ist begrenzt und deckt überwiegend US-Notierungen ab.',
+        'Neobavezni temeljni podaci i kalendari. Besplatni plan je ograničen i pokriva uglavnom američke kotacije.',
+      ),
+  'Optional market data. The free plan covers US listings; other markets need a paid plan.':
+      _Translation(
+        'Optionale Marktdaten. Der kostenlose Tarif deckt US-Notierungen ab; andere Märkte erfordern einen kostenpflichtigen Tarif.',
+        'Neobavezni tržišni podaci. Besplatni plan pokriva američke kotacije; ostala tržišta zahtijevaju plaćeni plan.',
+      ),
+  'Press "GET FREE API KEY". The key appears on the page itself.': _Translation(
+    'Klicken Sie auf „GET FREE API KEY“. Der Schlüssel erscheint direkt auf der Seite.',
+    'Kliknite „GET FREE API KEY“. Ključ se pojavljuje na samoj stranici.',
+  ),
+  'Prices for shares outside the United States, including German listings. Without it, those holdings show no value.':
+      _Translation(
+        'Kurse für Aktien außerhalb der Vereinigten Staaten, einschließlich deutscher Notierungen. Ohne ihn zeigen diese Positionen keinen Wert.',
+        'Cijene dionica izvan Sjedinjenih Država, uključujući njemačke kotacije. Bez njega te pozicije ne prikazuju vrijednost.',
+      ),
+  'Register with an email address and confirm it.': _Translation(
+    'Registrieren Sie sich mit einer E-Mail-Adresse und bestätigen Sie diese.',
+    'Registrirajte se e-adresom i potvrdite je.',
+  ),
+  'The dashboard shows your API key.': _Translation(
+    'Das Dashboard zeigt Ihren API-Schlüssel.',
+    'Nadzorna ploča prikazuje vaš API ključ.',
+  ),
+  'The free plan allows 25 price requests per day and returns each day\'s closing price rather than a live one. The app requests at most one price per holding per trading day and stops before the limit, so a portfolio of up to about 25 holdings is covered.':
+      _Translation(
+        'Der kostenlose Tarif erlaubt 25 Kursabfragen pro Tag und liefert den Schlusskurs des Tages statt eines Live-Kurses. Die App fragt höchstens einen Kurs je Position und Handelstag ab und stoppt vor dem Limit, sodass ein Portfolio mit bis zu etwa 25 Positionen abgedeckt ist.',
+        'Besplatni plan dopušta 25 dohvata cijena dnevno i vraća zaključnu cijenu dana umjesto cijene uživo. Aplikacija dohvaća najviše jednu cijenu po poziciji i trgovinskom danu te se zaustavlja prije ograničenja, pa je pokriven portfelj s otprilike do 25 pozicija.',
+      ),
+  'The key is stored in this device\'s secure credential store and is never sent anywhere except to that provider.':
+      _Translation(
+        'Der Schlüssel wird im sicheren Anmeldedatenspeicher dieses Geräts abgelegt und nur an diesen Anbieter gesendet.',
+        'Ključ se pohranjuje u sigurnu pohranu vjerodajnica ovog uređaja i šalje se isključivo tom pružatelju.',
+      ),
   'Author': _Translation('Autor', 'Autor'),
   'Finished and merged, not yet in a published build.': _Translation(
     'Fertiggestellt und übernommen, aber noch nicht in einer veröffentlichten Version.',
@@ -1233,6 +1304,14 @@ const Map<String, _Translation> _screenMessages = <String, _Translation>{
 /// Keyed by the pattern rather than the assembled string, so one entry
 /// covers every value the placeholders can take.
 const Map<String, _Translation> _patternMessages = <String, _Translation>{
+  'How to set up {source}': _Translation(
+    'Einrichtung von {source}',
+    'Postavljanje izvora {source}',
+  ),
+  'Setting up {source}': _Translation(
+    '{source} einrichten',
+    'Postavljanje: {source}',
+  ),
   'Estimated from the documented default growth rate ({rate} p.a.) because fewer than three complete growth years are available.':
       _Translation(
         'Geschätzt anhand der dokumentierten Standard-Wachstumsrate ({rate} p. a.), weil weniger als drei vollständige Wachstumsjahre vorliegen.',
