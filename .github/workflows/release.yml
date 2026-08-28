@@ -111,6 +111,11 @@ jobs:
             fi
           fi
 
+          # A build nobody can evaluate is not a release. Five versions once
+          # shipped with no changelog section, which is why this is a check and
+          # not a convention.
+          ./tool/check-changelog.sh "${semver}"
+
           previous="$(git describe --tags --abbrev=0 --exclude="${tag}" 2>/dev/null || true)"
 
           {

@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ## [Unreleased]
 
+Nothing yet.
+
+## [0.58.0] - 2026-08-28
+
 ### Added
 
 - Release notes inside the app. About gains a "What changed" view that reads
@@ -16,6 +20,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 - About now states the author, the GPL-3.0-or-later licence and what it grants,
   that the app is under active development, and that feature ideas and defect
   reports are wanted — with a button that opens the issue tracker.
+- Every release now gets its own changelog section. Publishing a version whose
+  section is missing, undated or empty fails the release workflow, which is what
+  the previous five releases lacked.
+
+## [0.56.0] - 2026-08-28
+
+Everything between 0.1.0 and 0.56.0 is grouped here. The intervening versions
+were published without their own sections, and rather than reconstruct which
+build carried which change, they are recorded once as the development that led
+to 0.56.0. From this release on, each version gets its own section, and the
+release workflow refuses to publish a version that has none.
+
+### Added
+
 
 - Optional prices for German and other non-US listings, using an Alpha Vantage
   key the user supplies. No credential ships with the app, the source stays

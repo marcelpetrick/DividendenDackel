@@ -267,6 +267,11 @@ check_version_scheme() {
     if [[ -x "${ROOT_DIR}/tool/test-check-version.sh" ]]; then
         "${ROOT_DIR}/tool/test-check-version.sh" || return 1
     fi
+    # The changelog gate runs at release time, but its own cases run here so a
+    # broken gate is caught before it is relied on.
+    if [[ -x "${ROOT_DIR}/tool/test-check-changelog.sh" ]]; then
+        "${ROOT_DIR}/tool/test-check-changelog.sh" || return 1
+    fi
     "${ROOT_DIR}/tool/check-version.sh" origin/master HEAD
 }
 
