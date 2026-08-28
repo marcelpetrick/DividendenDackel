@@ -260,6 +260,64 @@ void main() {
       expect(mismatched, isEmpty);
     });
 
+    test('every user-facing string has a catalog entry', () {
+      // A string with no entry renders English in a translated app, or -- via
+      // the phrase fallback -- part English, which is worse.
+      final String catalog = File('lib/app/localization/app_localizations.dart')
+          .readAsStringSync();
+      final Set<String> keys = RegExp(
+        r"'((?:[^'\\]|\\.)*)'\s*:\s*_Translation\(",
+        dotAll: true,
+      ).allMatches(catalog).map((RegExpMatch m) => m.group(1)!).toSet();
+
+      final RegExp joined = RegExp(r"((?:'(?:[^'\\\n]|\\.)*'\s*)+)");
+      final RegExp piece = RegExp(r"'((?:[^'\\\n]|\\.)*)'");
+      final RegExp boundary = RegExp(
+        r'(?:(?<![A-Za-z_])Text\(|Text\.format\(|\.tr\(|trFormat\(|'
+        r'semanticsLabel:|tooltip:|helperText:|hintText:|errorText:|'
+        r'labelText:|label:|title:|content:)\s*$',
+      );
+      final RegExp keyLike = RegExp(r'^[a-z0-9]+[-:.]|^/|^[A-Z]{2,4}$');
+      final List<String> untranslated = <String>[];
+
+      for (final String root in <String>['lib/app', 'lib/features']) {
+        for (final FileSystemEntity entity in Directory(
+          root,
+        ).listSync(recursive: true)) {
+          if (entity is! File || !entity.path.endsWith('.dart')) continue;
+          if (entity.path.contains('/localization/')) continue;
+          final String source = entity.readAsStringSync();
+          for (final RegExpMatch match in joined.allMatches(source)) {
+            final String value = piece
+                .allMatches(match.group(1)!)
+                .map((RegExpMatch m) => m.group(1)!)
+                .join();
+            if (value.isEmpty || value.contains(r'$')) continue;
+            if (!RegExp('[A-Za-z]{3,}').hasMatch(value)) continue;
+            if (keyLike.hasMatch(value)) continue;
+            final int from = match.start < 200 ? 0 : match.start - 200;
+            if (!boundary.hasMatch(source.substring(from, match.start))) {
+              continue;
+            }
+            final int to = match.end + 160 > source.length
+                ? source.length
+                : match.end + 160;
+            if (source.substring(match.end, to).contains('translate: false')) {
+              continue;
+            }
+            if (keys.contains(value)) continue;
+            untranslated.add('${entity.path}: $value');
+          }
+        }
+      }
+
+      expect(
+        untranslated,
+        isEmpty,
+        reason: 'Add a German and Croatian entry, or mark it translate: false.',
+      );
+    });
+
     test('all feature Text widgets use the localization boundary', () {
       final List<File> files = <File>[
         for (final String root in <String>['lib/app', 'lib/features'])

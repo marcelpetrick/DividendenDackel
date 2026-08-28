@@ -54,6 +54,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ### Fixed
 
+- German and Croatian no longer stop at the first runtime value. Strings
+  carrying a count, amount or date were assembled before translation, so they
+  could never match a catalog entry and came back part English — "0 relevant
+  event(s) in the next 3 Tage". They are now translated as patterns with
+  placeholders, and 108 entries cover them in both languages.
+- 72 screen strings that had no translation at all, including the tagline and
+  every forecast, tax and FX disclaimer, are now translated. A build gate fails
+  on any user-facing string without an entry.
 - German and Croatian no longer corrupt words. The phrase catalog was applied
   as repeated whole-string replacements, so each rule could match the previous
   rule's output and any rule could fire inside an unrelated word: `ex-dividend`

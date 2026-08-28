@@ -35,7 +35,8 @@ final class AppLocalizations {
         _longMessages[source] ??
         _formMessages[source] ??
         _onboardingMessages[source] ??
-        _patternMessages[source];
+        _patternMessages[source] ??
+        _screenMessages[source];
     if (exact != null) return _select(exact, source);
 
     return _substitutePhrases(source);
@@ -939,6 +940,254 @@ const Map<String, _Translation> _onboardingMessages = <String, _Translation>{
 };
 
 /// Ordered phrase fragments cover interpolated amounts, names and counts.
+/// Screen copy that had no entry, so it rendered English in a translated app.
+const Map<String, _Translation> _screenMessages = <String, _Translation>{
+  'Active requests': _Translation('Aktive Anfragen', 'Aktivni zahtjevi'),
+  'Add a holding to see portfolio value, day change, allocation, yield and the next dividend.':
+      _Translation(
+        'Fügen Sie eine Position hinzu, um Portfoliowert, Tagesveränderung, Anteil, Rendite und die nächste Dividende zu sehen.',
+        'Dodajte poziciju kako biste vidjeli vrijednost portfelja, dnevnu promjenu, udio, prinos i sljedeću dividendu.',
+      ),
+  'Added annual gross dividend': _Translation(
+    'Zusätzliche jährliche Bruttodividende',
+    'Dodana godišnja bruto dividenda',
+  ),
+  'Additional fractional shares': _Translation(
+    'Zusätzliche Bruchteilsaktien',
+    'Dodatni djelomični udjeli',
+  ),
+  'Also ex-dates, tomorrow’s earnings and company events.': _Translation(
+    'Außerdem Ex-Tage, morgige Ergebnisse und Unternehmensereignisse.',
+    'Također ex-datumi, sutrašnji rezultati i korporativni događaji.',
+  ),
+  'Android asks for notification permission only after you enable a mode. Linux desktop notification servers cannot schedule in the background, so due events are reconciled when the app starts, resumes or refreshes. The operating system may still suppress delivery.':
+      _Translation(
+        'Android fragt die Benachrichtigungsberechtigung erst ab, wenn Sie einen Modus aktivieren. Linux-Desktop-Benachrichtigungsdienste können nicht im Hintergrund planen, daher werden fällige Ereignisse beim Start, bei der Rückkehr oder beim Aktualisieren abgeglichen. Das Betriebssystem kann die Zustellung dennoch unterdrücken.',
+        'Android traži dopuštenje za obavijesti tek nakon što uključite način rada. Linux poslužitelji obavijesti ne mogu zakazivati u pozadini, pa se dospjeli događaji usklađuju pri pokretanju, nastavku ili osvježavanju aplikacije. Operacijski sustav ipak može spriječiti isporuku.',
+      ),
+  'Average added gross per month': _Translation(
+    'Durchschnittlicher Bruttozuwachs pro Monat',
+    'Prosječni bruto dodatak mjesečno',
+  ),
+  'CSV transactions': _Translation('CSV-Transaktionen', 'CSV transakcije'),
+  'Cache hit rate': _Translation(
+    'Cache-Trefferquote',
+    'Stopa pogodaka predmemorije',
+  ),
+  'Cached quotes are needed before value concentration can be calculated.':
+      _Translation(
+        'Für die Berechnung der Wertkonzentration werden gespeicherte Kurse benötigt.',
+        'Za izračun koncentracije vrijednosti potrebne su spremljene cijene.',
+      ),
+  'Comparing refresh changes': _Translation(
+    'Änderungen der Aktualisierung werden verglichen',
+    'Uspoređivanje promjena osvježavanja',
+  ),
+  'Computing research score': _Translation(
+    'Analysewert wird berechnet',
+    'Izračun ocjene analize',
+  ),
+  'Converted portfolio value': _Translation(
+    'Umgerechneter Portfoliowert',
+    'Preračunata vrijednost portfelja',
+  ),
+  'Converted value is partial because at least one holding has no cached quote.':
+      _Translation(
+        'Der umgerechnete Wert ist unvollständig, weil mindestens eine Position keinen gespeicherten Kurs hat.',
+        'Preračunata vrijednost je djelomična jer barem jedna pozicija nema spremljenu cijenu.',
+      ),
+  'Currently showing the bundled sample dataset. It is illustrative and is not real market data.':
+      _Translation(
+        'Derzeit wird der mitgelieferte Beispieldatensatz angezeigt. Er dient der Veranschaulichung und ist keine echte Marktdatenquelle.',
+        'Trenutačno je prikazan priloženi skup uzoraka. Služi za ilustraciju i nije stvarni tržišni podatak.',
+      ),
+  'Data unavailable': _Translation(
+    'Daten nicht verfügbar',
+    'Podaci nisu dostupni',
+  ),
+  'Dividend payment expected today': _Translation(
+    'Dividendenzahlung heute erwartet',
+    'Isplata dividende očekuje se danas',
+  ),
+  'DividendenDackel': _Translation('DividendenDackel', 'DividendenDackel'),
+  'ECB reference rates': _Translation(
+    'EZB-Referenzkurse',
+    'Referentni tečajevi ESB-a',
+  ),
+  'Edit a country to override its rates. Treaty paperwork and broker handling cannot be detected automatically.':
+      _Translation(
+        'Bearbeiten Sie ein Land, um dessen Sätze zu überschreiben. Abkommensunterlagen und die Handhabung durch den Broker können nicht automatisch erkannt werden.',
+        'Uredite državu kako biste promijenili njezine stope. Dokumentacija ugovora i postupanje brokera ne mogu se automatski prepoznati.',
+      ),
+  'Estimate—not tax advice.': _Translation(
+    'Schätzung – keine Steuerberatung.',
+    'Procjena – nije porezni savjet.',
+  ),
+  'Ex-dividend date tomorrow': _Translation(
+    'Ex-Dividenden-Tag morgen',
+    'Ex-dividendni datum sutra',
+  ),
+  'Expected dividend income': _Translation(
+    'Erwartete Dividendenerträge',
+    'Očekivani prihod od dividendi',
+  ),
+  'Expected vs actually recorded this year': _Translation(
+    'Erwartet gegenüber tatsächlich erfasst in diesem Jahr',
+    'Očekivano u odnosu na stvarno zabilježeno ove godine',
+  ),
+  'GPLv3 or later.': _Translation('GPLv3 oder höher.', 'GPLv3 ili novija.'),
+  'Germany': _Translation('Deutschland', 'Njemačka'),
+  'Gross and estimated net are never combined. Forecast events are included and marked. Estimate—not tax advice.':
+      _Translation(
+        'Brutto und geschätztes Netto werden nie vermischt. Prognostizierte Ereignisse sind enthalten und gekennzeichnet. Schätzung – keine Steuerberatung.',
+        'Bruto i procijenjeni neto nikada se ne miješaju. Prognozirani događaji uključeni su i označeni. Procjena – nije porezni savjet.',
+      ),
+  'Gross and estimated-net income using today’s holding quantities. Estimates are rule-based, not guaranteed. “Paid” means the confirmed payment date has passed; actual cash entered or imported in the activity ledger is reconciled separately on Portfolio.':
+      _Translation(
+        'Brutto- und geschätzte Nettoerträge auf Basis der heutigen Positionsmengen. Schätzungen sind regelbasiert und nicht garantiert. „Gezahlt“ bedeutet, dass das bestätigte Zahlungsdatum vergangen ist; tatsächlich im Aktivitätsjournal erfasste oder importierte Beträge werden separat im Portfolio abgeglichen.',
+        'Bruto i procijenjeni neto prihod prema današnjim količinama pozicija. Procjene se temelje na pravilima i nisu zajamčene. „Isplaćeno“ znači da je potvrđeni datum isplate prošao; stvarni iznosi uneseni ili uvezeni u dnevnik aktivnosti usklađuju se zasebno u Portfelju.',
+      ),
+  'Keyless sources work without setup. Optional provider keys stay in this device\'s secure credential store and are never bundled with the app.':
+      _Translation(
+        'Schlüssellose Quellen funktionieren ohne Einrichtung. Optionale Anbieterschlüssel verbleiben im sicheren Anmeldedatenspeicher dieses Geräts und werden nie mit der App ausgeliefert.',
+        'Izvori bez ključa rade bez postavljanja. Neobavezni ključevi pružatelja ostaju u sigurnoj pohrani vjerodajnica ovog uređaja i nikada se ne isporučuju s aplikacijom.',
+      ),
+  'Last request': _Translation('Letzte Anfrage', 'Zadnji zahtjev'),
+  'Live health and locally retained request statistics. Portfolio values and credentials are never included.':
+      _Translation(
+        'Aktueller Zustand und lokal gespeicherte Anfragestatistiken. Portfoliowerte und Anmeldedaten sind nie enthalten.',
+        'Trenutačno stanje i lokalno spremljena statistika zahtjeva. Vrijednosti portfelja i vjerodajnice nikada nisu uključene.',
+      ),
+  'Native totals remain above. Converted figures use exact cached daily rates and are rounded only for display.':
+      _Translation(
+        'Die Summen in Ursprungswährung stehen oben. Umgerechnete Zahlen verwenden exakte gespeicherte Tageskurse und werden nur für die Anzeige gerundet.',
+        'Ukupni iznosi u izvornoj valuti su iznad. Preračunate brojke koriste točne spremljene dnevne tečajeve i zaokružuju se samo za prikaz.',
+      ),
+  'Net figures are estimates, not tax advice. Payments without dated EUR FX or source-country data remain explicitly unavailable.':
+      _Translation(
+        'Nettozahlen sind Schätzungen, keine Steuerberatung. Zahlungen ohne datierten EUR-Wechselkurs oder Quellenlanddaten bleiben ausdrücklich nicht verfügbar.',
+        'Neto brojke su procjene, a ne porezni savjet. Isplate bez datiranog EUR tečaja ili podataka o državi izvora ostaju izrijekom nedostupne.',
+      ),
+  'New forward gross yield': _Translation(
+    'Neue erwartete Bruttorendite',
+    'Novi očekivani bruto prinos',
+  ),
+  'Next 365 days': _Translation('Nächste 365 Tage', 'Sljedećih 365 dana'),
+  'Next 365 days gross': _Translation(
+    'Nächste 365 Tage brutto',
+    'Sljedećih 365 dana bruto',
+  ),
+  'Next dividend not known yet.': _Translation(
+    'Nächste Dividende noch nicht bekannt.',
+    'Sljedeća dividenda još nije poznata.',
+  ),
+  'No held payments': _Translation(
+    'Keine Zahlungen aus Beständen',
+    'Nema isplata iz pozicija',
+  ),
+  'No watchlist entries yet.': _Translation(
+    'Noch keine Watchlist-Einträge.',
+    'Još nema stavki na popisu praćenja.',
+  ),
+  'Open month': _Translation('Monat öffnen', 'Otvori mjesec'),
+  'Payments and earnings today, plus material filings.': _Translation(
+    'Zahlungen und Ergebnisse heute, dazu wesentliche Meldungen.',
+    'Isplate i rezultati danas, uz značajne prijave.',
+  ),
+  'Portfolio scope': _Translation('Portfolio-Auswahl', 'Opseg portfelja'),
+  'Positions': _Translation('Positionen', 'Pozicije'),
+  'Provider availability and licensing are documented before an adapter is enabled. Sample data remains available offline.':
+      _Translation(
+        'Verfügbarkeit und Lizenzbedingungen eines Anbieters werden dokumentiert, bevor ein Adapter aktiviert wird. Beispieldaten bleiben offline verfügbar.',
+        'Dostupnost i licenciranje pružatelja dokumentiraju se prije uključivanja adaptera. Uzorci podataka ostaju dostupni izvan mreže.',
+      ),
+  'Rejected rows': _Translation('Abgelehnte Zeilen', 'Odbijeni redci'),
+  'Remove holding?': _Translation('Position entfernen?', 'Ukloniti poziciju?'),
+  'Remove watchlist entry?': _Translation(
+    'Watchlist-Eintrag entfernen?',
+    'Ukloniti stavku s popisa praćenja?',
+  ),
+  'Research-score history': _Translation(
+    'Verlauf des Analysewerts',
+    'Povijest ocjene analize',
+  ),
+  'Sample data': _Translation('Beispieldaten', 'Uzorci podataka'),
+  'Saved exchange-rate data could not be read. Native amounts remain available; converted values are unavailable.':
+      _Translation(
+        'Gespeicherte Wechselkursdaten konnten nicht gelesen werden. Beträge in Ursprungswährung bleiben verfügbar; umgerechnete Werte sind nicht verfügbar.',
+        'Spremljeni podaci o tečaju nisu se mogli pročitati. Iznosi u izvornoj valuti ostaju dostupni; preračunate vrijednosti nisu dostupne.',
+      ),
+  'Scenario only—not a recommendation. Fractional shares are shown; broker rules, fees, taxes, price movement and dividend changes are not modelled.':
+      _Translation(
+        'Nur ein Szenario – keine Empfehlung. Bruchteilsaktien werden angezeigt; Broker-Regeln, Gebühren, Steuern, Kursbewegungen und Dividendenänderungen sind nicht modelliert.',
+        'Samo scenarij – nije preporuka. Prikazani su djelomični udjeli; pravila brokera, naknade, porezi, kretanje cijena i promjene dividendi nisu modelirani.',
+      ),
+  'Scope': _Translation('Bereich', 'Opseg'),
+  'Sectors': _Translation('Sektoren', 'Sektori'),
+  'Select one portfolio before editing tax assumptions. Tax allowances and estimated net income are never combined across portfolio boundaries.':
+      _Translation(
+        'Wählen Sie ein Portfolio, bevor Sie Steuerannahmen bearbeiten. Freibeträge und geschätzte Nettoerträge werden nie portfolioübergreifend zusammengeführt.',
+        'Odaberite jedan portfelj prije uređivanja poreznih pretpostavki. Porezni odbici i procijenjeni neto prihod nikada se ne spajaju između portfelja.',
+      ),
+  'Some saved portfolio details are unavailable. Calendar events that could be read remain visible.':
+      _Translation(
+        'Einige gespeicherte Portfoliodetails sind nicht verfügbar. Lesbare Kalenderereignisse bleiben sichtbar.',
+        'Neki spremljeni podaci portfelja nisu dostupni. Događaji kalendara koji su pročitani ostaju vidljivi.',
+      ),
+  'Source: Frankfurter API restricted to provider=ECB. These are daily reference rates, not executable broker prices.':
+      _Translation(
+        'Quelle: Frankfurter-API, beschränkt auf provider=ECB. Dies sind tägliche Referenzkurse, keine handelbaren Brokerpreise.',
+        'Izvor: Frankfurter API ograničen na provider=ECB. Ovo su dnevni referentni tečajevi, a ne izvršive brokerske cijene.',
+      ),
+  'TTWROR · time-weighted': _Translation(
+    'TTWROR · zeitgewichtet',
+    'TTWROR · vremenski ponderiran',
+  ),
+  'The dachshund that fetches your dividends.': _Translation(
+    'Der Dackel, der Ihre Dividenden apportiert.',
+    'Jazavčar koji donosi vaše dividende.',
+  ),
+  'The final portfolio cannot be deleted': _Translation(
+    'Das letzte Portfolio kann nicht gelöscht werden',
+    'Posljednji portfelj ne može se izbrisati',
+  ),
+  'Unpriced holdings and currencies without a dated FX rate are excluded, not treated as zero.':
+      _Translation(
+        'Positionen ohne Kurs und Währungen ohne datierten Wechselkurs werden ausgeschlossen, nicht als null behandelt.',
+        'Pozicije bez cijene i valute bez datiranog tečaja isključene su, a ne tretirane kao nula.',
+      ),
+  'Upcoming company events · 30 days': _Translation(
+    'Bevorstehende Unternehmensereignisse · 30 Tage',
+    'Nadolazeći korporativni događaji · 30 dana',
+  ),
+  'Upcoming events and earnings': _Translation(
+    'Bevorstehende Ereignisse und Ergebnisse',
+    'Nadolazeći događaji i rezultati',
+  ),
+  'What would change the assessment?': _Translation(
+    'Was würde die Einschätzung ändern?',
+    'Što bi promijenilo procjenu?',
+  ),
+  'XIRR · money-weighted': _Translation(
+    'XIRR · geldgewichtet',
+    'XIRR · novčano ponderiran',
+  ),
+  'currency': _Translation('Währung', 'valuta'),
+  'day change unavailable': _Translation(
+    'Tagesveränderung nicht verfügbar',
+    'dnevna promjena nije dostupna',
+  ),
+  'iCalendar file': _Translation('iCalendar-Datei', 'iCalendar datoteka'),
+  'investment': _Translation('Investition', 'ulaganje'),
+  'none': _Translation('keine', 'nema'),
+  'saved data': _Translation('gespeicherte Daten', 'spremljeni podaci'),
+  '● Confirmed upcoming': _Translation(
+    '● Bevorstehend, bestätigt',
+    '● Nadolazeće, potvrđeno',
+  ),
+  '✓ Paid': _Translation('✓ Gezahlt', '✓ Isplaćeno'),
+};
+
 /// Messages that carry runtime values, keyed by their pattern.
 ///
 /// Keyed by the pattern rather than the assembled string, so one entry
