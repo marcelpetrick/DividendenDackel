@@ -57,8 +57,8 @@ final class DataSourceGuide {
     MarketDataSource.finnhub: DataSourceGuide(
       source: MarketDataSource.finnhub,
       summary:
-          'Optional market data. The free plan covers US listings; other '
-          'markets need a paid plan.',
+          'Prices for US listings, at a far more generous rate than Alpha '
+          'Vantage. It does not cover German listings.',
       steps: <String>[
         'Open finnhub.io/register in a browser.',
         'Register with an email address and confirm it.',
@@ -66,12 +66,18 @@ final class DataSourceGuide {
         'Copy the key, return here and press "Add key".',
       ],
       signUpUrl: 'https://finnhub.io/register',
+      caveat:
+          'Finnhub\'s free plan is for personal use. Their terms say it '
+          'cannot be used by a business, even internally, without written '
+          'approval, and that data from it must not be passed on to anyone '
+          'else. The app keeps every quote on this device.',
     ),
     MarketDataSource.financialModelingPrep: DataSourceGuide(
       source: MarketDataSource.financialModelingPrep,
       summary:
-          'Optional fundamentals and calendars. The free plan is limited '
-          'and covers mostly US listings.',
+          'Not yet connected. The app has no Financial Modeling Prep adapter, '
+          'because their terms could not be read to review them, so adding a '
+          'key here has no effect for now.',
       steps: <String>[
         'Open site.financialmodelingprep.com/developer/docs/dashboard in a '
             'browser.',

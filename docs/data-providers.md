@@ -95,6 +95,49 @@ either a quota notice or a genuine advisory, so there the wording decides. A
 missing price, a zero price and a negative price are all refused rather than
 shown, because a confident wrong number is the defect this app exists to avoid.
 
+## Finnhub (optional, user-supplied key)
+
+| Question | Review |
+| --- | --- |
+| Provider | Finnhub, used only when the user supplies their own credential |
+| Endpoint used | `finnhub.io/api/v1/quote`, one symbol per call |
+| Free usage allowed? | Yes, with a free key the user claims themselves. No credential is bundled (Vision.md §34, §80). |
+| Client-side usage allowed? | Yes. The key is read from secure storage per request and never enters widget state or a log line. |
+| Caching allowed? | Not addressed by the terms. The app stores quotes locally for the user's own portfolio only, which is the personal use the plan is for. |
+| Redistribution allowed? | **No.** "You agree to not redistribute or share access to data or derived results from the data obtained from Finnhub with anyone or any 3rd party without written approval." The app forwards nothing; a quote reaches only the device that requested it. |
+| Attribution required? | Not stated. Provenance records `finnhub` as the source, as for every adapter. |
+| Rate limit | Paced rather than capped daily, so the coordinator spaces requests at about one per second and carries no daily budget. |
+| Retention limit | None stated for the user's own cached values. |
+| Commercial restrictions | **The personal plan is for personal use.** "Personal plan can't be used by any business even internally without a written approval," and it is "strictly for personal use unless explicitly stated otherwise". The app states this where the key is asked for, because a user tracking a company portfolio would otherwise breach it unknowingly. |
+| API-key restrictions | Required. The source stays disabled until the user adds a key. |
+| Data warning | The free tier covers US equities. A non-US listing is refused rather than sent unsuffixed, which would resolve a US company of the same ticker. An unknown symbol returns HTTP 200 with every field zero, so a zero price is treated as no data rather than as a company worth nothing. |
+| Reviewed | 2026-08-28 |
+
+Primary sources:
+
+- [Finnhub terms of service](https://finnhub.io/terms-of-service)
+- [Finnhub API documentation](https://finnhub.io/docs/api/quote)
+
+Finnhub is ordered ahead of Alpha Vantage for the listings it covers. Its free
+tier is paced per second while Alpha Vantage's is 25 requests for an entire
+day, so spending the scarcer allowance only where nothing else can serve leaves
+it for the German listings that depend on it.
+
+The response contract here was taken from Finnhub's published documentation
+rather than captured from a live call, because the endpoint requires a
+credential this project does not hold. The adapter is written so that a shape
+it does not recognise produces a parsing or no-data failure rather than a
+number: an unexpected contract costs the user a missing price, never a wrong
+one.
+
+## Financial Modeling Prep
+
+**Not implemented.** The licensing review could not be completed: the pricing
+and terms pages return HTTP 403 to any automated request, so the free tier's
+limits, coverage and commercial conditions could not be established. This
+document requires that review before an adapter merges, so no adapter exists.
+It can be added once someone can read and record those terms.
+
 ## OpenFIGI
 
 | Question | Review |

@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ### Added
 
+- Optional US prices through Finnhub, using a key the user supplies. Its free
+  plan is paced per second rather than capped per day, so it is asked first for
+  the listings it covers and Alpha Vantage's 25 daily requests are left for the
+  German ones that nothing else can price.
 - A setup guide beside every data source that needs an API key. The help icon
   next to the provider opens numbered steps saying which page to open, what to
   enter, what to copy and where to paste it back, along with what the free plan

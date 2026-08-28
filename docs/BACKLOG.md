@@ -263,11 +263,18 @@ local-first model and improves the dividend workflow before broadening the app.
       `docs/data-providers.md`, `docs/research-score.md`, `docs/privacy.md` and
       `docs/releases.md`. (`README.md`, `LICENSE`, `CONTRIBUTING.md` and
       `CHANGELOG.md` are done — see R4a.) — §47, §75, §81, §82
-- [ ] **R5** *Optional* keyed provider adapters (Financial Modeling Prep,
+- [~] **R5** *Optional* keyed provider adapters (Financial Modeling Prep,
       Finnhub, Alpha Vantage) behind the provider interface, activated only
       when the user supplies a key, each with fixture contract tests and a
       licensing entry in `docs/data-providers.md`. No adapter merges without
       that documentation. The keyless SEC EDGAR and FX adapters are F8a/F8b and
       ship enabled. — §46, §47, §77
+      - [x] Alpha Vantage: quotes, the only free tier covering German listings.
+      - [x] Finnhub: quotes for US listings, paced rather than daily-capped.
+      - [ ] Financial Modeling Prep: **blocked**, not skipped. Its pricing and
+            terms pages answer HTTP 403 to any automated request, so the
+            licensing review this item requires cannot be completed. The
+            settings entry says the source is not connected rather than
+            implying a key would do something.
 - [x] **R6** Release readiness: smoke-test Android 10 and Linux builds, verify
       migration path, tag `v0.1.0`. — §59, §88

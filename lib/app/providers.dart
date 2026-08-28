@@ -8,6 +8,7 @@ import 'package:dividendendackel/core/networking/request_coordinator.dart';
 import 'package:dividendendackel/core/utils/clock.dart';
 import 'package:dividendendackel/data/database/app_database.dart';
 import 'package:dividendendackel/data/providers/alpha_vantage_quote_provider.dart';
+import 'package:dividendendackel/data/providers/finnhub_quote_provider.dart';
 import 'package:dividendendackel/data/providers/frankfurter_fx_provider.dart';
 import 'package:dividendendackel/data/providers/market_data_provider.dart';
 import 'package:dividendendackel/data/providers/open_figi_provider.dart';
@@ -130,6 +131,12 @@ final Provider<RequestCoordinator> requestCoordinatorProvider =
             minimumSpacing: Duration(milliseconds: 900),
             dailyRequestBudget: AlphaVantageQuoteProvider.freeTierDailyRequests,
           ),
+          // Finnhub's free tier allows roughly one request a second. No daily
+          // budget: the constraint is pace, not a day's allowance.
+          'finnhub': ProviderRequestPolicy(
+            maxConcurrent: 2,
+            minimumSpacing: Duration(milliseconds: 1100),
+          ),
           // OpenFIGI publishes its unauthenticated quota in-band as
           // `ratelimit-policy: 25;w=60`. One request every 2.4 s stays inside
           // it without tracking a rolling window, and a search issues at most
@@ -223,6 +230,22 @@ final Provider<AlphaVantageQuoteProvider> alphaVantageQuoteProvider =
       ),
     );
 
+/// Quote adapter using the user's own Finnhub credential.
+final Provider<FinnhubQuoteProvider> finnhubQuoteProvider =
+    Provider<FinnhubQuoteProvider>(
+      (Ref ref) => FinnhubQuoteProvider(
+        ref.watch(providerHttpClientProvider),
+        ref.watch(clockProvider),
+        () => ref
+            .read(apiSecretStoreProvider)
+            .read(
+              PlatformDataSourceSettingsStore.secretKey(
+                MarketDataSource.finnhub,
+              ),
+            ),
+      ),
+    );
+
 /// Keyless Frankfurter adapter, explicitly restricted to ECB rates.
 final Provider<FrankfurterFxProvider> frankfurterFxProvider =
     Provider<FrankfurterFxProvider>(
@@ -244,6 +267,7 @@ final Provider<ProviderRegistry> providerRegistryProvider =
           ref.watch(frankfurterFxProvider),
           ref.watch(openFigiProvider),
           ref.watch(alphaVantageQuoteProvider),
+          ref.watch(finnhubQuoteProvider),
         ],
         priorities: const <ProviderDataType, List<String>>{
           // SEC first: it answers US tickers precisely and without a venue
@@ -252,7 +276,11 @@ final Provider<ProviderRegistry> providerRegistryProvider =
           ProviderDataType.instrumentSearch: <String>['sec', 'openfigi'],
           ProviderDataType.dividends: <String>['sec'],
           ProviderDataType.filings: <String>['sec'],
-          ProviderDataType.quote: <String>['alpha_vantage'],
+          // Finnhub first for what it covers: its free tier is paced per
+          // second, while Alpha Vantage's is 25 requests for the whole day, so
+          // spending the scarcer allowance only where it is the sole option
+          // leaves it for the German listings nothing else can price.
+          ProviderDataType.quote: <String>['finnhub', 'alpha_vantage'],
           ProviderDataType.fxRates: <String>['frankfurter'],
         },
         isEnabled: (String providerId) => settings.configurations.any(

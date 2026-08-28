@@ -942,6 +942,21 @@ const Map<String, _Translation> _onboardingMessages = <String, _Translation>{
 /// Ordered phrase fragments cover interpolated amounts, names and counts.
 /// Screen copy that had no entry, so it rendered English in a translated app.
 const Map<String, _Translation> _screenMessages = <String, _Translation>{
+  'Not yet connected. The app has no Financial Modeling Prep adapter, because their terms could not be read to review them, so adding a key here has no effect for now.':
+      _Translation(
+        'Noch nicht angebunden. Die App hat keinen Financial-Modeling-Prep-Adapter, weil deren Bedingungen nicht gelesen und geprüft werden konnten; ein Schlüssel hier bleibt daher vorerst wirkungslos.',
+        'Još nije povezano. Aplikacija nema adapter za Financial Modeling Prep jer njihove uvjete nije bilo moguće pročitati i provjeriti, pa ključ ovdje zasad nema učinka.',
+      ),
+  'Finnhub\'s free plan is for personal use. Their terms say it cannot be used by a business, even internally, without written approval, and that data from it must not be passed on to anyone else. The app keeps every quote on this device.':
+      _Translation(
+        'Der kostenlose Tarif von Finnhub ist für die private Nutzung bestimmt. Laut deren Bedingungen darf er ohne schriftliche Genehmigung nicht von einem Unternehmen genutzt werden, auch nicht intern, und die Daten dürfen nicht weitergegeben werden. Die App behält jeden Kurs auf diesem Gerät.',
+        'Finnhubov besplatni plan namijenjen je osobnoj uporabi. Prema njihovim uvjetima tvrtka ga ne smije koristiti, ni interno, bez pisanog odobrenja, a podaci se ne smiju prosljeđivati drugima. Aplikacija zadržava svaku cijenu na ovom uređaju.',
+      ),
+  'Prices for US listings, at a far more generous rate than Alpha Vantage. It does not cover German listings.':
+      _Translation(
+        'Kurse für US-Notierungen, mit deutlich großzügigerem Kontingent als Alpha Vantage. Deutsche Notierungen deckt der Dienst nicht ab.',
+        'Cijene za američke kotacije, uz znatno velikodušnije ograničenje od Alpha Vantagea. Njemačke kotacije nisu pokrivene.',
+      ),
   'Copy the key, return here and press "Add key".': _Translation(
     'Kopieren Sie den Schlüssel, kehren Sie hierher zurück und wählen Sie „Schlüssel hinzufügen“.',
     'Kopirajte ključ, vratite se ovamo i odaberite „Dodaj ključ“.',
