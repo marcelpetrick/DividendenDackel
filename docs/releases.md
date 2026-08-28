@@ -85,6 +85,14 @@ schema shipped by an earlier public version; destructive reset is not an
 upgrade strategy. A change that cannot preserve data needs a documented export
 or migration path and is a breaking release concern.
 
+### Cutting a release section
+
+The gate refuses a version with no section, which makes the order matter. Bump
+`pubspec.yaml` to the version being released and move `[Unreleased]` into a
+dated section for it **in the same commit**. Cutting the section first and
+bumping afterwards leaves the new version undocumented again, and the gate will
+say so.
+
 ### Changing the schema
 
 Every bump of `AppDatabase.latestSchemaVersion` needs a recorded snapshot, or a

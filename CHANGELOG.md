@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ## [Unreleased]
 
+Nothing yet.
+
+## [0.60.2] - 2026-08-28
+
 ### Added
 
 - Optional US prices through Finnhub, using a key the user supplies. Its free
