@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ### Added
 
+- Instruments outside the US can be found. A keyless OpenFIGI adapter resolves
+  an ISIN, symbol or company name to German listings, so searches like
+  "Hannover Rück" that previously returned nothing now resolve. It supplies
+  identity only, never prices, and stores matches locally so search keeps
+  working offline.
+
 - Live English, German and Croatian application languages. The first launch
   follows a supported device locale, Settings applies changes without a
   restart, and the explicit choice stays on the device. Application copy,

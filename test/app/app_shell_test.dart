@@ -384,9 +384,17 @@ void main() {
         of: find.text('Financial Modeling Prep'),
         matching: find.byType(Card),
       );
-      await tester.tap(
-        find.descendant(of: providerCard, matching: find.text('Add key')),
+      final Finder addKey = find.descendant(
+        of: providerCard,
+        matching: find.text('Add key'),
       );
+      // scrollUntilVisible stops as soon as the card's title is on screen,
+      // which can leave its button below the fold, and a tap on an off-screen
+      // widget silently does nothing. Adding a source shifts the list, so the
+      // button is ensured visible rather than relying on the list's length.
+      await tester.ensureVisible(addKey);
+      await tester.pumpAndSettle();
+      await tester.tap(addKey);
       await tester.pumpAndSettle();
 
       await tester.enterText(find.byType(TextFormField), 'top-secret-value');

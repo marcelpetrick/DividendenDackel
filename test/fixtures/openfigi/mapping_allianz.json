@@ -1,0 +1,11 @@
+[
+  {
+    "data": [
+      {"figi":"BBG000BBF8T7","name":"ALLIANZ SE-REG","ticker":"ALV","exchCode":"GR","compositeFIGI":"BBG000BBF8T7","securityType":"Common Stock","marketSector":"Equity"},
+      {"figi":"BBG000BBF979","name":"ALLIANZ SE-REG","ticker":"ALV","exchCode":"GF","compositeFIGI":"BBG000BBF8T7","securityType":"Common Stock","marketSector":"Equity"},
+      {"figi":"BBG000BBFBD7","name":"ALLIANZ SE-REG","ticker":"ALV","exchCode":"GY","compositeFIGI":"BBG000BBF8T7","securityType":"Common Stock","marketSector":"Equity"},
+      {"figi":"BBG000BBF8Z1","name":"ALLIANZ SE-REG","ticker":"ALV","exchCode":"US","compositeFIGI":"BBG000BBF8T7","securityType":"Common Stock","marketSector":"Equity"},
+      {"figi":"BBG00XXXXXX1","name":"ALLIANZ SE 3.099%","ticker":"ALVGR","exchCode":"GY","compositeFIGI":"BBG00XXXXXX1","securityType":"EURO-DOLLAR","marketSector":"Corp"}
+    ]
+  }
+]

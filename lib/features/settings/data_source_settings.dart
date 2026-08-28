@@ -13,6 +13,9 @@ enum MarketDataSource {
   /// ECB reference exchange rates via Frankfurter; no credential required.
   frankfurter,
 
+  /// Instrument identity outside the US via OpenFIGI; no credential required.
+  openFigi,
+
   /// Optional Financial Modeling Prep account.
   financialModelingPrep,
 
@@ -26,6 +29,7 @@ enum MarketDataSource {
   String get label => switch (this) {
     secEdgar => 'SEC EDGAR',
     frankfurter => 'Frankfurter / ECB',
+    openFigi => 'OpenFIGI',
     financialModelingPrep => 'Financial Modeling Prep',
     finnhub => 'Finnhub',
     alphaVantage => 'Alpha Vantage',
@@ -35,6 +39,7 @@ enum MarketDataSource {
   String get providerId => switch (this) {
     secEdgar => 'sec',
     frankfurter => 'frankfurter',
+    openFigi => 'openfigi',
     financialModelingPrep => 'fmp',
     finnhub => 'finnhub',
     alphaVantage => 'alpha_vantage',
@@ -44,6 +49,7 @@ enum MarketDataSource {
   String get description => switch (this) {
     secEdgar => 'US dividend history, company facts and filings',
     frankfurter => 'Daily reference exchange rates',
+    openFigi => 'Finds non-US listings by ISIN, symbol or name. Identity only, never prices',
     financialModelingPrep => 'Optional quotes, calendars and fundamentals',
     finnhub => 'Optional news, calendars and market data',
     alphaVantage => 'Optional fundamentals and market data',
@@ -51,7 +57,7 @@ enum MarketDataSource {
 
   /// Whether the source needs a credential supplied by the user.
   bool get requiresApiKey => switch (this) {
-    secEdgar || frankfurter => false,
+    secEdgar || frankfurter || openFigi => false,
     financialModelingPrep || finnhub || alphaVantage => true,
   };
 

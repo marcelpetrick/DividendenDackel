@@ -57,6 +57,44 @@ history fragments. The initial adapter exposes the inline set (at least one
 year or 1,000 filings according to SEC documentation) and reports no data for
 older ranges instead of pretending the history is exhaustive.
 
+## OpenFIGI
+
+| Question | Review |
+| --- | --- |
+| Provider | OpenFIGI, operated by Bloomberg, for the Financial Instrument Global Identifier (FIGI) standard |
+| Endpoint used | `api.openfigi.com/v3/mapping` for an ISIN, `api.openfigi.com/v3/search` for a name, restricted to the German venue codes `GY`, `GR` and `GF` |
+| Free usage allowed? | Yes. OpenFIGI states the API is "free to use without daily, weekly or monthly limitations". |
+| Client-side usage allowed? | Yes. No credential is required for the quota this app uses. |
+| Caching allowed? | Yes. The terms allow identifiers to be "freely reproduced, distributed, transmitted, used, modified, built upon, or otherwise exploited by anyone for any purpose". The app stores matched instruments locally so search keeps working offline. |
+| Redistribution allowed? | Yes, explicitly, including to a user's own customers. |
+| Attribution required? | No. Bloomberg dedicates the FIGI identifiers to the public domain. |
+| Rate limit | 25 requests per 60 seconds without a key, reported in-band as `ratelimit-policy: 25;w=60`. The coordinator is configured from that number at one request every 2.4 s. A `429` carries `ratelimit-reset`, which the adapter converts into a typed `RateLimitFailure`. |
+| Retention limit | None stated. |
+| Commercial restrictions | None. Use is dedicated to the public domain. |
+| API-key restrictions | A key raises the quota but is not required, so none is bundled (Vision.md §34, §80). |
+| Data warning | Identity only. OpenFIGI returns no prices, and the adapter declares only `instrumentSearch`, asserted by a test. Bloomberg provides the data "as is" with no accuracy warranty and caps liability at USD 50, so a match is treated as a candidate for the user to confirm, never as a fact about a holding. |
+| Reviewed | 2026-08-28 |
+
+Primary sources:
+
+- [OpenFIGI API overview](https://www.openfigi.com/api)
+- [OpenFIGI terms of service](https://www.openfigi.com/docs/terms-of-service)
+
+The rate limit and the response shapes in `test/fixtures/openfigi/` were taken
+from live responses rather than from documentation alone, because the published
+overview does not state the unauthenticated per-minute quota; the API reports it
+in `ratelimit-policy`.
+
+One ISIN maps to well over a hundred rows — Allianz returns 135 — because every
+venue and share class is its own record. The adapter keeps equities on German
+venues only, collapses them to one entry per ticker preferring Xetra, and leaves
+US listings to SEC EDGAR so the two adapters complement rather than duplicate
+each other.
+
+OpenFIGI does not report a trading currency. The adapter admits only German
+venues, which quote in EUR, so the currency is asserted from the venue rather
+than guessed. Extending it to another venue must revisit that.
+
 ## Frankfurter / ECB
 
 | Question | Review |

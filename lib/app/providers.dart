@@ -9,6 +9,7 @@ import 'package:dividendendackel/core/utils/clock.dart';
 import 'package:dividendendackel/data/database/app_database.dart';
 import 'package:dividendendackel/data/providers/frankfurter_fx_provider.dart';
 import 'package:dividendendackel/data/providers/market_data_provider.dart';
+import 'package:dividendendackel/data/providers/open_figi_provider.dart';
 import 'package:dividendendackel/data/providers/provider_registry.dart';
 import 'package:dividendendackel/data/providers/sec_edgar_provider.dart';
 import 'package:dividendendackel/data/repositories/drift_cache_metadata_repository.dart';
@@ -119,6 +120,14 @@ final Provider<RequestCoordinator> requestCoordinatorProvider =
       final RequestCoordinator coordinator = RequestCoordinator(
         clock: ref.watch(clockProvider),
         providerPolicies: <String, ProviderRequestPolicy>{
+          // OpenFIGI publishes its unauthenticated quota in-band as
+          // `ratelimit-policy: 25;w=60`. One request every 2.4 s stays inside
+          // it without tracking a rolling window, and a search issues at most
+          // one request per venue.
+          'openfigi': ProviderRequestPolicy(
+            maxConcurrent: 1,
+            minimumSpacing: Duration(milliseconds: 2400),
+          ),
           // SEC asks automated clients to remain below 10 requests/second.
           'sec': ProviderRequestPolicy(
             // One logical operation may first resolve the public ticker index
@@ -180,6 +189,11 @@ final Provider<SecEdgarProvider> secEdgarProvider = Provider<SecEdgarProvider>(
   ),
 );
 
+/// Keyless OpenFIGI adapter for instrument identity outside the US.
+final Provider<OpenFigiProvider> openFigiProvider = Provider<OpenFigiProvider>(
+  (Ref ref) => OpenFigiProvider(ref.watch(providerHttpClientProvider)),
+);
+
 /// Keyless Frankfurter adapter, explicitly restricted to ECB rates.
 final Provider<FrankfurterFxProvider> frankfurterFxProvider =
     Provider<FrankfurterFxProvider>(
@@ -199,9 +213,13 @@ final Provider<ProviderRegistry> providerRegistryProvider =
         providers: <MarketDataProvider>[
           ref.watch(secEdgarProvider),
           ref.watch(frankfurterFxProvider),
+          ref.watch(openFigiProvider),
         ],
         priorities: const <ProviderDataType, List<String>>{
-          ProviderDataType.instrumentSearch: <String>['sec'],
+          // SEC first: it answers US tickers precisely and without a venue
+          // guess. OpenFIGI then covers everything SEC does not list, which is
+          // every non-US listing.
+          ProviderDataType.instrumentSearch: <String>['sec', 'openfigi'],
           ProviderDataType.dividends: <String>['sec'],
           ProviderDataType.filings: <String>['sec'],
           ProviderDataType.fxRates: <String>['frankfurter'],
