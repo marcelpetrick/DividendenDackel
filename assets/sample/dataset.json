@@ -1,190 +1,535 @@
 {
-  "$comment": "ILLUSTRATIVE SAMPLE DATA — NOT REAL MARKET DATA. Prices, dividend amounts and growth rates are plausible but invented, so the app is usable and demonstrable without any API key. Every record seeded from this file carries provenance source 'sample' and must be labelled as such in the UI.",
+  "$comment": "ILLUSTRATIVE SAMPLE DATA - NOT REAL MARKET DATA. Dividend amounts and growth rates are plausible but invented, so the app is demonstrable without any API key. These are real, identifiable companies, so this file carries NO prices: an invented number beside a real company name is read as that company's price. Instrument entries are identity only. Every record seeded from this file carries provenance source 'sample', is marked as an estimate rather than confirmed, and must be labelled as such in the UI (Vision.md 9.4, 48, 79).",
   "schemaVersion": 1,
   "instruments": [
     {
       "internalId": "isin:DE0008404005",
-      "symbol": "ALV", "name": "Allianz SE", "currency": "EUR",
-      "exchange": "XETRA", "mic": "XETR", "isin": "DE0008404005",
-      "country": "DE", "sector": "Financials",
-      "price": "287.50", "previousClose": "286.35"
+      "symbol": "ALV",
+      "name": "Allianz SE",
+      "currency": "EUR",
+      "exchange": "XETRA",
+      "mic": "XETR",
+      "isin": "DE0008404005",
+      "country": "DE",
+      "sector": "Financials"
     },
     {
       "internalId": "isin:DE0008430026",
-      "symbol": "MUV2", "name": "Münchener Rückversicherungs-Gesellschaft AG",
-      "currency": "EUR", "exchange": "XETRA", "mic": "XETR",
-      "isin": "DE0008430026", "country": "DE", "sector": "Financials",
-      "price": "482.10", "previousClose": "485.60"
+      "symbol": "MUV2",
+      "name": "Münchener Rückversicherungs-Gesellschaft AG",
+      "currency": "EUR",
+      "exchange": "XETRA",
+      "mic": "XETR",
+      "isin": "DE0008430026",
+      "country": "DE",
+      "sector": "Financials"
     },
     {
       "internalId": "isin:DE000BASF111",
-      "symbol": "BAS", "name": "BASF SE", "currency": "EUR",
-      "exchange": "XETRA", "mic": "XETR", "isin": "DE000BASF111",
-      "country": "DE", "sector": "Materials",
-      "price": "44.62", "previousClose": "45.10"
+      "symbol": "BAS",
+      "name": "BASF SE",
+      "currency": "EUR",
+      "exchange": "XETRA",
+      "mic": "XETR",
+      "isin": "DE000BASF111",
+      "country": "DE",
+      "sector": "Materials"
     },
     {
       "internalId": "isin:DE0007236101",
-      "symbol": "SIE", "name": "Siemens AG", "currency": "EUR",
-      "exchange": "XETRA", "mic": "XETR", "isin": "DE0007236101",
-      "country": "DE", "sector": "Industrials",
-      "price": "196.84", "previousClose": "194.20"
+      "symbol": "SIE",
+      "name": "Siemens AG",
+      "currency": "EUR",
+      "exchange": "XETRA",
+      "mic": "XETR",
+      "isin": "DE0007236101",
+      "country": "DE",
+      "sector": "Industrials"
     },
     {
       "internalId": "isin:US0378331005",
-      "symbol": "AAPL", "name": "Apple Inc.", "currency": "USD",
-      "exchange": "NASDAQ", "mic": "XNAS", "isin": "US0378331005",
-      "country": "US", "sector": "Information Technology",
-      "providerMappings": [{"providerId": "sec", "symbol": "AAPL", "providerInstrumentId": "0000320193"}],
-      "price": "228.40", "previousClose": "226.90"
+      "symbol": "AAPL",
+      "name": "Apple Inc.",
+      "currency": "USD",
+      "exchange": "NASDAQ",
+      "mic": "XNAS",
+      "isin": "US0378331005",
+      "country": "US",
+      "sector": "Information Technology",
+      "providerMappings": [
+        {
+          "providerId": "sec",
+          "symbol": "AAPL",
+          "providerInstrumentId": "0000320193"
+        }
+      ]
     },
     {
       "internalId": "isin:US5949181045",
-      "symbol": "MSFT", "name": "Microsoft Corporation", "currency": "USD",
-      "exchange": "NASDAQ", "mic": "XNAS", "isin": "US5949181045",
-      "country": "US", "sector": "Information Technology",
-      "providerMappings": [{"providerId": "sec", "symbol": "MSFT", "providerInstrumentId": "0000789019"}],
-      "price": "441.20", "previousClose": "438.75"
+      "symbol": "MSFT",
+      "name": "Microsoft Corporation",
+      "currency": "USD",
+      "exchange": "NASDAQ",
+      "mic": "XNAS",
+      "isin": "US5949181045",
+      "country": "US",
+      "sector": "Information Technology",
+      "providerMappings": [
+        {
+          "providerId": "sec",
+          "symbol": "MSFT",
+          "providerInstrumentId": "0000789019"
+        }
+      ]
     },
     {
       "internalId": "isin:US4781601046",
-      "symbol": "JNJ", "name": "Johnson & Johnson", "currency": "USD",
-      "exchange": "NYSE", "mic": "XNYS", "isin": "US4781601046",
-      "country": "US", "sector": "Health Care",
-      "providerMappings": [{"providerId": "sec", "symbol": "JNJ", "providerInstrumentId": "0000200406"}],
-      "price": "158.30", "previousClose": "158.95"
+      "symbol": "JNJ",
+      "name": "Johnson & Johnson",
+      "currency": "USD",
+      "exchange": "NYSE",
+      "mic": "XNYS",
+      "isin": "US4781601046",
+      "country": "US",
+      "sector": "Health Care",
+      "providerMappings": [
+        {
+          "providerId": "sec",
+          "symbol": "JNJ",
+          "providerInstrumentId": "0000200406"
+        }
+      ]
     },
     {
       "internalId": "isin:US1912161007",
-      "symbol": "KO", "name": "The Coca-Cola Company", "currency": "USD",
-      "exchange": "NYSE", "mic": "XNYS", "isin": "US1912161007",
-      "country": "US", "sector": "Consumer Staples",
-      "providerMappings": [{"providerId": "sec", "symbol": "KO", "providerInstrumentId": "0000021344"}],
-      "price": "70.15", "previousClose": "69.80"
+      "symbol": "KO",
+      "name": "The Coca-Cola Company",
+      "currency": "USD",
+      "exchange": "NYSE",
+      "mic": "XNYS",
+      "isin": "US1912161007",
+      "country": "US",
+      "sector": "Consumer Staples",
+      "providerMappings": [
+        {
+          "providerId": "sec",
+          "symbol": "KO",
+          "providerInstrumentId": "0000021344"
+        }
+      ]
     },
     {
       "internalId": "isin:US7561091049",
-      "symbol": "O", "name": "Realty Income Corporation", "currency": "USD",
-      "exchange": "NYSE", "mic": "XNYS", "isin": "US7561091049",
-      "country": "US", "sector": "Real Estate",
-      "providerMappings": [{"providerId": "sec", "symbol": "O", "providerInstrumentId": "0000726728"}],
-      "price": "58.92", "previousClose": "58.44"
+      "symbol": "O",
+      "name": "Realty Income Corporation",
+      "currency": "USD",
+      "exchange": "NYSE",
+      "mic": "XNYS",
+      "isin": "US7561091049",
+      "country": "US",
+      "sector": "Real Estate",
+      "providerMappings": [
+        {
+          "providerId": "sec",
+          "symbol": "O",
+          "providerInstrumentId": "0000726728"
+        }
+      ]
     },
     {
       "internalId": "isin:GB00B10RZP78",
-      "symbol": "ULVR", "name": "Unilever PLC", "currency": "GBP",
-      "exchange": "London Stock Exchange", "mic": "XLON",
-      "isin": "GB00B10RZP78", "country": "GB", "sector": "Consumer Staples",
-      "price": "46.28", "previousClose": "46.05"
+      "symbol": "ULVR",
+      "name": "Unilever PLC",
+      "currency": "GBP",
+      "exchange": "London Stock Exchange",
+      "mic": "XLON",
+      "isin": "GB00B10RZP78",
+      "country": "GB",
+      "sector": "Consumer Staples"
     }
   ],
   "dividendPatterns": [
     {
-      "instrumentId": "isin:DE0008404005", "currency": "EUR",
-      "currentAnnualAmount": "13.80", "frequency": "annual",
-      "anchors": ["05-08"], "paymentOffsetDays": 4,
-      "annualGrowthPercent": "8.1", "historyYears": 8
-    },
-    {
-      "instrumentId": "isin:DE0008430026", "currency": "EUR",
-      "currentAnnualAmount": "15.00", "frequency": "annual",
-      "anchors": ["04-30"], "paymentOffsetDays": 3,
-      "annualGrowthPercent": "6.4", "historyYears": 8
-    },
-    {
-      "instrumentId": "isin:DE000BASF111", "currency": "EUR",
-      "currentAnnualAmount": "3.40", "frequency": "annual",
-      "anchors": ["05-02"], "paymentOffsetDays": 3,
-      "annualGrowthPercent": "0.8", "historyYears": 8
-    },
-    {
-      "instrumentId": "isin:DE0007236101", "currency": "EUR",
-      "currentAnnualAmount": "5.20", "frequency": "annual",
-      "anchors": ["02-14"], "paymentOffsetDays": 4,
-      "annualGrowthPercent": "7.2", "historyYears": 8
-    },
-    {
-      "instrumentId": "isin:US0378331005", "currency": "USD",
-      "currentAnnualAmount": "1.04", "frequency": "quarterly",
-      "anchors": ["02-09", "05-10", "08-12", "11-08"],
-      "paymentOffsetDays": 6, "annualGrowthPercent": "4.5",
-      "historyYears": 6
-    },
-    {
-      "instrumentId": "isin:US5949181045", "currency": "USD",
-      "currentAnnualAmount": "3.32", "frequency": "quarterly",
-      "anchors": ["02-15", "05-16", "08-15", "11-21"],
-      "paymentOffsetDays": 21, "annualGrowthPercent": "10.2",
-      "historyYears": 6
-    },
-    {
-      "instrumentId": "isin:US4781601046", "currency": "USD",
-      "currentAnnualAmount": "4.96", "frequency": "quarterly",
-      "anchors": ["02-20", "05-21", "08-25", "11-24"],
-      "paymentOffsetDays": 17, "annualGrowthPercent": "5.6",
+      "instrumentId": "isin:DE0008404005",
+      "currency": "EUR",
+      "currentAnnualAmount": "13.80",
+      "frequency": "annual",
+      "anchors": [
+        "05-08"
+      ],
+      "paymentOffsetDays": 4,
+      "annualGrowthPercent": "8.1",
       "historyYears": 8
     },
     {
-      "instrumentId": "isin:US1912161007", "currency": "USD",
-      "currentAnnualAmount": "1.96", "frequency": "quarterly",
-      "anchors": ["03-14", "06-13", "09-12", "11-28"],
-      "paymentOffsetDays": 18, "annualGrowthPercent": "4.1",
+      "instrumentId": "isin:DE0008430026",
+      "currency": "EUR",
+      "currentAnnualAmount": "15.00",
+      "frequency": "annual",
+      "anchors": [
+        "04-30"
+      ],
+      "paymentOffsetDays": 3,
+      "annualGrowthPercent": "6.4",
       "historyYears": 8
     },
     {
-      "instrumentId": "isin:US7561091049", "currency": "USD",
-      "currentAnnualAmount": "3.16", "frequency": "monthly",
-      "anchors": ["01-02", "02-02", "03-02", "04-01", "05-01", "06-02",
-                  "07-01", "08-01", "09-02", "10-01", "11-03", "12-01"],
-      "paymentOffsetDays": 13, "annualGrowthPercent": "3.0",
+      "instrumentId": "isin:DE000BASF111",
+      "currency": "EUR",
+      "currentAnnualAmount": "3.40",
+      "frequency": "annual",
+      "anchors": [
+        "05-02"
+      ],
+      "paymentOffsetDays": 3,
+      "annualGrowthPercent": "0.8",
+      "historyYears": 8
+    },
+    {
+      "instrumentId": "isin:DE0007236101",
+      "currency": "EUR",
+      "currentAnnualAmount": "5.20",
+      "frequency": "annual",
+      "anchors": [
+        "02-14"
+      ],
+      "paymentOffsetDays": 4,
+      "annualGrowthPercent": "7.2",
+      "historyYears": 8
+    },
+    {
+      "instrumentId": "isin:US0378331005",
+      "currency": "USD",
+      "currentAnnualAmount": "1.04",
+      "frequency": "quarterly",
+      "anchors": [
+        "02-09",
+        "05-10",
+        "08-12",
+        "11-08"
+      ],
+      "paymentOffsetDays": 6,
+      "annualGrowthPercent": "4.5",
       "historyYears": 6
     },
     {
-      "instrumentId": "isin:GB00B10RZP78", "currency": "GBP",
-      "currentAnnualAmount": "1.52", "frequency": "quarterly",
-      "anchors": ["02-22", "05-16", "08-08", "11-14"],
-      "paymentOffsetDays": 42, "annualGrowthPercent": "3.4",
+      "instrumentId": "isin:US5949181045",
+      "currency": "USD",
+      "currentAnnualAmount": "3.32",
+      "frequency": "quarterly",
+      "anchors": [
+        "02-15",
+        "05-16",
+        "08-15",
+        "11-21"
+      ],
+      "paymentOffsetDays": 21,
+      "annualGrowthPercent": "10.2",
+      "historyYears": 6
+    },
+    {
+      "instrumentId": "isin:US4781601046",
+      "currency": "USD",
+      "currentAnnualAmount": "4.96",
+      "frequency": "quarterly",
+      "anchors": [
+        "02-20",
+        "05-21",
+        "08-25",
+        "11-24"
+      ],
+      "paymentOffsetDays": 17,
+      "annualGrowthPercent": "5.6",
+      "historyYears": 8
+    },
+    {
+      "instrumentId": "isin:US1912161007",
+      "currency": "USD",
+      "currentAnnualAmount": "1.96",
+      "frequency": "quarterly",
+      "anchors": [
+        "03-14",
+        "06-13",
+        "09-12",
+        "11-28"
+      ],
+      "paymentOffsetDays": 18,
+      "annualGrowthPercent": "4.1",
+      "historyYears": 8
+    },
+    {
+      "instrumentId": "isin:US7561091049",
+      "currency": "USD",
+      "currentAnnualAmount": "3.16",
+      "frequency": "monthly",
+      "anchors": [
+        "01-02",
+        "02-02",
+        "03-02",
+        "04-01",
+        "05-01",
+        "06-02",
+        "07-01",
+        "08-01",
+        "09-02",
+        "10-01",
+        "11-03",
+        "12-01"
+      ],
+      "paymentOffsetDays": 13,
+      "annualGrowthPercent": "3.0",
+      "historyYears": 6
+    },
+    {
+      "instrumentId": "isin:GB00B10RZP78",
+      "currency": "GBP",
+      "currentAnnualAmount": "1.52",
+      "frequency": "quarterly",
+      "anchors": [
+        "02-22",
+        "05-16",
+        "08-08",
+        "11-14"
+      ],
+      "paymentOffsetDays": 42,
+      "annualGrowthPercent": "3.4",
       "historyYears": 6
     }
   ],
   "earningsPatterns": [
-    {"instrumentId": "isin:DE0008404005", "anchors": ["02-28", "05-14", "08-07", "11-13"], "timing": "beforeMarketOpen"},
-    {"instrumentId": "isin:DE0008430026", "anchors": ["02-26", "05-07", "08-06", "11-06"], "timing": "beforeMarketOpen"},
-    {"instrumentId": "isin:DE000BASF111", "anchors": ["02-27", "04-30", "07-30", "10-29"], "timing": "beforeMarketOpen"},
-    {"instrumentId": "isin:DE0007236101", "anchors": ["02-13", "05-14", "08-07", "11-12"], "timing": "beforeMarketOpen"},
-    {"instrumentId": "isin:US0378331005", "anchors": ["01-30", "05-01", "07-31", "10-30"], "timing": "afterMarketClose"},
-    {"instrumentId": "isin:US5949181045", "anchors": ["01-28", "04-24", "07-29", "10-28"], "timing": "afterMarketClose"},
-    {"instrumentId": "isin:US4781601046", "anchors": ["01-21", "04-15", "07-16", "10-14"], "timing": "beforeMarketOpen"},
-    {"instrumentId": "isin:US1912161007", "anchors": ["02-11", "04-29", "07-22", "10-21"], "timing": "beforeMarketOpen"},
-    {"instrumentId": "isin:US7561091049", "anchors": ["02-24", "05-05", "08-04", "11-03"], "timing": "afterMarketClose"},
-    {"instrumentId": "isin:GB00B10RZP78", "anchors": ["02-13", "04-24", "07-24", "10-23"], "timing": "beforeMarketOpen"}
+    {
+      "instrumentId": "isin:DE0008404005",
+      "anchors": [
+        "02-28",
+        "05-14",
+        "08-07",
+        "11-13"
+      ],
+      "timing": "beforeMarketOpen"
+    },
+    {
+      "instrumentId": "isin:DE0008430026",
+      "anchors": [
+        "02-26",
+        "05-07",
+        "08-06",
+        "11-06"
+      ],
+      "timing": "beforeMarketOpen"
+    },
+    {
+      "instrumentId": "isin:DE000BASF111",
+      "anchors": [
+        "02-27",
+        "04-30",
+        "07-30",
+        "10-29"
+      ],
+      "timing": "beforeMarketOpen"
+    },
+    {
+      "instrumentId": "isin:DE0007236101",
+      "anchors": [
+        "02-13",
+        "05-14",
+        "08-07",
+        "11-12"
+      ],
+      "timing": "beforeMarketOpen"
+    },
+    {
+      "instrumentId": "isin:US0378331005",
+      "anchors": [
+        "01-30",
+        "05-01",
+        "07-31",
+        "10-30"
+      ],
+      "timing": "afterMarketClose"
+    },
+    {
+      "instrumentId": "isin:US5949181045",
+      "anchors": [
+        "01-28",
+        "04-24",
+        "07-29",
+        "10-28"
+      ],
+      "timing": "afterMarketClose"
+    },
+    {
+      "instrumentId": "isin:US4781601046",
+      "anchors": [
+        "01-21",
+        "04-15",
+        "07-16",
+        "10-14"
+      ],
+      "timing": "beforeMarketOpen"
+    },
+    {
+      "instrumentId": "isin:US1912161007",
+      "anchors": [
+        "02-11",
+        "04-29",
+        "07-22",
+        "10-21"
+      ],
+      "timing": "beforeMarketOpen"
+    },
+    {
+      "instrumentId": "isin:US7561091049",
+      "anchors": [
+        "02-24",
+        "05-05",
+        "08-04",
+        "11-03"
+      ],
+      "timing": "afterMarketClose"
+    },
+    {
+      "instrumentId": "isin:GB00B10RZP78",
+      "anchors": [
+        "02-13",
+        "04-24",
+        "07-24",
+        "10-23"
+      ],
+      "timing": "beforeMarketOpen"
+    }
   ],
   "corporateEventPatterns": [
-    {"instrumentId": "isin:DE0008404005", "anchor": "05-08", "type": "shareholderMeeting", "title": "Annual shareholder meeting"},
-    {"instrumentId": "isin:DE0007236101", "anchor": "09-09", "type": "investorDay", "title": "Capital markets day"},
-    {"instrumentId": "isin:US0378331005", "anchor": "09-12", "type": "companyUpdate", "title": "Company product event"},
-    {"instrumentId": "isin:US7561091049", "anchor": "11-18", "type": "investorDay", "title": "Investor presentation"}
+    {
+      "instrumentId": "isin:DE0008404005",
+      "anchor": "05-08",
+      "type": "shareholderMeeting",
+      "title": "Annual shareholder meeting"
+    },
+    {
+      "instrumentId": "isin:DE0007236101",
+      "anchor": "09-09",
+      "type": "investorDay",
+      "title": "Capital markets day"
+    },
+    {
+      "instrumentId": "isin:US0378331005",
+      "anchor": "09-12",
+      "type": "companyUpdate",
+      "title": "Company product event"
+    },
+    {
+      "instrumentId": "isin:US7561091049",
+      "anchor": "11-18",
+      "type": "investorDay",
+      "title": "Investor presentation"
+    }
   ],
   "portfolio": [
-    {"instrumentId": "isin:DE0008404005", "quantity": "20", "averagePrice": "210.40", "purchaseOffsetDays": -820},
-    {"instrumentId": "isin:DE0008430026", "quantity": "6", "averagePrice": "352.00", "purchaseOffsetDays": -610},
-    {"instrumentId": "isin:DE0007236101", "quantity": "15", "averagePrice": "148.75", "purchaseOffsetDays": -930},
-    {"instrumentId": "isin:US0378331005", "quantity": "40", "averagePrice": "171.20", "purchaseOffsetDays": -1140},
-    {"instrumentId": "isin:US4781601046", "quantity": "25", "averagePrice": "162.10", "purchaseOffsetDays": -540},
-    {"instrumentId": "isin:US7561091049", "quantity": "120", "averagePrice": "61.35", "purchaseOffsetDays": -400},
-    {"instrumentId": "isin:US1912161007", "quantity": "60", "averagePrice": "58.90", "purchaseOffsetDays": -1250}
+    {
+      "instrumentId": "isin:DE0008404005",
+      "quantity": "20",
+      "averagePrice": "210.40",
+      "purchaseOffsetDays": -820
+    },
+    {
+      "instrumentId": "isin:DE0008430026",
+      "quantity": "6",
+      "averagePrice": "352.00",
+      "purchaseOffsetDays": -610
+    },
+    {
+      "instrumentId": "isin:DE0007236101",
+      "quantity": "15",
+      "averagePrice": "148.75",
+      "purchaseOffsetDays": -930
+    },
+    {
+      "instrumentId": "isin:US0378331005",
+      "quantity": "40",
+      "averagePrice": "171.20",
+      "purchaseOffsetDays": -1140
+    },
+    {
+      "instrumentId": "isin:US4781601046",
+      "quantity": "25",
+      "averagePrice": "162.10",
+      "purchaseOffsetDays": -540
+    },
+    {
+      "instrumentId": "isin:US7561091049",
+      "quantity": "120",
+      "averagePrice": "61.35",
+      "purchaseOffsetDays": -400
+    },
+    {
+      "instrumentId": "isin:US1912161007",
+      "quantity": "60",
+      "averagePrice": "58.90",
+      "purchaseOffsetDays": -1250
+    }
   ],
   "watchlist": [
-    {"instrumentId": "isin:US5949181045", "addedOffsetDays": -95},
-    {"instrumentId": "isin:DE000BASF111", "addedOffsetDays": -40},
-    {"instrumentId": "isin:GB00B10RZP78", "addedOffsetDays": -12}
+    {
+      "instrumentId": "isin:US5949181045",
+      "addedOffsetDays": -95
+    },
+    {
+      "instrumentId": "isin:DE000BASF111",
+      "addedOffsetDays": -40
+    },
+    {
+      "instrumentId": "isin:GB00B10RZP78",
+      "addedOffsetDays": -12
+    }
   ],
   "news": [
-    {"instrumentId": "isin:DE0008404005", "headline": "Allianz proposes higher dividend after record operating profit", "source": "Sample Newswire", "url": "https://github.com/marcelpetrick/DividendenDackel/blob/master/assets/sample/dataset.json", "category": "dividends", "offsetHours": -6},
-    {"instrumentId": "isin:US0378331005", "headline": "Apple schedules quarterly results for after the close", "source": "Sample Newswire", "url": "https://github.com/marcelpetrick/DividendenDackel/blob/master/assets/sample/dataset.json", "category": "earnings", "offsetHours": -14},
-    {"instrumentId": "isin:DE0007236101", "headline": "Siemens raises full-year guidance on industrial demand", "source": "Sample Newswire", "url": "https://github.com/marcelpetrick/DividendenDackel/blob/master/assets/sample/dataset.json", "category": "guidance", "offsetHours": -30},
-    {"instrumentId": "isin:US7561091049", "headline": "Realty Income declares next monthly dividend", "source": "Sample Newswire", "url": "https://github.com/marcelpetrick/DividendenDackel/blob/master/assets/sample/dataset.json", "category": "dividends", "offsetHours": -50},
-    {"instrumentId": "isin:DE000BASF111", "headline": "BASF outlines cost programme for chemicals division", "source": "Sample Newswire", "url": "https://github.com/marcelpetrick/DividendenDackel/blob/master/assets/sample/dataset.json", "category": "general", "offsetHours": -72},
-    {"instrumentId": "isin:US4781601046", "headline": "Johnson & Johnson completes previously announced acquisition", "source": "Sample Newswire", "url": "https://github.com/marcelpetrick/DividendenDackel/blob/master/assets/sample/dataset.json", "category": "mergersAndAcquisitions", "offsetHours": -96}
+    {
+      "instrumentId": "isin:DE0008404005",
+      "headline": "Allianz proposes higher dividend after record operating profit",
+      "source": "Sample Newswire",
+      "url": "https://github.com/marcelpetrick/DividendenDackel/blob/master/assets/sample/dataset.json",
+      "category": "dividends",
+      "offsetHours": -6
+    },
+    {
+      "instrumentId": "isin:US0378331005",
+      "headline": "Apple schedules quarterly results for after the close",
+      "source": "Sample Newswire",
+      "url": "https://github.com/marcelpetrick/DividendenDackel/blob/master/assets/sample/dataset.json",
+      "category": "earnings",
+      "offsetHours": -14
+    },
+    {
+      "instrumentId": "isin:DE0007236101",
+      "headline": "Siemens raises full-year guidance on industrial demand",
+      "source": "Sample Newswire",
+      "url": "https://github.com/marcelpetrick/DividendenDackel/blob/master/assets/sample/dataset.json",
+      "category": "guidance",
+      "offsetHours": -30
+    },
+    {
+      "instrumentId": "isin:US7561091049",
+      "headline": "Realty Income declares next monthly dividend",
+      "source": "Sample Newswire",
+      "url": "https://github.com/marcelpetrick/DividendenDackel/blob/master/assets/sample/dataset.json",
+      "category": "dividends",
+      "offsetHours": -50
+    },
+    {
+      "instrumentId": "isin:DE000BASF111",
+      "headline": "BASF outlines cost programme for chemicals division",
+      "source": "Sample Newswire",
+      "url": "https://github.com/marcelpetrick/DividendenDackel/blob/master/assets/sample/dataset.json",
+      "category": "general",
+      "offsetHours": -72
+    },
+    {
+      "instrumentId": "isin:US4781601046",
+      "headline": "Johnson & Johnson completes previously announced acquisition",
+      "source": "Sample Newswire",
+      "url": "https://github.com/marcelpetrick/DividendenDackel/blob/master/assets/sample/dataset.json",
+      "category": "mergersAndAcquisitions",
+      "offsetHours": -96
+    }
   ]
 }

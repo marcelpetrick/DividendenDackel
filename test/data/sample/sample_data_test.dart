@@ -157,7 +157,17 @@ void main() {
       expect(years, contains(now.year + SampleDataSeeder.forecastYears));
     });
 
-    test('past payments are confirmed, distant future ones are estimates', () {
+    test('the bundled dataset carries no price for any real company', () {
+      // The report that started this: Allianz showed 287.50 against a real
+      // 451, because the file bundled an invented price and the seeder stamped
+      // it `asOf: now`. The fields are gone, so it cannot come back by
+      // accident.
+      final String raw = File('assets/sample/dataset.json').readAsStringSync();
+      expect(raw.contains('"price"'), isFalse);
+      expect(raw.contains('"previousClose"'), isFalse);
+    });
+
+    test('no sample payment is ever confirmed, however far in the past', () {
       final List<DividendEvent> events = SampleDataSeeder.buildDividendEvents(
         patternFor(DividendFrequency.quarterly),
         now: now,
@@ -172,8 +182,10 @@ void main() {
             e.exDate!.difference(now) > const Duration(days: 200),
       );
 
-      expect(past.status, DividendStatus.confirmed);
-      expect(past.isEstimate, isFalse);
+      // The amounts are invented. Calling a past one confirmed asserts that
+      // a real company paid a figure it never paid.
+      expect(past.status, DividendStatus.historicallyEstimated);
+      expect(past.isEstimate, isTrue);
       expect(distant.status, DividendStatus.historicallyEstimated);
       expect(distant.isEstimate, isTrue);
       expect(distant.provenance.confidence, Confidence.low);
@@ -290,43 +302,41 @@ void main() {
       await db.close();
     });
 
-    test(
-      'populates instruments, quotes, dividends, events and the portfolio',
-      () async {
-        expect((await seeder.seed(dataset)).isSuccess, isTrue);
+    test('populates instruments, dividends, events and the portfolio '
+        'but never a quote', () async {
+      expect((await seeder.seed(dataset)).isSuccess, isTrue);
 
-        expect(await instruments.watchAll().first, hasLength(10));
-        expect(await portfolio.watchHoldings().first, hasLength(7));
-        expect(await portfolio.watchWatchlist().first, hasLength(3));
-        expect(
-          await marketData.watchQuote('isin:DE0008404005').first,
-          isNotNull,
-        );
-        expect(
-          await marketData
-              .watchEarningsInRange(
-                DateRange(DateTime.utc(2026), DateTime.utc(2028)),
-              )
-              .first,
-          isNotEmpty,
-        );
-        final List<NewsItem> news = await marketData
-            .watchRecentNews(instrumentIds: <String>{'isin:DE0008404005'})
-            .first;
-        expect(news, isNotEmpty);
-        expect(news.single.category, NewsCategory.dividends);
-        expect(news.single.provenance.source, Provenance.sampleSource);
-        expect(news.single.url.host, 'github.com');
-        expect(
-          await marketData
-              .watchCorporateEventsInRange(
-                DateRange(DateTime.utc(2026, 8, 22), DateTime.utc(2028)),
-              )
-              .first,
-          isNotEmpty,
-        );
-      },
-    );
+      expect(await instruments.watchAll().first, hasLength(10));
+      expect(await portfolio.watchHoldings().first, hasLength(7));
+      expect(await portfolio.watchWatchlist().first, hasLength(3));
+      // Vision.md §79: the bundled prices are invented and these are real
+      // companies, so no price is seeded at all. Metadata still is, which is
+      // what keeps the instrument discoverable offline.
+      expect(await marketData.watchQuote('isin:DE0008404005').first, isNull);
+      expect(
+        await marketData
+            .watchEarningsInRange(
+              DateRange(DateTime.utc(2026), DateTime.utc(2028)),
+            )
+            .first,
+        isNotEmpty,
+      );
+      final List<NewsItem> news = await marketData
+          .watchRecentNews(instrumentIds: <String>{'isin:DE0008404005'})
+          .first;
+      expect(news, isNotEmpty);
+      expect(news.single.category, NewsCategory.dividends);
+      expect(news.single.provenance.source, Provenance.sampleSource);
+      expect(news.single.url.host, 'github.com');
+      expect(
+        await marketData
+            .watchCorporateEventsInRange(
+              DateRange(DateTime.utc(2026, 8, 22), DateTime.utc(2028)),
+            )
+            .first,
+        isNotEmpty,
+      );
+    });
 
     test('marks everything it writes as sample data', () async {
       await seeder.seed(dataset);
@@ -378,21 +388,18 @@ void main() {
       expect(await portfolio.watchHoldings().first, isEmpty);
     });
 
-    test(
-      'the seeded portfolio has a computable value and dividend income',
-      () async {
-        await seeder.seed(dataset);
+    test('a seeded holding has no price, so its value is unavailable '
+        'rather than invented', () async {
+      await seeder.seed(dataset);
 
-        final Holding allianz = (await portfolio.watchHoldings().first)
-            .firstWhere((Holding h) => h.instrumentId == 'isin:DE0008404005');
-        final Quote quote = (await marketData
-            .watchQuote('isin:DE0008404005')
-            .first)!;
+      final Holding allianz = (await portfolio.watchHoldings().first)
+          .firstWhere((Holding h) => h.instrumentId == 'isin:DE0008404005');
 
-        expect(allianz.quantity, Decimal.fromInt(20));
-        expect(allianz.valueAt(quote.price), Money.parse('5750', Currency.eur));
-        expect(allianz.unrealizedGainAt(quote.price)!.isPositive, isTrue);
-      },
-    );
+      expect(allianz.quantity, Decimal.fromInt(20));
+      // A user checked Allianz against the market and found the seeded
+      // 287.50 against a real 451. An absent value is recoverable; a
+      // confident wrong one is not.
+      expect(await marketData.watchQuote('isin:DE0008404005').first, isNull);
+    });
   });
 }

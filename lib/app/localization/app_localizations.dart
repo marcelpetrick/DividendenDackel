@@ -942,6 +942,11 @@ const Map<String, _Translation> _onboardingMessages = <String, _Translation>{
 /// Ordered phrase fragments cover interpolated amounts, names and counts.
 /// Screen copy that had no entry, so it rendered English in a translated app.
 const Map<String, _Translation> _screenMessages = <String, _Translation>{
+  'No matching instrument found. Search covers the bundled reference list and any instrument already saved on this device. Listings outside it need a data source that can look them up.':
+      _Translation(
+        'Kein passendes Wertpapier gefunden. Die Suche umfasst die mitgelieferte Referenzliste und alle bereits auf diesem Gerät gespeicherten Wertpapiere. Andere Notierungen benötigen eine Datenquelle, die sie nachschlagen kann.',
+        'Nije pronađen odgovarajući instrument. Pretraga obuhvaća priloženi referentni popis i sve instrumente već spremljene na ovom uređaju. Ostale kotacije zahtijevaju izvor podataka koji ih može pronaći.',
+      ),
   'Active requests': _Translation('Aktive Anfragen', 'Aktivni zahtjevi'),
   'Add a holding to see portfolio value, day change, allocation, yield and the next dividend.':
       _Translation(

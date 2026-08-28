@@ -159,7 +159,17 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(basfHolding, findsOneWidget);
-      expect(find.textContaining('7.5 shares'), findsOneWidget);
+      // Scoped to the holding row: the activity ledger also renders the
+      // quantity ("Opening balance · BAS · XETR · 7.5 shares"), so a bare
+      // textContaining match depends on how much of the lazy list happens to
+      // be built and breaks whenever a card changes height.
+      expect(
+        find.descendant(
+          of: basfHolding,
+          matching: find.textContaining('7.5 shares'),
+        ),
+        findsOneWidget,
+      );
 
       await tester.tap(find.text('Calendar').last);
       await tester.pumpAndSettle();

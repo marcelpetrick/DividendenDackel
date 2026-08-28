@@ -141,10 +141,20 @@ use: an identifying `User-Agent` and respect for their rate limits, which the
 Request Coordinator enforces.
 
 Where those two do not reach — live quotes, non-US dividend calendars, news —
-the app retains a clearly labelled **bundled reference dataset** for instrument
-discovery and offline exploration. It does not add demo holdings or watchlist
-entries to the user's portfolio. Sample-derived values are labelled as such and
-are never presented as market data.
+the app retains a **bundled reference dataset** for instrument discovery and
+offline exploration. It does not add demo holdings or watchlist entries to the
+user's portfolio.
+
+That dataset carries **no prices**. Its entries are real, identifiable
+companies, and a plausible invented number beside a real company name is read
+as that company's price no matter how it is labelled — an early tester found
+Allianz showing 287.50 against a real 451. So an instrument the app cannot
+price honestly has no price at all, and its dividend history is marked
+estimated rather than confirmed. Vision.md §79: unavailable beats approximate.
+
+This means a listing with no keyless source — most non-US shares — is
+discoverable and can be followed, but shows no value until a data source that
+covers it is configured.
 
 Settings reserve secure credential entries for richer providers such as
 Financial Modeling Prep, Finnhub and Alpha Vantage. Their adapters are not part

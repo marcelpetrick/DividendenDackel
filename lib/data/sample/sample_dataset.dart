@@ -133,8 +133,6 @@ final class SampleInstrument {
   const SampleInstrument._({
     required this.internalId,
     required this.instrument,
-    required this.price,
-    required this.previousClose,
   });
 
   factory SampleInstrument._fromJson(Map<String, dynamic> json) {
@@ -165,11 +163,6 @@ final class SampleInstrument {
                 )
                 .toList(growable: false),
       ),
-      price: Money(Decimal.parse(json['price'] as String), currency),
-      previousClose: Money(
-        Decimal.parse(json['previousClose'] as String),
-        currency,
-      ),
     );
   }
 
@@ -177,13 +170,11 @@ final class SampleInstrument {
   final String internalId;
 
   /// The domain instrument.
+  ///
+  /// Carries identity only. The dataset used to bundle an invented price for
+  /// each of these real companies; it no longer does, because a made-up number
+  /// beside a real name is read as that company's price (Vision.md §79).
   final Instrument instrument;
-
-  /// Illustrative last price.
-  final Money price;
-
-  /// Illustrative previous close.
-  final Money previousClose;
 }
 
 /// A recurring dividend schedule, materialized around a reference date.

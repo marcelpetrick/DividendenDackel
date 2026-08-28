@@ -54,6 +54,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ### Fixed
 
+- The bundled sample dataset no longer invents prices for real companies. It
+  seeded a made-up quote stamped with the current time, so Allianz showed
+  287.50 against a real market price of 451, and that number fed portfolio
+  value, day change, allocation and yield. The price fields are removed from
+  the dataset entirely, sample dividend history is marked estimated instead of
+  confirmed, and an instrument the app cannot price honestly now shows no price
+  at all.
+- An empty instrument search explains what is actually searched instead of
+  only reporting that nothing was found.
+
 - German and Croatian no longer stop at the first runtime value. Strings
   carrying a count, amount or date were assembled before translation, so they
   could never match a catalog entry and came back part English — "0 relevant

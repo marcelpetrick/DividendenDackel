@@ -9,10 +9,11 @@ import 'package:dividendendackel/domain/repositories/repositories.dart';
 /// Materializes the bundled sample dataset into the local database.
 ///
 /// Patterns are projected around *today* rather than a fixed year, so the
-/// calendar and the forecast are populated whenever the app is run. Past
-/// payments become `confirmed` history — which is what the dividend CAGR is
-/// computed from — and future ones are marked as estimates, never as facts
-/// (Vision.md §9.4, §48).
+/// calendar and the forecast are populated whenever the app is run.
+///
+/// Nothing seeded here is presented as a fact. The dataset invents figures for
+/// real, identifiable companies, so it seeds no quote at all and marks every
+/// payment as estimated rather than confirmed (Vision.md §9.4, §48, §79).
 final class SampleDataSeeder {
   /// Creates a seeder writing through the given repositories.
   SampleDataSeeder({
@@ -64,17 +65,16 @@ final class SampleDataSeeder {
       final Result<void> saved = await instruments.save(sample.instrument);
       _rethrowFailure(saved);
 
-      _rethrowFailure(
-        await marketData.saveQuote(
-          Quote(
-            instrumentId: sample.internalId,
-            price: sample.price,
-            previousClose: sample.previousClose,
-            asOf: now,
-            provenance: provenance,
-          ),
-        ),
-      );
+      // Deliberately no quote. The bundled prices are invented and these are
+      // real, identifiable companies: seeding one wrote a made-up number
+      // stamped `asOf: now`, which the UI showed as the current price and fed
+      // into value, day change, allocation and yield. A user checked Allianz
+      // against the market and found 287.50 against a real 451.
+      //
+      // Vision.md §79 is explicit that a value which cannot be computed
+      // honestly is unavailable, not approximate. Metadata still seeds, so the
+      // company stays discoverable; its price comes from a real provider or
+      // not at all.
     }
 
     for (final SampleDividendPattern pattern in dataset.dividendPatterns) {
@@ -274,9 +274,14 @@ final class SampleDataSeeder {
     ];
   }
 
+  /// Sample payments are never [DividendStatus.confirmed].
+  ///
+  /// The amounts are invented, so calling a past one confirmed asserts that a
+  /// real company paid a figure it never paid. They are marked as derived from
+  /// a historical pattern, which is what they are.
   static DividendStatus _statusFor(DateTime exDate, DateTime now) {
     if (!exDate.isAfter(now)) {
-      return DividendStatus.confirmed;
+      return DividendStatus.historicallyEstimated;
     }
     if (exDate.difference(now) <= announcedWindow) {
       return DividendStatus.announced;

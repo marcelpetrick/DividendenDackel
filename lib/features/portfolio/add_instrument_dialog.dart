@@ -61,7 +61,14 @@ class _AddInstrumentDialogState extends ConsumerState<AddInstrumentDialog> {
       _results = outcome?.instruments ?? const <Instrument>[];
       _message = result.failureOrNull?.message ?? outcome?.warning?.message;
       if (_results.isEmpty && _message == null) {
-        _message = 'No matching instrument found.';
+        // "Not found" alone reads as a malfunction. The offline catalogue is a
+        // small bundled reference set, so a missing listing is expected rather
+        // than broken, and saying which sources are actually searched is the
+        // difference between a dead end and an explanation.
+        _message =
+            'No matching instrument found. Search covers the bundled '
+            'reference list and any instrument already saved on this device. '
+            'Listings outside it need a data source that can look them up.';
       }
     });
   }
