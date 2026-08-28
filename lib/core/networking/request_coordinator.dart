@@ -47,7 +47,15 @@ final class ProviderRequestPolicy {
     this.maxAttempts = 3,
     this.initialBackoff = const Duration(milliseconds: 250),
     this.maxBackoff = const Duration(seconds: 8),
+    this.dailyRequestBudget,
   }) {
+    if (dailyRequestBudget != null && dailyRequestBudget! <= 0) {
+      throw ArgumentError.value(
+        dailyRequestBudget,
+        'dailyRequestBudget',
+        'must be positive when set',
+      );
+    }
     if (maxConcurrent <= 0) {
       throw ArgumentError.value(
         maxConcurrent,
@@ -101,6 +109,15 @@ final class ProviderRequestPolicy {
 
   /// Upper bound for exponential backoff.
   final Duration maxBackoff;
+
+  /// Requests this provider allows per UTC day, or null when it does not cap.
+  ///
+  /// Spacing alone cannot express a daily cap. Alpha Vantage's free tier
+  /// allows 25 requests per day and one symbol per call, so a portfolio
+  /// refresh would spend a user's entire quota in seconds and then fail for
+  /// the rest of the day. Refusing the twenty-sixth request here keeps the
+  /// remainder for the user to spend deliberately.
+  final int? dailyRequestBudget;
 }
 
 /// Cooperative cancellation signal passed into provider actions.
@@ -327,6 +344,8 @@ final class RequestCoordinator {
   final Map<(String, Type), Object> _jobs = <(String, Type), Object>{};
   final Map<String, int> _runningByProvider = <String, int>{};
   final Map<String, DateTime> _lastStartedByProvider = <String, DateTime>{};
+  final Map<String, int> _spentToday = <String, int>{};
+  DateTime? _budgetDay;
   final Map<(String, Type), RequestStatus> _active =
       <(String, Type), RequestStatus>{};
 
@@ -397,6 +416,35 @@ final class RequestCoordinator {
     });
   }
 
+  /// Requests already spent today against a provider's daily budget.
+  int spentToday(String provider) {
+    _rollBudgetDay(clock.now());
+    return _spentToday[provider] ?? 0;
+  }
+
+  /// Requests still available today, or null when the provider has no budget.
+  int? remainingToday(String provider) {
+    final int? budget =
+        (providerPolicies[provider] ?? defaultPolicy).dailyRequestBudget;
+    return budget == null ? null : budget - spentToday(provider);
+  }
+
+  /// Clears the per-provider counters when the UTC day rolls over.
+  void _rollBudgetDay(DateTime now) {
+    final DateTime today = DateTime.utc(now.year, now.month, now.day);
+    if (_budgetDay == today) return;
+    _budgetDay = today;
+    _spentToday.clear();
+  }
+
+  bool _isOverBudget(_RequestJobBase job) {
+    final int? budget = job.policy.dailyRequestBudget;
+    return budget != null && (_spentToday[job.provider] ?? 0) >= budget;
+  }
+
+  static DateTime _nextBudgetReset(DateTime now) =>
+      DateTime.utc(now.year, now.month, now.day).add(const Duration(days: 1));
+
   void _pump() {
     if (_disposed || _queue.isEmpty) {
       return;
@@ -409,10 +457,27 @@ final class RequestCoordinator {
       int candidate = -1;
       nextWake = null;
 
+      _rollBudgetDay(now);
       for (int index = 0; index < _queue.length; index++) {
         final _RequestJobBase job = _queue[index];
         final int providerRunning = _runningByProvider[job.provider] ?? 0;
         if (providerRunning >= job.policy.maxConcurrent) {
+          continue;
+        }
+        if (_isOverBudget(job)) {
+          // Not a wake-up: the budget frees at the next UTC day, and holding
+          // the queue open until then would look like a hung refresh. The job
+          // is failed with a typed rate limit that names when it resets.
+          _queue.removeAt(index);
+          job.failWith(
+            RateLimitFailure(
+              retryAt: _nextBudgetReset(now),
+              technicalDetail:
+                  '${job.provider} daily budget of '
+                  '${job.policy.dailyRequestBudget} requests is spent',
+            ),
+          );
+          index -= 1;
           continue;
         }
         final DateTime? lastStarted = _lastStartedByProvider[job.provider];
@@ -470,6 +535,10 @@ final class RequestCoordinator {
     _runningByProvider[job.provider] =
         (_runningByProvider[job.provider] ?? 0) + 1;
     _lastStartedByProvider[job.provider] = startedAt;
+    if (job.policy.dailyRequestBudget != null) {
+      _rollBudgetDay(startedAt);
+      _spentToday[job.provider] = (_spentToday[job.provider] ?? 0) + 1;
+    }
     job.startedAt ??= startedAt;
     _emit(
       job,
@@ -628,6 +697,9 @@ abstract class _RequestJobBase {
 
   Future<Duration?> runAttempt();
   void failUnexpected(Object error, StackTrace stackTrace);
+
+  /// Completes every subscriber with [failure] without running the request.
+  void failWith(Failure failure);
   void cancelAttempt();
   void cancelAllSubscribers();
 }
@@ -786,6 +858,17 @@ final class _RequestJob<T> extends _RequestJobBase {
         UnexpectedFailure(technicalDetail: '$error\n$stackTrace', cause: error),
       ),
     );
+  }
+
+  @override
+  void failWith(Failure failure) {
+    if (!hasSubscribers) {
+      if (!terminalEmitted) {
+        owner._emitTerminalCancelled(this);
+      }
+      return;
+    }
+    _complete(Failed<T>(failure));
   }
 
   Future<Result<T>> _attempt() async {

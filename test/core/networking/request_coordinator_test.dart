@@ -200,6 +200,89 @@ void main() {
       expect(order, <String>['high-first', 'high-second', 'low']);
     });
 
+    test(
+      'refuses work past a provider daily budget instead of spending it',
+      () async {
+        // Alpha Vantage's free tier allows 25 requests per day and one symbol
+        // per call, so an unguarded portfolio refresh spends the whole quota in
+        // seconds and then fails for the rest of the day.
+        final RequestCoordinator coordinator = RequestCoordinator(
+          providerPolicies: <String, ProviderRequestPolicy>{
+            'capped': ProviderRequestPolicy(
+              maxConcurrent: 1,
+              timeout: const Duration(seconds: 1),
+              maxAttempts: 1,
+              initialBackoff: Duration.zero,
+              maxBackoff: Duration.zero,
+              dailyRequestBudget: 2,
+            ),
+          },
+        );
+        addTearDown(coordinator.dispose);
+
+        int executed = 0;
+        final List<Result<int>> results = <Result<int>>[];
+        for (int index = 0; index < 4; index++) {
+          results.add(
+            await coordinator
+                .submit<int>(
+                  CoordinatorRequest<int>(
+                    key: 'capped-$index',
+                    provider: 'capped',
+                    operation: 'quote',
+                    execute: (_) async {
+                      executed += 1;
+                      return Success<int>(index);
+                    },
+                  ),
+                )
+                .result,
+          );
+        }
+
+        expect(executed, 2, reason: 'the budget is spent, not exceeded');
+        expect(results[0].isSuccess, isTrue);
+        expect(results[1].isSuccess, isTrue);
+        final Failure? third = results[2].failureOrNull;
+        expect(third, isA<RateLimitFailure>());
+        // A caller must be able to say when prices resume, not just that they
+        // failed, so the reset time travels with the failure.
+        expect((third! as RateLimitFailure).retryAt, isNotNull);
+        expect(results[3].failureOrNull, isA<RateLimitFailure>());
+        expect(coordinator.remainingToday('capped'), 0);
+      },
+    );
+
+    test('a provider without a budget is never capped', () async {
+      final RequestCoordinator coordinator = RequestCoordinator(
+        defaultPolicy: singleAttemptPolicy(),
+      );
+      addTearDown(coordinator.dispose);
+
+      for (int index = 0; index < 5; index++) {
+        final Result<int> result = await coordinator
+            .submit<int>(
+              CoordinatorRequest<int>(
+                key: 'free-$index',
+                provider: 'free',
+                operation: 'load',
+                execute: (_) async => Success<int>(index),
+              ),
+            )
+            .result;
+        expect(result.isSuccess, isTrue);
+      }
+      expect(coordinator.remainingToday('free'), isNull);
+      expect(coordinator.spentToday('free'), 0);
+    });
+
+    test('a non-positive daily budget is rejected at construction', () {
+      expect(
+        () => ProviderRequestPolicy(dailyRequestBudget: 0),
+        throwsA(isA<ArgumentError>()),
+      );
+    });
+
     test('spaces starts according to the provider rate limit', () async {
       const Duration spacing = Duration(milliseconds: 35);
       final RequestCoordinator coordinator = RequestCoordinator(
