@@ -41,7 +41,7 @@ dependencies:
   # Local SQLite persistence (Vision.md §35). drift_flutter supplies the
   # platform database directory and the bundled native sqlite3 for Android
   # and Linux.
-  drift: 2.34.3
+  drift: 2.34.4
   drift_flutter: 0.3.1
   # Native read-only import selection and Linux export dialogs. Android export
   # uses ACTION_CREATE_DOCUMENT because this plugin does not save there.
