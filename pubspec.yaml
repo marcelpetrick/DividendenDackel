@@ -58,7 +58,7 @@ dependencies:
   # User-supplied provider credentials live in Android Keystore-backed or
   # Linux Secret Service-backed storage, never in plain preferences.
   flutter_secure_storage: 11.0.0
-  go_router: 18.0.0
+  go_router: 18.0.1
   # Provider HTTP transport. Pinned exactly for reproducible Android/Linux
   # artifacts and injected as a Client so adapters remain fixture-testable.
   http: 1.6.0
