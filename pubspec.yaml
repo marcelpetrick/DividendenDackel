@@ -54,7 +54,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   # One state-management approach across the app (Vision.md §54).
-  flutter_riverpod: 3.4.2
+  flutter_riverpod: 3.4.3
   # User-supplied provider credentials live in Android Keystore-backed or
   # Linux Secret Service-backed storage, never in plain preferences.
   flutter_secure_storage: 11.0.0
