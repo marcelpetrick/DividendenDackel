@@ -249,9 +249,9 @@ run_integration_tests() {
     fi
 
     if [[ "${status}" -eq 0 ]]; then
-        INTEGRATION_DETAILS="portfolio journey passed on Linux"
+        INTEGRATION_DETAILS="application journeys passed on Linux"
     else
-        INTEGRATION_DETAILS="Linux portfolio journey failed"
+        INTEGRATION_DETAILS="Linux application journeys failed"
     fi
     return "${status}"
 }

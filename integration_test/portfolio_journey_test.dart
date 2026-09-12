@@ -32,8 +32,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
+import 'journeys/core_journeys.dart';
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  registerCoreJourneys();
 
   testWidgets(
     'adds a holding, shows calendar and forecast, then remains useful offline',
