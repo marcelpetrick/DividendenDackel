@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ### Fixed
 
+- Today uses the singular “1 holding” instead of the grammatically incorrect
+  “1 holdings”, including its German and Croatian translations.
 - A quote is refused when the venue's quoting currency disagrees with the
   holding's. Alpha Vantage quotes London in pence rather than pounds and the
   quote endpoint returns no currency, so reading the number in the wrong unit

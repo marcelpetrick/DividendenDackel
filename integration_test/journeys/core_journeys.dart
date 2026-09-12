@@ -108,6 +108,7 @@ void registerCoreJourneys() {
           findsOneWidget,
         );
       }
+      expect(find.text('1 holding'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   }

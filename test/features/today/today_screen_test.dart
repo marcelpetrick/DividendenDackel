@@ -139,6 +139,8 @@ void main() {
     await tester.pump();
     await tester.pump();
 
+    expect(find.text('1 holding'), findsOneWidget);
+    expect(find.text('1 holdings'), findsNothing);
     expect(exDateWindows, <int>{3});
     expect(paymentWindows, <int>{365});
     expect(earningsWindows, <int>{30});

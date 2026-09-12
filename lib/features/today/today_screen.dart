@@ -237,6 +237,8 @@ class _SummaryCard extends StatelessWidget {
                         : 'Loading your holdings…',
                     style: theme.textTheme.bodyLarge,
                   )
+                : holdingCount == 1
+                ? Text('1 holding', style: theme.textTheme.bodyLarge)
                 : Text.format('{count} holdings', <String, Object?>{
                     'count': holdingCount,
                   }, style: theme.textTheme.bodyLarge),

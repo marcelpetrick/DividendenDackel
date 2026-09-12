@@ -1596,6 +1596,7 @@ const Map<String, _Translation> _patternMessages = <String, _Translation>{
     '{count} promjena pozicija',
   ),
   '{count} holdings': _Translation('{count} Positionen', '{count} pozicija'),
+  '1 holding': _Translation('1 Position', '1 pozicija'),
   '{count} min ago': _Translation('vor {count} Min.', 'prije {count} min'),
   '{count} more activities': _Translation(
     '{count} weitere Aktivitäten',
