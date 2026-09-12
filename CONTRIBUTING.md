@@ -7,8 +7,8 @@ satisfy before it can be merged.
 
 | Tool | Version |
 | --- | --- |
-| Flutter | **3.47.1** (stable) |
-| Dart | 3.13.1 (ships with that Flutter) |
+| Flutter | **3.47.4** (stable) |
+| Dart | 3.13.3 (ships with that Flutter) |
 | Java | **21** (Android builds; Android Lint and the Gradle release build require it) |
 
 The Flutter version is pinned deliberately (Vision.md §70). It appears in

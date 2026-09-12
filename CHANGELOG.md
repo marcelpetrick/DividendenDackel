@@ -16,6 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
   from memory. Credentials and portfolio values are removed before anything is
   logged, so the text is safe to paste into a public issue.
 
+### Changed
+
+- Dependencies move to their latest stable releases, including Flutter 3.47.4,
+  Dart 3.13.3, Android Gradle Plugin 9.4.0, Kotlin 2.4.20, Drift 2.35.0,
+  Riverpod 3.4.3, secure storage 11.1.1 and refreshed GitHub Actions.
+
 ### Fixed
 
 - A quote is refused when the venue's quoting currency disagrees with the

@@ -27,7 +27,7 @@ store distribution.
 2. Confirm every required item in [`BACKLOG.md`](BACKLOG.md) is complete and the
    engineering review in [`../worst_findings.md`](../worst_findings.md) has no
    unresolved release blocker.
-3. Run `./localPipeline.sh` with Flutter 3.47.1. Every stage must pass, including
+3. Run `./localPipeline.sh` with Flutter 3.47.4. Every stage must pass, including
    the rendered Linux first-frame check and both release builds.
 4. Smoke-test the APK on Android 10/API 29 and the Linux bundle on a clean
    supported x86_64 desktop.

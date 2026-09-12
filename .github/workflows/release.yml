@@ -29,7 +29,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  FLUTTER_VERSION: 3.47.1
+  FLUTTER_VERSION: 3.47.4
   FLUTTER_CHANNEL: stable
   APP_COMMIT: ${{ github.sha }}
 
@@ -43,7 +43,7 @@ jobs:
         with:
           ref: ${{ inputs.ref || github.ref }}
 
-      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
         with:
           distribution: temurin
           java-version: '21'
@@ -62,7 +62,7 @@ jobs:
           sudo udevadm trigger --name-match=kvm
 
       - name: Run portfolio journey on API 29
-        uses: reactivecircus/android-emulator-runner@c9c93e6ba9c4194322e114c40970d5983d9a07cc # v2.38.0
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
         with:
           api-level: 29
           target: google_apis
@@ -127,7 +127,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
           echo "Releasing ${semver}+${build_number} as ${tag} (previous: ${previous:-none})"
 
-      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
         with:
           distribution: temurin
           java-version: '21'
@@ -207,7 +207,7 @@ jobs:
           cat RELEASE_NOTES.md
 
       - name: Publish the release
-        uses: softprops/action-gh-release@fe965f7af51af5f2602596916f38a38df2e33de0 # v3.0.2
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
           tag_name: ${{ steps.version.outputs.tag }}
           # On a manual run the tag does not exist yet; create it on the exact

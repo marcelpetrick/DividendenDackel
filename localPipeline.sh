@@ -13,7 +13,7 @@ PIPELINE_LOG_DIR="${TMPDIR:-/tmp}/DividendenDackel-pipeline-$$"
 trap 'rm -rf "${PIPELINE_LOG_DIR}"' EXIT
 
 # Keep in sync with .github/workflows/ci.yml and CONTRIBUTING.md (Vision.md §70).
-readonly PINNED_FLUTTER_VERSION="3.47.1"
+readonly PINNED_FLUTTER_VERSION="3.47.4"
 # The JDK that *runs* Gradle and Android Lint. Distinct from the project's
 # sourceCompatibility, which is the bytecode target and stays at 17.
 # Android Lint is compiled against Java 21 APIs (java.util.List.removeLast),

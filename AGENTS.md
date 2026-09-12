@@ -208,8 +208,8 @@ All third-party actions are pinned to full commit SHAs, never to a floating tag.
 
 | Tool | Version | Where it is pinned |
 | --- | --- | --- |
-| Flutter | 3.47.1 (stable) | `PINNED_FLUTTER_VERSION` in `localPipeline.sh`, `FLUTTER_VERSION` in every workflow |
-| Dart | 3.13.1 (ships with that Flutter) | `pubspec.yaml` `sdk:` |
+| Flutter | 3.47.4 (stable) | `PINNED_FLUTTER_VERSION` in `localPipeline.sh`, `FLUTTER_VERSION` in every workflow |
+| Dart | 3.13.3 (ships with that Flutter) | `pubspec.yaml` `sdk:` |
 | Java | 21 | `REQUIRED_JAVA_MAJOR` in `localPipeline.sh`, `java-version` in the workflows |
 
 Change a pin in every place at once, or the local gate and CI disagree about
