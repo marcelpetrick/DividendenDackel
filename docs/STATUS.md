@@ -1,10 +1,10 @@
 # Project status
 
 - **Last updated:** 2026-09-13
-- **Version:** 0.61.5+112
+- **Version:** 0.61.7+114
 - **Branch:** `master`
 - **Pinned toolchain:** Flutter 3.47.4 / Dart 3.13.3
-- **Quality gate:** green — 667 tests, Linux integration, Android 10
+- **Quality gate:** green — 668 tests, 10 compiled Linux journeys, Android 10
   compatibility and Android/Linux release builds
 
 ## Product state
@@ -73,8 +73,9 @@ research methodology, privacy and releases are documented in
 [`research-score.md`](research-score.md), [`privacy.md`](privacy.md) and
 [`releases.md`](releases.md).
 
-The real portfolio integration journey runs on both Linux and an Android
-10/API 29 emulator in CI and in the tag-triggered release workflow.
+The compiled application journeys cover every declared route on Linux. The
+portfolio journey also runs on an Android 10/API 29 emulator in CI and in the
+release workflow; a mechanical audit fails if a route lacks journey coverage.
 
 ## Delivery automation
 
@@ -84,8 +85,8 @@ Linux portfolio journey, `minSdk 29`, release builds and a rendered Linux first
 frame. GitHub CI splits the same script into parallel jobs and publishes the
 temporary APK and Linux bundle for inspection.
 
-Tag-triggered release automation verifies the tag against `pubspec.yaml`, runs
-the full gate, produces a raw APK and Linux tarball, creates SHA-256 checksums,
+Release automation verifies the tag against `pubspec.yaml`, runs the full gate,
+produces a raw APK, Linux AppImage and Linux tarball, creates SHA-256 checksums,
 generates notes from Conventional Commits and publishes a public GitHub Release.
 Every third-party action is pinned to an immutable commit SHA and workflows use
 minimal permissions.
@@ -96,7 +97,7 @@ versions with current stable upstream releases without blindly merging them.
 
 ## Remaining decisions and release work
 
-The required 0.1.0 backlog is complete and locally tagged. The official Parqet
+The required MVP backlog is complete. The official Parqet
 comparison in [`parqet-comparison.md`](parqet-comparison.md) reprioritized the
 post-1.0 queue. The activity ledger, actual-versus-forecast reconciliation,
 reviewable CSV and IBKR imports, private calendar export, isolated
@@ -107,13 +108,14 @@ candidates rather than MVP blockers.
 
 Known release limitations:
 
-- the 0.1.0 APK is development/debug-signed, not Play Store signed;
-- the release workflow cannot be proven end-to-end until a `v*` tag is pushed;
-- an Android API 29 emulator/device is required for the final runtime smoke;
+- release APKs are development/debug-signed, not Play Store signed;
+- live Allianz/Finnhub provider responses require maintainer-supplied keys and
+  could not be verified in this checkout;
+- Financial Modeling Prep remains blocked on its required licensing review;
 - the dated withholding starter table is an editable estimate and must never be
   presented as current tax advice;
-- only SEC EDGAR and Frankfurter/ECB live adapters ship in 0.1.0; optional keyed
-  provider entries in Settings do not yet perform requests.
+- Linux screenshots are unsupported by Flutter's integration-test plugin, so
+  compositor, window-manager and HiDPI behavior remain outside the journey.
 
 ## Working protocol
 

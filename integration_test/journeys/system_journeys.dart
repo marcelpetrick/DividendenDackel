@@ -75,7 +75,8 @@ void registerSystemJourneys() {
     await tester.tap(changelog);
     await JourneyHarness.settle(tester);
     expect(find.text('What changed'), findsOneWidget);
-    expect(find.text('In development'), findsOneWidget);
+    expect(find.text('0.61.7'), findsOneWidget);
+    expect(find.text('2026-09-13'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

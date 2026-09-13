@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ## [Unreleased]
 
+## [0.61.7] - 2026-09-13
+
 ### Added
 
 - Diagnostics can be copied out of the app. Data status gains a copy action

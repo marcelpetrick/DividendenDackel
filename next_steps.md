@@ -1,7 +1,7 @@
 # Next steps: end-to-end testing on Linux, and the review it produces
 
-Status: **hermetic journeys and route audit implemented.** Written 2026-08-28
-against 0.61.0; implementation completed through step 5 on 2026-09-13.
+Status: **release review complete; optional live smoke awaits credentials.**
+Written 2026-08-28 against 0.61.0; reviewed on 2026-09-13.
 
 The goal is a review of the whole application — what works, what does not, and
 what is still missing — produced from automated journeys that drive the real
@@ -16,7 +16,7 @@ Three levels exist, and the choice determines everything downstream.
 
 | Level | What it drives | Verdict |
 | --- | --- | --- |
-| Widget tests | Widgets in isolation, no application | Already 667 of them; not end-to-end |
+| Widget tests | Widgets in isolation, no application | Already 668 of them; not end-to-end |
 | **`integration_test`** | **The real compiled app, real database, real navigation; taps enter through the Flutter engine** | **The right level** |
 | OS-level (`xdotool`, AT-SPI via `dogtail`) | Real X11 clicks against the window | Rejected |
 
@@ -153,7 +153,7 @@ heading rather than being folded quietly into the others.
 | 4 | Done — journeys 8–9 cover system routes; cached/offline behaviour remains asserted |
 | 5 | Done — route-coverage audit fails if any declared route lacks a journey marker |
 | 6 | Pending credentials — Layer B cannot be meaningful without a real Alpha Vantage key |
-| 7 | Pending — run the release gate and write `docs/e2e-review.md` |
+| 7 | Done — the green release gate and findings are recorded in `docs/e2e-review.md` |
 
 Steps 1–5 are the bulk and each is independently committable and CI-gating.
 Step 6 is small but needs a real Alpha Vantage key to mean anything. Step 7 is

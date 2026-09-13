@@ -1,5 +1,41 @@
 # Engineering self-review
 
+## 0.61.7 release-readiness review
+
+Base: `origin/master` (`f3a6016`)<br>
+Head reviewed: `4e5e3dd` plus the release-readiness documentation<br>
+Review date: 2026-09-13
+
+### Findings
+
+#1 MEDIUM Code `lib/features/today/today_screen.dart`
+
+The expanded valuation journey exposed "1 holdings" on Today. Fixed with an
+explicit singular in English, German and Croatian plus widget and compiled
+integration regressions.
+
+#2 MEDIUM Test architecture `integration_test/portfolio_journey_test.dart`
+
+Six of fourteen routes, including Research, Data status and the provider setup,
+had no compiled application coverage. Fixed with deterministic core, financial
+and system journeys and a mechanical audit that fails when a declared route has
+no journey marker.
+
+#3 LOW Documentation `docs/STATUS.md`
+
+The status page lagged the current version/test count and still described
+Alpha Vantage and Finnhub as disconnected. Corrected to match the implemented
+providers, expanded journey gate and current release artifacts.
+
+### Verdict
+
+Mergeable after these fixes. The branch review found no remaining Code or
+Architecture defect; the complete release gate is green, and live keyed-provider
+responses are recorded separately as unverified because no credential is
+available in this checkout.
+
+---
+
 ## Phase 6 P5 portfolio-performance review
 
 Base: P3 (`9e1e211`)<br>
