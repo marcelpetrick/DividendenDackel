@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import '../support/journey_harness.dart';
 
 void registerCoreJourneys() {
+  // Covers route: /today
   testWidgets('first run reaches an honest empty Today screen', (
     WidgetTester tester,
   ) async {
@@ -28,6 +29,7 @@ void registerCoreJourneys() {
     expect(tester.takeException(), isNull);
   });
 
+  // Covers route: /portfolio
   testWidgets('adds German holdings through the real portfolio flow', (
     WidgetTester tester,
   ) async {

@@ -5,6 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 import '../support/journey_harness.dart';
 
 void registerFinancialJourneys() {
+  // Covers route: /settings
+  // Covers route: /settings/tax
   testWidgets('tax and currency keep gross, net, and source units visible', (
     WidgetTester tester,
   ) async {
@@ -58,6 +60,8 @@ void registerFinancialJourneys() {
     expect(tester.takeException(), isNull);
   });
 
+  // Covers route: /research
+  // Covers route: /research/:instrumentId
   testWidgets('research exposes score reasoning and dividend growth periods', (
     WidgetTester tester,
   ) async {

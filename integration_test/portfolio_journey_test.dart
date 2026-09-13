@@ -34,12 +34,16 @@ import 'package:integration_test/integration_test.dart';
 
 import 'journeys/core_journeys.dart';
 import 'journeys/financial_journeys.dart';
+import 'journeys/system_journeys.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   registerCoreJourneys();
   registerFinancialJourneys();
+  registerSystemJourneys();
 
+  // Covers route: /calendar
+  // Covers route: /calendar/forecast
   testWidgets(
     'adds a holding, shows calendar and forecast, then remains useful offline',
     (WidgetTester tester) async {

@@ -1,6 +1,7 @@
 # Next steps: end-to-end testing on Linux, and the review it produces
 
-Status: **plan, not yet implemented.** Written 2026-08-28 against 0.61.0.
+Status: **hermetic journeys and route audit implemented.** Written 2026-08-28
+against 0.61.0; implementation completed through step 5 on 2026-09-13.
 
 The goal is a review of the whole application — what works, what does not, and
 what is still missing — produced from automated journeys that drive the real
@@ -39,12 +40,12 @@ Checked rather than assumed, on 2026-08-28:
   desktop support.** Ruled out.
 - **flutter_gherkin 2.0.0** — a Gherkin layer over the legacy `flutter_driver`.
   Adds a dialect to learn and a deprecated substrate. Ruled out.
-- **`integration_test`** — first-party, already wired into
-  `localPipeline.sh --stage integration` and already running in CI under Xvfb.
-  **Extend this.**
-- **`flutter drive` with `integration_test_driver_extended`** — needed for
-  screenshots. `flutter devices` confirms a `linux` target. Screenshot capture
-  on Linux desktop is **unverified**; confirming it is step 0, not a promise.
+- **`integration_test`** — first-party, wired into
+  `localPipeline.sh --stage integration` and running in CI under Xvfb. **Used.**
+- **`flutter drive` with `integration_test_driver_extended`** — Flutter 3.47.4
+  documents screenshot support only for Android, iOS and Web, and the plugin
+  declares only Android and iOS native implementations. Linux screenshots are
+  therefore not part of this test layer.
 
 ## 3. Two layers, deliberately separate
 
@@ -110,12 +111,11 @@ Nine, each its own test so a failure names the broken workflow rather than
 
 ## 6. Where coverage stands today
 
-`integration_test/portfolio_journey_test.dart` is 314 lines and touches Today,
-Portfolio, Calendar, Forecast, Currency and Tax.
-
-Untouched: `/research`, `/status`, `/settings/notifications`,
-`/settings/data-sources`, `/about`, `/about/changelog`. That is **6 of 14
-routes**, and it includes everything added in the most recent work.
+The compiled journey suite now exercises all **14 of 14 routes**, including
+Research, Data status, provider setup, notifications, About and the bundled
+changelog. A unit test compares the router's declared paths with explicit
+coverage markers beside the integration journeys; adding or removing a route
+without updating its journey fails the quality gate.
 
 ## 7. The deliverable
 
@@ -146,14 +146,14 @@ heading rather than being folded quietly into the others.
 
 | Step | Work |
 | --- | --- |
-| 0 | Spike: confirm screenshot capture on Linux; choose `flutter drive` or plain `flutter test` |
-| 1 | Extract a shared harness from the existing journey — fixtures, fake providers, helpers |
-| 2 | Journeys 1–4, the core portfolio path |
-| 3 | Journeys 5–7 |
-| 4 | Journeys 8–9, the untested routes |
-| 5 | Route-coverage audit, as a test |
-| 6 | Layer B live smoke, behind an environment variable |
-| 7 | Run everything and write `docs/e2e-review.md` |
+| 0 | Done — Linux screenshots are unsupported; keep the compiled `flutter test` path |
+| 1 | Done — shared real-database harness with deterministic platform/provider boundaries |
+| 2 | Done — journeys 1–4 cover onboarding, holdings, currencies and priced/unpriced valuation |
+| 3 | Done — journeys 5–7 cover forecast, tax/currency and research explanations |
+| 4 | Done — journeys 8–9 cover system routes; cached/offline behaviour remains asserted |
+| 5 | Done — route-coverage audit fails if any declared route lacks a journey marker |
+| 6 | Pending credentials — Layer B cannot be meaningful without a real Alpha Vantage key |
+| 7 | Pending — run the release gate and write `docs/e2e-review.md` |
 
 Steps 1–5 are the bulk and each is independently committable and CI-gating.
 Step 6 is small but needs a real Alpha Vantage key to mean anything. Step 7 is
