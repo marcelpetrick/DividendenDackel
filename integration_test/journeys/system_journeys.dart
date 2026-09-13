@@ -12,6 +12,10 @@ void registerSystemJourneys() {
   testWidgets('settings explain providers, preferences, and build identity', (
     WidgetTester tester,
   ) async {
+    // Match the API 29 Pixel's logical viewport so the Linux run also proves
+    // that settings controls are scrolled fully into the tappable area.
+    await tester.binding.setSurfaceSize(const Size(411, 683));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
     await JourneyHarness.start(tester, initialLocation: '/settings');
 
     await tester.tap(find.text('Data sources'));
@@ -57,6 +61,8 @@ void registerSystemJourneys() {
       scrollable: find.byType(Scrollable).last,
       maxScrolls: 30,
     );
+    await tester.ensureVisible(about);
+    await JourneyHarness.settle(tester);
     await tester.tap(about);
     await JourneyHarness.settle(tester);
     expect(find.text('DividendenDackel'), findsOneWidget);
@@ -72,10 +78,12 @@ void registerSystemJourneys() {
       scrollable: find.byType(Scrollable).last,
       maxScrolls: 30,
     );
+    await tester.ensureVisible(changelog);
+    await JourneyHarness.settle(tester);
     await tester.tap(changelog);
     await JourneyHarness.settle(tester);
     expect(find.text('What changed'), findsOneWidget);
-    expect(find.text('0.61.7'), findsOneWidget);
+    expect(find.text('0.61.8'), findsOneWidget);
     expect(find.text('2026-09-13'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });

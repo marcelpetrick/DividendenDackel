@@ -1,9 +1,9 @@
 # Engineering self-review
 
-## 0.61.7 release-readiness review
+## 0.61.8 release-readiness review
 
 Base: `origin/master` (`f3a6016`)<br>
-Head reviewed: `4e5e3dd` plus the release-readiness documentation<br>
+Head reviewed: `b67a532` plus the Android journey fix<br>
 Review date: 2026-09-13
 
 ### Findings
@@ -21,7 +21,14 @@ had no compiled application coverage. Fixed with deterministic core, financial
 and system journeys and a mechanical audit that fails when a declared route has
 no journey marker.
 
-#3 LOW Documentation `docs/STATUS.md`
+#3 MEDIUM Test architecture `integration_test/journeys/system_journeys.dart`
+
+The settings journey stopped after finding the About row because its centre was
+still below the Android phone's hit-testable viewport. Fixed by explicitly
+bringing the About and changelog controls fully on screen before tapping them;
+the API 29 CI journey is the regression evidence.
+
+#4 LOW Documentation `docs/STATUS.md`
 
 The status page lagged the current version/test count and still described
 Alpha Vantage and Finnhub as disconnected. Corrected to match the implemented
