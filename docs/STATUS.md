@@ -1,7 +1,7 @@
 # Project status
 
 - **Last updated:** 2026-09-13
-- **Version:** 0.61.4+111
+- **Version:** 0.61.5+112
 - **Branch:** `master`
 - **Pinned toolchain:** Flutter 3.47.4 / Dart 3.13.3
 - **Quality gate:** green — 667 tests, Linux integration, Android 10

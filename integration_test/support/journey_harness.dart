@@ -243,6 +243,34 @@ final class JourneyHarness {
         .toSet();
   }
 
+  Future<void> seedReportedAnnualDividends(
+    String instrumentId,
+    Currency currency,
+  ) async {
+    final DateTime fetchedAt = clock.now().toUtc();
+    final List<DividendEvent> events = <DividendEvent>[
+      for (int offset = 0; offset < 8; offset++)
+        DividendEvent(
+          instrumentId: instrumentId,
+          amountPerShare: Money(Decimal.fromInt(8 + offset), currency),
+          status: DividendStatus.confirmed,
+          exDate: DateTime.utc(2018 + offset, 6, 1),
+          paymentDate: DateTime.utc(2018 + offset, 6, 5),
+          provenance: Provenance(
+            source: 'journey-history',
+            fetchedAt: fetchedAt,
+            confidence: Confidence.high,
+            reportedCurrency: currency,
+          ),
+        ),
+    ];
+    final Result<void> result = await DriftDividendRepository(database)
+        .saveAll(events, idOf: dividendEventIdentity);
+    if (result.failureOrNull case final Failure failure) {
+      throw StateError('Could not seed reported dividend history: $failure');
+    }
+  }
+
   static Result<List<FxRate>> _fxResult({
     required Currency base,
     required Set<Currency> quotes,
