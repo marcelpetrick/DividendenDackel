@@ -217,6 +217,31 @@ Each task names the `Vision.md` sections it satisfies.
 
 ---
 
+## Phase 7 — UI/UX refinement
+
+> **Pulled ahead of the remaining post-1.0 platform candidates on request.**
+> The specialist review and acceptance criteria live in
+> [`ui-ux-review.md`](ui-ux-review.md). Each item improves comprehension without
+> weakening currency, estimate or provenance boundaries.
+
+- [ ] **UX1** First-run activation and restrained product identity: make empty
+      Today lead directly to the first holding, improve onboarding hierarchy,
+      and keep the no-fabricated-values empty state. — §2.2, §23, §24, §83
+- [ ] **UX2** Today financial hierarchy and responsive desktop dashboard:
+      scan-first KPIs, tabular figures, bounded reading width and a two-column
+      wide layout that collapses to one column on Android. — §7, §24–§27
+- [ ] **UX3** Research overview with honest assessment/evidence previews and an
+      adaptive card grid; missing evidence remains unavailable, never zero. —
+      §2.2, §2.3, §15, §24
+- [ ] **UX4** Calendar control hierarchy: distinguish period/view navigation
+      from secondary filters and return visual priority to the schedule without
+      removing scope, date, FX, weekend or export controls. — §9, §24, §25
+- [ ] **UX5** Cross-platform UX gate and self-review: phone, wide desktop,
+      keyboard, dark theme, largest text scale, empty/error/offline and mixed
+      currencies; record the final findings. — §26, §27, §57, §66
+
+---
+
 ## Phase 6 — Post-1.0 candidates (Vision.md §52, §89)
 
 Not part of MVP 1. Reprioritized after the 2026-08-23 official Parqet review in
