@@ -224,7 +224,7 @@ Each task names the `Vision.md` sections it satisfies.
 > [`ui-ux-review.md`](ui-ux-review.md). Each item improves comprehension without
 > weakening currency, estimate or provenance boundaries.
 
-- [ ] **UX1** First-run activation and restrained product identity: make empty
+- [x] **UX1** First-run activation and restrained product identity: make empty
       Today lead directly to the first holding, improve onboarding hierarchy,
       and keep the no-fabricated-values empty state. — §2.2, §23, §24, §83
 - [ ] **UX2** Today financial hierarchy and responsive desktop dashboard:

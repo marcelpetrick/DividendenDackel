@@ -204,6 +204,10 @@ const Map<String, _Translation> _messages = <String, _Translation>{
   ),
   'Activity ledger': _Translation('Aktivitätsjournal', 'Dnevnik aktivnosti'),
   'Add holding': _Translation('Position hinzufügen', 'Dodaj poziciju'),
+  'Add your first holding': _Translation(
+    'Erste Position hinzufügen',
+    'Dodaj prvu poziciju',
+  ),
   'Add instrument': _Translation('Wertpapier hinzufügen', 'Dodaj instrument'),
   'Add key': _Translation('Schlüssel hinzufügen', 'Dodaj ključ'),
   'Add to watchlist': _Translation(
@@ -897,6 +901,10 @@ const Map<String, _Translation> _formMessages = <String, _Translation>{
     'Spremanje postavki obavijesti',
   ),
   'Saving theme': _Translation('Design wird gespeichert', 'Spremanje teme'),
+  'Start with your portfolio': _Translation(
+    'Beginnen Sie mit Ihrem Portfolio',
+    'Započnite sa svojim portfeljem',
+  ),
   'Show API key': _Translation('API-Schlüssel anzeigen', 'Prikaži API ključ'),
   'Showing': _Translation('Anzeige', 'Prikaz'),
   'Symbol, company name or ISIN': _Translation(
@@ -942,6 +950,11 @@ const Map<String, _Translation> _onboardingMessages = <String, _Translation>{
 /// Ordered phrase fragments cover interpolated amounts, names and counts.
 /// Screen copy that had no entry, so it rendered English in a translated app.
 const Map<String, _Translation> _screenMessages = <String, _Translation>{
+  'Add a share you own. DividendenDackel will organise its dividends, events and available research here.':
+      _Translation(
+        'Fügen Sie eine Aktie hinzu, die Sie besitzen. DividendenDackel ordnet hier deren Dividenden, Ereignisse und verfügbare Analysen.',
+        'Dodajte dionicu koju posjedujete. DividendenDackel će ovdje organizirati njezine dividende, događaje i dostupna istraživanja.',
+      ),
   'Copy diagnostics': _Translation('Diagnose kopieren', 'Kopiraj dijagnostiku'),
   'Diagnostics copied. Paste them into a report; they contain no keys or portfolio values.':
       _Translation(

@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ## [Unreleased]
 
+### Added
+
+- Empty Today now offers one direct path into the first holding flow, and the
+  onboarding experience carries the DividendenDackel identity with a clearer
+  visual progress indicator.
+
 ## [0.61.8] - 2026-09-13
 
 ### Added

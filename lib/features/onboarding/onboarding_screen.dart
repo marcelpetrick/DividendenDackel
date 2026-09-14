@@ -57,6 +57,32 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   Semantics(
+                    label: 'DividendenDackel',
+                    child: ExcludeSemantics(
+                      child: Wrap(
+                        alignment: WrapAlignment.center,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: AppTheme.space,
+                        runSpacing: AppTheme.space,
+                        children: <Widget>[
+                          Image.asset(
+                            'assets/branding/icon.png',
+                            width: 40,
+                            height: 40,
+                          ),
+                          Text(
+                            'DividendenDackel',
+                            translate: false,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppTheme.space * 4),
+                  Semantics(
                     label: context.trFormat(
                       'Step {current} of {total}',
                       <String, Object?>{
@@ -64,10 +90,31 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         'total': _steps.length,
                       },
                     ),
-                    child: Text(
-                      '${_step + 1} / ${_steps.length}',
-                      translate: false,
-                      style: theme.textTheme.labelLarge,
+                    child: ExcludeSemantics(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          for (
+                            int index = 0;
+                            index < _steps.length;
+                            index++
+                          ) ...<Widget>[
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 180),
+                              width: index == _step ? 28 : 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                color: index == _step
+                                    ? theme.colorScheme.primary
+                                    : theme.colorScheme.outlineVariant,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                            if (index < _steps.length - 1)
+                              const SizedBox(width: AppTheme.space / 2),
+                          ],
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: AppTheme.space * 3),

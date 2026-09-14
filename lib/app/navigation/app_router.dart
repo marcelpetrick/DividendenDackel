@@ -107,6 +107,11 @@ GoRouter buildRouter({String initialLocation = '/today'}) => GoRouter(
               const PortfolioScreen(),
         ),
         GoRoute(
+          path: '/portfolio/add',
+          builder: (BuildContext context, GoRouterState state) =>
+              const PortfolioScreen(openAddInstrument: true),
+        ),
+        GoRoute(
           path: '/research',
           builder: (BuildContext context, GoRouterState state) =>
               const ResearchScreen(),

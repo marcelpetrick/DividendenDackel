@@ -9,6 +9,7 @@ import 'package:dividendendackel/features/news/news_link_launcher.dart';
 import 'package:dividendendackel/features/tax/tax_estimates.dart';
 import 'package:dividendendackel/features/today/today_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 /// The central product experience (Vision.md §7).
 ///
@@ -112,6 +113,10 @@ class TodayScreen extends ConsumerWidget {
           ),
           const SizedBox(height: AppTheme.space),
         ],
+        if (holdings.value?.isEmpty ?? false) ...<Widget>[
+          _FirstHoldingPrompt(onAdd: () => context.go('/portfolio/add')),
+          const SizedBox(height: AppTheme.space * 2),
+        ],
         _SummaryCard(
           holdingCount: holdings.value?.length,
           relevantCount:
@@ -175,6 +180,76 @@ class TodayScreen extends ConsumerWidget {
         const SizedBox(height: AppTheme.space * 2),
         _ChangesCard(changes: ref.watch(todayChangesProvider)),
       ],
+    );
+  }
+}
+
+class _FirstHoldingPrompt extends StatelessWidget {
+  const _FirstHoldingPrompt({required this.onAdd});
+
+  final VoidCallback onAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return Card(
+      color: theme.colorScheme.primaryContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(AppTheme.space * 2),
+        child: LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            final Widget message = Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  'Start with your portfolio',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: AppTheme.space / 2),
+                Text(
+                  'Add a share you own. DividendenDackel will organise its '
+                  'dividends, events and available research here.',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onPrimaryContainer,
+                  ),
+                ),
+              ],
+            );
+            final Widget action = FilledButton.icon(
+              key: const ValueKey<String>('add-first-holding'),
+              onPressed: onAdd,
+              icon: const Icon(Icons.add),
+              label: const Text('Add your first holding'),
+            );
+            if (constraints.maxWidth < 620 ||
+                MediaQuery.textScalerOf(context).scale(16) >= 24) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  message,
+                  const SizedBox(height: AppTheme.space * 2),
+                  Align(alignment: Alignment.centerLeft, child: action),
+                ],
+              );
+            }
+            return Row(
+              children: <Widget>[
+                Icon(
+                  Icons.account_balance_wallet_outlined,
+                  color: theme.colorScheme.primary,
+                  size: 32,
+                ),
+                const SizedBox(width: AppTheme.space * 2),
+                Expanded(child: message),
+                const SizedBox(width: AppTheme.space * 2),
+                action,
+              ],
+            );
+          },
+        ),
+      ),
     );
   }
 }

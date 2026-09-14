@@ -23,12 +23,22 @@ import 'package:dividendendackel/features/tax/tax_estimates.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Portfolio value, income and collection management (Vision.md §8).
-class PortfolioScreen extends ConsumerWidget {
+class PortfolioScreen extends ConsumerStatefulWidget {
   /// Creates the portfolio screen.
-  const PortfolioScreen({super.key});
+  const PortfolioScreen({this.openAddInstrument = false, super.key});
+
+  /// Opens the add-instrument flow after the active portfolio is available.
+  final bool openAddInstrument;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PortfolioScreen> createState() => _PortfolioScreenState();
+}
+
+class _PortfolioScreenState extends ConsumerState<PortfolioScreen> {
+  bool _addInstrumentScheduled = false;
+
+  @override
+  Widget build(BuildContext context) {
     final AsyncValue<List<InvestmentPortfolio>> portfoliosValue = ref.watch(
       portfoliosProvider,
     );
@@ -94,6 +104,14 @@ class PortfolioScreen extends ConsumerWidget {
     final AsyncValue<PortfolioTaxEstimates> nextTax = ref.watch(
       portfolioTaxEstimatesProvider(now.year + 1),
     );
+    if (widget.openAddInstrument &&
+        !_addInstrumentScheduled &&
+        portfolioId != null) {
+      _addInstrumentScheduled = true;
+      WidgetsBinding.instance.addPostFrameCallback((Duration _) {
+        if (mounted) _showAddInstrument(context, portfolioId);
+      });
+    }
 
     return Scaffold(
       body: AsyncValueView<List<Holding>>(

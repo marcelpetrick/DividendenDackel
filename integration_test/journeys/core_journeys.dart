@@ -1,9 +1,12 @@
+import 'package:dividendendackel/features/portfolio/add_instrument_dialog.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/journey_harness.dart';
 
 void registerCoreJourneys() {
   // Covers route: /today
+  // Covers route: /portfolio/add
   testWidgets('first run reaches an honest empty Today screen', (
     WidgetTester tester,
   ) async {
@@ -26,6 +29,10 @@ void registerCoreJourneys() {
     expect(find.text('Today'), findsWidgets);
     expect(find.text('0 holdings'), findsOneWidget);
     expect(find.textContaining('No cached quotes'), findsOneWidget);
+    expect(find.text('Start with your portfolio'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey<String>('add-first-holding')));
+    await JourneyHarness.settle(tester);
+    expect(find.byType(AddInstrumentDialog), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

@@ -48,6 +48,14 @@ void main() {
         'Vaš portfelj ostaje na ovom uređaju',
       );
       expect(
+        german.text('Add your first holding'),
+        'Erste Position hinzufügen',
+      );
+      expect(
+        croatian.text('Start with your portfolio'),
+        'Započnite sa svojim portfeljem',
+      );
+      expect(
         german.text('Could not open the original source.'),
         'Die Originalquelle konnte nicht geöffnet werden.',
       );

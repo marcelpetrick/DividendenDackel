@@ -30,15 +30,16 @@ void main() {
       ),
     );
 
-    expect(find.text('1 / 3'), findsOneWidget);
+    expect(find.text('DividendenDackel'), findsOneWidget);
+    expect(find.bySemanticsLabel('Step 1 of 3'), findsOneWidget);
     expect(find.textContaining('stays on this device'), findsOneWidget);
     await tester.tap(find.text('Next'));
     await tester.pump();
-    expect(find.text('2 / 3'), findsOneWidget);
+    expect(find.bySemanticsLabel('Step 2 of 3'), findsOneWidget);
     expect(find.textContaining('Follow only what matters'), findsOneWidget);
     await tester.tap(find.text('Next'));
     await tester.pump();
-    expect(find.text('3 / 3'), findsOneWidget);
+    expect(find.bySemanticsLabel('Step 3 of 3'), findsOneWidget);
     expect(find.textContaining('Facts keep their context'), findsOneWidget);
     expect(find.text('Go to Today'), findsOneWidget);
 
