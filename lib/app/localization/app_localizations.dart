@@ -240,6 +240,10 @@ const Map<String, _Translation> _messages = <String, _Translation>{
   'Appearance': _Translation('Darstellung', 'Izgled'),
   'Apply': _Translation('Anwenden', 'Primijeni'),
   'Assessment': _Translation('Bewertung', 'Procjena'),
+  'Assessment unavailable. Instrument details remain available.': _Translation(
+    'Bewertung nicht verfügbar. Wertpapierdetails bleiben verfügbar.',
+    'Procjena nije dostupna. Pojedinosti instrumenta ostaju dostupne.',
+  ),
   'Available evidence contains material risks.': _Translation(
     'Die verfügbaren Daten enthalten wesentliche Risiken.',
     'Dostupni podaci sadrže značajne rizike.',
@@ -530,6 +534,11 @@ const Map<String, _Translation> _messages = <String, _Translation>{
     'Samo kontekst istraživanja – nije preporuka.',
   ),
   'Research score': _Translation('Analysebewertung', 'Ocjena istraživanja'),
+  'Scores use available evidence only. Missing dimensions are omitted, never scored as zero.':
+      _Translation(
+        'Bewertungen verwenden nur verfügbare Daten. Fehlende Dimensionen werden ausgelassen und niemals als null gewertet.',
+        'Ocjene koriste samo dostupne dokaze. Dimenzije koje nedostaju izostavljaju se i nikad se ne boduju nulom.',
+      ),
   'Retry': _Translation('Erneut versuchen', 'Pokušaj ponovno'),
   'Reversal': _Translation('Storno', 'Storno'),
   'Reverse': _Translation('Stornieren', 'Storniraj'),
@@ -666,6 +675,14 @@ const Map<String, _Translation> _longMessages = <String, _Translation>{
   'Evidence summaries, not predictions or instructions.': _Translation(
     'Zusammenfassungen der Daten, keine Vorhersagen oder Anweisungen.',
     'Sažeci podataka, a ne predviđanja ili upute.',
+  ),
+  'Evidence-led research': _Translation(
+    'Datenbasierte Analyse',
+    'Istraživanje temeljeno na dokazima',
+  ),
+  'Computing assessment…': _Translation(
+    'Bewertung wird berechnet…',
+    'Izračun procjene…',
   ),
   'Expected is gross provider data using the shares held on each payment date. Actual is gross dividend cash entered or imported.':
       _Translation(
@@ -1505,6 +1522,15 @@ const Map<String, _Translation> _patternMessages = <String, _Translation>{
   'Research {name}, {symbol}': _Translation(
     'Analyse {name}, {symbol}',
     'Analiza {name}, {symbol}',
+  ),
+  'Research {name}, {symbol}. Score {score} out of 100 from {available} of {total} dimensions.':
+      _Translation(
+        'Analyse {name}, {symbol}. Bewertung {score} von 100 aus {available} von {total} Dimensionen.',
+        'Istraživanje {name}, {symbol}. Ocjena {score} od 100 na temelju {available} od {total} dimenzija.',
+      ),
+  '{available} of {total} dimensions': _Translation(
+    '{available} von {total} Dimensionen',
+    '{available} od {total} dimenzija',
   ),
   'Retry available: {time}': _Translation(
     'Erneuter Versuch möglich: {time}',

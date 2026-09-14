@@ -230,7 +230,7 @@ Each task names the `Vision.md` sections it satisfies.
 - [x] **UX2** Today financial hierarchy and responsive desktop dashboard:
       scan-first KPIs, tabular figures, bounded reading width and a two-column
       wide layout that collapses to one column on Android. — §7, §24–§27
-- [ ] **UX3** Research overview with honest assessment/evidence previews and an
+- [x] **UX3** Research overview with honest assessment/evidence previews and an
       adaptive card grid; missing evidence remains unavailable, never zero. —
       §2.2, §2.3, §15, §24
 - [ ] **UX4** Calendar control hierarchy: distinguish period/view navigation

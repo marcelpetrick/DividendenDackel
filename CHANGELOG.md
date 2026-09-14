@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 - Today now presents holdings, near-term events and each native-currency value
   as scan-friendly metrics, with tabular money figures and a two-column Linux
   dashboard that remains a single ordered column on phones.
+- Research now previews each available assessment, its evidence dimensions and
+  explicit missing-evidence states in an adaptive comparison grid.
 
 ## [0.61.8] - 2026-09-13
 
