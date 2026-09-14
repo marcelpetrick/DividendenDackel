@@ -196,6 +196,26 @@ void main() {
       expect(find.byType(NavigationBar), findsNothing);
     });
 
+    testWidgets('uses two dashboard columns on a wide window', (
+      WidgetTester tester,
+    ) async {
+      await pumpApp(tester, size: const Size(1400, 900));
+
+      expect(
+        find.byKey(const ValueKey<String>('today-wide-dashboard')),
+        findsOneWidget,
+      );
+      final Offset primary = tester.getTopLeft(
+        find.byKey(const ValueKey<String>('today-primary-column')),
+      );
+      final Offset secondary = tester.getTopLeft(
+        find.byKey(const ValueKey<String>('today-secondary-column')),
+      );
+      expect(primary.dx, lessThan(secondary.dx));
+      expect(primary.dy, secondary.dy);
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('offers every top-level destination', (
       WidgetTester tester,
     ) async {

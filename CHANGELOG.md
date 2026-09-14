@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 - Empty Today now offers one direct path into the first holding flow, and the
   onboarding experience carries the DividendenDackel identity with a clearer
   visual progress indicator.
+- Today now presents holdings, near-term events and each native-currency value
+  as scan-friendly metrics, with tabular money figures and a two-column Linux
+  dashboard that remains a single ordered column on phones.
 
 ## [0.61.8] - 2026-09-13
 

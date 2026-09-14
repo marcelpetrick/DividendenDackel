@@ -150,7 +150,7 @@ void main() {
     expect(find.textContaining('not tax advice'), findsWidgets);
     expect(find.text('Today matters'), findsOneWidget);
     expect(find.textContaining('Ex-dividend tomorrow'), findsOneWidget);
-    expect(find.textContaining('Earnings tomorrow'), findsOneWidget);
+    expect(find.textContaining('Earnings tomorrow'), findsWidgets);
     expect(find.text('After market close'), findsWidgets);
     expect(find.textContaining('Capital markets day in 2 days'), findsWidgets);
     expect(find.text('Dividend policy updated'), findsOneWidget);
@@ -165,13 +165,15 @@ void main() {
       find.text('This provider summary must not be republished.'),
       findsNothing,
     );
+    await tester.scrollUntilVisible(find.text('Open original'), 300);
+    await tester.pump();
     await tester.tap(find.text('Open original'));
     await tester.pump();
     expect(launcher.opened, <Uri>[
       Uri.parse('https://publisher.example/story'),
     ]);
-    await tester.scrollUntilVisible(find.text('Next 3 days'), 300);
-    expect(find.text('Next 3 days'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Next 3 days').last, 300);
+    expect(find.text('Next 3 days'), findsNWidgets(2));
     await tester.scrollUntilVisible(
       find.text('Upcoming company events · 30 days'),
       300,

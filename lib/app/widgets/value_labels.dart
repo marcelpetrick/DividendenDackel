@@ -97,7 +97,10 @@ class MoneyText extends StatelessWidget {
 
     return Text(
       '$prefix$text',
-      style: (style ?? theme.textTheme.bodyMedium)?.copyWith(color: color),
+      style: (style ?? theme.textTheme.bodyMedium)?.copyWith(
+        color: color,
+        fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
+      ),
     );
   }
 }

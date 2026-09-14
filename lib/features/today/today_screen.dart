@@ -100,88 +100,169 @@ class TodayScreen extends ConsumerWidget {
           position.holding.instrumentId: allocation.rate.toDouble(),
     };
 
-    return ListView(
-      padding: const EdgeInsets.all(AppTheme.space * 2),
-      children: <Widget>[
-        if (holdings.hasError ||
-            watchlist.hasError ||
-            instrumentValue.hasError ||
-            quoteValue.hasError) ...<Widget>[
-          const _PartialDataNotice(
-            'Some saved portfolio details could not be read. Available '
-            'events and values remain visible; missing values are unavailable.',
-          ),
-          const SizedBox(height: AppTheme.space),
-        ],
-        if (holdings.value?.isEmpty ?? false) ...<Widget>[
-          _FirstHoldingPrompt(onAdd: () => context.go('/portfolio/add')),
-          const SizedBox(height: AppTheme.space * 2),
-        ],
-        _SummaryCard(
-          holdingCount: holdings.value?.length,
-          relevantCount:
-              next3Ex.hasValue &&
-                  next3Payments.hasValue &&
-                  next3Earnings.hasValue &&
-                  next3Corporate.hasValue
-              ? next3Ex.requireValue.length +
-                    next3Payments.requireValue.length +
-                    next3Earnings.requireValue.length +
-                    next3Corporate.requireValue.length
-              : null,
-          overview: overview,
-          quoteDataAvailable: quoteValue.hasValue,
-          holdingsFailed: holdings.hasError,
-          eventsFailed:
-              next3Ex.hasError ||
-              next3Payments.hasError ||
-              next3Earnings.hasError ||
-              next3Corporate.hasError,
-        ),
-        const SizedBox(height: AppTheme.space * 2),
-        _TodayMattersCard(
-          exEvents: next3Ex,
-          paymentEvents: next3Payments,
-          earningsEvents: next3Earnings,
-          corporateEvents: next3Corporate,
-          news: news,
-          instruments: instruments,
-          holdings: holdingsByInstrument,
-          watchlistIds: <String>{
-            for (final WatchlistEntry entry
-                in watchlist.value ?? const <WatchlistEntry>[])
-              entry.instrumentId,
-          },
-          holdingWeights: holdingWeights,
-          launcher: ref.watch(newsLinkLauncherProvider),
-          now: now,
-        ),
-        const SizedBox(height: AppTheme.space * 2),
-        _NextThreeDaysCard(
-          exEvents: next3Ex,
-          paymentEvents: next3Payments,
-          earningsEvents: next3Earnings,
-          corporateEvents: next3Corporate,
-        ),
-        const SizedBox(height: AppTheme.space * 2),
-        _UpcomingCompanyEventsCard(
-          earningsEvents: next30Earnings,
-          corporateEvents: next30Corporate,
-          instruments: instruments,
-          now: now,
-        ),
-        const SizedBox(height: AppTheme.space * 2),
-        _ExpectedDividendsCard(
-          next7: next7,
-          next30: next30,
-          next365: next365,
-          holdings: holdings.value ?? const <Holding>[],
-        ),
-        const SizedBox(height: AppTheme.space * 2),
-        _ChangesCard(changes: ref.watch(todayChangesProvider)),
-      ],
+    final Widget summary = _SummaryCard(
+      holdingCount: holdings.value?.length,
+      relevantCount:
+          next3Ex.hasValue &&
+              next3Payments.hasValue &&
+              next3Earnings.hasValue &&
+              next3Corporate.hasValue
+          ? next3Ex.requireValue.length +
+                next3Payments.requireValue.length +
+                next3Earnings.requireValue.length +
+                next3Corporate.requireValue.length
+          : null,
+      overview: overview,
+      quoteDataAvailable: quoteValue.hasValue,
+      holdingsFailed: holdings.hasError,
+      eventsFailed:
+          next3Ex.hasError ||
+          next3Payments.hasError ||
+          next3Earnings.hasError ||
+          next3Corporate.hasError,
+    );
+    final Widget matters = _TodayMattersCard(
+      exEvents: next3Ex,
+      paymentEvents: next3Payments,
+      earningsEvents: next3Earnings,
+      corporateEvents: next3Corporate,
+      news: news,
+      instruments: instruments,
+      holdings: holdingsByInstrument,
+      watchlistIds: <String>{
+        for (final WatchlistEntry entry
+            in watchlist.value ?? const <WatchlistEntry>[])
+          entry.instrumentId,
+      },
+      holdingWeights: holdingWeights,
+      launcher: ref.watch(newsLinkLauncherProvider),
+      now: now,
+    );
+    final Widget nextThreeDays = _NextThreeDaysCard(
+      exEvents: next3Ex,
+      paymentEvents: next3Payments,
+      earningsEvents: next3Earnings,
+      corporateEvents: next3Corporate,
+    );
+    final Widget companyEvents = _UpcomingCompanyEventsCard(
+      earningsEvents: next30Earnings,
+      corporateEvents: next30Corporate,
+      instruments: instruments,
+      now: now,
+    );
+    final Widget expectedDividends = _ExpectedDividendsCard(
+      next7: next7,
+      next30: next30,
+      next365: next365,
+      holdings: holdings.value ?? const <Holding>[],
+    );
+    final Widget changes = _ChangesCard(
+      changes: ref.watch(todayChangesProvider),
+    );
+
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        final bool wide =
+            constraints.maxWidth >= 1000 &&
+            MediaQuery.textScalerOf(context).scale(16) < 24;
+        final List<Widget> notices = <Widget>[
+          if (holdings.hasError ||
+              watchlist.hasError ||
+              instrumentValue.hasError ||
+              quoteValue.hasError)
+            const _PartialDataNotice(
+              'Some saved portfolio details could not be read. Available '
+              'events and values remain visible; missing values are unavailable.',
+            ),
+          if (holdings.value?.isEmpty ?? false)
+            _FirstHoldingPrompt(onAdd: () => context.go('/portfolio/add')),
+        ];
+        final Widget dashboard = wide
+            ? Column(
+                key: const ValueKey<String>('today-wide-dashboard'),
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  ..._withGaps(notices),
+                  if (notices.isNotEmpty)
+                    const SizedBox(height: AppTheme.space * 2),
+                  summary,
+                  const SizedBox(height: AppTheme.space * 2),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Expanded(
+                        flex: 3,
+                        child: _DashboardColumn(
+                          key: const ValueKey<String>('today-primary-column'),
+                          children: <Widget>[matters, companyEvents],
+                        ),
+                      ),
+                      const SizedBox(width: AppTheme.space * 2),
+                      Expanded(
+                        flex: 2,
+                        child: _DashboardColumn(
+                          key: const ValueKey<String>('today-secondary-column'),
+                          children: <Widget>[
+                            nextThreeDays,
+                            expectedDividends,
+                            changes,
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              )
+            : _DashboardColumn(
+                key: const ValueKey<String>('today-narrow-dashboard'),
+                children: <Widget>[
+                  ...notices,
+                  summary,
+                  matters,
+                  nextThreeDays,
+                  companyEvents,
+                  expectedDividends,
+                  changes,
+                ],
+              );
+        return ListView(
+          padding: const EdgeInsets.all(AppTheme.space * 2),
+          children: <Widget>[
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1440),
+                child: dashboard,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
+}
+
+List<Widget> _withGaps(List<Widget> children) => <Widget>[
+  for (int index = 0; index < children.length; index++) ...<Widget>[
+    if (index > 0) const SizedBox(height: AppTheme.space),
+    children[index],
+  ],
+];
+
+class _DashboardColumn extends StatelessWidget {
+  const _DashboardColumn({required this.children, super.key});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: <Widget>[
+      for (int index = 0; index < children.length; index++) ...<Widget>[
+        if (index > 0) const SizedBox(height: AppTheme.space * 2),
+        children[index],
+      ],
+    ],
+  );
 }
 
 class _FirstHoldingPrompt extends StatelessWidget {
@@ -298,71 +379,193 @@ class _SummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppTheme.space * 2),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text('Portfolio today', style: theme.textTheme.titleMedium),
-            const SizedBox(height: AppTheme.space),
-            holdingCount == null
-                ? Text(
-                    holdingsFailed
-                        ? 'Holdings unavailable'
-                        : 'Loading your holdings…',
-                    style: theme.textTheme.bodyLarge,
-                  )
-                : holdingCount == 1
-                ? Text('1 holding', style: theme.textTheme.bodyLarge)
-                : Text.format('{count} holdings', <String, Object?>{
-                    'count': holdingCount,
-                  }, style: theme.textTheme.bodyLarge),
-            Text(
-              relevantCount == null
-                  ? eventsFailed
-                        ? 'Next-three-days summary unavailable'
-                        : 'Loading the next 3 days…'
-                  : context.trFormat(
-                      '{count} relevant event(s) in the next 3 days',
-                      <String, Object?>{'count': relevantCount},
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Container(height: 4, color: theme.colorScheme.primary),
+          Padding(
+            padding: const EdgeInsets.all(AppTheme.space * 2),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    Icon(
+                      Icons.space_dashboard_outlined,
+                      color: theme.colorScheme.primary,
                     ),
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: AppTheme.space),
-            if (overview == null)
-              const Text('Loading cached portfolio values…')
-            else if (!quoteDataAvailable ||
-                overview!.byCurrency.values.every(
-                  (PortfolioCurrencySummary summary) =>
-                      summary.pricedPositionCount == 0,
-                ))
-              const Text(
-                'No cached quotes. Holdings and the dividend schedule below '
-                'still work offline.',
-              )
-            else
-              for (final PortfolioCurrencySummary summary
-                  in overview!.byCurrency.values)
-                if (summary.pricedPositionCount > 0)
-                  Wrap(
-                    spacing: AppTheme.space,
-                    children: <Widget>[
-                      MoneyText(
-                        summary.totalValue,
-                        style: theme.textTheme.titleLarge,
+                    const SizedBox(width: AppTheme.space),
+                    Expanded(
+                      child: Text(
+                        'Portfolio today',
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
-                      summary.dayChange == null
-                          ? const Text('day change unavailable')
-                          : Text.format('{change} today', <String, Object?>{
-                              'change': summary.dayChange!.format(
-                                withSymbol: true,
-                              ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppTheme.space * 2),
+                Wrap(
+                  spacing: AppTheme.space,
+                  runSpacing: AppTheme.space,
+                  children: <Widget>[
+                    _TodayMetric(
+                      icon: Icons.account_balance_wallet_outlined,
+                      label: 'Holdings',
+                      value: holdingCount == null
+                          ? Text(
+                              holdingsFailed
+                                  ? 'Holdings unavailable'
+                                  : 'Loading your holdings…',
+                            )
+                          : holdingCount == 1
+                          ? const Text('1 holding')
+                          : Text.format('{count} holdings', <String, Object?>{
+                              'count': holdingCount,
                             }),
+                    ),
+                    _TodayMetric(
+                      icon: Icons.event_available_outlined,
+                      label: 'Next 3 days',
+                      value: Text(
+                        relevantCount == null
+                            ? eventsFailed
+                                  ? 'Next-three-days summary unavailable'
+                                  : 'Loading the next 3 days…'
+                            : context.trFormat(
+                                '{count} relevant event(s) in the next 3 days',
+                                <String, Object?>{'count': relevantCount},
+                              ),
+                      ),
+                    ),
+                    if (overview != null && quoteDataAvailable)
+                      for (final PortfolioCurrencySummary summary
+                          in overview!.byCurrency.values)
+                        if (summary.pricedPositionCount > 0)
+                          _TodayMetric(
+                            icon: Icons.payments_outlined,
+                            label: context.trFormat(
+                              '{code} portfolio value',
+                              <String, Object?>{'code': summary.currency.code},
+                            ),
+                            value: MoneyText(
+                              summary.totalValue,
+                              style: theme.textTheme.headlineSmall,
+                            ),
+                            supporting: summary.dayChange == null
+                                ? const Text('day change unavailable')
+                                : Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                      MoneyText(
+                                        summary.dayChange!,
+                                        showSign: true,
+                                        colorBySign: true,
+                                        style: theme.textTheme.bodyMedium,
+                                      ),
+                                      const SizedBox(width: AppTheme.space / 2),
+                                      const Text('today'),
+                                    ],
+                                  ),
+                          ),
+                  ],
+                ),
+                if (overview == null) ...<Widget>[
+                  const SizedBox(height: AppTheme.space),
+                  const Text('Loading cached portfolio values…'),
+                ] else if (!quoteDataAvailable ||
+                    overview!.byCurrency.values.every(
+                      (PortfolioCurrencySummary summary) =>
+                          summary.pricedPositionCount == 0,
+                    )) ...<Widget>[
+                  const SizedBox(height: AppTheme.space),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Icon(
+                        Icons.cloud_off_outlined,
+                        size: 18,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: AppTheme.space),
+                      const Expanded(
+                        child: Text(
+                          'No cached quotes. Holdings and the dividend schedule below '
+                          'still work offline.',
+                        ),
+                      ),
                     ],
                   ),
-          ],
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TodayMetric extends StatelessWidget {
+  const _TodayMetric({
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.supporting,
+  });
+
+  final IconData icon;
+  final String label;
+  final Widget value;
+  final Widget? supporting;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minWidth: 190, maxWidth: 320),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(AppTheme.cardRadius - 4),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(AppTheme.space * 1.5),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  Icon(
+                    icon,
+                    size: 16,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                  const SizedBox(width: AppTheme.space / 2),
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppTheme.space / 2),
+              DefaultTextStyle.merge(
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+                child: value,
+              ),
+              if (supporting case final Widget supporting) ...<Widget>[
+                const SizedBox(height: AppTheme.space / 2),
+                supporting,
+              ],
+            ],
+          ),
         ),
       ),
     );
@@ -438,6 +641,7 @@ class _TodayMattersCard extends StatelessWidget {
         corporateEvents.hasError ||
         news.hasError;
     return Card(
+      key: const ValueKey<String>('today-matters-card'),
       child: Padding(
         padding: const EdgeInsets.all(AppTheme.space * 2),
         child: Column(
@@ -733,6 +937,7 @@ class _NextThreeDaysCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Card(
+    key: const ValueKey<String>('next-three-days-card'),
     child: Padding(
       padding: const EdgeInsets.all(AppTheme.space * 2),
       child: Column(

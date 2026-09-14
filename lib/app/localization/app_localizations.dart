@@ -1498,6 +1498,10 @@ const Map<String, _Translation> _patternMessages = <String, _Translation>{
     'Analysewert {score} von 100',
     'Ocjena analize {score} od 100',
   ),
+  '{code} portfolio value': _Translation(
+    '{code} Portfoliowert',
+    'Vrijednost portfelja u {code}',
+  ),
   'Research {name}, {symbol}': _Translation(
     'Analyse {name}, {symbol}',
     'Analiza {name}, {symbol}',

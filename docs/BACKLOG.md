@@ -227,7 +227,7 @@ Each task names the `Vision.md` sections it satisfies.
 - [x] **UX1** First-run activation and restrained product identity: make empty
       Today lead directly to the first holding, improve onboarding hierarchy,
       and keep the no-fabricated-values empty state. — §2.2, §23, §24, §83
-- [ ] **UX2** Today financial hierarchy and responsive desktop dashboard:
+- [x] **UX2** Today financial hierarchy and responsive desktop dashboard:
       scan-first KPIs, tabular figures, bounded reading width and a two-column
       wide layout that collapses to one column on Android. — §7, §24–§27
 - [ ] **UX3** Research overview with honest assessment/evidence previews and an
