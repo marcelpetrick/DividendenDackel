@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ## [Unreleased]
 
+## [0.65.5] - 2026-09-15
+
+### Changed
+
+- Repository documentation now matches the implemented provider, privacy,
+  route-coverage and release behavior, and all tracked Markdown has a clean,
+  reproducible lint baseline.
+
 ## [0.65.4] - 2026-09-15
 
 ### Added
@@ -119,7 +127,6 @@ to 0.56.0. From this release on, each version gets its own section, and the
 release workflow refuses to publish a version that has none.
 
 ### Added
-
 
 - Optional prices for German and other non-US listings, using an Alpha Vantage
   key the user supplies. No credential ships with the app, the source stays

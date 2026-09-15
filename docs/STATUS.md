@@ -1,10 +1,10 @@
 # Project status
 
-- **Last updated:** 2026-09-13
-- **Version:** 0.61.8+115
+- **Last updated:** 2026-09-15
+- **Version:** 0.65.5+125
 - **Branch:** `master`
 - **Pinned toolchain:** Flutter 3.47.4 / Dart 3.13.3
-- **Quality gate:** green — 668 tests, 10 compiled Linux journeys, Android 10
+- **Quality gate:** green — 678 tests, 10 compiled Linux journeys, Android 10
   compatibility and Android/Linux release builds
 
 ## Product state
@@ -20,7 +20,8 @@ Implemented user capabilities:
 - responsive Android bottom navigation and Linux navigation rail;
 - first-run onboarding, persisted System/Light/Dark themes and live persisted
   English/German/Croatian language selection;
-- Today dashboard with ranked portfolio-relevant events and income windows;
+- scan-first Today dashboard with separate native-currency KPIs, ranked
+  portfolio-relevant events and a responsive income layout;
 - holding/watchlist search and editing, allocation, yield and next dividend;
 - multiple local portfolios with create, rename, clear and protected delete,
   persistent selection and an explicit read-only consolidated view;
@@ -43,7 +44,7 @@ Implemented user capabilities:
 - 24-month monthly/quarterly/yearly income forecast, paid/confirmed/estimated
   separation, TTM and year-over-year comparisons;
 - explainable dividend growth, forecast, quality and six-dimension research
-  assessments with history and bull/bear evidence;
+  assessments with lazy comparison previews, history and bull/bear evidence;
 - exact display-currency conversion with dated ECB provenance;
 - explainable gross/net German dividend-tax estimates and editable assumptions;
 - provider settings, health, active jobs, cache status and privacy-safe errors;

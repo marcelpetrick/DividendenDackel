@@ -4,11 +4,11 @@ Every adapter must have an entry here before it is merged. This is an
 engineering record, not legal advice. Terms can change; release readiness must
 recheck the linked primary sources and update the review date.
 
-Version 0.1.0 ships only the SEC EDGAR and Frankfurter/ECB adapters below.
-Settings reserve secure credential slots for Financial Modeling Prep, Finnhub
-and Alpha Vantage, but those entries are configuration boundaries rather than
-working adapters; they make no network request until an adapter, contract test
-and licensing review are implemented.
+The current release ships keyless SEC EDGAR, OpenFIGI and Frankfurter/ECB
+adapters. Finnhub and Alpha Vantage quote adapters activate only when the user
+stores their own key in platform-secure storage. Financial Modeling Prep stays
+disconnected because its licensing review could not be completed; it makes no
+network request.
 
 ## SEC EDGAR
 
@@ -25,7 +25,7 @@ and licensing review are implemented.
 | Retention limit | None stated in the reviewed sources. Normal cache expiry remains configurable. |
 | Commercial restrictions | None stated for the public API/content reviewed. |
 | API-key restrictions | No key is required. |
-| Reviewed | 2026-08-22 |
+| Reviewed | 2026-09-15 |
 
 Primary sources:
 
@@ -73,7 +73,7 @@ older ranges instead of pretending the history is exhaustive.
 | Commercial restrictions | Premium tiers exist for higher volume; the app never assumes one. |
 | API-key restrictions | Required. The source stays disabled until the user adds a key. |
 | Data warning | The free tier is **end-of-day, not real-time**. A quote is a closing price and is dated by its trading day rather than by download time, so the app never presents yesterday's close as the current market price. |
-| Reviewed | 2026-08-28 |
+| Reviewed | 2026-09-15 |
 
 Primary sources:
 
@@ -116,11 +116,11 @@ shown, because a confident wrong number is the defect this app exists to avoid.
 | Redistribution allowed? | **No.** "You agree to not redistribute or share access to data or derived results from the data obtained from Finnhub with anyone or any 3rd party without written approval." The app forwards nothing; a quote reaches only the device that requested it. |
 | Attribution required? | Not stated. Provenance records `finnhub` as the source, as for every adapter. |
 | Rate limit | Paced rather than capped daily, so the coordinator spaces requests at about one per second and carries no daily budget. |
-| Retention limit | None stated for the user's own cached values. |
+| Retention limit | Finnhub's terms require all subscribed data to be deleted when the subscription ends. The app clears cached Finnhub quotes when its credential is removed; the user must remove it when access ends. |
 | Commercial restrictions | **The personal plan is for personal use.** "Personal plan can't be used by any business even internally without a written approval," and it is "strictly for personal use unless explicitly stated otherwise". The app states this where the key is asked for, because a user tracking a company portfolio would otherwise breach it unknowingly. |
 | API-key restrictions | Required. The source stays disabled until the user adds a key. |
 | Data warning | The free tier covers US equities. A non-US listing is refused rather than sent unsuffixed, which would resolve a US company of the same ticker. An unknown symbol returns HTTP 200 with every field zero, so a zero price is treated as no data rather than as a company worth nothing. |
-| Reviewed | 2026-08-28 |
+| Reviewed | 2026-09-15 |
 
 Primary sources:
 
@@ -163,7 +163,7 @@ It can be added once someone can read and record those terms.
 | Commercial restrictions | None. Use is dedicated to the public domain. |
 | API-key restrictions | A key raises the quota but is not required, so none is bundled (Vision.md §34, §80). |
 | Data warning | Identity only. OpenFIGI returns no prices, and the adapter declares only `instrumentSearch`, asserted by a test. Bloomberg provides the data "as is" with no accuracy warranty and caps liability at USD 50, so a match is treated as a candidate for the user to confirm, never as a fact about a holding. |
-| Reviewed | 2026-08-28 |
+| Reviewed | 2026-09-15 |
 
 Primary sources:
 
@@ -201,7 +201,7 @@ than guessed. Extending it to another venue must revisit that.
 | Commercial restrictions | Frankfurter says commercial use is allowed. If ECB information is included in something sold, buyers must be told that the information is available free from the ECB website. |
 | API-key restrictions | No key is required. |
 | Data warning | Daily reference rates are informational, normally published around 16:00 CET on working days, and are not transaction rates. The ECB strongly discourages transaction use. |
-| Reviewed | 2026-08-22 |
+| Reviewed | 2026-09-15 |
 
 Primary sources:
 

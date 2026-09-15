@@ -124,8 +124,8 @@ code:
 
 ```json
 {
-  "asOf": "2026-01-01",
-  "source": "Bundeszentralamt für Steuern, anrechenbare ausländische Quellensteuer",
+  "asOf": "2024-01-01",
+  "source": "Bundeszentralamt für Steuern — Anrechenbare ausländische Quellensteuer 2024",
   "rates": {
     "US": {"statutory": "30", "treatyWithForms": "15", "creditableCap": "15"},
     "CH": {"statutory": "35", "treatyWithForms": "35", "creditableCap": "15"},
@@ -187,5 +187,7 @@ gross and net side by side and never mix the two into one figure.
 - [Raisin — Quellensteuer: Höhe, Anrechnung und Rückerstattung](https://www.raisin.com/de-de/steuer/quellensteuer/)
 - [Raisin — Abgeltungsteuer](https://www.raisin.com/de-de/steuer/abgeltungsteuer/)
 
-Verify the table against the BZSt publication before every release; that check
-belongs in the release checklist alongside the provider licensing review.
+The table and the current 2026 allowance/statutory formula were rechecked on
+2026-09-15. The BZSt 2024 publication remains the latest official withholding
+table located. Recheck it before every release; that check belongs in the
+release checklist alongside the provider licensing review.

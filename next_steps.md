@@ -1,7 +1,7 @@
 # Next steps: end-to-end testing on Linux, and the review it produces
 
 Status: **release review complete; optional live smoke awaits credentials.**
-Written 2026-08-28 against 0.61.0; reviewed on 2026-09-13.
+Written 2026-08-28 against 0.61.0; reviewed on 2026-09-15.
 
 The goal is a review of the whole application — what works, what does not, and
 what is still missing — produced from automated journeys that drive the real
@@ -16,7 +16,7 @@ Three levels exist, and the choice determines everything downstream.
 
 | Level | What it drives | Verdict |
 | --- | --- | --- |
-| Widget tests | Widgets in isolation, no application | Already 668 of them; not end-to-end |
+| Widget tests | Widgets in isolation, no application | Already 678 of them; not end-to-end |
 | **`integration_test`** | **The real compiled app, real database, real navigation; taps enter through the Flutter engine** | **The right level** |
 | OS-level (`xdotool`, AT-SPI via `dogtail`) | Real X11 clicks against the window | Rejected |
 
@@ -66,7 +66,7 @@ nobody controls gets switched off. Layer A must stay the one that gates.
 
 Three of the four named instruments are already bundled:
 
-```
+```text
 ALV   Allianz SE                          XETRA    EUR
 MUV2  Münchener Rückversicherungs-Ges.    XETRA    EUR
 MSFT  Microsoft Corporation               NASDAQ   USD
@@ -111,7 +111,7 @@ Nine, each its own test so a failure names the broken workflow rather than
 
 ## 6. Where coverage stands today
 
-The compiled journey suite now exercises all **14 of 14 routes**, including
+The compiled journey suite now exercises all **15 of 15 routes**, including
 Research, Data status, provider setup, notifications, About and the bundled
 changelog. A unit test compares the router's declared paths with explicit
 coverage markers beside the integration journeys; adding or removing a route

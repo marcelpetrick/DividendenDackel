@@ -11,14 +11,15 @@ A public release contains:
 | Artifact | Contents |
 | --- | --- |
 | `dividendendackel-<version>-android.apk` | Android 10+ APK |
+| `DividendenDackel-<version>-x86_64.AppImage` | single-file Linux x86_64 application |
 | `dividendendackel-<version>-linux-x86_64.tar.gz` | complete Linux desktop bundle |
-| `SHA256SUMS` | SHA-256 digest for both downloads |
+| `SHA256SUMS` | SHA-256 digest for all three platform downloads |
 
-The Linux archive must be extracted as a directory; the executable depends on
-the adjacent `lib/` and `data/` content. The 0.1.0 APK uses a development/debug
-signing key and is suitable for direct testing, not Play Store publication. A
-production signing configuration and protected credentials are required before
-store distribution.
+The AppImage runs directly after `chmod +x`. The Linux archive must be extracted
+as a directory because its executable depends on the adjacent `lib/` and
+`data/` content. APKs use a development/debug signing key and are suitable for
+direct testing, not Play Store publication. A production signing configuration
+and protected credentials are required before store distribution.
 
 ## Pre-release checklist
 
@@ -51,18 +52,21 @@ store distribution.
 
 ## Automated release workflow
 
-`.github/workflows/release.yml` checks out the exact tag and rejects a tag that
-does not match `pubspec.yaml`. It installs the pinned Flutter and Java
-toolchains, runs the same full local pipeline, copies the raw APK, archives the
-Linux bundle, generates checksums and release notes, and publishes a non-draft,
-non-prerelease GitHub Release.
+For a pushed tag, `.github/workflows/release.yml` checks out that tag and rejects
+it when it does not match `pubspec.yaml`. For a manual dispatch, it checks out
+the requested ref (or default-branch head), refuses an existing version tag and
+creates the tag on the exact tested commit. Both paths install the pinned
+Flutter and Java toolchains, run the same full local pipeline, build the APK,
+AppImage and Linux archive, generate checksums and notes, and publish a
+non-draft, non-prerelease GitHub Release.
 
 Third-party actions are pinned to full commit SHAs. The workflow defaults to
 read-only repository access and grants `contents: write` only to the publishing
 job. It receives no application API key or signing secret.
 
-`workflow_dispatch` can republish an existing matching tag for recovery. It
-must not be used to bypass the tag/version or quality checks.
+`workflow_dispatch` cannot overwrite or republish an existing tag. A failed
+release must be corrected in a new versioned commit and published under a new
+tag; neither entry path can bypass the version, changelog or quality checks.
 
 ## Verification after publishing
 

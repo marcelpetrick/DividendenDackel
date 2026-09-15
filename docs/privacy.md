@@ -1,6 +1,6 @@
 # Privacy
 
-This document describes DividendenDackel 0.1.0. The app is local-first and has
+This document describes the current DividendenDackel release. The app is local-first and has
 no DividendenDackel account, hosted backend, advertising SDK, analytics SDK or
 crash-reporting service.
 
@@ -58,15 +58,21 @@ Live refresh uses HTTPS and contacts only enabled data sources:
 | Destination | Data sent | Purpose |
 | --- | --- | --- |
 | `sec.gov` / `data.sec.gov` | public ticker or CIK lookup, declared application/contact user agent, normal network metadata such as IP address | US instruments, company facts and filing metadata |
+| `api.openfigi.com` | ISIN or search text, German venue filters and normal network metadata | optional instrument discovery beyond the bundled reference set |
 | `api.frankfurter.dev` | currency pair, bounded dates, `providers=ECB`, normal network metadata | ECB daily reference rates |
+| `finnhub.io` | US ticker, the user's API key and normal network metadata | optional US closing quote |
+| `alphavantage.co` | exchange-qualified ticker, the user's API key and normal network metadata | optional end-of-day quote, including supported German listings |
 
 Portfolio names, quantities, purchase prices, activities, tax profiles and
-calculated scores are not sent to these keyless providers. A ticker or CIK can reveal which company
-the user requested. Those services process requests under their own privacy and
-access policies; links are recorded in [`data-providers.md`](data-providers.md).
+calculated scores are not sent to any provider. Keyless and keyed sources
+receive only the request identities listed above. A ticker or CIK can reveal
+which company the user requested. Those services process requests under their
+own privacy and access policies; links are recorded in
+[`data-providers.md`](data-providers.md).
 
-Settings contain reserved entries for optional keyed sources, but version 0.1.0
-does not ship those adapters and therefore sends them no data.
+Finnhub and Alpha Vantage remain disabled until the user explicitly stores a
+key. Financial Modeling Prep has a visible but disconnected settings entry and
+makes no request because its licensing review and adapter are incomplete.
 
 ## External links
 

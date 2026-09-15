@@ -1,6 +1,6 @@
 # End-to-end application review
 
-Review date: 2026-09-13
+Review date: 2026-09-15
 
 Platform: compiled Linux x86_64 application under Xvfb
 
@@ -10,7 +10,7 @@ Toolchain: Flutter 3.47.4 / Dart 3.13.3 / Java 21
 
 The hermetic release journeys pass. They drive the compiled application through
 the real router, Riverpod graph and in-memory Drift database with deterministic
-provider and platform boundaries. All 14 declared routes have an exercised
+provider and platform boundaries. All 15 declared routes have an exercised
 journey, and a quality-gate test fails if a route is added without a matching
 coverage marker.
 
@@ -32,7 +32,7 @@ widget and compiled integration tests.
 | Settings and providers | Opens provider guidance, notifications, currency, About, bundled release notes and Data status | Pass |
 | Offline and diagnostics | Retains saved content after provider failure and copies diagnostics through the desktop platform boundary | Pass |
 
-The full local gate also passes 668 unit/widget tests, strict analysis, the
+The full local gate also passes 678 unit/widget tests, strict analysis, the
 version scheme, Android 10 compatibility, and Android/Linux release builds.
 
 ## Route coverage audit
@@ -43,6 +43,7 @@ version scheme, Android 10 compatibility, and Android/Linux release builds.
 | `/calendar` | dividend agenda and tax/currency |
 | `/calendar/forecast` | 24-month forecast and offline refresh |
 | `/portfolio` | German and mixed-currency holding entry |
+| `/portfolio/add` | empty-Today activation and holding entry |
 | `/research` | research list |
 | `/status` | provider status and diagnostic export |
 | `/research/:instrumentId` | score and dividend-history detail |

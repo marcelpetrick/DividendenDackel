@@ -36,7 +36,7 @@ question it answers is:
 
 ## Status
 
-**0.51.0.** The Android 10+ and Linux desktop applications are
+**0.65.5.** The Android 10+ and Linux desktop applications are
 implemented and build as release artifacts. They include the Today dashboard,
 portfolio editor and health insights, dividend calendar and 24-month income
 forecast, gross/net tax estimates, multi-currency conversion, explainable
@@ -127,23 +127,24 @@ flutter test
 **The app works with real data out of the box. You do not need an API key, and
 you are not asked for one.**
 
-It ships with two genuinely keyless public data sources, used by default:
+It ships with three genuinely keyless public data sources, used by default:
 
 | Source | Provides | Key required |
 | --- | --- | --- |
 | [SEC EDGAR](https://www.sec.gov/edgar) | Dividend history, filings and company facts for US-listed companies | none |
+| [OpenFIGI](https://www.openfigi.com/api) | Instrument discovery outside the bundled reference set | none |
 | [Frankfurter / ECB](https://frankfurter.dev) | Daily foreign-exchange reference rates | none |
 
 SEC EDGAR publishes the actual declared dividend-per-share history a company
 filed, which is what the dividend CAGR and the forecast are computed from — so
-those numbers are real, not sample values. Both sources only require polite
-use: an identifying `User-Agent` and respect for their rate limits, which the
-Request Coordinator enforces.
+those numbers are real, not sample values. The sources require no credential;
+the Request Coordinator supplies the SEC's identifying `User-Agent` and
+enforces each provider's published or observed rate limits.
 
-Where those two do not reach — live quotes, non-US dividend calendars, news —
-the app retains a **bundled reference dataset** for instrument discovery and
-offline exploration. It does not add demo holdings or watchlist entries to the
-user's portfolio.
+Where those sources do not reach — live quotes, non-US dividend calendars,
+news — the app retains a **bundled reference dataset** for instrument discovery
+and offline exploration. It does not add demo holdings or watchlist entries to
+the user's portfolio.
 
 That dataset carries **no prices**. Its entries are real, identifiable
 companies, and a plausible invented number beside a real company name is read
@@ -156,10 +157,10 @@ This means a listing with no keyless source — most non-US shares — is
 discoverable and can be followed, but shows no value until a data source that
 covers it is configured.
 
-Settings reserve secure credential entries for richer providers such as
-Financial Modeling Prep, Finnhub and Alpha Vantage. Their adapters are not part
-of 0.1.0 yet, so enabling real requests remains future optional work rather than
-a hidden requirement.
+Settings provide secure, opt-in credential entries for Finnhub and Alpha
+Vantage quote adapters. Financial Modeling Prep remains visibly disconnected
+because its required licensing review could not be completed. No keyed source
+is needed for the app's offline and keyless workflows.
 
 ### Why the app cannot provision keyed providers for you
 

@@ -37,9 +37,9 @@ The product should feel approachable to beginners while still exposing enough de
 
 ---
 
-# 2. Product principles
+## 2. Product principles
 
-## 2.1 Relevance before data volume
+### 2.1 Relevance before data volume
 
 Do not show a generic firehose of financial data.
 
@@ -55,7 +55,7 @@ Information must be ranked by relevance to the user's holdings and watchlist.
 
 ---
 
-## 2.2 Explain instead of command
+### 2.2 Explain instead of command
 
 The app must not present opaque or absolute commands such as:
 
@@ -79,7 +79,7 @@ Any score must explain why it exists.
 
 ---
 
-## 2.3 Beginner-first, expert-expandable
+### 2.3 Beginner-first, expert-expandable
 
 Default screens show simple language and a small number of important values.
 
@@ -106,7 +106,7 @@ Expanded view:
 
 ---
 
-## 2.4 Local-first
+### 2.4 Local-first
 
 The portfolio and cached market data should remain usable without an internet connection.
 
@@ -116,7 +116,7 @@ Never replace useful cached data with an empty screen merely because a provider 
 
 ---
 
-## 2.5 Transparent data
+### 2.5 Transparent data
 
 Important values should expose:
 
@@ -131,7 +131,7 @@ Financial-data uncertainty is part of the product and must be visible.
 
 ---
 
-# 3. Target audience
+## 3. Target audience
 
 Primary users:
 
@@ -150,9 +150,9 @@ Secondary users:
 
 ---
 
-# 4. Supported platforms
+## 4. Supported platforms
 
-## 4.1 Android
+### 4.1 Android
 
 Minimum supported Android version:
 
@@ -183,7 +183,7 @@ The CI pipeline must verify that Android 10 compatibility is not accidentally re
 
 ---
 
-## 4.2 Linux Desktop
+### 4.2 Linux Desktop
 
 The same application must also run as a native Flutter desktop application on:
 
@@ -203,7 +203,7 @@ The Linux UI may adapt to larger screens but must provide the same core function
 
 ---
 
-# 5. Technology choice
+## 5. Technology choice
 
 The application is built with:
 
@@ -228,7 +228,7 @@ Platform-specific integrations should be isolated behind adapters.
 
 ---
 
-# 6. Application navigation
+## 6. Application navigation
 
 The primary navigation should remain small.
 
@@ -253,7 +253,7 @@ On Android they may appear in bottom navigation plus secondary screens.
 
 ---
 
-# 7. Today screen
+## 7. Today screen
 
 The **Today** screen is the central product experience.
 
@@ -295,11 +295,11 @@ The screen must remain useful even when live quotes are unavailable.
 
 ---
 
-# 8. Portfolio
+## 8. Portfolio
 
 Users can create a portfolio locally.
 
-## 8.1 Add holding
+### 8.1 Add holding
 
 A prominent `+` action allows the user to search for an asset.
 
@@ -335,7 +335,7 @@ The MVP does not need to implement full broker-grade transaction accounting.
 
 ---
 
-## 8.2 Portfolio overview
+### 8.2 Portfolio overview
 
 Display:
 
@@ -352,7 +352,7 @@ Portfolio data must be stored locally.
 
 ---
 
-# 9. Dividend calendar
+## 9. Dividend calendar
 
 The dividend calendar is one of the primary features.
 
@@ -360,7 +360,7 @@ The UX can take inspiration from products such as Parqet, particularly the idea 
 
 The implementation must remain original.
 
-## 9.1 Calendar modes
+### 9.1 Calendar modes
 
 Required:
 
@@ -374,15 +374,15 @@ Optional later:
 
 ---
 
-## 9.2 Event date modes
+### 9.2 Event date modes
 
 Users must be able to switch between:
 
-### Ex-dividend date
+#### Ex-dividend date
 
 The relevant entitlement date.
 
-### Payment date
+#### Payment date
 
 The expected or confirmed payout date.
 
@@ -390,7 +390,7 @@ These concepts must be clearly explained for beginners.
 
 ---
 
-## 9.3 Calendar contents
+### 9.3 Calendar contents
 
 Each event should show at minimum:
 
@@ -416,7 +416,7 @@ Confirmed
 
 ---
 
-## 9.4 Dividend status
+### 9.4 Dividend status
 
 Every dividend event must have an explicit status:
 
@@ -432,7 +432,7 @@ Never display a forecast as if it were guaranteed.
 
 ---
 
-# 10. Dividend monthly forecast
+## 10. Dividend monthly forecast
 
 A dedicated forecast must summarize dividend income by month.
 
@@ -468,7 +468,7 @@ The current month should show:
 
 ---
 
-# 11. Dividend forecast logic
+## 11. Dividend forecast logic
 
 The app should estimate future dividends where provider data does not yet contain a confirmed payment.
 
@@ -489,7 +489,7 @@ Avoid pretending to use sophisticated AI when the calculation is rule-based.
 
 ---
 
-# 12. Dividend CAGR
+## 12. Dividend CAGR
 
 Dividend growth must include **Compound Annual Growth Rate**.
 
@@ -526,7 +526,7 @@ CAGR must always show its time period.
 
 ---
 
-# 13. Portfolio return CAGR
+## 13. Portfolio return CAGR
 
 Where mathematically appropriate, the app may show:
 
@@ -546,7 +546,7 @@ The UI must not label a cash-flow-distorted value as CAGR.
 
 ---
 
-# 14. Dividend Quality Score
+## 14. Dividend Quality Score
 
 Dividend yield alone is insufficient.
 
@@ -580,7 +580,7 @@ Risk
 
 ---
 
-# 15. Research score
+## 15. Research score
 
 Each asset may have an explainable research score.
 
@@ -588,7 +588,7 @@ Do not reduce it to a BUY/SELL signal.
 
 Suggested dimensions:
 
-## Valuation
+### Valuation
 
 - P/E,
 - Forward P/E,
@@ -596,7 +596,7 @@ Suggested dimensions:
 - EV/EBITDA,
 - comparison with historical ranges.
 
-## Quality
+### Quality
 
 - margins,
 - free cash flow,
@@ -604,21 +604,21 @@ Suggested dimensions:
 - ROE,
 - ROIC.
 
-## Growth
+### Growth
 
 - revenue CAGR,
 - EPS CAGR,
 - free-cash-flow CAGR,
 - analyst estimates where available.
 
-## Momentum
+### Momentum
 
 - 1 month,
 - 3 months,
 - 6 months,
 - relative performance.
 
-## Dividend
+### Dividend
 
 - yield,
 - payout ratio,
@@ -626,7 +626,7 @@ Suggested dimensions:
 - consistency,
 - coverage.
 
-## Event risk
+### Event risk
 
 - earnings proximity,
 - guidance changes,
@@ -638,7 +638,7 @@ Every score must include a human-readable explanation.
 
 ---
 
-# 16. Research detail screen
+## 16. Research detail screen
 
 An individual instrument should provide:
 
@@ -679,7 +679,7 @@ Negative:
 
 ---
 
-# 17. What matters today
+## 17. What matters today
 
 The app should not simply list all available news.
 
@@ -706,7 +706,7 @@ The Today screen should surface only the most relevant items first.
 
 ---
 
-# 18. News
+## 18. News
 
 News items should include:
 
@@ -735,7 +735,7 @@ The app should link to the original source where legally and technically permitt
 
 ---
 
-# 19. Why did my stock move?
+## 19. Why did my stock move?
 
 For unusual movements, the app may show potentially relevant events.
 
@@ -759,7 +759,7 @@ rather than claiming unsupported causation.
 
 ---
 
-# 20. Portfolio health
+## 20. Portfolio health
 
 The app should provide a portfolio health overview.
 
@@ -785,7 +785,7 @@ This is more useful than presenting raw statistical values without context.
 
 ---
 
-# 21. Dividend simulator
+## 21. Dividend simulator
 
 A user can simulate an additional investment.
 
@@ -808,7 +808,7 @@ Future enhancement:
 
 ---
 
-# 22. Notifications
+## 22. Notifications
 
 Useful event-based notifications:
 
@@ -837,17 +837,17 @@ Notifications must not use manipulative FOMO wording.
 
 ---
 
-# 23. Beginner onboarding
+## 23. Beginner onboarding
 
 Keep onboarding short.
 
-## Step 1
+### Step 1
 
 > Which assets do you want to follow?
 
 Large search field.
 
-## Step 2
+### Step 2
 
 > Do you already own this asset?
 
@@ -856,7 +856,7 @@ If yes:
 - quantity,
 - optional purchase price.
 
-## Step 3
+### Step 3
 
 > What matters to you?
 
@@ -877,7 +877,7 @@ No long tutorial.
 
 ---
 
-# 24. Design requirements
+## 24. Design requirements
 
 The app should feel:
 
@@ -907,11 +907,11 @@ Primary cards on Today:
 
 ---
 
-# 25. Responsive design
+## 25. Responsive design
 
 The same app must adapt to different screen sizes.
 
-## Android
+### Android
 
 Prioritize:
 
@@ -920,7 +920,7 @@ Prioritize:
 - bottom navigation,
 - concise cards.
 
-## Linux
+### Linux
 
 Use additional width for:
 
@@ -933,7 +933,7 @@ Do not create two separate products.
 
 ---
 
-# 26. Light and dark themes
+## 26. Light and dark themes
 
 Support from the beginning:
 
@@ -945,7 +945,7 @@ Both themes must pass accessibility and contrast checks.
 
 ---
 
-# 27. Accessibility
+## 27. Accessibility
 
 The MVP should support:
 
@@ -960,7 +960,7 @@ Red and green must never be the only way to communicate meaning.
 
 ---
 
-# 28. Client-first data architecture
+## 28. Client-first data architecture
 
 MVP 1 does not require a central server.
 
@@ -1009,7 +1009,7 @@ Provider A   Provider B  Provider C
 
 ---
 
-# 29. Parallel provider access
+## 29. Parallel provider access
 
 Independent provider requests should run in parallel where safe.
 
@@ -1029,7 +1029,7 @@ However, parallelism must be controlled.
 
 ---
 
-# 30. Request Coordinator
+## 30. Request Coordinator
 
 A central Request Coordinator is required.
 
@@ -1051,7 +1051,7 @@ Screens must not create uncontrolled HTTP requests directly.
 
 ---
 
-# 31. Request deduplication
+## 31. Request deduplication
 
 If multiple parts of the UI need the same data at the same time, only one provider request should run.
 
@@ -1074,7 +1074,7 @@ not:
 
 ---
 
-# 32. Provider abstraction
+## 32. Provider abstraction
 
 External providers must implement common domain-facing interfaces.
 
@@ -1104,7 +1104,7 @@ The UI must not know which provider supplied the data.
 
 ---
 
-# 33. Provider priority and fallback
+## 33. Provider priority and fallback
 
 Different providers may be preferred for different data types.
 
@@ -1129,7 +1129,7 @@ Provider responses must be normalized into internal models before entering the r
 
 ---
 
-# 34. API keys and client security
+## 34. API keys and client security
 
 This is a critical MVP constraint.
 
@@ -1152,7 +1152,7 @@ The architecture must allow a future aggregation server if protected credentials
 
 ---
 
-# 35. Local database
+## 35. Local database
 
 Use a local SQLite-backed persistence layer.
 
@@ -1183,7 +1183,7 @@ Provider updates write into the database and automatically refresh the UI.
 
 ---
 
-# 36. Instrument identity
+## 36. Instrument identity
 
 Do not use ticker alone as the unique identifier.
 
@@ -1205,7 +1205,7 @@ providerMappings
 
 ---
 
-# 37. Cache strategy
+## 37. Cache strategy
 
 Different data types require different cache lifetimes.
 
@@ -1226,7 +1226,7 @@ These values should be configurable.
 
 ---
 
-# 38. Stale-while-revalidate
+## 38. Stale-while-revalidate
 
 If cached data exists but is old:
 
@@ -1243,9 +1243,9 @@ Avoid blocking the entire interface.
 
 ---
 
-# 39. Background refresh
+## 39. Background refresh
 
-## Android
+### Android
 
 Android background restrictions must be respected.
 
@@ -1261,7 +1261,7 @@ Refresh opportunities include:
 
 Android 10 compatibility must be tested.
 
-## Linux
+### Linux
 
 While the application is running, a local scheduler can perform periodic refreshes.
 
@@ -1275,13 +1275,13 @@ These are not required for the first MVP.
 
 ---
 
-# 40. Sync priorities
+## 40. Sync priorities
 
 When the app starts, not all data is equally important.
 
 Priority order:
 
-## High
+### High
 
 - Today's portfolio events,
 - next 3 days,
@@ -1289,13 +1289,13 @@ Priority order:
 - ex-dividend dates,
 - important news.
 
-## Medium
+### Medium
 
 - quotes,
 - research scores,
 - portfolio-health metrics.
 
-## Low
+### Low
 
 - historical data,
 - long-term fundamentals,
@@ -1305,7 +1305,7 @@ The Today screen should become useful as early as possible.
 
 ---
 
-# 41. Data Status screen
+## 41. Data Status screen
 
 A dedicated **Data Status** window/screen is required.
 
@@ -1337,7 +1337,7 @@ Last refresh: 12 min ago
 
 ---
 
-# 42. Active operations view
+## 42. Active operations view
 
 The status screen should also show current jobs:
 
@@ -1369,7 +1369,7 @@ This is especially useful for open-source users and development.
 
 ---
 
-# 43. Provider health
+## 43. Provider health
 
 Each provider should have a runtime state such as:
 
@@ -1384,7 +1384,7 @@ One broken provider must not cause a global app failure.
 
 ---
 
-# 44. Offline behavior
+## 44. Offline behavior
 
 With no internet connection the user can still access:
 
@@ -1403,7 +1403,7 @@ rather than presenting an empty screen.
 
 ---
 
-# 45. Data provenance
+## 45. Data provenance
 
 Important domain records should include metadata such as:
 
@@ -1422,13 +1422,13 @@ This enables transparent UI and easier debugging.
 
 ---
 
-# 46. Candidate data providers
+## 46. Candidate data providers
 
 The architecture must remain provider-independent.
 
 Potential MVP sources include:
 
-## Financial Modeling Prep
+### Financial Modeling Prep
 
 Potential data:
 
@@ -1442,7 +1442,7 @@ Potential data:
 - fundamentals,
 - economic calendar.
 
-## Alpha Vantage
+### Alpha Vantage
 
 Potential data:
 
@@ -1452,7 +1452,7 @@ Potential data:
 - price history,
 - news/sentiment.
 
-## Finnhub
+### Finnhub
 
 Potential data:
 
@@ -1463,7 +1463,7 @@ Potential data:
 
 Availability differs by endpoint and plan.
 
-## SEC EDGAR
+### SEC EDGAR
 
 Useful for US listed companies:
 
@@ -1477,7 +1477,7 @@ Provider terms and limits must be reviewed before release.
 
 ---
 
-# 47. Provider licensing requirement
+## 47. Provider licensing requirement
 
 Open source and non-commercial distribution do **not** automatically grant permission to redistribute provider data.
 
@@ -1506,7 +1506,7 @@ Do not merge a provider integration until these questions have been documented.
 
 ---
 
-# 48. Data forecasting and confidence
+## 48. Data forecasting and confidence
 
 Forecasts are estimates.
 
@@ -1527,7 +1527,7 @@ The user must be able to distinguish known future payments from inferred values 
 
 ---
 
-# 49. Privacy
+## 49. Privacy
 
 The portfolio should remain local by default.
 
@@ -1550,7 +1550,7 @@ Future optional feature:
 
 ---
 
-# 50. Non-goals for MVP
+## 50. Non-goals for MVP
 
 The first MVP is not intended to be:
 
@@ -1566,11 +1566,11 @@ These exclusions keep the first release focused.
 
 ---
 
-# 51. MVP scope
+## 51. MVP scope
 
 MVP 1 must contain:
 
-## Core
+### Core
 
 - Flutter/Dart shared application,
 - Android 10 compatibility,
@@ -1597,7 +1597,7 @@ MVP 1 must contain:
 - Data Status screen,
 - offline display.
 
-## Quality
+### Quality
 
 - responsive UI,
 - light theme,
@@ -1609,7 +1609,7 @@ MVP 1 must contain:
 
 ---
 
-# 52. MVP 2 candidates
+## 52. MVP 2 candidates
 
 After the initial release:
 
@@ -1629,7 +1629,7 @@ After the initial release:
 
 ---
 
-# 53. Engineering architecture
+## 53. Engineering architecture
 
 Recommended source structure:
 
@@ -1666,7 +1666,7 @@ Keep domain logic independent from UI widgets and provider DTOs.
 
 ---
 
-# 54. State management
+## 54. State management
 
 Use one consistent state-management approach across the application.
 
@@ -1683,7 +1683,7 @@ UI consumes application state.
 
 ---
 
-# 55. Error handling
+## 55. Error handling
 
 Errors must be typed and actionable.
 
@@ -1705,7 +1705,7 @@ Detailed diagnostic information may be available in the Data Status screen or de
 
 ---
 
-# 56. Logging
+## 56. Logging
 
 Use structured application logging.
 
@@ -1725,11 +1725,11 @@ Release builds should use controlled logging.
 
 ---
 
-# 57. Testing requirements
+## 57. Testing requirements
 
 At minimum:
 
-## Unit tests
+### Unit tests
 
 - CAGR,
 - dividend forecast,
@@ -1739,14 +1739,14 @@ At minimum:
 - provider fallback,
 - normalization.
 
-## Repository tests
+### Repository tests
 
 - fresh-cache path,
 - stale-cache path,
 - provider failure,
 - fallback provider.
 
-## Widget tests
+### Widget tests
 
 Critical screens:
 
@@ -1755,7 +1755,7 @@ Critical screens:
 - Portfolio,
 - Data Status.
 
-## Integration tests
+### Integration tests
 
 At least one happy path for:
 
@@ -1766,7 +1766,7 @@ At least one happy path for:
 
 ---
 
-# 58. Android compatibility testing
+## 58. Android compatibility testing
 
 CI and release review must explicitly protect Android 10 compatibility.
 
@@ -1780,7 +1780,7 @@ A real Android 10 device or emulator should be part of release testing where pra
 
 ---
 
-# 59. Linux testing
+## 59. Linux testing
 
 Release validation must include:
 
@@ -1793,7 +1793,7 @@ Release validation must include:
 
 ---
 
-# 60. Versioning
+## 60. Versioning
 
 Use **Semantic Versioning**:
 
@@ -1824,7 +1824,7 @@ Rules:
 
 ---
 
-# 61. Flutter version metadata
+## 61. Flutter version metadata
 
 Flutter version information must be kept in `pubspec.yaml`.
 
@@ -1848,7 +1848,7 @@ Build numbers must always increase for published Android artifacts.
 
 ---
 
-# 62. Version display
+## 62. Version display
 
 The app should expose version information in:
 
@@ -1874,13 +1874,13 @@ Commit: a83f91c
 
 ---
 
-# 63. Git workflow
+## 63. Git workflow
 
 Development quality is part of the project requirements.
 
 Every code change should be committed in small, reviewable units.
 
-## Atomic commits
+### Atomic commits
 
 Each commit should represent one logical change.
 
@@ -1907,7 +1907,7 @@ If changes can be independently understood or reverted, they should normally be 
 
 ---
 
-# 64. Conventional Commits
+## 64. Conventional Commits
 
 Commit messages must follow Conventional Commits.
 
@@ -1939,7 +1939,7 @@ Breaking changes must be marked according to the Conventional Commits specificat
 
 ---
 
-# 65. Development loop
+## 65. Development loop
 
 For each implementation task, use the following loop:
 
@@ -1960,7 +1960,7 @@ Do not accumulate a large pile of unrelated changes before committing.
 
 ---
 
-# 66. Mandatory self-review
+## 66. Mandatory self-review
 
 Before each commit:
 
@@ -1985,7 +1985,7 @@ Before release:
 
 ---
 
-# 67. Formatting and static quality
+## 67. Formatting and static quality
 
 Required commands in development and CI should include equivalents of:
 
@@ -2007,7 +2007,7 @@ Warnings should not be routinely ignored.
 
 ---
 
-# 68. GitHub Actions — Pull Request CI
+## 68. GitHub Actions — Pull Request CI
 
 Every pull request must run automated quality checks.
 
@@ -2029,7 +2029,7 @@ A pull request should not merge when required checks fail.
 
 ---
 
-# 69. GitHub Actions — Release pipeline
+## 69. GitHub Actions — Release pipeline
 
 A release workflow must create deployable artifacts.
 
@@ -2077,7 +2077,7 @@ dividend-tracker-0.3.0-android.aab
 
 ---
 
-# 70. Reproducible release configuration
+## 70. Reproducible release configuration
 
 CI must pin major tooling versions intentionally.
 
@@ -2095,7 +2095,7 @@ Dependency lockfiles must be committed where appropriate.
 
 ---
 
-# 71. Dependency update checks
+## 71. Dependency update checks
 
 Dependency freshness should be automated.
 
@@ -2123,7 +2123,7 @@ Updates must still pass:
 
 ---
 
-# 72. Toolchain freshness checks
+## 72. Toolchain freshness checks
 
 A scheduled CI workflow should periodically report:
 
@@ -2140,7 +2140,7 @@ Android 10 support must be rechecked after major dependency/toolchain upgrades.
 
 ---
 
-# 73. GitHub Action security
+## 73. GitHub Action security
 
 Third-party GitHub Actions should be:
 
@@ -2154,7 +2154,7 @@ Secrets must not be exposed to pull requests from untrusted forks.
 
 ---
 
-# 74. Branch protection
+## 74. Branch protection
 
 Recommended repository rules:
 
@@ -2169,7 +2169,7 @@ For a small solo project, direct development may remain possible, but release br
 
 ---
 
-# 75. Changelog
+## 75. Changelog
 
 Maintain release notes.
 
@@ -2188,7 +2188,7 @@ Each release should describe:
 
 ---
 
-# 76. Database migrations
+## 76. Database migrations
 
 Local database schema changes must use explicit migrations.
 
@@ -2203,7 +2203,7 @@ Destructive reset is only acceptable during early development and must not remai
 
 ---
 
-# 77. Data-provider contract tests
+## 77. Data-provider contract tests
 
 Provider adapters are fragile because upstream APIs change.
 
@@ -2222,7 +2222,7 @@ This makes provider breakages easier to detect.
 
 ---
 
-# 78. Performance requirements
+## 78. Performance requirements
 
 The app should:
 
@@ -2237,29 +2237,29 @@ Calendar scrolling should remain smooth on Android 10-era hardware.
 
 ---
 
-# 79. Failure behavior
+## 79. Failure behavior
 
 Examples:
 
-## Provider unavailable
+### Provider unavailable
 
 Show cached data plus:
 
 > Provider temporarily unavailable.
 
-## Rate limit reached
+### Rate limit reached
 
 Show:
 
 > Data source limit reached. Next refresh available later.
 
-## Missing payment date
+### Missing payment date
 
 Show:
 
 > Payment date not yet confirmed.
 
-## Forecast only
+### Forecast only
 
 Show:
 
@@ -2269,7 +2269,7 @@ Never fabricate missing values.
 
 ---
 
-# 80. Security baseline
+## 80. Security baseline
 
 Minimum requirements:
 
@@ -2286,7 +2286,7 @@ Do not request Android permissions that are not required.
 
 ---
 
-# 81. Open-source repository structure
+## 81. Open-source repository structure
 
 Recommended:
 
@@ -2322,7 +2322,7 @@ Recommended:
 
 ---
 
-# 82. Contribution requirements
+## 82. Contribution requirements
 
 `CONTRIBUTING.md` should explain:
 
@@ -2339,7 +2339,7 @@ Recommended:
 
 ---
 
-# 83. Product success criteria
+## 83. Product success criteria
 
 The product is successful when a user can open it and answer within approximately ten seconds:
 
@@ -2353,7 +2353,7 @@ The experience should require less effort than manually checking multiple financ
 
 ---
 
-# 84. Core retention loop
+## 84. Core retention loop
 
 The app should create useful reasons to return without manipulative gamification.
 
@@ -2383,7 +2383,7 @@ Retention should come from useful information, not artificial streaks.
 
 ---
 
-# 85. Explicitly avoid
+## 85. Explicitly avoid
 
 Do not implement:
 
@@ -2399,9 +2399,9 @@ The tone should encourage understanding rather than impulsive trading.
 
 ---
 
-# 86. Development phases
+## 86. Development phases
 
-## Phase 1 — Foundation
+### Phase 1 — Foundation
 
 1. Flutter project for Android and Linux.
 2. Android minimum API 29.
@@ -2413,7 +2413,7 @@ The tone should encourage understanding rather than impulsive trading.
 8. Request Coordinator.
 9. Data Status screen.
 
-## Phase 2 — Dividend core
+### Phase 2 — Dividend core
 
 10. Dividend provider adapter.
 11. Historical dividends.
@@ -2424,7 +2424,7 @@ The tone should encourage understanding rather than impulsive trading.
 16. Dividend CAGR.
 17. Confirmed/estimated states.
 
-## Phase 3 — Daily insight
+### Phase 3 — Daily insight
 
 18. Today screen.
 19. Next 3 days.
@@ -2433,7 +2433,7 @@ The tone should encourage understanding rather than impulsive trading.
 22. Relevance ranking.
 23. Basic research score.
 
-## Phase 4 — Quality
+### Phase 4 — Quality
 
 24. Offline behavior.
 25. Provider fallback.
@@ -2443,7 +2443,7 @@ The tone should encourage understanding rather than impulsive trading.
 29. Android 10 smoke tests.
 30. Linux desktop polish.
 
-## Phase 5 — Delivery
+### Phase 5 — Delivery
 
 31. CI workflow.
 32. dependency workflow.
@@ -2455,7 +2455,7 @@ The tone should encourage understanding rather than impulsive trading.
 
 ---
 
-# 87. Definition of Done for a feature
+## 87. Definition of Done for a feature
 
 A feature is not complete merely because it renders.
 
@@ -2478,7 +2478,7 @@ Definition of Done:
 
 ---
 
-# 88. Release Definition of Done
+## 88. Release Definition of Done
 
 A release is complete only if:
 
@@ -2496,9 +2496,9 @@ A release is complete only if:
 
 ---
 
-# 89. Current reference notes
+## 89. Current reference notes
 
-## Parqet inspiration
+### Parqet inspiration
 
 The official Parqet product/help/changelog material was reviewed again on
 2026-08-23. Parqet currently demonstrates several useful dividend UX patterns:
@@ -2523,30 +2523,30 @@ statement. Detailed evidence and scope decisions are recorded in
 
 Reference:
 
-- https://app.parqet.com/de/dividenden-kalender
-- https://parqet.com/de/blog/dividendenkalender
-- https://parqet.com/de/changelog
+- [Parqet dividend calendar](https://app.parqet.com/de/dividenden-kalender)
+- [Parqet dividend-calendar article](https://parqet.com/de/blog/dividendenkalender)
+- [Parqet changelog](https://parqet.com/de/changelog)
 
-## Android requirements
+### Android requirements
 
 Current Google Play target API rules must be checked before every release.
 
 Reference:
 
-- https://developer.android.com/google/play/requirements/target-sdk
+- [Google Play target API requirements](https://developer.android.com/google/play/requirements/target-sdk)
 
-## Flutter platform references
+### Flutter platform references
 
 Use the current Flutter documentation when configuring Android and Linux builds.
 
 Reference:
 
-- https://docs.flutter.dev/platform-integration/android
-- https://docs.flutter.dev/platform-integration/linux/building
+- [Flutter Android integration](https://docs.flutter.dev/platform-integration/android)
+- [Flutter Linux build requirements](https://docs.flutter.dev/platform-integration/linux/building)
 
 ---
 
-# 90. Final product statement
+## 90. Final product statement
 
 > **DividendenDackel turns a local portfolio into a clear timeline of dividends, events, research changes, and upcoming income.**
 

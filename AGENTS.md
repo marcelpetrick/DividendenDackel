@@ -243,7 +243,7 @@ mechanically because review alone let them slip before.
 
 ## 8. Layout (Vision.md §53)
 
-```
+```text
 lib/app
 lib/core/{errors,networking,logging,utils}
 lib/domain/{entities,repositories,use_cases}

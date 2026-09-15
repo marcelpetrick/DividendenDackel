@@ -1,20 +1,20 @@
 # Current Parqet comparison
 
-Reviewed 2026-08-23 against Parqet's official product pages, help center and
+Reviewed 2026-09-15 against Parqet's official product pages, help center and
 changelog. This is product research, not a request to reproduce Parqet's design
 or implementation. DividendenDackel keeps its narrower dividend/event focus,
 local-first privacy model and explainable calculations.
 
 ## Capability comparison
 
-| Capability | Parqet evidence | DividendenDackel 0.1.0 | Scope decision |
+| Capability | Parqet evidence | DividendenDackel | Scope decision |
 | --- | --- | --- | --- |
 | Dividend calendar | Month/year/table views, portfolio/watchlist filters, ex/payment date choice, weekend control, expected marker and large instrument universe | Month/year/agenda views, the same core filters and date modes, weekend control, explicit estimate markers, held gross/net amounts and attributable FX | Core is covered. Do not add another calendar view merely for parity. |
 | Calendar export | iCal download and subscribed calendar feeds | Private RFC 5545 `.ics` snapshots of the active scope/date mode on Android and Linux, with estimates marked | Covered with a local export. Do not expose a public portfolio feed URL by default. |
 | Dividend forecast | Historical forecast and announced-dividend views | Explainable 24-month monthly/quarterly/yearly forecast, announced values preferred, confirmed/estimated split, tax and FX disclosures | DividendenDackel is already differentiated; improve data coverage rather than adding opaque forecast complexity. |
-| Live data coverage | Dividend data for more than 35,000 instruments | Keyless SEC coverage for US issuers, ECB FX and an explicitly labelled offline dataset | Expand only through documented, licensed adapters such as R5; never disguise sample coverage as live parity. |
+| Live data coverage | Dividend data for more than 35,000 instruments | Keyless SEC/OpenFIGI discovery, SEC facts and filings, ECB FX, optional Finnhub/Alpha Vantage quotes and an explicitly labelled offline dataset | Expand only through documented, licensed adapters; never disguise sample coverage as live parity. |
 | Portfolio capture | Manual activities, PDF/CSV import and broker autosync | Manual activities plus reviewable native, Portfolio Performance and Interactive Brokers Flex CSV imports | Local file capture is covered for documented formats. Broker credential sync remains later and requires a separate threat model. |
-| Actual cash flows | Purchases, sales, distributions, fees and taxes are activities | Holdings and forecast events; no broker-recorded cash-flow history | Add actual dividend/tax/fee records and forecast-versus-paid reconciliation. This directly improves the dividend product. |
+| Actual cash flows | Purchases, sales, distributions, fees and taxes are activities | Immutable local activities for trades, cash, dividends, taxes and fees, with forecast-versus-paid reconciliation | Covered locally; retain reversal history and explicit source identities. |
 | Performance | Capital-weighted return, TTWROR, XIRR, benchmarks, monthly/quarterly/yearly return detail and capital-flow analysis | Native-currency XIRR, valuation-chain TTWROR and exact monthly/quarterly/yearly cash-flow detail with formula, period and evidence limits | Core local performance is covered. Add a benchmark only with comparable historical evidence; never imply one from current prices. |
 | Multiple portfolios | Multiple portfolios/subaccounts and consolidated views | Local create/rename/clear/delete, isolated holdings/watchlists/ledgers/preferences and an explicit read-only consolidated view | Covered without crossing tax, currency, provenance or write boundaries. |
 | Taxes and fees | Actual tax/withholding and fee analysis from activities | Explainable German estimated net dividend tax, treaty/credit/reclaim split and editable assumptions | Preserve the estimate advantage; add actual-versus-estimated reconciliation rather than another standalone estimate chart. |
@@ -24,12 +24,13 @@ local-first privacy model and explainable calculations.
 
 ## Added post-1.0 priorities
 
-1. **Local activity ledger and reconciliation.** Purchases, sales, deposits,
-   withdrawals, dividends, taxes and fees need stable identities, provenance,
-   correction/reversal semantics and additive migrations. The first user value
-   is “expected versus actually paid,” not a generic trading dashboard.
-2. **Local, reviewable import.** Start with a documented CSV schema and
-   Portfolio Performance CSV. Import must have preview, validation, duplicate
+1. **Local activity ledger and reconciliation — implemented.** Purchases,
+   sales, deposits, withdrawals, dividends, taxes and fees use stable
+   identities, provenance, correction/reversal semantics and additive
+   migrations. The first user value is “expected versus actually paid,” not a
+   generic trading dashboard.
+2. **Local, reviewable import — implemented.** The documented native and
+   Portfolio Performance CSV formats have preview, validation, duplicate
    detection, an atomic commit and undo; source files stay on the device.
 3. **Private calendar export — implemented.** The selected scope, visible date
    range and ex/payment-date mode export to `.ics`; estimates are marked in the
@@ -42,10 +43,10 @@ local-first privacy model and explainable calculations.
    comparison remains unavailable until comparable history exists. Never
    compare money-weighted portfolio return with a time-weighted benchmark
    without explaining the mismatch.
-6. **Broker document import, then reconsider autosync.** Local PDF/CSV parsing is
-   compatible with the privacy model. Credential-based broker sync needs a
-   provider-by-provider security, licensing and failure-reconciliation design
-   and remains optional.
+6. **Broker document import implemented; reconsider autosync later.** Local
+   Interactive Brokers Flex CSV parsing is compatible with the privacy model.
+   Credential-based broker sync needs a provider-by-provider security,
+   licensing and failure-reconciliation design and remains optional.
 
 ## Explicit non-goals from the comparison
 

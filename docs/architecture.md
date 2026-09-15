@@ -127,10 +127,11 @@ currency and original instrument identity where applicable. Cache policy is per
 data category. Expired records become stale but remain visible while a refresh
 runs; failures never replace known data with fabricated placeholders.
 
-SEC EDGAR and Frankfurter/ECB are the only live adapters in version 0.1.0.
-Search, dividend facts, filings and FX rates use fixture-tested normalization.
-The provider and licensing boundary is documented in
-[`data-providers.md`](data-providers.md).
+SEC EDGAR, OpenFIGI and Frankfurter/ECB are live without credentials. Optional
+Finnhub and Alpha Vantage quote adapters activate only with a key supplied by
+the user. Search, quotes, dividend facts, filings and FX rates use
+fixture-tested normalization. The provider and licensing boundary is documented
+in [`data-providers.md`](data-providers.md).
 
 ## State and presentation
 
@@ -160,7 +161,7 @@ See [`privacy.md`](privacy.md) for the user-visible data inventory.
 
 `./localPipeline.sh` is shared by local development, CI and release automation.
 It checks the pinned Flutter toolchain, dependency resolution, formatting,
-analysis, 565 unit/widget tests, the real Linux integration journey, Android 10
+analysis, 678 unit/widget tests, the real Linux integration journeys, Android 10
 compatibility, both release builds and—unless disabled—a rendered Linux first
 frame. Provider contracts use recorded fixtures and do not depend on network
 availability.

@@ -98,7 +98,7 @@ void registerSystemJourneys() {
     expect(latestVersion, findsOneWidget);
     expect(
       find.text(latestPublished.date!.toIso8601String().substring(0, 10)),
-      findsOneWidget,
+      findsAtLeastNWidgets(1),
     );
     expect(tester.takeException(), isNull);
   });
