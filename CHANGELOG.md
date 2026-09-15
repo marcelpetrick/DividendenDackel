@@ -23,6 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ### Changed
 
+- Dependencies are refreshed to their latest compatible stable releases,
+  including `flutter_local_notifications` 22.3.1 and current transitive
+  packages from the pinned Flutter toolchain.
 - Research assessment cards are now built lazily, keeping large imported
   instrument sets responsive and avoiding off-screen score computation.
 

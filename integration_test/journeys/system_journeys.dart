@@ -1,3 +1,4 @@
+import 'package:dividendendackel/features/settings/changelog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -83,8 +84,22 @@ void registerSystemJourneys() {
     await tester.tap(changelog);
     await JourneyHarness.settle(tester);
     expect(find.text('What changed'), findsOneWidget);
-    expect(find.text('0.61.8'), findsOneWidget);
-    expect(find.text('2026-09-13'), findsOneWidget);
+    final List<ChangelogRelease> releases = await ChangelogParser.load();
+    final ChangelogRelease latestPublished = releases.firstWhere(
+      (ChangelogRelease release) => !release.isUnreleased,
+    );
+    final Finder latestVersion = find.text(latestPublished.version);
+    await tester.scrollUntilVisible(
+      latestVersion,
+      300,
+      scrollable: find.byType(Scrollable).last,
+      maxScrolls: 30,
+    );
+    expect(latestVersion, findsOneWidget);
+    expect(
+      find.text(latestPublished.date!.toIso8601String().substring(0, 10)),
+      findsOneWidget,
+    );
     expect(tester.takeException(), isNull);
   });
 
