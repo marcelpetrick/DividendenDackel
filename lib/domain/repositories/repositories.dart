@@ -241,6 +241,12 @@ abstract interface class MarketDataRepository {
   /// Inserts or updates a quote.
   Future<Result<void>> saveQuote(Quote quote);
 
+  /// Removes quotes and their freshness records supplied by [source].
+  ///
+  /// This is a provider-retention boundary: removing access to a source whose
+  /// terms require deletion must not leave its values available offline.
+  Future<Result<void>> removeQuotesFromSource(String source);
+
   /// Inserts or updates earnings events using deterministic identities.
   Future<Result<void>> saveEarnings(
     List<EarningsEvent> events, {

@@ -157,6 +157,22 @@ final class DriftMarketDataRepository implements MarketDataRepository {
       });
 
   @override
+  Future<Result<void>> removeQuotesFromSource(String source) =>
+      Result.guardAsync<void>(() async {
+        await db.transaction(() async {
+          await (db.delete(
+            db.quotes,
+          )..where(($QuotesTable table) => table.source.equals(source))).go();
+          await (db.delete(db.cacheMetadata)..where(
+                ($CacheMetadataTable table) =>
+                    table.source.equals(source) &
+                    table.dataType.equals(CacheDataType.quotes.name),
+              ))
+              .go();
+        });
+      });
+
+  @override
   Future<Result<void>> saveEarnings(
     List<EarningsEvent> events, {
     required String Function(EarningsEvent event) idOf,

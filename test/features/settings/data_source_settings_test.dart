@@ -177,6 +177,60 @@ void main() {
       expect(store.keys, isNot(contains(MarketDataSource.alphaVantage)));
     });
 
+    test('removing a Finnhub key purges retained provider data', () async {
+      final _FakeDataSourceSettingsStore store = _FakeDataSourceSettingsStore();
+      store.configurations[MarketDataSource.finnhub] =
+          const DataSourceConfiguration(
+            source: MarketDataSource.finnhub,
+            enabled: true,
+            hasApiKey: true,
+          );
+      store.keys[MarketDataSource.finnhub] = 'secret';
+      final List<String> removedProviderData = <String>[];
+      final ProviderContainer container = _container(
+        store,
+        removedProviderData: removedProviderData,
+      );
+      addTearDown(container.dispose);
+      container.read(dataSourceSettingsProvider);
+      await _flushAsyncWork();
+
+      await container
+          .read(dataSourceSettingsProvider.notifier)
+          .removeApiKey(MarketDataSource.finnhub);
+
+      expect(removedProviderData, <String>['finnhub']);
+      expect(store.keys, isNot(contains(MarketDataSource.finnhub)));
+    });
+
+    test('keeps a Finnhub key when retained data cannot be purged', () async {
+      final _FakeDataSourceSettingsStore store = _FakeDataSourceSettingsStore();
+      store.configurations[MarketDataSource.finnhub] =
+          const DataSourceConfiguration(
+            source: MarketDataSource.finnhub,
+            enabled: true,
+            hasApiKey: true,
+          );
+      store.keys[MarketDataSource.finnhub] = 'secret';
+      final ProviderContainer container = _container(
+        store,
+        failDataRemoval: true,
+      );
+      addTearDown(container.dispose);
+      container.read(dataSourceSettingsProvider);
+      await _flushAsyncWork();
+
+      await container
+          .read(dataSourceSettingsProvider.notifier)
+          .removeApiKey(MarketDataSource.finnhub);
+
+      expect(store.keys[MarketDataSource.finnhub], 'secret');
+      expect(
+        container.read(dataSourceSettingsProvider).errorMessage,
+        contains('Could not save Finnhub'),
+      );
+    });
+
     test('surfaces a storage failure without changing prior state', () async {
       final _FakeDataSourceSettingsStore store = _FakeDataSourceSettingsStore()
         ..failWrites = true;
@@ -199,10 +253,21 @@ void main() {
   });
 }
 
-ProviderContainer _container(DataSourceSettingsStore store) =>
-    ProviderContainer(
-      overrides: [dataSourceSettingsStoreProvider.overrideWithValue(store)],
-    );
+ProviderContainer _container(
+  DataSourceSettingsStore store, {
+  List<String>? removedProviderData,
+  bool failDataRemoval = false,
+}) => ProviderContainer(
+  overrides: [
+    dataSourceSettingsStoreProvider.overrideWithValue(store),
+    removeProviderDataProvider.overrideWithValue((String providerId) async {
+      if (failDataRemoval) {
+        throw StateError('data removal failed');
+      }
+      removedProviderData?.add(providerId);
+    }),
+  ],
+);
 
 Future<void> _flushAsyncWork() async {
   await Future<void>.delayed(Duration.zero);

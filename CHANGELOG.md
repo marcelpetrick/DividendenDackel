@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ## [Unreleased]
 
+## [0.65.4] - 2026-09-15
+
 ### Added
 
 - Empty Today now offers one direct path into the first holding flow, and the
@@ -28,6 +30,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
   packages from the pinned Flutter toolchain.
 - Research assessment cards are now built lazily, keeping large imported
   instrument sets responsive and avoiding off-screen score computation.
+
+### Fixed
+
+- Removing a Finnhub credential now deletes its cached quotes and freshness
+  records, satisfying the provider's data-retention terms without affecting
+  quotes obtained from another source.
 
 ## [0.61.8] - 2026-09-13
 

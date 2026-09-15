@@ -983,6 +983,60 @@ void main() {
       expect(quotes.keys, <String>[allianz.internalId]);
     });
 
+    test('removes one provider quote cache without touching another', () async {
+      final Provenance finnhub = Provenance(
+        source: 'finnhub',
+        fetchedAt: DateTime.utc(2026, 8, 22, 12),
+      );
+      final Provenance alphaVantage = Provenance(
+        source: 'alpha_vantage',
+        fetchedAt: DateTime.utc(2026, 8, 22, 12),
+      );
+      await marketData.saveQuote(
+        Quote(
+          instrumentId: allianz.internalId,
+          price: Money.parse('287.50', Currency.eur),
+          asOf: now,
+          provenance: finnhub,
+        ),
+      );
+      await marketData.saveQuote(
+        Quote(
+          instrumentId: apple.internalId,
+          price: Money.parse('227.25', Currency.usd),
+          asOf: now,
+          provenance: alphaVantage,
+        ),
+      );
+      for (final String source in <String>['finnhub', 'alpha_vantage']) {
+        await db
+            .into(db.cacheMetadata)
+            .insert(
+              CacheMetadataCompanion.insert(
+                cacheKey: 'quote:$source',
+                dataType: CacheDataType.quotes.name,
+                source: source,
+                fetchedAt: now,
+                expiresAt: now.add(const Duration(hours: 1)),
+              ),
+            );
+      }
+
+      final Result<void> result = await marketData.removeQuotesFromSource(
+        'finnhub',
+      );
+
+      expect(result.isSuccess, isTrue);
+      expect(await marketData.watchQuote(allianz.internalId).first, isNull);
+      expect(await marketData.watchQuote(apple.internalId).first, isNotNull);
+      final List<DbCacheMetadata> metadata = await db
+          .select(db.cacheMetadata)
+          .get();
+      expect(metadata.map((DbCacheMetadata row) => row.source), <String>[
+        'alpha_vantage',
+      ]);
+    });
+
     test('upserts and ranges earnings with exact optional figures', () async {
       EarningsEvent event(String estimate) => EarningsEvent(
         instrumentId: allianz.internalId,

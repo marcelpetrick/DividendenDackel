@@ -338,6 +338,9 @@ final class DataSourceSettingsController
   /// Disables [source] and removes its key.
   Future<void> removeApiKey(MarketDataSource source) async {
     await _mutate(source, () async {
+      if (source == MarketDataSource.finnhub) {
+        await ref.read(removeProviderDataProvider)(source.providerId);
+      }
       final DataSourceSettingsStore store = ref.read(
         dataSourceSettingsStoreProvider,
       );
@@ -403,6 +406,20 @@ final Provider<DataSourceSettingsStore> dataSourceSettingsStoreProvider =
       (Ref ref) => PlatformDataSourceSettingsStore(
         secrets: ref.watch(apiSecretStoreProvider),
       ),
+    );
+
+/// Removes locally retained data for one provider id.
+typedef RemoveProviderData = Future<void> Function(String providerId);
+
+/// Provider-data retention boundary supplied by the application composition.
+final Provider<RemoveProviderData> removeProviderDataProvider =
+    Provider<RemoveProviderData>(
+      (Ref ref) =>
+          (String providerId) => Future<void>.error(
+            StateError(
+              'Provider data-retention repository was not configured.',
+            ),
+          ),
     );
 
 /// Provider configuration observed by Settings and later by the registry.
