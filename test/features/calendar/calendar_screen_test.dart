@@ -193,6 +193,14 @@ void main() {
       find.byKey(const ValueKey<String>('calendar-filter-panel')),
       findsNothing,
     );
+    expect(
+      tester
+          .getSize(
+            find.byKey(const ValueKey<String>('toggle-calendar-filters')),
+          )
+          .height,
+      greaterThanOrEqualTo(48),
+    );
     expect(find.text('Weekends'), findsNothing);
     await tester.tap(find.text('Filters'));
     await tester.pump();

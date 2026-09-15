@@ -275,6 +275,114 @@ void main() {
     expect(find.text('2 dividend-outlook change(s)'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('keeps mixed-currency portfolio metrics separate', (
+    WidgetTester tester,
+  ) async {
+    final DateTime now = DateTime.utc(2026, 9, 15);
+    final Provenance provenance = Provenance(source: 'test', fetchedAt: now);
+    final List<Holding> holdings = <Holding>[
+      Holding(
+        instrumentId: 'eur',
+        quantity: Decimal.fromInt(2),
+        provenance: provenance,
+      ),
+      Holding(
+        instrumentId: 'usd',
+        quantity: Decimal.fromInt(3),
+        provenance: provenance,
+      ),
+    ];
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          clockProvider.overrideWithValue(FakeClock(now)),
+          holdingsProvider.overrideWith(
+            (Ref ref) => Stream<List<Holding>>.value(holdings),
+          ),
+          watchlistProvider.overrideWith(
+            (Ref ref) =>
+                Stream<List<WatchlistEntry>>.value(const <WatchlistEntry>[]),
+          ),
+          instrumentsByIdProvider.overrideWith(
+            (Ref ref) => Stream<Map<String, Instrument>>.value(
+              const <String, Instrument>{
+                'eur': Instrument(
+                  internalId: 'eur',
+                  symbol: 'EUR',
+                  name: 'Euro share',
+                  currency: Currency.eur,
+                ),
+                'usd': Instrument(
+                  internalId: 'usd',
+                  symbol: 'USD',
+                  name: 'Dollar share',
+                  currency: Currency.usd,
+                ),
+              },
+            ),
+          ),
+          quotesProvider.overrideWith(
+            (Ref ref) => Stream<Map<String, Quote>>.value(<String, Quote>{
+              'eur': Quote(
+                instrumentId: 'eur',
+                price: Money.parse('100', Currency.eur),
+                previousClose: Money.parse('90', Currency.eur),
+                asOf: now,
+                provenance: provenance,
+              ),
+              'usd': Quote(
+                instrumentId: 'usd',
+                price: Money.parse('50', Currency.usd),
+                previousClose: Money.parse('55', Currency.usd),
+                asOf: now,
+                provenance: provenance,
+              ),
+            }),
+          ),
+          upcomingDividendsProvider.overrideWith(
+            (Ref ref, int days) =>
+                Stream<List<DividendEvent>>.value(const <DividendEvent>[]),
+          ),
+          upcomingDividendPaymentsProvider.overrideWith(
+            (Ref ref, int days) =>
+                Stream<List<DividendEvent>>.value(const <DividendEvent>[]),
+          ),
+          upcomingEarningsProvider.overrideWith(
+            (Ref ref, int days) =>
+                Stream<List<EarningsEvent>>.value(const <EarningsEvent>[]),
+          ),
+          upcomingCorporateEventsProvider.overrideWith(
+            (Ref ref, int days) =>
+                Stream<List<CorporateEvent>>.value(const <CorporateEvent>[]),
+          ),
+          recentPortfolioNewsProvider.overrideWith(
+            (Ref ref) => Stream<List<NewsItem>>.value(const <NewsItem>[]),
+          ),
+          todayChangesProvider.overrideWith(
+            (Ref ref) async => const TodayChanges(
+              previousAt: null,
+              holdingChanges: 0,
+              dividendChanges: 0,
+              quoteChanges: 0,
+            ),
+          ),
+        ],
+        child: const MaterialApp(home: Scaffold(body: TodayScreen())),
+      ),
+    );
+    await tester.pump();
+    await tester.pump();
+    await tester.pump();
+
+    expect(find.text('EUR portfolio value'), findsOneWidget);
+    expect(find.text('€200.00'), findsOneWidget);
+    expect(find.text('USD portfolio value'), findsOneWidget);
+    expect(find.text(r'$150.00'), findsOneWidget);
+    expect(find.text('€350.00'), findsNothing);
+    expect(find.text(r'$350.00'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
 }
 
 final class _NewsLauncher implements NewsLinkLauncher {

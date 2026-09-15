@@ -351,6 +351,23 @@ void main() {
         Theme.of(tester.element(find.text('Settings'))).brightness,
         Brightness.dark,
       );
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+
+      for (final String destination in <String>[
+        'Today',
+        'Calendar',
+        'Research',
+      ]) {
+        await tester.tap(find.text(destination).last);
+        await tester.pumpAndSettle();
+        expect(
+          Theme.of(tester.element(find.text(destination).first)).brightness,
+          Brightness.dark,
+          reason: destination,
+        );
+        expect(tester.takeException(), isNull, reason: destination);
+      }
     });
 
     testWidgets('switches English, Croatian and German live', (

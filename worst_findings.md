@@ -1,5 +1,49 @@
 # Engineering self-review
 
+## 0.65 UI/UX specialist review
+
+Base: released `659aa53` plus the final audit changes<br>
+Review date: 2026-09-15
+
+### Findings
+
+#1 HIGH UI `lib/features/today/today_screen.dart`
+
+First run ended on an information-dense empty dashboard without an obvious
+route to value. Fixed with a financially honest first-holding prompt wired to
+the real add-instrument flow and covered by a compiled route journey.
+
+#2 HIGH UI `lib/features/today/today_screen.dart`
+
+Portfolio value, near-term events and daily movement previously shared ordinary
+body hierarchy, while Linux retained one long column. Fixed with separate
+native-currency KPI tiles, tabular figures and responsive bounded columns.
+
+#3 MEDIUM UI `lib/features/research/research_screen.dart`
+
+Research concealed whether an assessment or supporting evidence existed. Fixed
+with explicit score and dimension previews, permanent non-recommendation copy
+and a missing-evidence state that is never represented as zero.
+
+#4 MEDIUM Architecture `lib/features/research/research_screen.dart`
+
+The first adaptive Research grid eagerly built every instrument and could start
+an unbounded set of cached assessment computations. Fixed with lazy list/grid
+slivers and a 100-instrument regression that proves off-screen work stays idle.
+
+#5 MEDIUM UI `lib/features/calendar/calendar_screen.dart`
+
+Calendar navigation and secondary configuration had equal prominence, delaying
+the schedule on phones. Fixed with a primary period/view band and a collapsed,
+readable filter summary that preserves every detailed control.
+
+### Verdict
+
+No high- or medium-priority defect remains in the reviewed UI scope. Phone,
+wide desktop, keyboard, dark theme, 200% text, empty/error/offline states,
+mixed currencies, localization and platform builds are covered by the final
+automated gate.
+
 ## 0.61.8 release-readiness review
 
 Base: `origin/master` (`f3a6016`)<br>

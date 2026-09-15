@@ -1,8 +1,8 @@
 # UI/UX review and improvement plan
 
-Review date: 2026-09-14  
+Review date: 2026-09-14
 Review scope: Android phone and Linux desktop, light and dark themes, first-run,
-empty, data-rich, loading, error and offline states  
+empty, data-rich, loading, error and offline states
 Perspective: product design for a local-first personal-finance application
 
 ## Executive assessment
@@ -138,3 +138,45 @@ The work is split so every step is independently testable and reversible.
   largest tested text scale.
 - English, German and Croatian receive every new user-visible string.
 - `localPipeline.sh --noRun` remains green after each atomic commit.
+
+## Final verification — 2026-09-15
+
+All seven findings above are resolved in the delivered UI pass:
+
+- Onboarding now carries the product identity, and empty Today opens the real
+  add-instrument flow with one primary action.
+- Today leads with holdings, near-term events and separate native-currency
+  values. It uses a bounded two-column desktop dashboard and one ordered phone
+  column; financial figures use tabular numerals.
+- Research previews a real score only when evidence supports it, names the
+  available dimensions and labels missing evidence. Cards form a lazy adaptive
+  grid so a large imported instrument set does not compute every assessment at
+  once.
+- Calendar gives period and view navigation first priority. Secondary date,
+  scope, FX, weekend and export controls collapse to a readable summary on a
+  phone and remain directly available on desktop.
+
+The verification matrix is automated rather than dependent on screenshots:
+
+| Risk | Evidence |
+| --- | --- |
+| First run and empty state | onboarding widget tests and compiled `/portfolio/add` journey |
+| Phone and 200% text | onboarding, Research, Calendar and all-destination widget tests at 412 px |
+| Wide desktop | Today two-column and Research multi-column position assertions |
+| Keyboard | Linux `Alt+number` destination-navigation regression |
+| Dark theme | live theme switch followed by Today, Calendar and Research rendering |
+| Offline/error states | Today cached-without-quotes and Research unavailable-evidence regressions |
+| Financial honesty | mixed EUR/USD KPI test, gross/net tests and missing-score-is-not-zero test |
+| Touch targets | labelled and Android tap-target guidelines plus the 48 px phone filter assertion |
+| Localization | mechanical English/German/Croatian catalog coverage |
+
+The final risk review found one medium scalability issue in the first Research
+grid implementation: a `Wrap` eagerly started an assessment for every known
+instrument. It was replaced with lazy slivers, and a 100-instrument regression
+proves off-screen assessments remain idle. No high- or medium-priority UX,
+correctness or architecture finding remains open in this scope.
+
+Verdict: the interface is substantially easier to scan and activate while
+remaining calm, offline-capable and financially honest. The full rendered
+Linux and Android release gate is the final automated evidence for this
+version.

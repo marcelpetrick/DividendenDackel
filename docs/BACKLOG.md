@@ -236,7 +236,7 @@ Each task names the `Vision.md` sections it satisfies.
 - [x] **UX4** Calendar control hierarchy: distinguish period/view navigation
       from secondary filters and return visual priority to the schedule without
       removing scope, date, FX, weekend or export controls. — §9, §24, §25
-- [ ] **UX5** Cross-platform UX gate and self-review: phone, wide desktop,
+- [x] **UX5** Cross-platform UX gate and self-review: phone, wide desktop,
       keyboard, dark theme, largest text scale, empty/error/offline and mixed
       currencies; record the final findings. — §26, §27, §57, §66
 
