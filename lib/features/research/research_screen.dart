@@ -36,48 +36,64 @@ class ResearchScreen extends ConsumerWidget {
             final double horizontalInset =
                 ((constraints.maxWidth - 1200) / 2).clamp(0, double.infinity) +
                 AppTheme.space * 2;
-            return ListView(
-              padding: EdgeInsets.fromLTRB(
-                horizontalInset,
-                AppTheme.space * 2,
-                horizontalInset,
-                AppTheme.space * 2,
-              ),
-              children: <Widget>[
-                const _ResearchIntroduction(),
-                const SizedBox(height: AppTheme.space * 2),
-                LayoutBuilder(
-                  builder:
-                      (BuildContext context, BoxConstraints gridConstraints) {
-                        final double scaledBody = MediaQuery.textScalerOf(
-                          context,
-                        ).scale(16);
-                        final int columns = scaledBody >= 24
-                            ? 1
-                            : gridConstraints.maxWidth >= 1120
-                            ? 3
-                            : gridConstraints.maxWidth >= 720
-                            ? 2
-                            : 1;
-                        final double cardWidth =
-                            (gridConstraints.maxWidth -
-                                (columns - 1) * AppTheme.space * 2) /
-                            columns;
-                        return Wrap(
-                          key: const ValueKey<String>('research-card-grid'),
-                          spacing: AppTheme.space * 2,
-                          runSpacing: AppTheme.space * 2,
-                          children: <Widget>[
-                            for (final Instrument instrument in list)
-                              SizedBox(
-                                width: cardWidth,
+            final double gridWidth = constraints.maxWidth - horizontalInset * 2;
+            final double scaledBody = MediaQuery.textScalerOf(context)
+                .scale(16);
+            final int columns = scaledBody >= 24
+                ? 1
+                : gridWidth >= 1120
+                ? 3
+                : gridWidth >= 720
+                ? 2
+                : 1;
+            return CustomScrollView(
+              key: const ValueKey<String>('research-card-grid'),
+              slivers: <Widget>[
+                SliverPadding(
+                  padding: EdgeInsets.fromLTRB(
+                    horizontalInset,
+                    AppTheme.space * 2,
+                    horizontalInset,
+                    AppTheme.space * 2,
+                  ),
+                  sliver: const SliverToBoxAdapter(
+                    child: _ResearchIntroduction(),
+                  ),
+                ),
+                SliverPadding(
+                  padding: EdgeInsets.fromLTRB(
+                    horizontalInset,
+                    0,
+                    horizontalInset,
+                    AppTheme.space * 2,
+                  ),
+                  sliver: columns == 1
+                      ? SliverList.builder(
+                          itemCount: list.length,
+                          itemBuilder: (BuildContext context, int index) =>
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  bottom: index == list.length - 1
+                                      ? 0
+                                      : AppTheme.space * 2,
+                                ),
                                 child: _ResearchInstrumentCard(
-                                  instrument: instrument,
+                                  instrument: list[index],
                                 ),
                               ),
-                          ],
-                        );
-                      },
+                        )
+                      : SliverGrid.builder(
+                          itemCount: list.length,
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: columns,
+                                mainAxisExtent: 290,
+                                mainAxisSpacing: AppTheme.space * 2,
+                                crossAxisSpacing: AppTheme.space * 2,
+                              ),
+                          itemBuilder: (BuildContext context, int index) =>
+                              _ResearchInstrumentCard(instrument: list[index]),
+                        ),
                 ),
               ],
             );
@@ -197,6 +213,8 @@ class _ResearchInstrumentCard extends ConsumerWidget {
                             Text(
                               instrument.name,
                               translate: false,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                               style: Theme.of(context).textTheme.titleMedium
                                   ?.copyWith(fontWeight: FontWeight.w700),
                             ),

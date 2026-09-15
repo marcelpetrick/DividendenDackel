@@ -21,6 +21,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 - Calendar now keeps period and view navigation prominent while secondary
   filters collapse to a clear summary on phones and remain expanded on desktop.
 
+### Changed
+
+- Research assessment cards are now built lazily, keeping large imported
+  instrument sets responsive and avoiding off-screen score computation.
+
 ## [0.61.8] - 2026-09-13
 
 ### Added

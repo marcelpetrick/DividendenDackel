@@ -117,10 +117,51 @@ void main() {
     tester.platformDispatcher.textScaleFactorTestValue = 2;
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
     await pumpResearch(tester, const Size(400, 800));
-    await tester.drag(find.byType(ListView), const Offset(0, -300));
+    await tester.drag(
+      find.byKey(const ValueKey<String>('research-card-grid')),
+      const Offset(0, -300),
+    );
     await tester.pumpAndSettle();
 
     expect(find.text('67 / 100'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('starts assessments only for visible research cards', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize = const Size(400, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final Map<String, Instrument> instruments = <String, Instrument>{
+      for (int index = 0; index < 100; index++)
+        'instrument-$index': Instrument(
+          internalId: 'instrument-$index',
+          symbol: 'S$index',
+          name: 'Instrument $index',
+          currency: Currency.eur,
+        ),
+    };
+    var assessmentsStarted = 0;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          instrumentsByIdProvider.overrideWith(
+            (Ref ref) => Stream<Map<String, Instrument>>.value(instruments),
+          ),
+          currentResearchSnapshotProvider.overrideWith((Ref ref, String id) {
+            assessmentsStarted++;
+            return Future<ResearchSnapshot?>.value();
+          }),
+        ],
+        child: const MaterialApp(home: Scaffold(body: ResearchScreen())),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(assessmentsStarted, greaterThan(0));
+    expect(assessmentsStarted, lessThan(instruments.length));
     expect(tester.takeException(), isNull);
   });
 }
