@@ -29,6 +29,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   DateTime? _expandedDay;
   Currency? _displayCurrency;
   bool _exporting = false;
+  bool? _filtersExpanded;
 
   @override
   void initState() {
@@ -71,6 +72,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final Map<String, Holding> holdingsById = <String, Holding>{
       for (final Holding holding in holdings) holding.instrumentId: holding,
     };
+    final bool filtersExpanded =
+        _filtersExpanded ?? MediaQuery.sizeOf(context).width >= 700;
 
     return Column(
       children: <Widget>[
@@ -79,6 +82,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             maxHeight: MediaQuery.sizeOf(context).height * 0.42,
           ),
           child: SingleChildScrollView(
+            key: const ValueKey<String>('calendar-controls-scroll'),
             child: _Controls(
               focus: _focus,
               view: _view,
@@ -86,6 +90,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               dateMode: _dateMode,
               weekends: _weekends,
               displayCurrency: _displayCurrency,
+              filtersExpanded: filtersExpanded,
               onPrevious: () => _move(-1),
               onNext: () => _move(1),
               onToday: () => setState(() {
@@ -108,6 +113,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   setState(() => _weekends = value),
               onCurrencyChanged: (Currency? currency) =>
                   setState(() => _displayCurrency = currency),
+              onFiltersChanged: (bool value) =>
+                  setState(() => _filtersExpanded = value),
               onForecast: () => context.push('/calendar/forecast'),
               exporting: _exporting,
               onExport:
@@ -264,6 +271,7 @@ class _Controls extends StatelessWidget {
     required this.dateMode,
     required this.weekends,
     required this.displayCurrency,
+    required this.filtersExpanded,
     required this.onPrevious,
     required this.onNext,
     required this.onToday,
@@ -272,6 +280,7 @@ class _Controls extends StatelessWidget {
     required this.onDateModeChanged,
     required this.onWeekendsChanged,
     required this.onCurrencyChanged,
+    required this.onFiltersChanged,
     required this.onForecast,
     required this.exporting,
     required this.onExport,
@@ -283,6 +292,7 @@ class _Controls extends StatelessWidget {
   final DividendDateMode dateMode;
   final bool weekends;
   final Currency? displayCurrency;
+  final bool filtersExpanded;
   final VoidCallback onPrevious;
   final VoidCallback onNext;
   final VoidCallback onToday;
@@ -291,6 +301,7 @@ class _Controls extends StatelessWidget {
   final ValueChanged<DividendDateMode> onDateModeChanged;
   final ValueChanged<bool> onWeekendsChanged;
   final ValueChanged<Currency?> onCurrencyChanged;
+  final ValueChanged<bool> onFiltersChanged;
   final VoidCallback onForecast;
   final bool exporting;
   final VoidCallback? onExport;
@@ -301,159 +312,265 @@ class _Controls extends StatelessWidget {
     final String explanation = dateMode == DividendDateMode.exDate
         ? 'Ex-date: own the share before this date to receive the dividend.'
         : 'Payment date: when the dividend is expected to reach your account.';
+    final String filterSummary = <String>[
+      context.tr(switch (scope) {
+        DividendCalendarScope.portfolio => 'Portfolio',
+        DividendCalendarScope.watchlist => 'Watchlist',
+        DividendCalendarScope.all => 'All instruments',
+      }),
+      context.tr(dateMode == DividendDateMode.exDate ? 'Ex-date' : 'Payment'),
+      displayCurrency?.code ?? context.tr('Native'),
+      if (view == DividendCalendarView.month)
+        context.tr(weekends ? '7-day week' : 'Weekdays only'),
+    ].join(' · ');
     return Material(
+      key: const ValueKey<String>('calendar-schedule-controls'),
       color: theme.colorScheme.surface,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Wrap(
-              spacing: AppTheme.space,
-              runSpacing: AppTheme.space,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: <Widget>[
-                IconButton(
-                  tooltip: context.tr('Previous period'),
-                  onPressed: onPrevious,
-                  icon: const Icon(Icons.chevron_left),
-                ),
-                Text(
-                  _periodLabel(focus, view),
-                  style: theme.textTheme.titleLarge,
-                ),
-                IconButton(
-                  tooltip: context.tr('Next period'),
-                  onPressed: onNext,
-                  icon: const Icon(Icons.chevron_right),
-                ),
-                TextButton(onPressed: onToday, child: const Text('Today')),
-                FilledButton.tonalIcon(
-                  onPressed: onForecast,
-                  icon: const Icon(Icons.stacked_line_chart),
-                  label: const Text('Income forecast'),
-                ),
-                SegmentedButton<DividendCalendarView>(
-                  showSelectedIcon: false,
-                  segments: const <ButtonSegment<DividendCalendarView>>[
-                    ButtonSegment<DividendCalendarView>(
-                      value: DividendCalendarView.month,
-                      label: Text('Month'),
-                    ),
-                    ButtonSegment<DividendCalendarView>(
-                      value: DividendCalendarView.year,
-                      label: Text('Year'),
-                    ),
-                    ButtonSegment<DividendCalendarView>(
-                      value: DividendCalendarView.agenda,
-                      label: Text('Agenda'),
-                    ),
-                  ],
-                  selected: <DividendCalendarView>{view},
-                  onSelectionChanged: (Set<DividendCalendarView> value) =>
-                      onViewChanged(value.single),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppTheme.space),
-            Wrap(
-              spacing: AppTheme.space * 2,
-              runSpacing: AppTheme.space,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: <Widget>[
-                SegmentedButton<DividendDateMode>(
-                  showSelectedIcon: false,
-                  segments: const <ButtonSegment<DividendDateMode>>[
-                    ButtonSegment<DividendDateMode>(
-                      value: DividendDateMode.exDate,
-                      label: Text('Ex-date'),
-                    ),
-                    ButtonSegment<DividendDateMode>(
-                      value: DividendDateMode.paymentDate,
-                      label: Text('Payment'),
-                    ),
-                  ],
-                  selected: <DividendDateMode>{dateMode},
-                  onSelectionChanged: (Set<DividendDateMode> value) =>
-                      onDateModeChanged(value.single),
-                ),
-                _EnumMenu<DividendCalendarScope>(
-                  label: 'Scope',
-                  value: scope,
-                  entries: const <DropdownMenuEntry<DividendCalendarScope>>[
-                    DropdownMenuEntry<DividendCalendarScope>(
-                      value: DividendCalendarScope.portfolio,
-                      label: 'Portfolio',
-                    ),
-                    DropdownMenuEntry<DividendCalendarScope>(
-                      value: DividendCalendarScope.watchlist,
-                      label: 'Watchlist',
-                    ),
-                    DropdownMenuEntry<DividendCalendarScope>(
-                      value: DividendCalendarScope.all,
-                      label: 'All instruments',
-                    ),
-                  ],
-                  onSelected: onScopeChanged,
-                ),
-                DropdownMenu<Currency?>(
-                  key: const ValueKey<String>('display-currency'),
-                  width: 155,
-                  label: const Text('Display currency'),
-                  initialSelection: displayCurrency,
-                  dropdownMenuEntries: <DropdownMenuEntry<Currency?>>[
-                    DropdownMenuEntry<Currency?>(
-                      value: null,
-                      label: context.tr('Native'),
-                    ),
-                    for (final Currency currency in <Currency>[
-                      Currency.eur,
-                      Currency.usd,
-                      Currency.gbp,
-                      Currency.chf,
-                    ])
-                      DropdownMenuEntry<Currency?>(
-                        value: currency,
-                        label: currency.code,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: theme.colorScheme.outlineVariant),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  IconButton(
+                    tooltip: context.tr('Previous period'),
+                    onPressed: onPrevious,
+                    icon: const Icon(Icons.chevron_left),
+                  ),
+                  Expanded(
+                    child: Text(
+                      _periodLabel(focus, view),
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
                       ),
-                  ],
-                  onSelected: onCurrencyChanged,
-                ),
-                if (view == DividendCalendarView.month)
-                  FilterChip(
-                    label: const Text('Weekends'),
-                    selected: weekends,
-                    onSelected: onWeekendsChanged,
+                    ),
                   ),
+                  IconButton(
+                    tooltip: context.tr('Next period'),
+                    onPressed: onNext,
+                    icon: const Icon(Icons.chevron_right),
+                  ),
+                  TextButton(onPressed: onToday, child: const Text('Today')),
+                ],
+              ),
+              const SizedBox(height: AppTheme.space),
+              Wrap(
+                spacing: AppTheme.space,
+                runSpacing: AppTheme.space,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: <Widget>[
+                  SegmentedButton<DividendCalendarView>(
+                    showSelectedIcon: false,
+                    segments: const <ButtonSegment<DividendCalendarView>>[
+                      ButtonSegment<DividendCalendarView>(
+                        value: DividendCalendarView.month,
+                        label: Text('Month'),
+                      ),
+                      ButtonSegment<DividendCalendarView>(
+                        value: DividendCalendarView.year,
+                        label: Text('Year'),
+                      ),
+                      ButtonSegment<DividendCalendarView>(
+                        value: DividendCalendarView.agenda,
+                        label: Text('Agenda'),
+                      ),
+                    ],
+                    selected: <DividendCalendarView>{view},
+                    onSelectionChanged: (Set<DividendCalendarView> value) =>
+                        onViewChanged(value.single),
+                  ),
+                  FilledButton.tonalIcon(
+                    onPressed: onForecast,
+                    icon: const Icon(Icons.stacked_line_chart),
+                    label: const Text('Income forecast'),
+                  ),
+                  Semantics(
+                    expanded: filtersExpanded,
+                    child: OutlinedButton.icon(
+                      key: const ValueKey<String>('toggle-calendar-filters'),
+                      onPressed: () => onFiltersChanged(!filtersExpanded),
+                      icon: Icon(
+                        filtersExpanded ? Icons.tune : Icons.tune_outlined,
+                      ),
+                      label: Text(filtersExpanded ? 'Hide filters' : 'Filters'),
+                    ),
+                  ),
+                ],
+              ),
+              if (!filtersExpanded) ...<Widget>[
+                const SizedBox(height: AppTheme.space),
+                Text(
+                  filterSummary,
+                  key: const ValueKey<String>('calendar-filter-summary'),
+                  translate: false,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
               ],
-            ),
-            const SizedBox(height: 6),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Expanded(
-                  child: Text(
-                    explanation,
-                    key: const ValueKey<String>('date-explanation'),
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
+              if (filtersExpanded) ...<Widget>[
+                const SizedBox(height: AppTheme.space * 1.5),
+                DecoratedBox(
+                  key: const ValueKey<String>('calendar-filter-panel'),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(AppTheme.cardRadius),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppTheme.space * 1.5),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Wrap(
+                          spacing: AppTheme.space * 2,
+                          runSpacing: AppTheme.space,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: <Widget>[
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                Icon(
+                                  Icons.filter_alt_outlined,
+                                  size: 18,
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                                const SizedBox(width: AppTheme.space / 2),
+                                Text(
+                                  'Filters',
+                                  style: theme.textTheme.titleSmall?.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            OutlinedButton.icon(
+                              key: const ValueKey<String>('export-calendar'),
+                              onPressed: onExport,
+                              icon: exporting
+                                  ? const SizedBox.square(
+                                      dimension: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Icon(Icons.download_outlined),
+                              label: const Text('Export calendar'),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppTheme.space),
+                        Wrap(
+                          spacing: AppTheme.space * 2,
+                          runSpacing: AppTheme.space,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: <Widget>[
+                            SegmentedButton<DividendDateMode>(
+                              showSelectedIcon: false,
+                              segments: const <ButtonSegment<DividendDateMode>>[
+                                ButtonSegment<DividendDateMode>(
+                                  value: DividendDateMode.exDate,
+                                  label: Text('Ex-date'),
+                                ),
+                                ButtonSegment<DividendDateMode>(
+                                  value: DividendDateMode.paymentDate,
+                                  label: Text('Payment'),
+                                ),
+                              ],
+                              selected: <DividendDateMode>{dateMode},
+                              onSelectionChanged: (
+                                Set<DividendDateMode> value,
+                              ) => onDateModeChanged(value.single),
+                            ),
+                            _EnumMenu<DividendCalendarScope>(
+                              label: 'Scope',
+                              value: scope,
+                              entries:
+                                  const <
+                                    DropdownMenuEntry<DividendCalendarScope>
+                                  >[
+                                    DropdownMenuEntry<DividendCalendarScope>(
+                                      value: DividendCalendarScope.portfolio,
+                                      label: 'Portfolio',
+                                    ),
+                                    DropdownMenuEntry<DividendCalendarScope>(
+                                      value: DividendCalendarScope.watchlist,
+                                      label: 'Watchlist',
+                                    ),
+                                    DropdownMenuEntry<DividendCalendarScope>(
+                                      value: DividendCalendarScope.all,
+                                      label: 'All instruments',
+                                    ),
+                                  ],
+                              onSelected: onScopeChanged,
+                            ),
+                            DropdownMenu<Currency?>(
+                              key: const ValueKey<String>('display-currency'),
+                              width: 155,
+                              label: const Text('Display currency'),
+                              initialSelection: displayCurrency,
+                              dropdownMenuEntries:
+                                  <DropdownMenuEntry<Currency?>>[
+                                    DropdownMenuEntry<Currency?>(
+                                      value: null,
+                                      label: context.tr('Native'),
+                                    ),
+                                    for (final Currency currency in <Currency>[
+                                      Currency.eur,
+                                      Currency.usd,
+                                      Currency.gbp,
+                                      Currency.chf,
+                                    ])
+                                      DropdownMenuEntry<Currency?>(
+                                        value: currency,
+                                        label: currency.code,
+                                      ),
+                                  ],
+                              onSelected: onCurrencyChanged,
+                            ),
+                            if (view == DividendCalendarView.month)
+                              FilterChip(
+                                label: const Text('Weekends'),
+                                selected: weekends,
+                                onSelected: onWeekendsChanged,
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: AppTheme.space),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Icon(
+                              Icons.info_outline,
+                              size: 18,
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                            const SizedBox(width: AppTheme.space),
+                            Expanded(
+                              child: Text(
+                                explanation,
+                                key: const ValueKey<String>('date-explanation'),
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ),
-                IconButton.filledTonal(
-                  key: const ValueKey<String>('export-calendar'),
-                  tooltip: context.tr('Export calendar'),
-                  onPressed: onExport,
-                  icon: exporting
-                      ? const SizedBox.square(
-                          dimension: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.download_outlined),
-                ),
               ],
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

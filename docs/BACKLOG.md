@@ -233,7 +233,7 @@ Each task names the `Vision.md` sections it satisfies.
 - [x] **UX3** Research overview with honest assessment/evidence previews and an
       adaptive card grid; missing evidence remains unavailable, never zero. —
       §2.2, §2.3, §15, §24
-- [ ] **UX4** Calendar control hierarchy: distinguish period/view navigation
+- [x] **UX4** Calendar control hierarchy: distinguish period/view navigation
       from secondary filters and return visual priority to the schedule without
       removing scope, date, FX, weekend or export controls. — §9, §24, §25
 - [ ] **UX5** Cross-platform UX gate and self-review: phone, wide desktop,

@@ -197,6 +197,7 @@ final class _Translation {
 }
 
 const Map<String, _Translation> _messages = <String, _Translation>{
+  '7-day week': _Translation('7-Tage-Woche', 'Tjedan od 7 dana'),
   'About': _Translation('Über', 'O aplikaciji'),
   'Activities to apply': _Translation(
     'Anzuwendende Aktivitäten',
@@ -367,6 +368,7 @@ const Map<String, _Translation> _messages = <String, _Translation>{
   'Export calendar': _Translation('Kalender exportieren', 'Izvezi kalendar'),
   'Fee': _Translation('Gebühr', 'Naknada'),
   'Filing': _Translation('Unternehmensmeldung', 'Regulatorna objava'),
+  'Filters': _Translation('Filter', 'Filtri'),
   'Forward gross yield': _Translation(
     'Brutto-Terminrendite',
     'Budući bruto prinos',
@@ -384,6 +386,7 @@ const Map<String, _Translation> _messages = <String, _Translation>{
   'Guidance': _Translation('Prognose', 'Smjernice'),
   'Held gross': _Translation('Gehalten, brutto', 'Držano bruto'),
   'Holdings': _Translation('Positionen', 'Pozicije'),
+  'Hide filters': _Translation('Filter ausblenden', 'Sakrij filtre'),
   'How this was estimated': _Translation(
     'Wie dies geschätzt wurde',
     'Kako je procijenjeno',
@@ -620,6 +623,7 @@ const Map<String, _Translation> _messages = <String, _Translation>{
     'Verzija nije dostupna',
   ),
   'Watchlist': _Translation('Watchlist', 'Popis praćenja'),
+  'Weekdays only': _Translation('Nur Wochentage', 'Samo radni dani'),
   'Wed': _Translation('Mi', 'Sri'),
   'Weekends': _Translation('Wochenenden', 'Vikendi'),
   'Withdrawal': _Translation('Auszahlung', 'Isplata'),

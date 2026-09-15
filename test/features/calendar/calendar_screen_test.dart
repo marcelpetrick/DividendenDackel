@@ -126,8 +126,10 @@ void main() {
     await tester.pump();
 
     expect(find.text('25 August 2026 · 3 events'), findsOneWidget);
+    await tester.drag(find.byType(ListView), const Offset(0, -700));
+    await tester.pump();
     expect(find.textContaining('Gross €20.00'), findsOneWidget);
-    expect(find.textContaining('Net (estimated)'), findsOneWidget);
+    expect(find.textContaining('Net (estimated)'), findsNWidgets(3));
     expect(find.text('Confirmed'), findsWidgets);
   });
 
@@ -183,7 +185,27 @@ void main() {
   ) async {
     await pumpCalendar(tester, size: const Size(412, 915));
 
+    expect(
+      find.byKey(const ValueKey<String>('calendar-filter-summary')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey<String>('calendar-filter-panel')),
+      findsNothing,
+    );
+    expect(find.text('Weekends'), findsNothing);
+    await tester.tap(find.text('Filters'));
+    await tester.pump();
+    expect(
+      find.byKey(const ValueKey<String>('calendar-filter-panel')),
+      findsOneWidget,
+    );
     expect(find.text('Sun'), findsOneWidget);
+    await tester.drag(
+      find.byKey(const ValueKey<String>('calendar-controls-scroll')),
+      const Offset(0, -180),
+    );
+    await tester.pump();
     await tester.tap(find.text('Weekends'));
     await tester.pump();
     expect(find.text('Sun'), findsNothing);
@@ -238,7 +260,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Calendar export could not be saved.'), findsOneWidget);
-    final IconButton button = tester.widget(
+    final OutlinedButton button = tester.widget(
       find.byKey(const ValueKey<String>('export-calendar')),
     );
     expect(button.onPressed, isNotNull);

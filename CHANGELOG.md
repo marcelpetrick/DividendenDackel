@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
   dashboard that remains a single ordered column on phones.
 - Research now previews each available assessment, its evidence dimensions and
   explicit missing-evidence states in an adaptive comparison grid.
+- Calendar now keeps period and view navigation prominent while secondary
+  filters collapse to a clear summary on phones and remain expanded on desktop.
 
 ## [0.61.8] - 2026-09-13
 
