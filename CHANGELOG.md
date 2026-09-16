@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ## [Unreleased]
 
+## [0.65.7] - 2026-09-16
+
+### Fixed
+
+- The status documentation now correctly names Alpha Vantage as the optional
+  keyed quote provider, rather than confusing it with an Allianz holding.
+
+### Changed
+
+- Added an agent handoff plan documenting completed work, validation evidence,
+  remaining release steps and explicitly unfinished optional features.
+
 ## [0.65.6] - 2026-09-15
 
 ### Fixed

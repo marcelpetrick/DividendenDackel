@@ -1,7 +1,7 @@
 # Project status
 
-- **Last updated:** 2026-09-15
-- **Version:** 0.65.6+126
+- **Last updated:** 2026-09-16
+- **Version:** 0.65.7+127
 - **Branch:** `master`
 - **Pinned toolchain:** Flutter 3.47.4 / Dart 3.13.3
 - **Quality gate:** green — 678 tests, 10 compiled Linux journeys, Android 10
@@ -110,7 +110,7 @@ candidates rather than MVP blockers.
 Known release limitations:
 
 - release APKs are development/debug-signed, not Play Store signed;
-- live Allianz/Finnhub provider responses require maintainer-supplied keys and
+- live Alpha Vantage/Finnhub responses require maintainer-supplied keys and
   could not be verified in this checkout;
 - Financial Modeling Prep remains blocked on its required licensing review;
 - the dated withholding starter table is an editable estimate and must never be
