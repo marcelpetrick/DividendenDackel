@@ -10,6 +10,8 @@ void registerFinancialJourneys() {
   testWidgets('tax and currency keep gross, net, and source units visible', (
     WidgetTester tester,
   ) async {
+    await tester.binding.setSurfaceSize(const Size(411, 683));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
     final JourneyHarness harness = await JourneyHarness.start(
       tester,
       quoteMode: JourneyQuoteMode.available,
@@ -49,7 +51,14 @@ void registerFinancialJourneys() {
       ),
       findsWidgets,
     );
-    expect(find.textContaining('USD'), findsWidgets);
+    final Finder sourceCurrency = find.textContaining('USD');
+    await tester.scrollUntilVisible(
+      sourceCurrency,
+      300,
+      scrollable: find.byType(Scrollable).last,
+      maxScrolls: 30,
+    );
+    expect(sourceCurrency, findsWidgets);
 
     await tester.tap(find.byTooltip('Settings'));
     await JourneyHarness.settle(tester);

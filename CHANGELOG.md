@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ## [Unreleased]
 
+## [0.65.6] - 2026-09-15
+
+### Fixed
+
+- The Android 10 release journey now uses the phone viewport locally and
+  scrolls to lazy currency evidence before asserting it, preventing a
+  desktop-only pass from hiding a phone regression.
+
 ## [0.65.5] - 2026-09-15
 
 ### Changed
