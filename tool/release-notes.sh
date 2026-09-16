@@ -73,6 +73,15 @@ AppImage runs directly. Neither needs unpacking.
 The APK is signed with a debug key, so Android warns when installing from an
 unknown source. Verify downloads against `SHA256SUMS` first.
 
+### Android upgrade warning
+
+Debug signing keys are not persisted between release runs. Android requires
+matching signing certificates for an in-place update. Do not uninstall an
+existing DividendenDackel installation just to bypass a signature error:
+uninstalling removes local portfolio data and credentials. Persistent release
+signing needs a maintainer-provided keystore and an upgrade/backup plan; these
+downloads are for direct testing, not Play Store publication.
+
 ### Data sources
 
 Works out of the box with no API key: SEC EDGAR for real dividend history and

@@ -36,7 +36,7 @@ question it answers is:
 
 ## Status
 
-**0.65.8.** The Android 10+ and Linux desktop applications are
+**0.65.9.** The Android 10+ and Linux desktop applications are
 implemented and build as release artifacts. They include the Today dashboard,
 portfolio editor and health insights, dividend calendar and 24-month income
 forecast, gross/net tax estimates, multi-currency conversion, explainable

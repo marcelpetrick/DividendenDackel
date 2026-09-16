@@ -1,11 +1,12 @@
 # Project status
 
 - **Last updated:** 2026-09-16
-- **Version:** 0.65.8+128
+- **Version:** 0.65.9+129
 - **Branch:** `master`
 - **Pinned toolchain:** Flutter 3.47.4 / Dart 3.13.3
-- **Quality gate:** green — 683 tests, 10 compiled Linux journeys, 10 compiled
-  Android 10 journeys and Android/Linux release builds
+- **Quality gate:** green — 684 tests, 10 compiled Linux journeys and
+  Android/Linux release builds; all 10 Android 10 journeys passed on the
+  0.65.8 release candidate
 
 ## Product state
 
@@ -92,6 +93,12 @@ generates notes from Conventional Commits and publishes a public GitHub Release.
 Every third-party action is pinned to an immutable commit SHA and workflows use
 minimal permissions.
 
+The latest verified public release is
+[v0.65.8](https://github.com/marcelpetrick/DividendenDackel/releases/tag/v0.65.8),
+built and tested from commit `6d91da2`. Its public APK, AppImage and Linux
+tarball match the published `SHA256SUMS`; the release is neither a draft nor a
+pre-release.
+
 Dependabot checks pub, Gradle and GitHub Actions weekly. A separate scheduled
 report compares the pinned Flutter, Android Gradle Plugin, Gradle and Kotlin
 versions with current stable upstream releases without blindly merging them.
@@ -109,7 +116,10 @@ candidates rather than MVP blockers.
 
 Known release limitations:
 
-- release APKs are development/debug-signed, not Play Store signed;
+- release APKs are development/debug-signed with ephemeral keys, not Play Store
+  signed, so reliable in-place upgrades require a persistent maintainer-owned
+  signing identity and reviewed backup/upgrade strategy; uninstalling to bypass
+  a signature mismatch would delete local portfolio data and credentials;
 - live Alpha Vantage/Finnhub responses require maintainer-supplied keys and
   could not be verified in this checkout;
 - Financial Modeling Prep remains blocked on its required licensing review;

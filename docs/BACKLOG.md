@@ -198,6 +198,9 @@ Each task names the `Vision.md` sections it satisfies.
 
 ## Delivery verification
 
+- [x] **E4** Record verified public release evidence and warn that ephemeral
+      debug signing does not support safe in-place Android upgrades. Never
+      recommend uninstalling a portfolio to bypass a signature mismatch.
 - [x] **E3** Release-blocking currency evidence regression: explicit gross/net
       currency codes and an Android 10 journey scoped to the held USD dividend,
       rather than unrelated desktop currency controls. — §9, §57, §79

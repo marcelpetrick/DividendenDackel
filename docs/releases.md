@@ -21,6 +21,22 @@ as a directory because its executable depends on the adjacent `lib/` and
 direct testing, not Play Store publication. A production signing configuration
 and protected credentials are required before store distribution.
 
+### Android upgrade safety
+
+Debug signing keys are not persisted between release runners. Android requires
+matching signing certificates for an in-place update, so a new debug-signed APK
+may be refused over an older release. This is distinct from the tested database
+schema migrations. Do not uninstall an existing DividendenDackel installation
+to bypass the error: uninstalling deletes local portfolio data and credentials.
+CSV imports are not documented as a lossless full-database backup.
+
+A persistent maintainer-owned signing keystore and a reviewed upgrade/backup
+strategy are required for reliable Android updates. Do not generate or commit
+a replacement private signing key on the maintainer's behalf, and do not claim
+that a new key can recover the old release's signing identity. Until that
+decision is resolved, APK releases are for fresh-install testing; retain an
+existing installation rather than forcing a destructive reinstall.
+
 ## Pre-release checklist
 
 1. Confirm `CHANGELOG.md`, provider terms, tax assumptions and this document are

@@ -1,5 +1,36 @@
 # Engineering self-review
 
+## 0.65.9 release verification review
+
+Base: `6d91da2` / public `v0.65.8`<br>
+Review date: 2026-09-16
+
+### Findings
+
+#### 1. HIGH Data safety — Android upgrade guidance
+
+Release APKs use an ephemeral debug signing key, so a later release may not be
+accepted as an in-place update. Uninstalling to bypass that mismatch would
+delete the local portfolio and credentials, and the CSV format is not a
+lossless full-database backup. The release guide and generated/public release
+notes now warn against destructive reinstall attempts and state the unresolved
+persistent-signing requirement. A regression protects the generated warning.
+
+#### 2. MEDIUM Delivery — published artifact evidence
+
+Workflow success alone did not establish that the public tag and downloads
+matched the tested release candidate. The public release flags and tag target
+were checked independently; all four assets downloaded, all three artifact
+hashes match `SHA256SUMS`, the Linux formats have the expected executable
+payloads, and `apksigner` confirms the APK has one Android Debug certificate.
+
+### Verdict
+
+E4 has no unresolved implementation or publication defect. Reliable Android
+in-place upgrades remain an explicit maintainer decision because they require a
+persistent private signing identity and reviewed backup/upgrade strategy; no
+key was generated or committed as part of this verification.
+
 ## 0.65.8 Android currency evidence review
 
 Base: `a612b11`<br>

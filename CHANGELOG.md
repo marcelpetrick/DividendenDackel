@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ## [Unreleased]
 
+## [0.65.9] - 2026-09-16
+
+### Changed
+
+- Release verification evidence and remaining signing limitations are recorded
+  in the iterative plan. Published and future release notes warn against
+  uninstalling local portfolio data to bypass Android signing mismatches.
+
 ## [0.65.8] - 2026-09-16
 
 ### Fixed

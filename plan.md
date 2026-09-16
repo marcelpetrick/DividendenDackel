@@ -7,13 +7,17 @@ separate work.
 
 ## Current state
 
-- Branch: `master`. Current candidate version: **0.65.8+128**.
-- Fetch on resume found remote `origin/master` already at handoff commit
-  `a612b116f6ae8d3860555cb8a501cf24d875726c`, version **0.65.7+127**.
-  The 0.65.8 currency fix follows it.
-- Latest public release remains
-  [v0.61.8](https://github.com/marcelpetrick/DividendenDackel/releases/tag/v0.61.8).
-  No new release was dispatched in this session.
+- Branch: `master`. Public release candidate: **0.65.8+128** at
+  `6d91da29baa9d8292097c2d190da284462d80dcf`. Development documentation follow-up:
+  **0.65.9+129**, required by the per-local-commit version rule. This follow-up
+  records release verification; it does not replace the immutable 0.65.8 build.
+- Remote `origin/master`: `6d91da29baa9d8292097c2d190da284462d80dcf`, version
+  **0.65.8+128**. The release run is complete, so its no-push window has ended.
+- Latest public release is
+  [v0.65.8](https://github.com/marcelpetrick/DividendenDackel/releases/tag/v0.65.8).
+  The [release run](https://github.com/marcelpetrick/DividendenDackel/actions/runs/35077311855)
+  passed both jobs on the exact tested SHA, and the published tag and downloads
+  were independently verified as recorded below.
 - No open GitHub issues or pull requests were found. Dependabot PRs
   [#1](https://github.com/marcelpetrick/DividendenDackel/pull/1) and
   [#2](https://github.com/marcelpetrick/DividendenDackel/pull/2) are closed;
@@ -56,6 +60,8 @@ Atomic commits already pushed:
 | `09c87b0` | Finnhub retained quote deletion | 0.65.4+124 |
 | `d42c694` | Documentation alignment | 0.65.5+125 |
 | `e80c2ce` | Phone currency integration regression | 0.65.6+126 |
+| `a612b11` | Initial agent handoff | 0.65.7+127 |
+| `6d91da2` | Explicit held gross/net currency units | 0.65.8+128 |
 
 Handoff commit `a612b11` corrects the Alpha Vantage provider-name typo and
 records the initial handoff. The 0.65.8 fix also updates this plan, the backlog,
@@ -87,44 +93,43 @@ export PATH=/tmp/dividendendackel-flutter-3.47.4/bin:$PATH
 ./localPipeline.sh
 ./tool/test-check-version.sh
 ./tool/check-version.sh origin/master HEAD
-./tool/check-changelog.sh 0.65.8
+./tool/check-changelog.sh 0.65.9
 node /home/mpetrick/.local/share/fnm/node-versions/v20.20.1/installation/lib/node_modules/markdownlint-cli2/markdownlint-cli2-bin.mjs
 ```
 
 The SDK under `/tmp` may disappear; reinstall the exact pinned version if needed.
 
-## Remaining work, highest priority first
+## Completed release checklist
 
 1. **E3 — fix the release-blocking currency evidence failure (complete).**
    Reproduced on the local API 29 Pixel. Five widget regressions failed before
    the production fix and now pass. All ten Android 10 journeys and the full
    rendered 683-test local gate pass. Diff self-reviewed; E3 is checked off.
    This atomic fix bumps to 0.65.8+128.
-2. **Push the validated local commits.** Fetch first and verify the
-   version sequence. Check there is no queued/in-progress `release.yml` run
-   before pushing. Wait for all five CI jobs on the final exact SHA to pass,
-   especially the Android 10 portfolio journey.
-3. **Publish after final CI passes.** Confirm
-   `v0.65.8` does not already exist (or use the new version if fixes were needed),
-   the dated changelog section is nonempty, and remote `master` equals the SHA
-   tested by CI. Dispatch `release.yml` from that same `master` SHA, optionally
-   supplying that exact SHA as its `ref` input. The workflow metadata/tag target
-   use `github.sha`, so do not dispatch from a different branch head.
-4. **Do not push during the release run.** Wait for both release jobs to finish.
-   Verify the public release is neither draft nor prerelease and that its tag
-   resolves to the tested SHA. Download the APK, Linux AppImage, Linux tarball
-   and `SHA256SUMS` into a temporary directory; verify all three checksums.
-   Report the actual release URL, not just the workflow dispatch.
+2. **Push and validate the candidate (complete).** `6d91da2` is pushed, and
+   [CI run 35076379791](https://github.com/marcelpetrick/DividendenDackel/actions/runs/35076379791)
+   passed all five jobs on its exact SHA, including Android 10 journeys.
+3. **Publish (complete).** Version/tag absence and the dated changelog were
+   checked, remote `master` matched the tested SHA, and `release.yml` was
+   dispatched from that same head with the exact SHA as its `ref` input.
+   [Run 35077311855](https://github.com/marcelpetrick/DividendenDackel/actions/runs/35077311855)
+   passed Android 10 and build-and-publish.
+4. **Verify publication (complete).** The public release is neither draft nor
+   pre-release, its tag resolves to the tested SHA, all four assets downloaded,
+   and all three artifact checksums match. The actual release is
+   [v0.65.8](https://github.com/marcelpetrick/DividendenDackel/releases/tag/v0.65.8).
 
 ## Explicitly unfinished or limited
 
-- Public release of the new work: **not published**; E3 is fixed locally,
-  pending final CI and publishing, now resumed by the maintainer.
 - Optional FMP adapter: blocked on the documented required licensing review,
   not silently marked complete.
 - Live keyed Alpha Vantage/Finnhub smoke tests require user-supplied credentials;
   fixture contracts pass, but live keyed responses were not verified here.
-- Android APK is debug/development-signed, not Play Store signed.
+- Android APK is debug/development-signed, not Play Store signed. Debug signing
+  keys are not persisted across release runners, so in-place upgrades may fail.
+  Do not uninstall to bypass a signing mismatch: that deletes local financial
+  data. Persistent signing and a reviewed backup/upgrade strategy require a
+  maintainer decision; no private key was invented or committed.
 - Linux compositor/window-manager/HiDPI behavior is outside the compiled journey;
   Flutter's Linux integration plugin does not support screenshots.
 - Optional post-MVP P7 encrypted sync, P8 widgets/tray mode and P9 advanced
@@ -163,3 +168,36 @@ Logs:
 - Complete Android 10 journeys:
   `/tmp/dividendendackel-android-0.65.8-journeys.log`.
 - Full rendered local gate: `/tmp/dividendendackel-0.65.8-gate.log`.
+
+### Final iteration: release verification documentation (0.65.9)
+
+E4 is complete. The generated notes warn against destructive Android
+reinstallation, with an automated regression ensuring the warning stays
+present. The published 0.65.8 notes carry the same warning without changing its
+assets or tag.
+
+The full rendered documentation-follow-up gate passed on 2026-09-16:
+**684 tests**, strict analysis, format, ten Linux journeys, version scheme,
+`minSdk 29`, both release builds and rendered Linux first frame. Saved log:
+`/tmp/dividendendackel-0.65.9-verification-gate.log`. Markdown lint is also clean
+across all 26 files.
+
+Release verification completed on 2026-09-16:
+
+- both release jobs succeeded on
+  `6d91da29baa9d8292097c2d190da284462d80dcf`;
+- public tag `v0.65.8` resolves to that exact SHA, and the release is neither a
+  draft nor a pre-release;
+- the APK, AppImage, Linux tarball and `SHA256SUMS` downloaded into
+  `/tmp/dividendendackel-v0.65.8-verify.w42bUb`;
+- `sha256sum -c SHA256SUMS` passed for all three artifacts: AppImage
+  `b0a203e7…f3ccee`, APK `a3cbde5c…07af2`, and tarball
+  `4f1b2185…00835`;
+- the AppImage reports its embedded type-2 runtime, and the tarball retains an
+  executable `dividendendackel` binary with the expected Flutter bundle;
+- `apksigner` verifies the APK's v2 signature and its sole certificate is
+  `C=US, O=Android, CN=Android Debug`, SHA-256
+  `27b636464f53d2cf99f49cb05ea6425dda6e5d5e8358ef0b2c4d5835d7337774`.
+
+The public release URL is
+<https://github.com/marcelpetrick/DividendenDackel/releases/tag/v0.65.8>.
