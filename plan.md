@@ -1,13 +1,16 @@
 # Agent handoff plan
 
-Updated: 2026-09-16. The maintainer asked to stop and continue with another
-agent. Do not start a release or expand the backlog until work is resumed.
+Updated: 2026-09-16. The maintainer resumed work and requested iterative fixes,
+with this plan updated in every commit. The active scope is release blockers,
+final CI and the requested public release; optional product candidates remain
+separate work.
 
 ## Current state
 
-- Branch: `master`. Final local version: **0.65.7+127**.
-- Remote `origin/master`: `e80c2ceae14d7864314dc6b32581c469a9d59671`,
-  version **0.65.6+126**. The final documentation/handoff commit is local only.
+- Branch: `master`. Current candidate version: **0.65.8+128**.
+- Fetch on resume found remote `origin/master` already at handoff commit
+  `a612b116f6ae8d3860555cb8a501cf24d875726c`, version **0.65.7+127**.
+  The 0.65.8 currency fix follows it.
 - Latest public release remains
   [v0.61.8](https://github.com/marcelpetrick/DividendenDackel/releases/tag/v0.61.8).
   No new release was dispatched in this session.
@@ -37,9 +40,13 @@ agent. Do not start a release or expand the backlog until work is resumed.
 - All 25 pre-handoff Markdown files reviewed and linted; local links checked;
   stale provider, privacy, tax, release, route and status descriptions corrected.
   `.markdownlint-cli2.jsonc` records the repository's Markdown conventions.
-- Android-only journey failure diagnosed: lazy USD evidence was outside the
-  phone viewport. The journey now scrolls to it and also exercises the API 29
-  logical viewport locally.
+- The first Android currency fix added scrolling and a phone-sized viewport,
+  but final CI proved it insufficient. The resumed investigation reproduced
+  the failure on a local API 29 Pixel: amount labels lacked currency codes,
+  and desktop's expanded currency controls could satisfy a global USD finder.
+  E3 now adds explicit native gross/converted net codes and scopes the journey
+  to the held USD dividend. Five widget regressions cover English/German/
+  Croatian, missing FX and currencies without a symbol.
 
 Atomic commits already pushed:
 
@@ -50,22 +57,23 @@ Atomic commits already pushed:
 | `d42c694` | Documentation alignment | 0.65.5+125 |
 | `e80c2ce` | Phone currency integration regression | 0.65.6+126 |
 
-The final local documentation commit corrects the Alpha Vantage provider-name
-typo, records this handoff and bumps to 0.65.7+127.
+Handoff commit `a612b11` corrects the Alpha Vantage provider-name typo and
+records the initial handoff. The 0.65.8 fix also updates this plan, the backlog,
+changelog and current-version documentation.
 
 ## Validation and CI
 
 - The full rendered `./localPipeline.sh` passed for 0.65.6: **678 tests**, strict
   analysis, formatting, Linux application journeys, version scheme, `minSdk 29`,
   Android/Linux release builds and a rendered Linux first frame.
-- Final 0.65.7 gate result is recorded below before this handoff is committed.
+- The complete 0.65.7 rendered gate also passed, as recorded below.
 - The nine version-checker counter-cases passed. Markdown lint and the dated
   changelog check passed before the handoff; run them again including this file.
 - [CI run 35074729432](https://github.com/marcelpetrick/DividendenDackel/actions/runs/35074729432)
   tests pushed commit `e80c2ce`, not the final local documentation commit.
-  At handoff, quality, version and Linux checks had passed; Android APK and
-  Android 10 journey jobs were still running. Inspect its final
-  conclusion instead of assuming success.
+  **Final conclusion: failure.** Quality, version, Linux and Android APK passed;
+  the Android 10 currency journey failed after scrolling without finding USD
+  evidence (nine journeys passed, one failed). E3 addresses this failure.
 - Previous CI run 35017903539 failed the Android currency visibility assertion;
   all four other jobs passed. The regression fix is in `e80c2ce`.
 - An abandoned local integration-test process from the previous session failed
@@ -79,7 +87,7 @@ export PATH=/tmp/dividendendackel-flutter-3.47.4/bin:$PATH
 ./localPipeline.sh
 ./tool/test-check-version.sh
 ./tool/check-version.sh origin/master HEAD
-./tool/check-changelog.sh 0.65.7
+./tool/check-changelog.sh 0.65.8
 node /home/mpetrick/.local/share/fnm/node-versions/v20.20.1/installation/lib/node_modules/markdownlint-cli2/markdownlint-cli2-bin.mjs
 ```
 
@@ -87,16 +95,17 @@ The SDK under `/tmp` may disappear; reinstall the exact pinned version if needed
 
 ## Remaining work, highest priority first
 
-1. **Resume and inspect state.** Read this file and the repository agreements;
-   inspect `git status`, local/remote history and the CI run above. Resolve any
-   real CI failure with a reproducing test, full gate and atomic versioned
-   commit. Do not publish a failing candidate.
-2. **Push the final local commit when resumed.** Fetch first and verify the
+1. **E3 — fix the release-blocking currency evidence failure (complete).**
+   Reproduced on the local API 29 Pixel. Five widget regressions failed before
+   the production fix and now pass. All ten Android 10 journeys and the full
+   rendered 683-test local gate pass. Diff self-reviewed; E3 is checked off.
+   This atomic fix bumps to 0.65.8+128.
+2. **Push the validated local commits.** Fetch first and verify the
    version sequence. Check there is no queued/in-progress `release.yml` run
    before pushing. Wait for all five CI jobs on the final exact SHA to pass,
    especially the Android 10 portfolio journey.
-3. **Publish only after the maintainer resumes release work.** Confirm
-   `v0.65.7` does not already exist (or use the new version if fixes were needed),
+3. **Publish after final CI passes.** Confirm
+   `v0.65.8` does not already exist (or use the new version if fixes were needed),
    the dated changelog section is nonempty, and remote `master` equals the SHA
    tested by CI. Dispatch `release.yml` from that same `master` SHA, optionally
    supplying that exact SHA as its `ref` input. The workflow metadata/tag target
@@ -109,7 +118,8 @@ The SDK under `/tmp` may disappear; reinstall the exact pinned version if needed
 
 ## Explicitly unfinished or limited
 
-- Public release of the new work: **not published**; paused for agent handoff.
+- Public release of the new work: **not published**; E3 is fixed locally,
+  pending final CI and publishing, now resumed by the maintainer.
 - Optional FMP adapter: blocked on the documented required licensing review,
   not silently marked complete.
 - Live keyed Alpha Vantage/Finnhub smoke tests require user-supplied credentials;
@@ -133,3 +143,23 @@ saved log is `/tmp/dividendendackel-final-0.65.7-gate.log`.
 Handoff-inclusive Markdown lint: **26 files, zero errors**. The 0.65.7 changelog
 has two entries. The diff was self-reviewed before the atomic documentation
 commit; no application logic changed in that commit.
+
+### Resumed iteration: 0.65.8 currency evidence
+
+**PASS**, 2026-09-16: all five widget regressions, all ten compiled API 29 Pixel
+journeys, all 683 tests, strict analysis, formatting, all ten Linux journeys,
+`minSdk 29`, both release builds and rendered Linux first frame. All nine
+version-checker counter-cases, Markdown lint and changelog checks also pass.
+Self-review is recorded in `worst_findings.md`. No financial calculation,
+provider data or localization pattern was changed; labels retain explicit
+native/converted units even without FX.
+
+Logs:
+
+- Before-fix Android reproduction:
+  `/tmp/dividendendackel-android-currency-before.log` (failed as expected).
+- Before-fix widget regressions:
+  `/tmp/dividendendackel-currency-units-red.log` (five failed as expected).
+- Complete Android 10 journeys:
+  `/tmp/dividendendackel-android-0.65.8-journeys.log`.
+- Full rendered local gate: `/tmp/dividendendackel-0.65.8-gate.log`.

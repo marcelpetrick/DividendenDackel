@@ -1,3 +1,4 @@
+import 'package:dividendendackel/app/widgets/gross_net_amount.dart';
 import 'package:dividendendackel/domain/entities/entities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -31,7 +32,10 @@ void registerFinancialJourneys() {
     await JourneyHarness.settle(tester);
 
     final Finder payment = find
-        .byKey(const ValueKey<String>('held-payment'))
+        .byWidgetPredicate(
+          (Widget widget) =>
+              widget is GrossNetAmount && widget.gross.currency == Currency.usd,
+        )
         .first;
     await tester.scrollUntilVisible(
       payment,
@@ -51,14 +55,10 @@ void registerFinancialJourneys() {
       ),
       findsWidgets,
     );
-    final Finder sourceCurrency = find.textContaining('USD');
-    await tester.scrollUntilVisible(
-      sourceCurrency,
-      300,
-      scrollable: find.byType(Scrollable).last,
-      maxScrolls: 30,
+    expect(
+      find.descendant(of: payment, matching: find.textContaining('USD')),
+      findsWidgets,
     );
-    expect(sourceCurrency, findsWidgets);
 
     await tester.tap(find.byTooltip('Settings'));
     await JourneyHarness.settle(tester);

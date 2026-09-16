@@ -21,7 +21,7 @@ class GrossNetAmount extends ConsumerWidget {
     final TaxEventEstimate? estimate =
         annual?.value?.byEventKey[dividendTaxEventKey(event)];
     final String net = switch (estimate?.result) {
-      DividendTaxBreakdown(:final Money net) => net.format(withSymbol: true),
+      DividendTaxBreakdown(:final Money net) => _formatAmount(net),
       UnsupportedTaxCalculation(:final String explanation) => explanation,
       _ when year == null => 'Payment date needed for annual allowance order.',
       _ => 'Calculating…',
@@ -30,7 +30,7 @@ class GrossNetAmount extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text.format('Gross {amount}', <String, Object?>{
-          'amount': gross.format(withSymbol: true),
+          'amount': _formatAmount(gross),
         }),
         Text.format('Net (estimated) {amount}', <String, Object?>{
           'amount': context.tr(net),
@@ -51,6 +51,10 @@ class GrossNetAmount extends ConsumerWidget {
       ],
     );
   }
+
+  static String _formatAmount(Money amount) => amount.currency.symbol == null
+      ? amount.format()
+      : '${amount.format(withSymbol: true)} ${amount.currency.code}';
 
   static String _date(DateTime value) =>
       '${value.year}-${value.month.toString().padLeft(2, '0')}-'

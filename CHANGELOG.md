@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ## [Unreleased]
 
+## [0.65.8] - 2026-09-16
+
+### Fixed
+
+- Held dividend gross and estimated net amounts now include their currency
+  codes, keeping native USD income distinct from converted EUR tax estimates.
+- The Android 10 currency journey checks the held dividend's own evidence;
+  unrelated desktop currency controls can no longer hide missing units.
+
 ## [0.65.7] - 2026-09-16
 
 ### Fixed

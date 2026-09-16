@@ -198,6 +198,9 @@ Each task names the `Vision.md` sections it satisfies.
 
 ## Delivery verification
 
+- [x] **E3** Release-blocking currency evidence regression: explicit gross/net
+      currency codes and an Android 10 journey scoped to the held USD dividend,
+      rather than unrelated desktop currency controls. — §9, §57, §79
 - [x] **E1** `integration_test` end-to-end coverage of the real flows: add a
       holding, see it in the portfolio, open the calendar, see a dividend
       event and the monthly forecast, go offline and still see data. Runs on

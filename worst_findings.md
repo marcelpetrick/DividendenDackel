@@ -1,5 +1,35 @@
 # Engineering self-review
 
+## 0.65.8 Android currency evidence review
+
+Base: `a612b11`<br>
+Review date: 2026-09-16
+
+### Findings
+
+#### 1. MEDIUM Code — gross/net currency labels
+
+Held amounts used symbols alone, so `$` did not explicitly identify USD and
+converted EUR net could be compared with native gross without clear units.
+Fixed by appending the exact currency code when a symbol is present, while
+preserving code-only currencies without duplication. Existing localized label
+patterns and all calculation/FX provenance paths remain unchanged.
+
+#### 2. MEDIUM Code — unrelated desktop evidence in the journey
+
+The global USD finder could match desktop currency controls, while the API 29
+phone collapsed those controls and had no USD text to find. Reproduced on the
+local API 29 Pixel, then fixed by locating the held USD `GrossNetAmount` and
+asserting its descendant labels rather than unrelated controls.
+
+### Verdict
+
+Five widget regressions cover English/German/Croatian, unavailable EUR FX and
+currencies without a symbol. All ten compiled Android 10 journeys pass locally.
+The full rendered pipeline also passes all 683 tests, Linux journeys, platform
+builds and the Linux first-frame smoke check. Final CI must pass before any
+public release.
+
 ## 0.65.5 documentation and release review
 
 Base: `v0.61.8` (`659aa53`)<br>
