@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 0.65.9+129
+version: 0.65.10+130
 
 environment:
   sdk: 3.13.3
@@ -41,7 +41,7 @@ dependencies:
   # Local SQLite persistence (Vision.md §35). drift_flutter supplies the
   # platform database directory and the bundled native sqlite3 for Android
   # and Linux.
-  drift: 2.35.0
+  drift: 2.35.2
   drift_flutter: 0.3.1
   # Native read-only import selection and Linux export dialogs. Android export
   # uses ACTION_CREATE_DOCUMENT because this plugin does not save there.
@@ -74,7 +74,7 @@ dependencies:
 
 dev_dependencies:
   build_runner: 2.16.1
-  drift_dev: 2.35.0
+  drift_dev: 2.35.1
   flutter_launcher_icons: 0.14.4
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
