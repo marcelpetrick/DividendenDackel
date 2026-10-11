@@ -12,8 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 - Dependencies move to their latest stable releases: Drift 2.35.2 with its
   code generator 2.35.1 (the database code is regenerated with it), secure
-  storage 11.2.0, go_router 18.0.2, Cupertino icons 2.0.0 and Android Gradle
-  Plugin 9.4.1.
+  storage 11.2.0, go_router 18.0.2, Cupertino icons 2.0.0, Android Gradle
+  Plugin 9.4.1 and Gradle 9.8.1.
 
 ## [0.65.9] - 2026-09-16
 
