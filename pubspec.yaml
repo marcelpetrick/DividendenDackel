@@ -70,7 +70,7 @@ dependencies:
   shared_preferences: 2.5.5
   # Opens publisher pages in the platform browser; article bodies are never
   # copied into the app (Vision.md §18). Supports Android and Linux.
-  url_launcher: 6.3.2
+  url_launcher: 6.3.3
 
 dev_dependencies:
   build_runner: 2.16.1
