@@ -101,7 +101,7 @@ jobs:
       - name: Run local pipeline (android stage)
         run: ./localPipeline.sh --noRun --stage android
 
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: dividend-tracker-android
           path: build/app/outputs/flutter-apk/app-release.apk
@@ -169,7 +169,7 @@ jobs:
       - name: Run real Linux portfolio journey
         run: xvfb-run -a ./localPipeline.sh --noRun --stage integration
 
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: dividend-tracker-linux-x86_64
           path: build/linux/x64/release/bundle
