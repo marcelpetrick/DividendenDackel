@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ### Changed
 
+- Refresh exact dependency pins after reviewing Dependabot #17–#22:
+  shared_preferences 2.5.5 → 2.5.6, build_runner 2.16.1 → 2.16.2,
+  package_info_plus 10.2.1 → 10.2.2, url_launcher 6.3.2 → 6.3.3,
+  Kotlin 2.4.20 → 2.4.21 and actions/upload-artifact 7.0.1 → 7.0.2
+  (pinned to the verified release commit). Also update
+  flutter_local_notifications 22.3.1 → 22.3.2.
 - Dependencies move to their latest stable releases: Drift 2.35.2 with its
   code generator 2.35.1 (the database code is regenerated with it), secure
   storage 11.2.0, go_router 18.0.2, Cupertino icons 2.0.0, Android Gradle
