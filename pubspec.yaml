@@ -67,7 +67,7 @@ dependencies:
   package_info_plus: 10.2.1
   # Small, non-sensitive app preferences shared by Android and Linux. Secrets
   # use platform-secure storage in F11 instead.
-  shared_preferences: 2.5.5
+  shared_preferences: 2.5.6
   # Opens publisher pages in the platform browser; article bodies are never
   # copied into the app (Vision.md §18). Supports Android and Linux.
   url_launcher: 6.3.2
