@@ -64,7 +64,7 @@ dependencies:
   http: 1.6.0
   # Reads the real version and build number from the installed package, so
   # the About screen can never disagree with the artifact (Vision.md §62).
-  package_info_plus: 10.2.1
+  package_info_plus: 10.2.2
   # Small, non-sensitive app preferences shared by Android and Linux. Secrets
   # use platform-secure storage in F11 instead.
   shared_preferences: 2.5.5
