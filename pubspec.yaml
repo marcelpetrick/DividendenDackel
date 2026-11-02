@@ -29,7 +29,7 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   # Stable SHA-256 row fingerprints make repeated imports idempotent.
-  crypto: 3.0.7
+  crypto: 3.0.8
   # RFC 4180-compatible parsing for local, previewed portfolio imports.
   csv: 8.0.0
   # The following adds the Cupertino Icons font to your application.
