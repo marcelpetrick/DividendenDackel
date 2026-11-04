@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ### Changed
 
+- Refresh the pinned Flutter packages and Android build tools to current compatible releases.
 - Refresh exact dependency pins after reviewing Dependabot #17–#22:
   shared_preferences 2.5.5 → 2.5.6, build_runner 2.16.1 → 2.16.2,
   package_info_plus 10.2.1 → 10.2.2, url_launcher 6.3.2 → 6.3.3,

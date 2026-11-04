@@ -16971,10 +16971,11 @@ class $$InstrumentsTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (providerMappingsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           DbInstrument,
                           $InstrumentsTable,
-                          DbProviderMapping
+                          DbProviderMapping,
+                          $ProviderMappingsTable
                         >(
                           currentTable: table,
                           referencedTable: $$InstrumentsTableReferences
@@ -16985,17 +16986,16 @@ class $$InstrumentsTableTableManager
                                 table,
                                 p0,
                               ).providerMappingsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.instrumentId == item.internalId,
-                              ),
+                          currentColumn: 'internal_id',
+                          referencedColumn: 'instrument_id',
                           typedResults: items,
                         ),
                       if (holdingsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           DbInstrument,
                           $InstrumentsTable,
-                          DbHolding
+                          DbHolding,
+                          $HoldingsTable
                         >(
                           currentTable: table,
                           referencedTable: $$InstrumentsTableReferences
@@ -17006,17 +17006,16 @@ class $$InstrumentsTableTableManager
                                 table,
                                 p0,
                               ).holdingsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.instrumentId == item.internalId,
-                              ),
+                          currentColumn: 'internal_id',
+                          referencedColumn: 'instrument_id',
                           typedResults: items,
                         ),
                       if (watchlistEntriesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           DbInstrument,
                           $InstrumentsTable,
-                          DbWatchlistEntry
+                          DbWatchlistEntry,
+                          $WatchlistEntriesTable
                         >(
                           currentTable: table,
                           referencedTable: $$InstrumentsTableReferences
@@ -17027,17 +17026,16 @@ class $$InstrumentsTableTableManager
                                 table,
                                 p0,
                               ).watchlistEntriesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.instrumentId == item.internalId,
-                              ),
+                          currentColumn: 'internal_id',
+                          referencedColumn: 'instrument_id',
                           typedResults: items,
                         ),
                       if (portfolioActivitiesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           DbInstrument,
                           $InstrumentsTable,
-                          DbPortfolioActivity
+                          DbPortfolioActivity,
+                          $PortfolioActivitiesTable
                         >(
                           currentTable: table,
                           referencedTable: $$InstrumentsTableReferences
@@ -17048,17 +17046,16 @@ class $$InstrumentsTableTableManager
                                 table,
                                 p0,
                               ).portfolioActivitiesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.instrumentId == item.internalId,
-                              ),
+                          currentColumn: 'internal_id',
+                          referencedColumn: 'instrument_id',
                           typedResults: items,
                         ),
                       if (quotesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           DbInstrument,
                           $InstrumentsTable,
-                          DbQuote
+                          DbQuote,
+                          $QuotesTable
                         >(
                           currentTable: table,
                           referencedTable: $$InstrumentsTableReferences
@@ -17069,17 +17066,16 @@ class $$InstrumentsTableTableManager
                                 table,
                                 p0,
                               ).quotesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.instrumentId == item.internalId,
-                              ),
+                          currentColumn: 'internal_id',
+                          referencedColumn: 'instrument_id',
                           typedResults: items,
                         ),
                       if (dividendEventsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           DbInstrument,
                           $InstrumentsTable,
-                          DbDividendEvent
+                          DbDividendEvent,
+                          $DividendEventsTable
                         >(
                           currentTable: table,
                           referencedTable: $$InstrumentsTableReferences
@@ -17090,17 +17086,16 @@ class $$InstrumentsTableTableManager
                                 table,
                                 p0,
                               ).dividendEventsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.instrumentId == item.internalId,
-                              ),
+                          currentColumn: 'internal_id',
+                          referencedColumn: 'instrument_id',
                           typedResults: items,
                         ),
                       if (earningsEventsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           DbInstrument,
                           $InstrumentsTable,
-                          DbEarningsEvent
+                          DbEarningsEvent,
+                          $EarningsEventsTable
                         >(
                           currentTable: table,
                           referencedTable: $$InstrumentsTableReferences
@@ -17111,17 +17106,16 @@ class $$InstrumentsTableTableManager
                                 table,
                                 p0,
                               ).earningsEventsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.instrumentId == item.internalId,
-                              ),
+                          currentColumn: 'internal_id',
+                          referencedColumn: 'instrument_id',
                           typedResults: items,
                         ),
                       if (corporateEventsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           DbInstrument,
                           $InstrumentsTable,
-                          DbCorporateEvent
+                          DbCorporateEvent,
+                          $CorporateEventsTable
                         >(
                           currentTable: table,
                           referencedTable: $$InstrumentsTableReferences
@@ -17132,17 +17126,16 @@ class $$InstrumentsTableTableManager
                                 table,
                                 p0,
                               ).corporateEventsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.instrumentId == item.internalId,
-                              ),
+                          currentColumn: 'internal_id',
+                          referencedColumn: 'instrument_id',
                           typedResults: items,
                         ),
                       if (newsInstrumentLinksRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           DbInstrument,
                           $InstrumentsTable,
-                          DbNewsInstrumentLink
+                          DbNewsInstrumentLink,
+                          $NewsInstrumentLinksTable
                         >(
                           currentTable: table,
                           referencedTable: $$InstrumentsTableReferences
@@ -17153,17 +17146,16 @@ class $$InstrumentsTableTableManager
                                 table,
                                 p0,
                               ).newsInstrumentLinksRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.instrumentId == item.internalId,
-                              ),
+                          currentColumn: 'internal_id',
+                          referencedColumn: 'instrument_id',
                           typedResults: items,
                         ),
                       if (filingsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           DbInstrument,
                           $InstrumentsTable,
-                          DbFiling
+                          DbFiling,
+                          $FilingsTable
                         >(
                           currentTable: table,
                           referencedTable: $$InstrumentsTableReferences
@@ -17174,17 +17166,16 @@ class $$InstrumentsTableTableManager
                                 table,
                                 p0,
                               ).filingsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.instrumentId == item.internalId,
-                              ),
+                          currentColumn: 'internal_id',
+                          referencedColumn: 'instrument_id',
                           typedResults: items,
                         ),
                       if (researchSnapshotsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           DbInstrument,
                           $InstrumentsTable,
-                          DbResearchSnapshot
+                          DbResearchSnapshot,
+                          $ResearchSnapshotsTable
                         >(
                           currentTable: table,
                           referencedTable: $$InstrumentsTableReferences
@@ -17195,17 +17186,16 @@ class $$InstrumentsTableTableManager
                                 table,
                                 p0,
                               ).researchSnapshotsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.instrumentId == item.internalId,
-                              ),
+                          currentColumn: 'internal_id',
+                          referencedColumn: 'instrument_id',
                           typedResults: items,
                         ),
                       if (alertRulesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           DbInstrument,
                           $InstrumentsTable,
-                          DbAlertRule
+                          DbAlertRule,
+                          $AlertRulesTable
                         >(
                           currentTable: table,
                           referencedTable: $$InstrumentsTableReferences
@@ -17216,10 +17206,8 @@ class $$InstrumentsTableTableManager
                                 table,
                                 p0,
                               ).alertRulesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.instrumentId == item.internalId,
-                              ),
+                          currentColumn: 'internal_id',
+                          referencedColumn: 'instrument_id',
                           typedResults: items,
                         ),
                     ];
@@ -18010,10 +17998,11 @@ class $$InvestmentPortfoliosTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (holdingsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           DbInvestmentPortfolio,
                           $InvestmentPortfoliosTable,
-                          DbHolding
+                          DbHolding,
+                          $HoldingsTable
                         >(
                           currentTable: table,
                           referencedTable: $$InvestmentPortfoliosTableReferences
@@ -18024,17 +18013,16 @@ class $$InvestmentPortfoliosTableTableManager
                                 table,
                                 p0,
                               ).holdingsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.portfolioId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'portfolio_id',
                           typedResults: items,
                         ),
                       if (watchlistEntriesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           DbInvestmentPortfolio,
                           $InvestmentPortfoliosTable,
-                          DbWatchlistEntry
+                          DbWatchlistEntry,
+                          $WatchlistEntriesTable
                         >(
                           currentTable: table,
                           referencedTable: $$InvestmentPortfoliosTableReferences
@@ -18045,17 +18033,16 @@ class $$InvestmentPortfoliosTableTableManager
                                 table,
                                 p0,
                               ).watchlistEntriesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.portfolioId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'portfolio_id',
                           typedResults: items,
                         ),
                       if (portfolioActivitiesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           DbInvestmentPortfolio,
                           $InvestmentPortfoliosTable,
-                          DbPortfolioActivity
+                          DbPortfolioActivity,
+                          $PortfolioActivitiesTable
                         >(
                           currentTable: table,
                           referencedTable: $$InvestmentPortfoliosTableReferences
@@ -18066,10 +18053,8 @@ class $$InvestmentPortfoliosTableTableManager
                                 table,
                                 p0,
                               ).portfolioActivitiesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.portfolioId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'portfolio_id',
                           typedResults: items,
                         ),
                     ];
@@ -23447,10 +23432,11 @@ class $$NewsItemsTableTableManager
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (newsInstrumentLinksRefs)
-                    await $_getPrefetchedData<
+                    await $_getPrefetchedDataByColumns<
                       DbNewsItem,
                       $NewsItemsTable,
-                      DbNewsInstrumentLink
+                      DbNewsInstrumentLink,
+                      $NewsInstrumentLinksTable
                     >(
                       currentTable: table,
                       referencedTable: $$NewsItemsTableReferences
@@ -23461,8 +23447,8 @@ class $$NewsItemsTableTableManager
                             table,
                             p0,
                           ).newsInstrumentLinksRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.newsId == item.id),
+                      currentColumn: 'id',
+                      referencedColumn: 'news_id',
                       typedResults: items,
                     ),
                 ];
