@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/)
 
 ## [Unreleased]
 
+## [0.65.14] - 2026-11-05
+
 ### Changed
 
 - Refresh the pinned Flutter packages and Android build tools to current compatible releases.
